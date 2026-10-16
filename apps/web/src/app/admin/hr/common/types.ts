@@ -54,6 +54,8 @@ export interface TaskItem {
   completedAt?: string | null;
   createdAt?: string;
   updatedAt?: string;
+  pendingSync?: boolean;
+  clientId?: string;
 }
 
 export interface AttendanceItem {
@@ -70,6 +72,8 @@ export interface AttendanceItem {
   notes?: string | null;
   createdAt?: string;
   updatedAt?: string;
+  pendingSync?: boolean;
+  clientId?: string;
 }
 
 export interface PayrollDailyDetail {
