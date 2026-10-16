@@ -52,6 +52,9 @@ describe('Sync API E2E (POST /api/v1/sync/batch)', () => {
     await prisma.activity.deleteMany();
     await prisma.attendance.deleteMany();
     await prisma.task.deleteMany();
+    await prisma.animalEvent.deleteMany();
+    await prisma.animal.deleteMany();
+    await prisma.animalGroup.deleteMany();
     await prisma.cycle.deleteMany();
     await prisma.area.deleteMany();
     await prisma.employee.deleteMany();
@@ -192,6 +195,7 @@ describe('Sync API E2E (POST /api/v1/sync/batch)', () => {
 
   afterAll(async () => {
     await app?.close();
+    await prisma.$disconnect();
   });
 
   describe('1. Phân quyền truy cập (RBAC)', () => {
