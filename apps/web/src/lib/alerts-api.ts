@@ -150,7 +150,6 @@ export async function getAlerts(params: QueryAlertsParams = {}): Promise<Paginat
 
 export async function markAlertAsRead(id: string): Promise<void> {
   await apiFetch(`/alerts/${id}/read`, { method: 'PATCH' });
-  notifyAlertsUpdated(-1);
 }
 
 export async function markAllAlertsAsRead(): Promise<void> {

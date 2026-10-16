@@ -13,6 +13,7 @@ import {
   getAlerts,
   markAlertAsRead,
   markAllAlertsAsRead,
+  notifyAlertsUpdated,
   runInventoryCheck,
 } from '@/lib/alerts-api';
 import { useAdminUser } from '../admin-user-context';
@@ -73,6 +74,7 @@ export default function AlertsPage() {
   const handleMarkAsRead = async (id: string) => {
     try {
       await markAlertAsRead(id);
+      notifyAlertsUpdated(-1);
       showToast('Đã đánh dấu đã đọc');
       setAlerts((prev) =>
         prev.map((a) => (a.id === id ? { ...a, readAt: new Date().toISOString() } : a)),
