@@ -70,12 +70,14 @@ services:
       AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD:-xfarm_minio_secret}
       AWS_DEFAULT_REGION: us-east-1
       MINIO_BUCKET: ${MINIO_BUCKET:-xfarm-media}
+      WEB_URL: ${WEB_URL:-http://localhost:3100}
     entrypoint:
       - /bin/sh
       - -c
       - |
         aws --endpoint-url http://minio:9000 s3 mb s3://$${MINIO_BUCKET:-xfarm-media} || true
         aws --endpoint-url http://minio:9000 s3api put-bucket-policy --bucket $${MINIO_BUCKET:-xfarm-media} --policy '{"Version":"2012-10-17","Statement":[{"Sid":"PublicRead","Effect":"Allow","Principal":"*","Action":["s3:GetObject"],"Resource":["arn:aws:s3:::'"$${MINIO_BUCKET:-xfarm-media}"'/*"]}]}' || true
+        aws --endpoint-url http://minio:9000 s3api put-bucket-cors --bucket $${MINIO_BUCKET:-xfarm-media} --cors-configuration '{"CORSRules":[{"AllowedOrigins":["'"$${WEB_URL:-http://localhost:3100}"'","http://localhost:*"],"AllowedMethods":["PUT","GET","HEAD"],"AllowedHeaders":["*"],"ExposeHeaders":["ETag"]}]}' || true
         echo 'Bucket created successfully'
 
 volumes:
