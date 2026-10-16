@@ -286,4 +286,84 @@ describe('activity UI', () => {
     );
     expect(screen.queryByRole('columnheader', { name: 'Giá vốn' })).not.toBeInTheDocument();
   });
+
+  it('renders harvest-specific fields and submits harvest payload', async () => {
+    const { apiFetch } = await import('@/lib/api');
+    vi.mocked(apiFetch).mockResolvedValueOnce({
+      data: {
+        id: 'act-harvest-1',
+        type: ActivityType.HARVEST,
+        harvestLot: { id: 'hl-1', code: 'HL-2026-0001' },
+      },
+    });
+
+    const mockProduceItems: AvailableItem[] = [
+      ...mockItems,
+      {
+        id: 'item-melon',
+        sku: 'MELON-01',
+        name: 'Dưa lưới Huỳnh Long',
+        category: 'PRODUCE',
+        unit: 'kg',
+        currentStock: 0,
+      },
+    ];
+
+    const mockWarehouses = [{ id: 'wh-main', code: 'KHO-CHINH', name: 'Kho nông sản chính' }];
+
+    const onSaved = vi.fn();
+    const user = userEvent.setup();
+    render(
+      <ActivityForm
+        areas={[{ id: 'area-1', code: 'A1', name: 'Khu A' }]}
+        cycles={[
+          {
+            id: 'cycle-1',
+            code: 'C1',
+            name: 'Vụ Dưa 2026',
+            areaId: 'area-1',
+            status: CycleStatus.ACTIVE,
+          },
+        ]}
+        initialCycleId="cycle-1"
+        availableItems={mockProduceItems}
+        warehouses={mockWarehouses}
+        onSaved={onSaved}
+      />,
+    );
+
+    await user.selectOptions(screen.getByLabelText('Loại nhật ký *'), ActivityType.HARVEST);
+
+    expect(screen.getByText('Thông tin thu hoạch & Nhập kho')).toBeInTheDocument();
+    expect(screen.getByLabelText('Sản phẩm thu hoạch *')).toBeInTheDocument();
+    expect(screen.getByLabelText('Kho nhập *')).toBeInTheDocument();
+    expect(screen.getByLabelText('Số lượng thu hoạch *')).toBeInTheDocument();
+    expect(screen.getByLabelText('Đơn vị tính *')).toBeInTheDocument();
+    expect(screen.getByLabelText('Phân loại chất lượng')).toBeInTheDocument();
+    expect(screen.getByLabelText('Chứng nhận')).toBeInTheDocument();
+    expect(screen.getByLabelText('Công khai truy xuất')).toBeInTheDocument();
+
+    await user.selectOptions(screen.getByLabelText('Sản phẩm thu hoạch *'), 'item-melon');
+    expect(screen.getByLabelText('Đơn vị tính *')).toHaveValue('kg');
+
+    await user.selectOptions(screen.getByLabelText('Kho nhập *'), 'wh-main');
+    await user.type(screen.getByLabelText('Số lượng thu hoạch *'), '50');
+    await user.type(screen.getByLabelText('Phân loại chất lượng'), 'Loại 1');
+    await user.type(screen.getByLabelText('Chứng nhận'), 'VietGAP');
+    await user.click(screen.getByLabelText('Công khai truy xuất'));
+
+    await user.click(screen.getByRole('button', { name: /lưu nhật ký/i }));
+
+    await waitFor(() => {
+      expect(onSaved).toHaveBeenCalled();
+    });
+
+    expect(vi.mocked(apiFetch)).toHaveBeenCalledWith(
+      '/activities',
+      expect.objectContaining({
+        method: 'POST',
+        body: expect.stringContaining('"type":"HARVEST"'),
+      }),
+    );
+  });
 });
