@@ -19,4 +19,5 @@ export * from './schemas/product';
 export * from './schemas/post';
 export * from './schemas/page';
 export * from './schemas/site-setting';
+export * from './schemas/trace';
 export * from './types';

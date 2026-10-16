@@ -103,6 +103,7 @@ async function main() {
       '/public/products',
       '/public/posts',
       '/public/site-settings',
+      '/public/trace/DEMO000001',
     ];
 
     for (const route of routes) {

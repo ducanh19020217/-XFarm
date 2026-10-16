@@ -19,6 +19,7 @@ import { InventoryModule } from './modules/inventory/inventory.module';
 import { StockModule } from './modules/stock/stock.module';
 import { HarvestLotsModule } from './modules/harvest-lots/harvest-lots.module';
 import { CmsModule } from './modules/cms/cms.module';
+import { PublicTraceModule } from './modules/public-trace/public-trace.module';
 import { SequenceModule } from './common/sequence/sequence.module';
 
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
@@ -51,6 +52,7 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
     StockModule,
     HarvestLotsModule,
     CmsModule,
+    PublicTraceModule,
   ],
   providers: [
     {
