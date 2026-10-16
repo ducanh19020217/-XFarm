@@ -7,6 +7,9 @@ import {
   ActivityType,
   ItemCategory,
   StockMoveType,
+  PayType,
+  TaskStatus,
+  PayrollStatus,
 } from '@prisma/client';
 import * as argon2 from 'argon2';
 import { Prisma } from '@prisma/client';
@@ -590,6 +593,210 @@ async function main() {
       console.log(`Updated activity ${act.type} for cycle ${act.cycleId}`);
     }
   }
+
+  // 4. Seed HR (Phase 6): 5 employees, 6 tasks for this week, 5-day attendance for DAILY workers
+  console.log('Seeding HR data...');
+  const employeeData = [
+    {
+      code: 'NV-0001',
+      fullName: 'Nguyễn Văn An',
+      phone: '0901234561',
+      position: 'Công nhân trồng trọt',
+      payType: PayType.DAILY,
+      baseRate: 300000,
+      isActive: true,
+    },
+    {
+      code: 'NV-0002',
+      fullName: 'Trần Thị Bình',
+      phone: '0901234562',
+      position: 'Công nhân chăn nuôi',
+      payType: PayType.DAILY,
+      baseRate: 300000,
+      isActive: true,
+    },
+    {
+      code: 'NV-0003',
+      fullName: 'Lê Văn Cường',
+      phone: '0901234563',
+      position: 'Kỹ thuật viên nông nghiệp',
+      payType: PayType.MONTHLY,
+      baseRate: 8000000,
+      isActive: true,
+    },
+    {
+      code: 'NV-0004',
+      fullName: 'Phạm Thị Dung',
+      phone: '0901234564',
+      position: 'Công nhân thu hoạch',
+      payType: PayType.PIECE,
+      baseRate: 2000,
+      isActive: true,
+    },
+    {
+      code: 'NV-0005',
+      fullName: 'Hoàng Văn Em',
+      phone: '0901234565',
+      position: 'Công nhân đóng gói',
+      payType: PayType.PIECE,
+      baseRate: 2000,
+      isActive: true,
+    },
+  ];
+
+  const employees: Record<string, any> = {};
+  for (const emp of employeeData) {
+    const record = await prisma.employee.upsert({
+      where: { code: emp.code },
+      update: {
+        fullName: emp.fullName,
+        phone: emp.phone,
+        position: emp.position,
+        payType: emp.payType,
+        baseRate: emp.baseRate,
+        isActive: emp.isActive,
+      },
+      create: emp,
+    });
+    employees[emp.code] = record;
+    console.log(`Seeded employee: ${record.code} - ${record.fullName} (${record.payType})`);
+  }
+
+  // Link worker@xfarm.local to NV-0001 (DAILY)
+  await prisma.user.update({
+    where: { email: 'worker@xfarm.local' },
+    data: { employeeId: employees['NV-0001'].id },
+  });
+  console.log(`Linked worker@xfarm.local to employee NV-0001`);
+
+  await ensureSequence('NV', 0, 5);
+
+  // 6 tasks for this week (attached to seed cycles)
+  const now = new Date();
+  const baseDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const dayMs = 24 * 60 * 60 * 1000;
+
+  const tasksData = [
+    {
+      clientId: 'seed-task-crop-watering',
+      title: 'Tưới nước và kiểm tra độ ẩm luống rau',
+      description: 'Tưới nước hệ thống phun sương cho lô rau cải',
+      assigneeId: employees['NV-0001'].id,
+      areaId: loRau1.id,
+      cycleId: cycleCrop.id,
+      dueDate: new Date(baseDate.getTime() - 2 * dayMs + 9 * 3600 * 1000),
+      status: TaskStatus.DONE,
+      completedAt: new Date(baseDate.getTime() - 2 * dayMs + 10 * 3600 * 1000),
+    },
+    {
+      clientId: 'seed-task-crop-fertilizing',
+      title: 'Bón phân hữu cơ định kỳ đợt 1',
+      description: 'Bón thúc NPK pha loãng theo tỷ lệ chuẩn',
+      assigneeId: employees['NV-0001'].id,
+      areaId: loRau1.id,
+      cycleId: cycleCrop.id,
+      dueDate: new Date(baseDate.getTime() - 1 * dayMs + 14 * 3600 * 1000),
+      status: TaskStatus.DONE,
+      completedAt: new Date(baseDate.getTime() - 1 * dayMs + 15 * 3600 * 1000),
+    },
+    {
+      clientId: 'seed-task-livestock-feeding',
+      title: 'Cho gà ăn cám hỗn hợp và kiểm tra máng uống',
+      description: 'Vệ sinh máng ăn, bổ sung cám gà và vitamin C',
+      assigneeId: employees['NV-0002'].id,
+      areaId: chuongGa1.id,
+      cycleId: cycleLivestock.id,
+      dueDate: new Date(baseDate.getTime() + 8 * 3600 * 1000),
+      status: TaskStatus.IN_PROGRESS,
+    },
+    {
+      clientId: 'seed-task-aqua-water-check',
+      title: 'Đo nồng độ oxy hòa tan và pH ao cá',
+      description: 'Đo thông số môi trường nước ao cá rô phi buổi sáng',
+      assigneeId: employees['NV-0003'].id,
+      areaId: aoCa1.id,
+      cycleId: cycleAqua.id,
+      dueDate: new Date(baseDate.getTime() + 1 * dayMs + 7 * 3600 * 1000),
+      status: TaskStatus.TODO,
+    },
+    {
+      clientId: 'seed-task-crop-weeding',
+      title: 'Làm cỏ và tỉa lá già luống rau 1',
+      description: 'Làm sạch cỏ dại xung quanh luống rau cải',
+      assigneeId: employees['NV-0004'].id,
+      areaId: loRau1.id,
+      cycleId: cycleCrop.id,
+      dueDate: new Date(baseDate.getTime() + 2 * dayMs + 8 * 3600 * 1000),
+      status: TaskStatus.TODO,
+    },
+    {
+      clientId: 'seed-task-crop-harvest-prep',
+      title: 'Chuẩn bị giỏ thu hoạch và dụng cụ phân loại',
+      description: 'Khử trùng giỏ nhựa và chuẩn bị cân điện tử',
+      assigneeId: employees['NV-0005'].id,
+      areaId: loRau1.id,
+      cycleId: cycleCrop.id,
+      dueDate: new Date(baseDate.getTime() + 3 * dayMs + 16 * 3600 * 1000),
+      status: TaskStatus.TODO,
+    },
+  ];
+
+  for (const t of tasksData) {
+    await prisma.task.upsert({
+      where: { clientId: t.clientId },
+      update: {
+        title: t.title,
+        description: t.description,
+        assigneeId: t.assigneeId,
+        areaId: t.areaId,
+        cycleId: t.cycleId,
+        dueDate: t.dueDate,
+        status: t.status,
+        completedAt: t.completedAt ?? null,
+      },
+      create: t,
+    });
+    console.log(`Seeded task: ${t.title} (${t.status})`);
+  }
+
+  // Chấm công 5 ngày gần nhất cho các nhân viên DAILY
+  const dailyEmployees = [employees['NV-0001'], employees['NV-0002']];
+  for (let i = 4; i >= 0; i--) {
+    const attendanceDate = new Date(baseDate.getTime() - i * dayMs);
+    const dateStr = attendanceDate.toISOString().split('T')[0];
+
+    for (const emp of dailyEmployees) {
+      const cycleId = emp.code === 'NV-0001' ? cycleCrop.id : cycleLivestock.id;
+      const clientId = `seed-attendance-${emp.code}-${dateStr}`;
+
+      const checkInTime = new Date(`${dateStr}T07:30:00+07:00`);
+      const checkOutTime = new Date(`${dateStr}T16:30:00+07:00`);
+
+      await prisma.attendance.upsert({
+        where: { clientId },
+        update: {
+          employeeId: emp.id,
+          date: new Date(`${dateStr}T00:00:00Z`),
+          checkIn: checkInTime,
+          checkOut: checkOutTime,
+          hours: new Prisma.Decimal('8.00'),
+          cycleId,
+          notes: 'Chấm công ca chuẩn 8 giờ',
+        },
+        create: {
+          clientId,
+          employeeId: emp.id,
+          date: new Date(`${dateStr}T00:00:00Z`),
+          checkIn: checkInTime,
+          checkOut: checkOutTime,
+          hours: new Prisma.Decimal('8.00'),
+          cycleId,
+          notes: 'Chấm công ca chuẩn 8 giờ',
+        },
+      });
+    }
+  }
+  console.log('Seeded 5-day attendance for DAILY employees');
 
   console.log('Seed completed successfully!');
 }
