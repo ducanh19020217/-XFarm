@@ -12,6 +12,7 @@ import { ActivitiesModule } from './modules/activities/activities.module';
 import { AnimalsModule } from './modules/animals/animals.module';
 import { CalendarModule } from './modules/calendar/calendar.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
+import { StockModule } from './modules/stock/stock.module';
 import { SequenceModule } from './common/sequence/sequence.module';
 
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
@@ -37,6 +38,7 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
     AnimalsModule,
     CalendarModule,
     InventoryModule,
+    StockModule,
   ],
   providers: [
     {

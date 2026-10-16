@@ -87,6 +87,9 @@ async function main() {
       '/animal-groups',
       '/animals',
       `/calendar?month=${new Date().toISOString().slice(0, 7)}`,
+      '/stock/balances',
+      '/stock/moves',
+      '/stock/documents',
     ];
 
     for (const route of routes) {
