@@ -19,8 +19,7 @@ export class PayrollsController {
   @Post('generate')
   @Roles(Role.OWNER, Role.ACCOUNTANT)
   async generate(@Body() dto: GeneratePayrollDto) {
-    const data = await this.payrollsService.generate(dto);
-    return { data };
+    return this.payrollsService.generate(dto);
   }
 
   @Get()

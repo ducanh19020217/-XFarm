@@ -36,10 +36,10 @@ export class PayrollsService {
     const start = toDateOnly(dto.periodStart);
     const end = toDateOnly(dto.periodEnd);
 
-    const whereEmployee =
-      dto.employeeIds && dto.employeeIds.length > 0
-        ? { id: { in: dto.employeeIds } }
-        : { isActive: true };
+    const isExplicitEmployeeList = Boolean(dto.employeeIds && dto.employeeIds.length > 0);
+    const whereEmployee = isExplicitEmployeeList
+      ? { id: { in: dto.employeeIds } }
+      : { isActive: true };
 
     const employees = await prisma.employee.findMany({
       where: whereEmployee,
@@ -47,30 +47,43 @@ export class PayrollsService {
     });
 
     if (employees.length === 0) {
-      return [];
+      return {
+        data: [],
+        skipped: [],
+        skippedCount: 0,
+      };
     }
 
-    const existingPayrolls = await prisma.payroll.findMany({
-      where: {
-        employeeId: { in: employees.map((e) => e.id) },
-        periodStart: start,
-        periodEnd: end,
-      },
-    });
+    return prisma.$transaction(async (tx) => {
+      const existingPayrolls = await tx.payroll.findMany({
+        where: {
+          employeeId: { in: employees.map((e) => e.id) },
+          periodStart: start,
+          periodEnd: end,
+        },
+        include: payrollInclude,
+      });
 
-    const approved = existingPayrolls.find(
-      (p) => p.status === PayrollStatus.APPROVED || p.status === PayrollStatus.PAID,
-    );
-    if (approved) {
-      throw new UnprocessableEntityException(
-        'Bảng lương trong kỳ đã được phê duyệt hoặc thanh toán, không thể tạo đè',
+      const skipped = existingPayrolls.filter(
+        (p) => p.status === PayrollStatus.APPROVED || p.status === PayrollStatus.PAID,
       );
-    }
+      const lockedEmployeeIds = new Set(skipped.map((p) => p.employeeId));
 
-    const results = [];
+      if (
+        isExplicitEmployeeList &&
+        employees.length > 0 &&
+        employees.every((e) => lockedEmployeeIds.has(e.id))
+      ) {
+        throw new UnprocessableEntityException(
+          'Bảng lương trong kỳ đã được phê duyệt hoặc thanh toán, không thể tạo đè',
+        );
+      }
 
-    for (const emp of employees) {
-      const attendances = await prisma.attendance.findMany({
+      const employeesToProcess = employees.filter((e) => !lockedEmployeeIds.has(e.id));
+      const results = [];
+
+      for (const emp of employeesToProcess) {
+        const attendances = await tx.attendance.findMany({
         where: {
           employeeId: emp.id,
           date: {
@@ -291,7 +304,7 @@ export class PayrollsService {
       const existing = existingPayrolls.find((p) => p.employeeId === emp.id);
       let saved;
       if (existing) {
-        saved = await prisma.payroll.update({
+        saved = await tx.payroll.update({
           where: { id: existing.id },
           data: {
             amount: totalAmountDecimal,
@@ -301,7 +314,7 @@ export class PayrollsService {
           include: payrollInclude,
         });
       } else {
-        saved = await prisma.payroll.create({
+        saved = await tx.payroll.create({
           data: {
             employeeId: emp.id,
             periodStart: start,
@@ -316,8 +329,13 @@ export class PayrollsService {
       results.push(saved);
     }
 
-    return results;
-  }
+    return {
+      data: results,
+      skipped,
+      skippedCount: skipped.length,
+    };
+  });
+}
 
   async findAll(query: QueryPayrollDto) {
     const { page, pageSize, search, sort, status, employeeId, periodStart, periodEnd, period } =
