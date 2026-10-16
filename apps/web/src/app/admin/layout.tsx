@@ -21,9 +21,11 @@ import {
   LogOut,
   Menu,
   X,
+  Bell,
 } from 'lucide-react';
 import { Button, StatusBadge, Badge } from '@xfarm/ui';
 import { apiFetch, isAbortError } from '@/lib/api';
+import { NotificationBell } from '@/components/alerts/notification-bell';
 import { AdminUserProvider, type AdminUser } from './admin-user-context';
 
 type UserProfile = AdminUser;
@@ -78,9 +80,9 @@ const navItems: NavItem[] = [
     icon: Calendar,
     isReady: true,
   },
-  { title: 'Kho', href: '/admin/inventory', icon: Boxes, isReady: false },
-  { title: 'Mua hàng', href: '/admin/purchase-orders', icon: ShoppingCart, isReady: false },
-  { title: 'Cảnh báo', href: '/admin/alerts', icon: Boxes, isReady: false },
+  { title: 'Kho', href: '/admin/inventory', icon: Boxes, isReady: true },
+  { title: 'Mua hàng', href: '/admin/purchase-orders', icon: ShoppingCart, isReady: true },
+  { title: 'Cảnh báo', href: '/admin/alerts', icon: Bell, isReady: true },
   {
     title: 'Thu hoạch & Truy xuất',
     href: '/admin/harvest',
@@ -269,6 +271,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
 
             <div className="flex items-center gap-3">
+              <NotificationBell />
               {user && (
                 <div className="hidden sm:flex sm:items-center sm:gap-2 text-sm text-slate-600 dark:text-slate-400">
                   <span>

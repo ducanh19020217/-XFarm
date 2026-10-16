@@ -26,12 +26,25 @@ export interface ActivityMedia {
   alt?: string | null;
 }
 
-export interface ActivityMaterial {
+export interface ActivityMaterialItem {
+  id?: string;
+  itemId: string;
+  itemName?: string;
+  item?: { id: string; name: string; sku?: string; unit?: string; category?: string };
+  stockLotId?: string | null;
+  quantity: number | string;
+  unit?: string;
+  unitCost?: number | string;
+}
+
+export interface AvailableItem {
   id: string;
-  quantity: string | number;
-  unitCost: string | number;
-  item: { id: string; name: string; unit: string };
-  stockLot?: { id: string; lotCode: string } | null;
+  sku?: string;
+  name: string;
+  category: string;
+  unit: string;
+  currentStock: number;
+  warehouseId?: string;
 }
 
 export interface ActivityRecord {
@@ -44,7 +57,7 @@ export interface ActivityRecord {
   cycle?: ActivityCycle | null;
   performedBy?: { id: string; fullName: string; email: string } | null;
   media?: ActivityMedia[];
-  materials?: ActivityMaterial[];
+  materials?: ActivityMaterialItem[];
 }
 
 export interface ActivityListResponse {

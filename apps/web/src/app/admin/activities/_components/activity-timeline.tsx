@@ -1,12 +1,37 @@
 'use client';
 
+import * as React from 'react';
 import { ActivityType } from '@xfarm/shared';
 import { activityIcons, activitySummary, activityTypeLabels } from './constants';
+import { useAdminUser } from '../../admin-user-context';
 import type { ActivityRecord } from './types';
 
-export function ActivityTimeline({ activities }: { activities: ActivityRecord[] }) {
+function formatCost(cost?: number | string | null) {
+  if (cost == null) return '';
+  const num = Number(cost);
+  if (isNaN(num)) return '';
+  return new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
+  }).format(num);
+}
+
+export interface ActivityTimelineProps {
+  activities: ActivityRecord[];
+  canViewCost?: boolean;
+}
+
+export function ActivityTimeline({
+  activities,
+  canViewCost: propCanViewCost,
+}: ActivityTimelineProps) {
+  const user = useAdminUser();
+  const canViewCost =
+    propCanViewCost ?? Boolean(user && ['OWNER', 'MANAGER', 'ACCOUNTANT'].includes(user.role));
+
   if (!activities.length)
     return <p className="text-sm text-slate-500">Chưa có nhật ký hoạt động.</p>;
+
   return (
     <div className="space-y-4">
       {activities.map((activity) => (
@@ -29,17 +54,32 @@ export function ActivityTimeline({ activities }: { activities: ActivityRecord[] 
               {activity.performedBy?.fullName ?? 'Chưa rõ người ghi'}
             </p>
             {activity.notes && <p className="mt-1 text-sm text-slate-500">{activity.notes}</p>}
-            {activity.materials?.length ? (
-              <div className="mt-2 rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-900">
-                <span className="font-medium">Vật tư đã xuất:</span>{' '}
-                {activity.materials
-                  .map(
-                    (material) =>
-                      `${material.item.name} ${material.quantity} ${material.item.unit} (${new Intl.NumberFormat('vi-VN').format(Number(material.unitCost))} đ/${material.item.unit})`,
-                  )
-                  .join('; ')}
+
+            {activity.materials && activity.materials.length > 0 && (
+              <div className="mt-2 rounded-md bg-slate-50 p-2.5 text-xs text-slate-700">
+                <span className="font-medium text-slate-800">Vật tư đã dùng:</span>
+                <ul className="mt-1 space-y-0.5">
+                  {activity.materials.map((mat, idx) => {
+                    const name = mat.itemName || mat.item?.name || 'Vật tư';
+                    const unit = mat.unit || mat.item?.unit || '';
+                    const showCost = canViewCost && mat.unitCost != null;
+                    return (
+                      <li key={mat.id || `${mat.itemId}-${idx}`} className="flex flex-wrap gap-1">
+                        <span>
+                          • {name}: <strong className="font-medium">{mat.quantity}</strong> {unit}
+                        </span>
+                        {showCost && (
+                          <span className="text-slate-500">
+                            (Giá vốn: {formatCost(mat.unitCost)})
+                          </span>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
               </div>
-            ) : null}
+            )}
+
             {activity.media?.length ? (
               <div className="mt-2 flex gap-2">
                 {activity.media.slice(0, 4).map((media) => (
