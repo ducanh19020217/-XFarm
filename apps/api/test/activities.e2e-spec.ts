@@ -16,6 +16,7 @@ import request from 'supertest';
 import cookieParser from 'cookie-parser';
 import { prisma, Prisma } from '@xfarm/db';
 import { AppModule } from '../src/app.module';
+import { cleanupDatabase } from './helpers/cleanup';
 
 describe('Activities API E2E', () => {
   let app: INestApplication;
@@ -44,21 +45,7 @@ describe('Activities API E2E', () => {
   }
 
   beforeAll(async () => {
-    await prisma.activity.deleteMany();
-    await prisma.activityMaterial.deleteMany();
-    await prisma.stockMove.deleteMany();
-    await prisma.stockLot.deleteMany();
-    await prisma.item.deleteMany();
-    await prisma.warehouse.deleteMany();
-    await prisma.animalEvent.deleteMany();
-    await prisma.animal.deleteMany();
-    await prisma.animalGroup.deleteMany();
-    await prisma.cycle.deleteMany();
-    await prisma.area.deleteMany();
-    await prisma.auditLog.deleteMany();
-    await prisma.refreshToken.deleteMany();
-    await prisma.media.deleteMany();
-    await prisma.user.deleteMany();
+    await cleanupDatabase(prisma);
 
     const passwordHash = await import('argon2').then((argon2) => argon2.hash('Admin@123'));
     const owner = await prisma.user.create({

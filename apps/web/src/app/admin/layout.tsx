@@ -85,10 +85,14 @@ const navItems: NavItem[] = [
   { title: 'Cảnh báo', href: '/admin/alerts', icon: Bell, isReady: true },
   {
     title: 'Thu hoạch & Truy xuất',
-    href: '/admin/harvest',
+    href: '/admin/harvest-lots',
     icon: QrCode,
-    isReady: false,
+    isReady: true,
   },
+  { title: 'Website · Sản phẩm', href: '/admin/cms/products', icon: Compass, isReady: true },
+  { title: 'Website · Bài viết', href: '/admin/cms/posts', icon: ClipboardList, isReady: true },
+  { title: 'Website · Trang', href: '/admin/cms/pages', icon: ClipboardList, isReady: true },
+  { title: 'Website · Cài đặt', href: '/admin/cms/settings', icon: ClipboardList, isReady: true },
   {
     title: 'Bán hàng & CRM',
     href: '/admin/sales',

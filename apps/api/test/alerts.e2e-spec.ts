@@ -15,6 +15,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import cookieParser from 'cookie-parser';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
+import { cleanupDatabase } from './helpers/cleanup';
 
 describe('Alerts API E2E', () => {
   let app: INestApplication;
@@ -30,6 +31,9 @@ describe('Alerts API E2E', () => {
   }
 
   beforeAll(async () => {
+    const { prisma } = await import('@xfarm/db');
+    await cleanupDatabase(prisma);
+
     // 1. Sync and seed test database
     execSync(
       `DATABASE_URL="${testDbUrl}" pnpm --filter @xfarm/db exec prisma db push --skip-generate --accept-data-loss`,
@@ -38,9 +42,6 @@ describe('Alerts API E2E', () => {
     execSync(`DATABASE_URL="${testDbUrl}" pnpm --filter @xfarm/db exec tsx prisma/seed.ts`, {
       stdio: 'pipe',
     });
-
-    const { prisma } = await import('@xfarm/db');
-    await prisma.alert.deleteMany();
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],

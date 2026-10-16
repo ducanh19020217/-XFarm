@@ -10,6 +10,7 @@ process.env.NODE_ENV = 'test';
 
 import { prisma, Prisma } from '@xfarm/db';
 import { InventoryService } from '../src/modules/inventory/inventory.service';
+import { cleanupDatabase } from './helpers/cleanup';
 
 describe('InventoryService E2E', () => {
   const service = new InventoryService();
@@ -18,10 +19,7 @@ describe('InventoryService E2E', () => {
   let secondWarehouseId: string;
 
   beforeEach(async () => {
-    await prisma.stockMove.deleteMany();
-    await prisma.stockLot.deleteMany();
-    await prisma.item.deleteMany();
-    await prisma.warehouse.deleteMany();
+    await cleanupDatabase(prisma);
     const item = await prisma.item.create({
       data: { sku: `INV-${Date.now()}`, name: 'Phân hữu cơ', category: 'FERTILIZER', unit: 'kg' },
     });

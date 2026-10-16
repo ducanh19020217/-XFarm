@@ -19,6 +19,7 @@ import request from 'supertest';
 import cookieParser from 'cookie-parser';
 import { AppModule } from '../src/app.module';
 import { SequenceService } from '../src/common/sequence/sequence.service';
+import { cleanupDatabase } from './helpers/cleanup';
 
 describe('XFarm API E2E Tests', () => {
   let app: INestApplication;
@@ -29,11 +30,7 @@ describe('XFarm API E2E Tests', () => {
     const { prisma } = await import('@xfarm/db');
     const argon2 = await import('argon2');
 
-    await prisma.auditLog.deleteMany();
-    await prisma.refreshToken.deleteMany();
-    await prisma.media.deleteMany();
-    await prisma.sequence.deleteMany();
-    await prisma.user.deleteMany();
+    await cleanupDatabase(prisma);
 
     const passwordHash = await argon2.hash('Admin@123');
     const users = [

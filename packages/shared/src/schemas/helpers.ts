@@ -39,3 +39,13 @@ export const optionalBoolean = () =>
     if (value === 'false' || value === false) return false;
     return emptyToUndefined(value);
   }, z.boolean().optional());
+
+export const slugify = (value: string) =>
+  value
+    .trim()
+    .toLowerCase()
+    .replace(/đ/g, 'd')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');

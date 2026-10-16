@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { ActivityType } from '../types';
 import { paginationSchema } from './pagination';
 import { activityMaterialSchema } from './activity-material';
+import { optionalBoolean, optionalString } from './helpers';
 
 export const waterTestDataSchema = z.object({
   pH: z.coerce.number().min(0, 'pH tối thiểu là 0').max(14, 'pH tối đa là 14'),
@@ -62,7 +63,15 @@ export const activityDataSchemas: Record<ActivityType, z.ZodTypeAny> = {
   [ActivityType.WEEDING]: genericActivityDataSchema,
   [ActivityType.VACCINATION]: genericActivityDataSchema,
   [ActivityType.TREATMENT]: genericActivityDataSchema,
-  [ActivityType.HARVEST]: genericActivityDataSchema,
+  [ActivityType.HARVEST]: z.object({
+    itemId: z.string().min(1, 'Sản phẩm thu hoạch không được để trống'),
+    quantity: z.coerce.number().positive('Số lượng phải lớn hơn 0'),
+    unit: z.string().min(1, 'Đơn vị tính không được để trống'),
+    warehouseId: z.string().min(1, 'Kho không được để trống'),
+    qualityGrade: optionalString(),
+    certification: optionalString(),
+    isPublic: optionalBoolean(),
+  }),
   [ActivityType.CLEANING]: genericActivityDataSchema,
   [ActivityType.OTHER]: genericActivityDataSchema,
 };
