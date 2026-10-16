@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { PayType } from '../types';
 import { paginationSchema } from './pagination';
-import { optionalString, optionalNumber, optionalBoolean } from './helpers';
+import { optionalString, optionalBoolean } from './helpers';
 
 export const createEmployeeSchema = z.object({
   code: optionalString(),

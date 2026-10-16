@@ -83,6 +83,15 @@ describe('attendance schemas', () => {
     ).toThrow('Số giờ tối đa là 24');
   });
 
+  it('supports partial updates via updateAttendanceSchema', () => {
+    const updated = updateAttendanceSchema.parse({
+      hours: 7.5,
+      notes: 'Về sớm 30 phút có phép',
+    });
+    expect(updated.hours).toBe(7.5);
+    expect(updated.notes).toBe('Về sớm 30 phút có phép');
+  });
+
   it('parses queryAttendanceSchema with filters', () => {
     const query = queryAttendanceSchema.parse({
       employeeId: 'emp-1',
