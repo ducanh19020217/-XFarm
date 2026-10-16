@@ -195,14 +195,19 @@ export class ActivitiesService {
     }
   }
 
-  async create(dto: CreateActivityDto, userId: string, role: string) {
+  async create(
+    dto: CreateActivityDto,
+    userId: string,
+    role: string,
+    tx?: Prisma.TransactionClient,
+  ) {
     const data = parseActivityData(dto.type, dto.data);
     await this.mediaForIds(dto.mediaIds);
     await this.validateContext(dto.areaId, dto.cycleId, dto.type);
     const performedById = await this.resolvePerformedById(dto.performedById, userId, role);
 
-    const activity = await prisma.$transaction(async (tx) => {
-      const created = await tx.activity.create({
+    const runInTx = async (trx: Prisma.TransactionClient) => {
+      const created = await trx.activity.create({
         data: {
           cycleId: dto.cycleId ?? null,
           areaId: dto.areaId,
@@ -218,18 +223,20 @@ export class ActivitiesService {
         },
       });
       await this.issueMaterials(
-        tx,
+        trx,
         created.id,
         created.areaId,
         dto.materials,
         userId,
         created.performedAt,
       );
-      return tx.activity.findUniqueOrThrow({
+      return trx.activity.findUniqueOrThrow({
         where: { id: created.id },
         include: this.activityInclude,
       });
-    });
+    };
+
+    const activity = tx ? await runInTx(tx) : await prisma.$transaction(runInTx);
     return (await this.withMedia([activity]))[0];
   }
 

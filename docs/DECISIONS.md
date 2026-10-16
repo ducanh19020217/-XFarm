@@ -89,3 +89,15 @@ Tài liệu này ghi lại các quyết định thiết kế và kỹ thuật qu
   - Sử dụng `next/dynamic` với `ssr: false` để tải các thành phần bản đồ ở client-side nhằm tránh lỗi SSR do Leaflet yêu cầu đối tượng `window`.
 - **Hệ quả**:
   - Đảm bảo tính ổn định, dễ bảo trì, khả năng mở rộng tốt cho các giai đoạn tiếp theo (như cắt lô, chia luống, đo diện tích tự động).
+
+---
+
+### DECISION-011: Quy tắc tính giờ công từ check-in và check-out
+- **Bối cảnh**: Hệ thống chấm công cho phép WORKER tự chấm công vào và ra ca làm việc qua PWA hoặc API, yêu cầu tự động quy đổi thành số giờ công (`hours`) chuẩn xác cho bảng lương và giá thành mùa vụ.
+- **Quyết định**:
+  1. Thời gian làm việc thô: `rawHours = (checkOut - checkIn) / 3600000`.
+  2. Nghỉ trưa: Nếu ca làm việc kéo dài trên 6 giờ (`rawHours > 6`), tự động trừ 1 giờ nghỉ trưa (`netHours = rawHours - 1`); nếu ca làm việc <= 6 giờ thì giữ nguyên (`netHours = rawHours`).
+  3. Làm tròn: Số giờ làm việc thực tế được làm tròn theo bước 0,25 giờ (15 phút) gần nhất theo công thức `hours = Math.max(0, Math.round(netHours * 4) / 4)`.
+- **Hệ quả**:
+  - Đảm bảo tính nhất quán giữa chấm công và tính lương theo `payType` (DAILY, MONTHLY, PIECE).
+  - Ngăn ngừa tình trạng sai lệch số giờ công do thời gian quẹt thẻ chênh lệch vài phút.

@@ -5,6 +5,7 @@ export interface CurrentUserPayload {
   email: string;
   role: string;
   fullName: string;
+  employeeId?: string | null;
 }
 
 export const CurrentUser = createParamDecorator(

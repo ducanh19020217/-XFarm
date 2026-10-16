@@ -7,5 +7,6 @@ import { InventoryModule } from '../inventory/inventory.module';
   imports: [InventoryModule],
   controllers: [ActivitiesController],
   providers: [ActivitiesService],
+  exports: [ActivitiesService],
 })
 export class ActivitiesModule {}

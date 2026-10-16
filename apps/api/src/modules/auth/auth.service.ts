@@ -64,6 +64,7 @@ export class AuthService {
         fullName: user.fullName,
         role: user.role,
         isActive: user.isActive,
+        employeeId: user.employeeId,
       },
     };
   }
