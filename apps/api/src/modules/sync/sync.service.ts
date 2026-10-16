@@ -2,6 +2,7 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { ZodError } from 'zod';
 import { prisma, Prisma } from '@xfarm/db';
 import {
+  ActivityType,
   Role,
   TaskStatus,
   type SyncItem,
@@ -147,11 +148,34 @@ export class SyncService {
     const payload: Record<string, unknown> = { ...item.payload };
     payload.clientId = item.clientId;
     if (!payload.performedAt) {
-      payload.performedAt = item.createdAt;
+      payload.performedAt = payload.date || item.createdAt;
     }
     // Security: WORKER can only record activities for themselves
     if (user.role === Role.WORKER) {
       payload.performedById = user.id;
+    }
+    if (payload.quantity === '' || Number.isNaN(payload.quantity)) {
+      delete payload.quantity;
+    }
+
+    // Default required data for quick activities if missing
+    if (payload.type === ActivityType.IRRIGATION) {
+      const d = (payload.data as Record<string, unknown> | null | undefined) ?? {};
+      if (!d.durationMin || Number.isNaN(Number(d.durationMin))) {
+        payload.data = { ...d, durationMin: 30 };
+      }
+    } else if (payload.type === ActivityType.FEEDING) {
+      const d = (payload.data as Record<string, unknown> | null | undefined) ?? {};
+      if (!d.feedKg || Number.isNaN(Number(d.feedKg))) {
+        payload.data = { ...d, feedKg: 1 };
+      }
+    } else if (payload.type === ActivityType.WEIGHING) {
+      const d = (payload.data as Record<string, unknown> | null | undefined) ?? {};
+      if (!d.avgWeightKg || !d.sampleSize) {
+        payload.data = { ...d, avgWeightKg: d.avgWeightKg ?? 1, sampleSize: d.sampleSize ?? 1 };
+      }
+    } else if (!payload.data) {
+      payload.data = {};
     }
 
     const dto = createActivitySchema.parse(payload);
