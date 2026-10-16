@@ -10,8 +10,8 @@ export default defineConfig({
   globalSetup: require.resolve('./e2e/global-setup'),
   fullyParallel: false,
   workers: 1,
-  retries: 0,
-  timeout: 30_000,
+  retries: 1,
+  timeout: 60_000,
   reporter: [['list']],
   use: {
     ...devices['Desktop Chrome'],

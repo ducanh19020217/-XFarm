@@ -70,7 +70,7 @@ test('tạo PO 2 dòng, đặt hàng, nhận một phần và nhận nốt', asy
     .click();
 
   // Kiểm tra hiển thị trong bảng danh sách đơn mua
-  await expect(page.getByText('Nháp').first()).toBeVisible();
+  await expect(page.getByRole('cell', { name: 'Nháp' }).first()).toBeVisible();
 
   // Nhấp vào đơn mua hàng để xem chi tiết
   await page.locator('table tbody tr').first().locator('a').click();

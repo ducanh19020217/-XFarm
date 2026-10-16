@@ -176,3 +176,22 @@ Bộ UI E2E hiện có 8 kịch bản, chạy tuần tự một worker. Global s
 - **Timeline chưa phân trang**: Timeline nhật ký của mùa vụ hiện tải toàn bộ hoạt động theo mùa vụ, về lâu dài khi mùa vụ có hàng nghìn hoạt động cần bổ sung infinite scroll hoặc pagination.
 - **Quy tắc sinh mã chưa đồng nhất**: Mã khu/lô và đàn vật nuôi không theo năm (`AR-0001`, `AG-0001`), trong khi mã mùa vụ đánh theo năm (`CY-2026-0001`). Cần xem xét chuẩn hóa lại quy ước sinh mã số ở các giai đoạn sau nếu cần quản lý tài sản theo niên độ.
 - **Kiểm tra vòng lặp cha–con của khu/lô**: Thuật toán phát hiện chu trình khi chọn khu/lô cha hiện đang duyệt từng cấp (recursive loop check), có thể xem xét tối ưu bằng CTE query trong database khi cây phân cấp sâu.
+
+## GĐ 2 – Kho + Mua hàng (phase-2-inventory) – NGHIỆM THU
+
+### 1. Việc đã làm
+- Bổ sung Playwright acceptance qua giao diện tại `apps/web/e2e/phase2-acceptance.spec.ts`: tạo vật tư, nhập 10 kg, ghi nhật ký bón phân dùng 3 kg và xác nhận tồn 7 kg; xuất vượt tồn bị chặn; PO nhận một phần hiển thị `Nhận một phần`.
+- Sửa trang Phiếu kho không gọi API với `pageSize=200` vượt giới hạn; dùng `pageSize=100` hợp lệ.
+- Ổn định selector trạng thái PO và timeout/retry Playwright cho dev server tải chậm.
+- Kiểm tra lại `docs/DECISIONS.md`: mã quyết định liên tục từ `DECISION-001` đến `DECISION-011`, không còn trùng.
+
+### 2. Cách chạy và nghiệm thu
+```bash
+pnpm test:ui
+pnpm --filter @xfarm/web exec playwright test e2e/phase2-acceptance.spec.ts
+```
+`pnpm test:ui` chạy toàn bộ UI hai lượt liên tiếp, đều exit 0; acceptance GĐ2 pass. Bộ UI có một số test deferred từ task chưa merge (`alerts`, hai test phụ tồn kho/vật tư), được ghi rõ bằng `fixme`.
+
+### 3. Điểm còn lo ngại
+- Danh sách tồn kho và lựa chọn vật tư hiện phân trang 100 bản ghi; các test phụ tạo nhiều dữ liệu có thể cần cơ chế tìm kiếm/phân trang trong form để nghiệm thu độc lập ở quy mô lớn.
+- Dev server đôi lúc chậm khi chạy toàn bộ Playwright tuần tự; cấu hình retry 1 lần và timeout UI 60 giây (smoke 120 giây) giúp giảm lỗi transient.

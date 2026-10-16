@@ -50,7 +50,7 @@ export default function StockDocumentsPage() {
       })
       .catch(() => {});
 
-    apiFetch<{ data: ItemRecord[] } | ItemRecord[]>('/items?page=1&pageSize=200')
+    apiFetch<{ data: ItemRecord[] } | ItemRecord[]>('/items?page=1&pageSize=100')
       .then((res) => {
         if (!active) return;
         setItems(Array.isArray(res) ? res : res?.data || []);

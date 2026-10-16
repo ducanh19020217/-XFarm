@@ -14,7 +14,7 @@
 
 Tài liệu này ghi lại các quyết định thiết kế và kỹ thuật quan trọng trong quá trình triển khai dự án XFarm.
 
-### DECISION-010: Chọn kho mặc định khi Activity xuất vật tư
+### DECISION-011: Chọn kho mặc định khi Activity xuất vật tư
 - Khi dòng vật tư có `warehouseId`, hệ thống xuất đúng kho đó.
 - Nếu bỏ trống, hệ thống ưu tiên kho có `areaId` trùng với khu/lô của Activity, sau đó lần lượt các kho gắn với khu cha của khu/lô đó.
 - Nếu không tìm được kho theo cây khu/lô, dùng kho đầu tiên theo `createdAt`, rồi `id` để kết quả deterministic. Không có kho nào thì trả 422 và transaction tạo Activity bị rollback.
