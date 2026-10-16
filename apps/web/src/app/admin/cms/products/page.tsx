@@ -127,7 +127,9 @@ export default function ProductsCmsPage() {
         setTotal(res.total);
       } catch (err) {
         if (!isAbortError(err)) {
-          console.error('Lỗi khi tải danh sách sản phẩm:', err);
+          if (!(err instanceof ApiError && err.statusCode === 404)) {
+            console.error('Lỗi khi tải danh sách sản phẩm:', err);
+          }
           // Fallback empty if endpoint is not implemented yet in parallel branch
           setProducts([]);
           setTotal(0);

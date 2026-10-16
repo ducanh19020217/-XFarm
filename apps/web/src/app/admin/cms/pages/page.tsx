@@ -72,7 +72,9 @@ export default function StaticPagesCmsPage() {
         setTotal(res.total);
       } catch (err) {
         if (!isAbortError(err)) {
-          console.error('Lỗi khi tải danh sách trang:', err);
+          if (!(err instanceof ApiError && err.statusCode === 404)) {
+            console.error('Lỗi khi tải danh sách trang:', err);
+          }
           setPages([]);
           setTotal(0);
         }

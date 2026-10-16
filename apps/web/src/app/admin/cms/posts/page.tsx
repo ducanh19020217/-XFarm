@@ -88,7 +88,9 @@ export default function PostsCmsPage() {
         setTotal(res.total);
       } catch (err) {
         if (!isAbortError(err)) {
-          console.error('Lỗi khi tải danh sách bài viết:', err);
+          if (!(err instanceof ApiError && err.statusCode === 404)) {
+            console.error('Lỗi khi tải danh sách bài viết:', err);
+          }
           setPosts([]);
           setTotal(0);
         }
