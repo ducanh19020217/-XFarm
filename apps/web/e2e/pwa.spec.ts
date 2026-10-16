@@ -1,6 +1,10 @@
 import { expect, loginAs, test } from './fixtures';
 
-process.loadEnvFile?.('../../.env');
+for (const envFile of ['../../.env', '../.env', '.env']) {
+  try {
+    process.loadEnvFile?.(envFile);
+  } catch {}
+}
 const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4100/api/v1';
 
 test.describe('PWA Shell & Worker Mobile App (p6-pwa-shell)', () => {

@@ -1,4 +1,4 @@
-import { expect, loginAs, test } from './fixtures';
+import { api, expect, loginAs, test } from './fixtures';
 
 try {
   process.loadEnvFile?.('../../.env');
@@ -20,43 +20,49 @@ test.describe('PWA Offline IndexedDB Queue & Idempotent Auto-Sync (p6-pwa-offlin
     page,
     context,
   }) => {
-    // 1. Kiểm tra endpoint đồng bộ thật /sync/batch (p6-api-sync chạy song song có thể chưa merge)
+    test.setTimeout(60_000);
+    // 1. Kiểm tra endpoint đồng bộ thật /sync/batch (đã merge vào backend API server)
     const apiCheck = await fetch(`${apiBase}/sync/batch`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ items: [] }),
-    }).catch(() => null);
-
-    if (!apiCheck || apiCheck.status === 404) {
-      test.fixme(
-        true,
-        'API POST /sync/batch chưa merge vào backend API server (task p6-api-sync chạy song song)',
-      );
-    }
+    });
+    expect(apiCheck.status).not.toBe(404);
 
     // 2. Đăng nhập với vai trò WORKER và nạp dữ liệu ban đầu
     await loginAs(page, 'WORKER');
+    // Chờ Service Worker đăng ký và kiểm soát trang trước khi điều hướng tới module PWA
+    await page.waitForFunction(
+      () => 'serviceWorker' in navigator && !!navigator.serviceWorker.controller,
+    );
     await page.goto('/admin/m/quick-log');
     await expect(page.getByRole('heading', { name: /ghi nhanh nhật ký/i })).toBeVisible();
 
-    // Đợi nạp danh sách khu/lô vào cache
-    await page.waitForTimeout(1000);
+    const areaSelect = page.locator('button[role="combobox"]').first();
+    await expect(areaSelect).toBeEnabled();
+
+    // Lấy số lượng nhật ký ban đầu qua API để kiểm tra sau đồng bộ
+    const initialActivitiesRes = await api<{ data: Array<{ id: string; notes?: string }> }>(
+      page,
+      '/activities?pageSize=100',
+    );
+    const initialCount = initialActivitiesRes?.data?.length ?? 0;
 
     // 3. Ngắt kết nối mạng (Offline)
     await context.setOffline(true);
 
-    // 4. Ghi nhật ký nhanh lần 1 khi offline
-    // Chọn khu/lô đầu tiên nếu chưa chọn
-    const areaSelect = page.locator('button[role="combobox"]').first();
-    if (await areaSelect.isVisible()) {
-      await areaSelect.click();
-      const firstAreaOption = page.locator('div[role="option"]').first();
-      if (await firstAreaOption.isVisible()) {
-        await firstAreaOption.click();
-      }
-    }
+    const runId = Date.now();
+    const note1 = `Nhật ký offline 1 - Tưới nước ${runId}`;
+    const note2 = `Nhật ký offline 2 - Bón phân ${runId}`;
 
-    await page.locator('textarea').fill('Nhật ký offline 1 - Tưới nước khu A');
+    // 4. Ghi nhật ký nhanh lần 1 khi offline
+    await expect(areaSelect).toBeEnabled();
+    await areaSelect.click();
+    const firstAreaOption = page.locator('div[role="option"]').first();
+    await expect(firstAreaOption).toBeVisible();
+    await firstAreaOption.click();
+
+    await page.locator('textarea').fill(note1);
     await page.getByRole('button', { name: /lưu nhật ký/i }).click();
 
     // Kiểm tra đã về màn hình chính và thanh trạng thái xuất hiện "1 thao tác chờ"
@@ -67,15 +73,13 @@ test.describe('PWA Offline IndexedDB Queue & Idempotent Auto-Sync (p6-pwa-offlin
     await page.goto('/admin/m/quick-log');
     await expect(page.getByRole('heading', { name: /ghi nhanh nhật ký/i })).toBeVisible();
 
-    if (await areaSelect.isVisible()) {
-      await areaSelect.click();
-      const firstAreaOption = page.locator('div[role="option"]').first();
-      if (await firstAreaOption.isVisible()) {
-        await firstAreaOption.click();
-      }
-    }
+    await expect(areaSelect).toBeEnabled();
+    await areaSelect.click();
+    const secondAreaOption = page.locator('div[role="option"]').first();
+    await expect(secondAreaOption).toBeVisible();
+    await secondAreaOption.click();
 
-    await page.locator('textarea').fill('Nhật ký offline 2 - Bón phân khu A');
+    await page.locator('textarea').fill(note2);
     await page.getByRole('button', { name: /lưu nhật ký/i }).click();
 
     // Kiểm tra về màn hình chính và thanh trạng thái hiển thị "2 thao tác chờ"
@@ -99,8 +103,29 @@ test.describe('PWA Offline IndexedDB Queue & Idempotent Auto-Sync (p6-pwa-offlin
     await page.goto('/admin/m/outbox');
     await expect(page.getByText(/hàng đợi trống/i)).toBeVisible();
 
-    // 7. Reload trang và xác nhận không phát sinh trùng lặp
+    // 7. Kiểm tra qua API có đúng 2 activity mới được tạo từ 2 thao tác offline (không trùng)
+    const afterSyncRes = await api<{ data: Array<{ id: string; notes?: string }> }>(
+      page,
+      '/activities?pageSize=100',
+    );
+    const syncedNotes = (afterSyncRes?.data || [])
+      .map((a) => a.notes)
+      .filter((note) => note === note1 || note === note2);
+    expect(syncedNotes).toHaveLength(2);
+    expect(afterSyncRes?.data?.length ?? 0).toBe(initialCount + 2);
+
+    // 8. Reload trang và xác nhận không phát sinh trùng lặp
     await page.reload();
     await expect(page.getByText(/hàng đợi trống/i)).toBeVisible();
+
+    const afterReloadRes = await api<{ data: Array<{ id: string; notes?: string }> }>(
+      page,
+      '/activities?pageSize=100',
+    );
+    const syncedNotesAfterReload = (afterReloadRes?.data || [])
+      .map((a) => a.notes)
+      .filter((note) => note === note1 || note === note2);
+    expect(syncedNotesAfterReload).toHaveLength(2);
+    expect(afterReloadRes?.data?.length ?? 0).toBe(initialCount + 2);
   });
 });

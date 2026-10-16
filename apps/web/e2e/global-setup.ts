@@ -9,6 +9,12 @@ const users = {
   WORKER: 'worker@xfarm.local',
 } as const;
 
+for (const envFile of ['../../.env', '../.env', '.env']) {
+  try {
+    process.loadEnvFile?.(envFile);
+  } catch {}
+}
+
 export default async function globalSetup(config: FullConfig) {
   const baseURL = config.projects[0]?.use.baseURL || 'http://localhost:3100';
   const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4100/api/v1';
