@@ -47,15 +47,22 @@ export class AuditLogInterceptor implements NestInterceptor {
             const resObj = responseData as Record<string, unknown> | undefined;
             const resUser = resObj?.user as Record<string, unknown> | undefined;
             const resData = resObj?.data as Record<string, unknown> | undefined;
-            const userId = (user?.id as string) || (resUser?.id as string) || null;
+            const userId =
+              (request.user?.id as string) ||
+              (user?.id as string) ||
+              (resUser?.id as string) ||
+              null;
             if (!userId) {
               return;
             }
 
             // Derive entity from URL e.g. /api/v1/users/abc -> entity: users
-            const segments = originalUrl.replace(/^\/api\/v\d+\//, '').split('/');
+            const segments = (request.originalUrl || originalUrl)
+              .replace(/^\/api\/v\d+\//, '')
+              .split('/');
             const entity = segments[0] || 'unknown';
-            const entityId = params?.id || resObj?.id || resData?.id || 'none';
+            const entityId =
+              request.params?.id || params?.id || resObj?.id || resData?.id || 'none';
 
             // Sanitize sensitive fields from diff
             const sanitizedBody = sanitizeAuditData(body);

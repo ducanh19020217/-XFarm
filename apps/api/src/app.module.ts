@@ -17,6 +17,9 @@ import { WarehousesModule } from './modules/warehouses/warehouses.module';
 import { SuppliersModule } from './modules/suppliers/suppliers.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
 import { StockModule } from './modules/stock/stock.module';
+import { EmployeesModule } from './modules/employees/employees.module';
+import { TasksModule } from './modules/tasks/tasks.module';
+import { AttendanceModule } from './modules/attendance/attendance.module';
 import { SequenceModule } from './common/sequence/sequence.module';
 
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
@@ -47,6 +50,9 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
     SuppliersModule,
     InventoryModule,
     StockModule,
+    EmployeesModule,
+    TasksModule,
+    AttendanceModule,
   ],
   providers: [
     {
