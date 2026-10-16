@@ -46,10 +46,7 @@ export function useToast() {
     },
     [],
   );
-  const closeToast = React.useCallback(
-    () => setToast((curr) => ({ ...curr, message: null })),
-    [],
-  );
+  const closeToast = React.useCallback(() => setToast((curr) => ({ ...curr, message: null })), []);
   return {
     message: toast.message,
     variant: toast.variant,
