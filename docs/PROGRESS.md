@@ -113,6 +113,8 @@ pnpm test:ui
 ```
 `WEB_URL` trong `.env` quyết định địa chỉ web; cấu hình dùng Chrome hệ thống (`channel: 'chrome'`) và tự khởi động dev server nếu chưa chạy.
 
+Bộ UI E2E hiện có 8 kịch bản, chạy tuần tự một worker. Global setup tạo storage state mới cho OWNER/MANAGER/SALES/WORKER và làm nóng các route admin trước khi test. Sau khi tạo dữ liệu, test dùng tìm kiếm hoặc API response để định vị bản ghi; danh sách API có tie-breaker `createdAt`/`id` để thứ tự ổn định khi trùng ngày.
+
 ### 1. Việc đã làm
 - **Khu / Lô & Bản đồ (`Area`)**:
   - Quản lý danh mục khu/lô phân cấp cha - con (`parentId`), tự động sinh mã dạng `AR-0001`.

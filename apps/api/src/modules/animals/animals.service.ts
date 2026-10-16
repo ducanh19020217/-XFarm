@@ -47,7 +47,9 @@ export class AnimalsService {
       ];
     }
 
-    const orderBy = this.parseSort(query.sort, { createdAt: 'desc' });
+    const orderBy = this.parseSort(query.sort, {
+      createdAt: 'desc',
+    }) as Prisma.AnimalGroupOrderByWithRelationInput[];
 
     const [data, total] = await Promise.all([
       prisma.animalGroup.findMany({
@@ -79,7 +81,7 @@ export class AnimalsService {
         cycle: true,
         area: true,
         animals: {
-          orderBy: { createdAt: 'desc' },
+          orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
         },
       },
     });
@@ -219,7 +221,9 @@ export class AnimalsService {
       ];
     }
 
-    const orderBy = this.parseSort(query.sort, { createdAt: 'desc' });
+    const orderBy = this.parseSort(query.sort, {
+      createdAt: 'desc',
+    }) as Prisma.AnimalOrderByWithRelationInput[];
 
     const [data, total] = await Promise.all([
       prisma.animal.findMany({
@@ -250,10 +254,10 @@ export class AnimalsService {
         group: true,
         mother: true,
         offspring: {
-          orderBy: { createdAt: 'desc' },
+          orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
         },
         events: {
-          orderBy: { date: 'desc' },
+          orderBy: [{ date: 'desc' }, { createdAt: 'desc' }, { id: 'desc' }],
           include: {
             createdBy: {
               select: { id: true, fullName: true, role: true },
@@ -471,7 +475,7 @@ export class AnimalsService {
         where,
         skip,
         take: pageSize,
-        orderBy: { date: 'desc' },
+        orderBy: [{ date: 'desc' }, { createdAt: 'desc' }, { id: 'desc' }],
         include: {
           createdBy: {
             select: { id: true, fullName: true, role: true },
@@ -492,12 +496,14 @@ export class AnimalsService {
   private parseSort(
     sort?: string,
     defaultSort: Record<string, 'asc' | 'desc'> = { createdAt: 'desc' },
-  ) {
-    if (!sort) return defaultSort;
+  ): Record<string, Prisma.SortOrder>[] {
+    if (!sort) return [defaultSort, { id: 'desc' }];
     const [field, direction] = sort.split(':');
-    if (!field) return defaultSort;
-    return {
-      [field]: direction === 'asc' ? 'asc' : 'desc',
-    } as Record<string, 'asc' | 'desc'>;
+    if (!field) return [defaultSort, { id: 'desc' }];
+    return [
+      { [field]: direction === 'asc' ? 'asc' : 'desc' },
+      { createdAt: 'desc' },
+      { id: 'desc' },
+    ] as Record<string, Prisma.SortOrder>[];
   }
 }

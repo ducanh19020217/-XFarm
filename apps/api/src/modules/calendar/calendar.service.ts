@@ -91,7 +91,7 @@ export class CalendarService {
             },
           },
         },
-        orderBy: { performedAt: 'asc' },
+        orderBy: [{ performedAt: 'asc' }, { createdAt: 'asc' }, { id: 'asc' }],
       }),
       prisma.cycle.findMany({
         where: cycleWhere,
@@ -104,7 +104,7 @@ export class CalendarService {
           expectedEndDate: true,
           endDate: true,
         },
-        orderBy: { startDate: 'asc' },
+        orderBy: [{ startDate: 'asc' }, { createdAt: 'asc' }, { id: 'asc' }],
       }),
     ]);
 

@@ -151,13 +151,28 @@ export class CyclesService {
     if (!cycle) throw new NotFoundException('Không tìm thấy mùa vụ');
   }
 
-  private parseSort(sort?: string) {
-    if (!sort) return { startDate: 'desc' as const };
-    const [field, direction] = sort.split(':');
-    const allowed = ['code', 'name', 'startDate', 'expectedEndDate', 'status', 'createdAt'];
-    return {
-      [allowed.includes(field ?? '') ? field! : 'startDate']: direction === 'asc' ? 'asc' : 'desc',
-    } as Record<string, 'asc' | 'desc'>;
+  private parseSort(sort?: string): Prisma.CycleOrderByWithRelationInput[] {
+    const field = sort?.split(':')[0];
+    const direction = sort?.split(':')[1];
+    const primary =
+      field &&
+      ['code', 'name', 'startDate', 'expectedEndDate', 'status', 'createdAt'].includes(field)
+        ? field
+        : 'startDate';
+    const primaryDirection = direction === 'asc' ? 'asc' : 'desc';
+
+    if (primary === 'createdAt') {
+      return [
+        { createdAt: primaryDirection as Prisma.SortOrder },
+        { id: primaryDirection as Prisma.SortOrder },
+      ];
+    }
+
+    return [
+      { [primary]: primaryDirection as Prisma.SortOrder },
+      { createdAt: 'desc' },
+      { id: 'desc' },
+    ];
   }
 
   private present(cycle: CycleWithDetails) {

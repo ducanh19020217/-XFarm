@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import * as argon2 from 'argon2';
 import { prisma } from '@xfarm/db';
+import type { Prisma } from '@xfarm/db';
 import { CreateUserDto, UpdateUserDto, QueryUsersDto } from './users.dto';
 
 const userSelect = {
@@ -32,11 +33,15 @@ export class UsersService {
       ];
     }
 
-    let orderBy: Record<string, 'asc' | 'desc'> = { createdAt: 'desc' };
+    let orderBy: Prisma.UserOrderByWithRelationInput[] = [{ createdAt: 'desc' }, { id: 'desc' }];
     if (query.sort) {
       const [field, direction] = query.sort.split(':');
       if (field) {
-        orderBy = { [field]: direction === 'asc' ? 'asc' : 'desc' };
+        orderBy = [
+          { [field]: direction === 'asc' ? 'asc' : 'desc' },
+          { createdAt: 'desc' },
+          { id: 'desc' },
+        ];
       }
     }
 
