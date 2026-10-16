@@ -99,6 +99,7 @@ async function main() {
       '/tasks',
       '/attendance',
       '/payrolls',
+      '/sync/batch',
     ];
 
     for (const route of routes) {
