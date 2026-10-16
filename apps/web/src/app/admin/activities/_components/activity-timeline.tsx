@@ -29,6 +29,17 @@ export function ActivityTimeline({ activities }: { activities: ActivityRecord[] 
               {activity.performedBy?.fullName ?? 'Chưa rõ người ghi'}
             </p>
             {activity.notes && <p className="mt-1 text-sm text-slate-500">{activity.notes}</p>}
+            {activity.materials?.length ? (
+              <div className="mt-2 rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-900">
+                <span className="font-medium">Vật tư đã xuất:</span>{' '}
+                {activity.materials
+                  .map(
+                    (material) =>
+                      `${material.item.name} ${material.quantity} ${material.item.unit} (${new Intl.NumberFormat('vi-VN').format(Number(material.unitCost))} đ/${material.item.unit})`,
+                  )
+                  .join('; ')}
+              </div>
+            ) : null}
             {activity.media?.length ? (
               <div className="mt-2 flex gap-2">
                 {activity.media.slice(0, 4).map((media) => (

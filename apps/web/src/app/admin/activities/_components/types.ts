@@ -26,6 +26,14 @@ export interface ActivityMedia {
   alt?: string | null;
 }
 
+export interface ActivityMaterial {
+  id: string;
+  quantity: string | number;
+  unitCost: string | number;
+  item: { id: string; name: string; unit: string };
+  stockLot?: { id: string; lotCode: string } | null;
+}
+
 export interface ActivityRecord {
   id: string;
   type: ActivityType;
@@ -36,6 +44,7 @@ export interface ActivityRecord {
   cycle?: ActivityCycle | null;
   performedBy?: { id: string; fullName: string; email: string } | null;
   media?: ActivityMedia[];
+  materials?: ActivityMaterial[];
 }
 
 export interface ActivityListResponse {
