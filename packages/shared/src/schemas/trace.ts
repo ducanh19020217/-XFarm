@@ -12,7 +12,7 @@ export const traceProductSchema = z
 export const traceLotSchema = z.object({
   code: z.string(),
   traceCode: z.string(),
-  quantity: z.union([z.number(), z.string()]),
+  quantity: z.any(),
   unit: z.string(),
   harvestedAt: z.coerce.date(),
   qualityGrade: z.string().nullable(),

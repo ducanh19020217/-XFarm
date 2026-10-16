@@ -96,6 +96,7 @@ async function main() {
       '/warehouses',
       '/suppliers',
       '/harvest-lots',
+      '/public/trace/DEMO000001',
     ];
 
     for (const route of routes) {
