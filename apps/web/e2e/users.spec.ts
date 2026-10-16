@@ -9,6 +9,7 @@ test('OWNER tạo và khóa được người dùng', async ({ page, errors }) =
   await page.getByLabel('Mật khẩu').fill('Test@12345');
   await page.getByLabel('Họ và tên').fill('Người dùng E2E');
   await page.getByRole('button', { name: /tạo tài khoản/i }).click();
+  await page.getByPlaceholder(/tìm theo tên, email/i).fill(email);
   await expect(page.getByText(email)).toBeVisible();
   await page
     .getByText(email)

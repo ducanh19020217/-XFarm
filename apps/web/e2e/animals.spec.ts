@@ -40,6 +40,7 @@ test('tạo cá thể, ghi WEIGHING và chặn sự kiện sau khi chết', asyn
   await page.goto('/admin/animals');
   await expect(page.getByRole('button', { name: 'Đàn vật nuôi' })).toBeVisible();
   await page.getByRole('button', { name: /cá thể vật nuôi/i }).click();
+  await page.getByPlaceholder(/tìm theo mã tai/i).fill(tag);
   await expect(page.getByText(tag)).toBeVisible();
   await page.getByRole('link', { name: tag, exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`/admin/animals/${animal.id}`));
