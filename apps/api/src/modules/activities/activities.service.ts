@@ -1,3 +1,4 @@
+import * as crypto from 'crypto';
 import {
   BadRequestException,
   ConflictException,
@@ -11,6 +12,7 @@ import { parseActivityData } from '@xfarm/shared';
 import { prisma } from '@xfarm/db';
 import type { Prisma } from '@xfarm/db';
 import { InventoryService } from '../inventory/inventory.service';
+import { SequenceService } from '../../common/sequence/sequence.service';
 import { CreateActivityDto, QueryActivityDto, UpdateActivityDto } from './activities.dto';
 
 const PREPARATION_TYPES = new Set<ActivityType>([
@@ -39,7 +41,86 @@ type ActivityWithMedia = ActivityWithRelations & { media: Prisma.MediaGetPayload
 
 @Injectable()
 export class ActivitiesService {
-  constructor(private readonly inventoryService: InventoryService) {}
+  constructor(
+    private readonly inventoryService: InventoryService,
+    private readonly sequenceService: SequenceService,
+  ) {}
+
+  private static readonly traceAlphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
+  private newTraceCode() {
+    let code = '';
+    for (let index = 0; index < 10; index += 1) {
+      code +=
+        ActivitiesService.traceAlphabet[
+          crypto.randomInt(0, ActivitiesService.traceAlphabet.length)
+        ];
+    }
+    return code;
+  }
+
+  private async createHarvest(
+    tx: Prisma.TransactionClient,
+    activity: { id: string; cycleId: string | null; areaId: string; performedAt: Date },
+    data: {
+      itemId: string;
+      quantity: number;
+      unit: string;
+      warehouseId: string;
+      qualityGrade?: string;
+      certification?: string;
+      isPublic?: boolean;
+    },
+    userId: string,
+  ) {
+    if (!activity.cycleId)
+      throw new UnprocessableEntityException('Nhật ký thu hoạch phải gắn với mùa vụ');
+    const cycle = await tx.cycle.findUnique({ where: { id: activity.cycleId } });
+    if (!cycle || !['ACTIVE', 'HARVESTING'].includes(cycle.status)) {
+      throw new UnprocessableEntityException(
+        'Mùa vụ phải ở trạng thái đang hoạt động hoặc đang thu hoạch',
+      );
+    }
+    const item = await tx.item.findUnique({ where: { id: data.itemId } });
+    if (!item || !['PRODUCE', 'LIVESTOCK_PRODUCT', 'AQUA_PRODUCT'].includes(item.category)) {
+      throw new UnprocessableEntityException('Vật phẩm không thuộc nhóm nông sản được thu hoạch');
+    }
+    const warehouse = await tx.warehouse.findUnique({ where: { id: data.warehouseId } });
+    if (!warehouse) throw new UnprocessableEntityException('Kho không tồn tại');
+    const code = await this.sequenceService.nextInTransaction(tx, 'HL');
+    let traceCode = this.newTraceCode();
+    while (await tx.harvestLot.findUnique({ where: { traceCode }, select: { id: true } })) {
+      traceCode = this.newTraceCode();
+    }
+    const harvestLot = await tx.harvestLot.create({
+      data: {
+        code,
+        traceCode,
+        cycleId: activity.cycleId,
+        activityId: activity.id,
+        itemId: data.itemId,
+        quantity: data.quantity,
+        unit: data.unit,
+        harvestedAt: activity.performedAt,
+        warehouseId: data.warehouseId,
+        qualityGrade: data.qualityGrade,
+        certification: data.certification,
+        isPublic: data.isPublic ?? false,
+        createdById: userId,
+      },
+    });
+    await this.inventoryService.receive(tx, {
+      itemId: data.itemId,
+      warehouseId: data.warehouseId,
+      quantity: data.quantity,
+      unitCost: 0,
+      refType: 'HARVEST',
+      refId: harvestLot.id,
+      harvestLotId: harvestLot.id,
+      movedAt: activity.performedAt,
+    });
+    return harvestLot;
+  }
 
   private async mediaForIds(mediaIds: string[]) {
     if (mediaIds.length === 0) return [];
@@ -225,6 +306,9 @@ export class ActivitiesService {
         userId,
         created.performedAt,
       );
+      if (dto.type === ActivityType.HARVEST) {
+        await this.createHarvest(tx, created, data, userId);
+      }
       return tx.activity.findUniqueOrThrow({
         where: { id: created.id },
         include: this.activityInclude,
@@ -320,10 +404,23 @@ export class ActivitiesService {
     const areaId = dto.areaId ?? existing.areaId;
     const cycleId = dto.cycleId === undefined ? existing.cycleId : dto.cycleId;
     const type = (dto.type ?? existing.type) as ActivityType;
+    if (existing.type === ActivityType.HARVEST && type !== ActivityType.HARVEST) {
+      throw new UnprocessableEntityException('Không thể đổi loại nhật ký đã tạo lô thu hoạch');
+    }
+    if (existing.type !== ActivityType.HARVEST && type === ActivityType.HARVEST) {
+      throw new UnprocessableEntityException('Không thể đổi nhật ký hiện có thành thu hoạch');
+    }
     await this.validateContext(areaId, cycleId, type);
     const mediaIds = dto.mediaIds ?? existing.mediaIds;
     await this.mediaForIds(mediaIds);
     const data = dto.data === undefined ? existing.data : parseActivityData(type, dto.data);
+    const harvestLot =
+      existing.type === ActivityType.HARVEST
+        ? await prisma.harvestLot.findUnique({ where: { activityId: id } })
+        : null;
+    if (harvestLot && (dto.quantity !== undefined || dto.data !== undefined)) {
+      await this.assertHarvestHasNoOutbound(harvestLot.id);
+    }
     const activity = await prisma.$transaction(async (tx) => {
       if (dto.materials !== undefined) {
         await this.inventoryService.reverseByRef(tx, 'ACTIVITY', id);
@@ -351,6 +448,51 @@ export class ActivitiesService {
         userId,
         dto.performedAt ?? existing.performedAt,
       );
+      if (harvestLot) {
+        const harvestData = data as {
+          quantity?: number;
+          unit?: string;
+          qualityGrade?: string;
+          certification?: string;
+          isPublic?: boolean;
+        };
+        if (dto.quantity !== undefined || dto.data !== undefined) {
+          await this.inventoryService.reverseByRef(tx, 'HARVEST', harvestLot.id);
+          await tx.stockLot.updateMany({
+            where: { harvestLotId: harvestLot.id },
+            data: { harvestLotId: null },
+          });
+          await this.inventoryService.receive(tx, {
+            itemId: (data as { itemId: string }).itemId,
+            warehouseId: (data as { warehouseId: string }).warehouseId,
+            quantity: harvestData.quantity ?? dto.quantity ?? harvestLot.quantity,
+            unitCost: 0,
+            refType: 'HARVEST',
+            refId: harvestLot.id,
+            harvestLotId: harvestLot.id,
+            movedAt: dto.performedAt ?? existing.performedAt,
+          });
+        }
+        await tx.harvestLot.update({
+          where: { id: harvestLot.id },
+          data: {
+            ...(harvestData.quantity !== undefined || dto.quantity !== undefined
+              ? { quantity: harvestData.quantity ?? dto.quantity ?? undefined }
+              : {}),
+            ...(harvestData.unit !== undefined || dto.unit !== undefined
+              ? { unit: harvestData.unit ?? dto.unit ?? undefined }
+              : {}),
+            ...(dto.performedAt ? { harvestedAt: dto.performedAt } : {}),
+            ...(harvestData.qualityGrade !== undefined
+              ? { qualityGrade: harvestData.qualityGrade }
+              : {}),
+            ...(harvestData.certification !== undefined
+              ? { certification: harvestData.certification }
+              : {}),
+            ...(harvestData.isPublic !== undefined ? { isPublic: harvestData.isPublic } : {}),
+          },
+        });
+      }
       return tx.activity.findUniqueOrThrow({ where: { id }, include: this.activityInclude });
     });
     return (await this.withMedia([activity]))[0];
@@ -365,10 +507,36 @@ export class ActivitiesService {
     if (activity.cycle?.status === 'CLOSED') {
       throw new ConflictException('Không thể xóa nhật ký của mùa vụ đã đóng');
     }
+    const harvestLot =
+      activity.type === ActivityType.HARVEST
+        ? await prisma.harvestLot.findUnique({ where: { activityId: id } })
+        : null;
+    if (harvestLot) await this.assertHarvestHasNoOutbound(harvestLot.id);
     await prisma.$transaction(async (tx) => {
       await this.inventoryService.reverseByRef(tx, 'ACTIVITY', id);
+      if (harvestLot) {
+        await this.inventoryService.reverseByRef(tx, 'HARVEST', harvestLot.id);
+        await tx.stockLot.updateMany({
+          where: { harvestLotId: harvestLot.id },
+          data: { harvestLotId: null },
+        });
+        await tx.harvestLot.delete({ where: { id: harvestLot.id } });
+      }
       await tx.activity.delete({ where: { id } });
     });
     return { message: 'Đã xóa nhật ký' };
+  }
+
+  private async assertHarvestHasNoOutbound(harvestLotId: string) {
+    const outbound = await prisma.stockMove.findFirst({
+      where: {
+        stockLot: { harvestLotId },
+        type: 'OUT',
+        OR: [{ refType: null }, { refType: { not: 'REVERSAL' } }],
+      },
+      select: { id: true },
+    });
+    if (outbound)
+      throw new UnprocessableEntityException('Không thể sửa/xóa lô đã phát sinh xuất kho');
   }
 }

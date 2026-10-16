@@ -12,6 +12,10 @@ Tài liệu này ghi lại các quyết định thiết kế và kỹ thuật qu
 - Nếu bỏ trống, hệ thống ưu tiên kho có `areaId` trùng với khu/lô của Activity, sau đó lần lượt các kho gắn với khu cha của khu/lô đó.
 - Nếu không tìm được kho theo cây khu/lô, dùng kho đầu tiên theo `createdAt`, rồi `id` để kết quả deterministic. Không có kho nào thì trả 422 và transaction tạo Activity bị rollback.
 
+### DECISION-011: Tạm tính giá vốn lô thu hoạch ở GĐ 3
+- Khi Activity HARVEST sinh StockLot, `unitCost` được ghi nhận là `0` để bảo đảm lô và tồn kho được tạo nguyên tử cùng nhật ký.
+- Giá thành thực tế của mùa vụ sẽ được tính lại ở GĐ 4 từ vật tư, chi phí và công lao động; luồng HARVEST không tự suy đoán giá vốn tại thời điểm nhập kho.
+
 ### DECISION-008: Đưa Playwright E2E lên GĐ 1
 - **Bối cảnh**: Lỗi giao diện liên quan đến layout và tương tác trình duyệt thật không được phát hiện bởi test jsdom; yêu cầu sản phẩm cần kiểm tra ngay các luồng GĐ 0–1.
 - **Quyết định**: Bổ sung bộ test Playwright tại `apps/web/e2e` trong task P1, dùng Chrome hệ thống và không tải browser riêng.

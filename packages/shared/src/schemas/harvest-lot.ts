@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { optionalBoolean, optionalString } from './helpers';
+import { optionalBoolean, optionalDate, optionalString } from './helpers';
 import { paginationSchema } from './pagination';
 
 export const queryHarvestLotSchema = paginationSchema.extend({
@@ -8,6 +8,8 @@ export const queryHarvestLotSchema = paginationSchema.extend({
   warehouseId: optionalString(),
   traceCode: optionalString(),
   isPublic: optionalBoolean(),
+  from: optionalDate(),
+  to: optionalDate(),
 });
 
 export const updateHarvestLotSchema = z.object({
