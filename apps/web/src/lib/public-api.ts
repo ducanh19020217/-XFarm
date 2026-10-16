@@ -325,7 +325,7 @@ export async function getPublicPosts(params?: {
     if (res.ok) {
       const body = await res.json();
       if (body && Array.isArray(body.data)) {
-        const publishedOnly = body.data.filter((p: PublicPost) => p.status === 'PUBLISHED');
+        const publishedOnly = body.data.filter((p: PublicPost) => p.status !== 'DRAFT');
         return {
           data: publishedOnly,
           total: body.total ?? publishedOnly.length,
@@ -339,7 +339,7 @@ export async function getPublicPosts(params?: {
   }
 
   // Filter out any non-published posts from fallback
-  const publishedFallback = FALLBACK_POSTS.filter((p) => p.status === 'PUBLISHED');
+  const publishedFallback = FALLBACK_POSTS.filter((p) => p.status !== 'DRAFT');
   const start = (page - 1) * pageSize;
   const paged = publishedFallback.slice(start, start + pageSize);
 
@@ -361,7 +361,7 @@ export async function getPublicPostBySlug(slug: string): Promise<PublicPost | nu
     });
     if (res.ok) {
       const post = await res.json();
-      if (post && post.status === 'PUBLISHED') {
+      if (post && post.status !== 'DRAFT') {
         return post;
       }
       // If draft, do not expose
