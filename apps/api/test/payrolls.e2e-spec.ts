@@ -658,4 +658,117 @@ describe('Payrolls API E2E', () => {
     expect(totalDetailAmount).toBe(2692308);
     expect(totalDetailAmount).toBe(Number(payroll.amount));
   });
+
+  it('13. Kỳ có 1 bảng lương APPROVED + 1 nhân viên mới: generate thành công, bảng APPROVED không đổi, nhân viên mới có DRAFT đúng tiền', async () => {
+    const periodStart = '2027-01-01';
+    const periodEnd = '2027-01-31';
+
+    // Tạo nhân viên 1: đã có bảng lương APPROVED
+    const empApproved = await prisma.employee.create({
+      data: {
+        code: 'EMP-APP-TEST-13',
+        fullName: 'Nguyễn Văn Đã Duyệt',
+        position: 'Công nhân',
+        payType: PayType.DAILY,
+        baseRate: new Prisma.Decimal('400000'),
+        isActive: true,
+      },
+    });
+
+    await prisma.attendance.create({
+      data: {
+        employeeId: empApproved.id,
+        date: new Date('2027-01-05T00:00:00Z'),
+        hours: new Prisma.Decimal('8.00'),
+        notes: 'Công nhân 1 làm 1 ngày',
+      },
+    });
+
+    // Tạo bảng lương DRAFT cho empApproved
+    const genRes1 = await request(app.getHttpServer())
+      .post('/api/v1/payrolls/generate')
+      .set('Cookie', accountantCookies)
+      .send({
+        periodStart,
+        periodEnd,
+        employeeIds: [empApproved.id],
+      });
+    expect(genRes1.status).toBe(201);
+    const approvedPayrollId = genRes1.body.data[0].id;
+
+    // Duyệt bảng lương của empApproved -> APPROVED
+    const appRes = await request(app.getHttpServer())
+      .post(`/api/v1/payrolls/${approvedPayrollId}/approve`)
+      .set('Cookie', accountantCookies);
+    expect(appRes.status).toBe(201);
+    expect(appRes.body.data.status).toBe(PayrollStatus.APPROVED);
+
+    const approvedPayrollBefore = await prisma.payroll.findUnique({
+      where: { id: approvedPayrollId },
+    });
+
+    // Tạo nhân viên 2: nhân viên mới trong cùng kỳ
+    const empNew = await prisma.employee.create({
+      data: {
+        code: 'EMP-NEW-TEST-13',
+        fullName: 'Trần Văn Mới',
+        position: 'Công nhân mới',
+        payType: PayType.DAILY,
+        baseRate: new Prisma.Decimal('350000'),
+        isActive: true,
+      },
+    });
+
+    // Chấm công 2 ngày cho empNew (2 x 350.000 = 700.000)
+    for (const day of ['2027-01-06', '2027-01-07']) {
+      await prisma.attendance.create({
+        data: {
+          employeeId: empNew.id,
+          date: new Date(`${day}T00:00:00Z`),
+          hours: new Prisma.Decimal('8.00'),
+          notes: `Chấm công ngày ${day}`,
+        },
+      });
+    }
+
+    // Generate cho cả 2 nhân viên (truyền employeeIds: [empApproved.id, empNew.id])
+    const genRes2 = await request(app.getHttpServer())
+      .post('/api/v1/payrolls/generate')
+      .set('Cookie', accountantCookies)
+      .send({
+        periodStart,
+        periodEnd,
+        employeeIds: [empApproved.id, empNew.id],
+      });
+
+    expect(genRes2.status).toBe(201);
+    expect(genRes2.body.data).toHaveLength(1);
+    expect(genRes2.body.data[0].employeeId).toBe(empNew.id);
+    expect(genRes2.body.data[0].status).toBe(PayrollStatus.DRAFT);
+    expect(Number(genRes2.body.data[0].amount)).toBe(700000);
+    expect(genRes2.body.skipped).toHaveLength(1);
+    expect(genRes2.body.skipped[0].id).toBe(approvedPayrollId);
+
+    // Bảng lương APPROVED giữ nguyên, không bị đổi hay tạo đè
+    const approvedPayrollAfter = await prisma.payroll.findUnique({
+      where: { id: approvedPayrollId },
+    });
+    expect(approvedPayrollAfter?.status).toBe(PayrollStatus.APPROVED);
+    expect(Number(approvedPayrollAfter?.amount)).toBe(Number(approvedPayrollBefore?.amount));
+    expect(approvedPayrollAfter?.approvedById).toBe(approvedPayrollBefore?.approvedById);
+    expect(approvedPayrollAfter?.updatedAt.getTime()).toBe(
+      approvedPayrollBefore?.updatedAt.getTime(),
+    );
+
+    // Thử generate chỉ định riêng [empApproved.id] -> vẫn ném 422 vì tất cả nhân viên chỉ định đều đã khóa
+    const reGenLockedRes = await request(app.getHttpServer())
+      .post('/api/v1/payrolls/generate')
+      .set('Cookie', accountantCookies)
+      .send({
+        periodStart,
+        periodEnd,
+        employeeIds: [empApproved.id],
+      });
+    expect(reGenLockedRes.status).toBe(422);
+  });
 });
