@@ -18,5 +18,21 @@ export const syncBatchSchema = z.object({
   items: z.array(syncItemSchema).max(50, 'Tối đa 50 item mỗi lần đồng bộ'),
 });
 
+export const syncResultStatusEnum = z.enum(['created', 'duplicate', 'error']);
+export type SyncResultStatus = z.infer<typeof syncResultStatusEnum>;
+
+export const syncResultItemSchema = z.object({
+  clientId: z.string().uuid('clientId phải là UUID hợp lệ'),
+  status: syncResultStatusEnum,
+  id: z.string().optional(),
+  error: z.string().optional(),
+});
+
+export const syncBatchResponseSchema = z.object({
+  data: z.array(syncResultItemSchema),
+});
+
 export type SyncItem = z.infer<typeof syncItemSchema>;
 export type SyncBatchInput = z.infer<typeof syncBatchSchema>;
+export type SyncResultItem = z.infer<typeof syncResultItemSchema>;
+export type SyncBatchResponse = z.infer<typeof syncBatchResponseSchema>;
