@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { syncBatchSchema, syncItemSchema, syncKinds } from './sync';
+import {
+  syncBatchResponseSchema,
+  syncBatchSchema,
+  syncItemSchema,
+  syncKinds,
+  syncResultItemSchema,
+} from './sync';
 
 describe('sync schemas', () => {
   const validUuid = '123e4567-e89b-12d3-a456-426614174000';
@@ -63,5 +69,47 @@ describe('sync schemas', () => {
     }));
 
     expect(() => syncBatchSchema.parse({ items })).toThrow('Tối đa 50 item mỗi lần đồng bộ');
+  });
+
+  it('parses valid syncResultItemSchema for created, duplicate, and error', () => {
+    const created = syncResultItemSchema.parse({
+      clientId: validUuid,
+      status: 'created',
+      id: 'act-123',
+    });
+    expect(created.status).toBe('created');
+    expect(created.id).toBe('act-123');
+
+    const duplicate = syncResultItemSchema.parse({
+      clientId: validUuid,
+      status: 'duplicate',
+      id: 'act-123',
+    });
+    expect(duplicate.status).toBe('duplicate');
+
+    const error = syncResultItemSchema.parse({
+      clientId: validUuid,
+      status: 'error',
+      error: 'Mùa vụ đã đóng',
+    });
+    expect(error.status).toBe('error');
+    expect(error.error).toBe('Mùa vụ đã đóng');
+  });
+
+  it('rejects invalid status in syncResultItemSchema', () => {
+    expect(() =>
+      syncResultItemSchema.parse({
+        clientId: validUuid,
+        status: 'invalid_status',
+      }),
+    ).toThrow();
+  });
+
+  it('parses valid syncBatchResponseSchema', () => {
+    const res = syncBatchResponseSchema.parse({
+      data: [{ clientId: validUuid, status: 'created', id: '123' }],
+    });
+    expect(res.data).toHaveLength(1);
+    expect(res.data[0].status).toBe('created');
   });
 });
