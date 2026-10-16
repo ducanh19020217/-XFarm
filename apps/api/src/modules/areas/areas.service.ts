@@ -43,11 +43,12 @@ export class AreasService {
       where.isActive = query.isActive;
     }
 
-    let orderBy: Record<string, 'asc' | 'desc'> = { createdAt: 'desc' };
+    let orderBy: Record<string, 'asc' | 'desc'>[] = [{ createdAt: 'desc' }, { id: 'desc' }];
     if (query.sort) {
       const [field, direction] = query.sort.split(':');
       if (field) {
-        orderBy = { [field]: direction === 'asc' ? 'asc' : 'desc' };
+        const primary = direction === 'asc' ? 'asc' : 'desc';
+        orderBy = [{ [field]: primary }, { createdAt: 'desc' }, { id: 'desc' }];
       }
     }
 
@@ -80,7 +81,7 @@ export class AreasService {
   async findTree() {
     const areas = await prisma.area.findMany({
       where: { isActive: true },
-      orderBy: [{ name: 'asc' }],
+      orderBy: [{ name: 'asc' }, { createdAt: 'desc' }, { id: 'desc' }],
     });
 
     type AreaTreeNode = (typeof areas)[number] & {
@@ -111,7 +112,7 @@ export class AreasService {
       where: { id },
       include: {
         parent: true,
-        children: true,
+        children: { orderBy: [{ createdAt: 'desc' }, { id: 'desc' }] },
       },
     });
 

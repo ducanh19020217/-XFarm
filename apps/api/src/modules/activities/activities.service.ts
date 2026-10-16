@@ -272,7 +272,7 @@ export class ActivitiesService {
       prisma.activity.findMany({
         where,
         include: this.activityInclude,
-        orderBy: { performedAt: 'desc' },
+        orderBy: [{ performedAt: 'desc' }, { createdAt: 'desc' }, { id: 'desc' }],
         skip: (page - 1) * pageSize,
         take: pageSize,
       }),
@@ -301,7 +301,7 @@ export class ActivitiesService {
     const activities = await prisma.activity.findMany({
       where,
       include: this.activityInclude,
-      orderBy: { performedAt: 'desc' },
+      orderBy: [{ performedAt: 'desc' }, { createdAt: 'desc' }, { id: 'desc' }],
     });
     return this.withMedia(activities);
   }

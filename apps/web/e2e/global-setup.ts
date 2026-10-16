@@ -17,12 +17,6 @@ export default async function globalSetup(config: FullConfig) {
 
   for (const [role, email] of Object.entries(users)) {
     const statePath = path.join(authDir, `${role.toLowerCase()}.json`);
-    try {
-      await fs.access(statePath);
-      continue;
-    } catch {
-      // Create the state below on the first run.
-    }
     const context = await request.newContext({ baseURL });
     const response = await context.post(`${apiBase}/auth/login`, {
       data: { email, password: 'Admin@123' },
@@ -33,4 +27,18 @@ export default async function globalSetup(config: FullConfig) {
     await context.storageState({ path: statePath });
     await context.dispose();
   }
+
+  const warmup = await request.newContext({ baseURL });
+  for (const route of [
+    '/admin',
+    '/admin/users',
+    '/admin/areas',
+    '/admin/cycles',
+    '/admin/activities',
+    '/admin/animals',
+    '/admin/calendar',
+  ]) {
+    await warmup.get(route);
+  }
+  await warmup.dispose();
 }

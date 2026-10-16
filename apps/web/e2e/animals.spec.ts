@@ -2,7 +2,28 @@ import { expect, api, loginAs, test } from './fixtures';
 
 test('tạo cá thể, ghi WEIGHING và chặn sự kiện sau khi chết', async ({ page, errors }) => {
   await loginAs(page);
-  const groups = await api<{ data: Array<{ id: string }> }>(page, '/animal-groups?pageSize=1');
+  const areas = await api<{ data: Array<{ id: string }> }>(page, '/areas?pageSize=1');
+  const areaId = areas.data[0]?.id;
+  expect(areaId).toBeTruthy();
+  const cycleResult = await api<{ data: { id: string } }>(page, '/cycles', {
+    method: 'POST',
+    body: JSON.stringify({
+      name: `Lứa E2E ${Date.now()}`,
+      kind: 'LIVESTOCK',
+      areaId,
+      species: 'Gà E2E',
+      startDate: new Date().toISOString(),
+    }),
+  });
+  const groupResult = await api<{ data: { id: string } }>(page, '/animal-groups', {
+    method: 'POST',
+    body: JSON.stringify({
+      cycleId: cycleResult.data.id,
+      areaId,
+      species: 'Gà E2E',
+      headCount: 1,
+    }),
+  });
   const tag = `E2E-${Date.now()}`;
   const animalResult = await api<{ data: { id: string } }>(page, '/animals', {
     method: 'POST',
@@ -11,7 +32,7 @@ test('tạo cá thể, ghi WEIGHING và chặn sự kiện sau khi chết', asyn
       species: 'Gà E2E',
       sex: 'UNKNOWN',
       status: 'ALIVE',
-      groupId: groups.data[0]?.id,
+      groupId: groupResult.data.id,
     }),
   });
   const animal = animalResult.data;
@@ -19,6 +40,7 @@ test('tạo cá thể, ghi WEIGHING và chặn sự kiện sau khi chết', asyn
   await page.goto('/admin/animals');
   await expect(page.getByRole('button', { name: 'Đàn vật nuôi' })).toBeVisible();
   await page.getByRole('button', { name: /cá thể vật nuôi/i }).click();
+  await page.getByPlaceholder(/tìm theo mã tai/i).fill(tag);
   await expect(page.getByText(tag)).toBeVisible();
   await page.getByRole('link', { name: tag, exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`/admin/animals/${animal.id}`));

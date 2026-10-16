@@ -8,8 +8,10 @@ test('tạo khu cha và khu con, mở chi tiết bản đồ', async ({ page, er
     await page.getByRole('button', { name: /thêm khu/i }).click();
     await page.getByLabel('Tên khu/lô').fill(name);
     await page.getByRole('button', { name: 'Tạo mới' }).click();
+    await page.getByPlaceholder(/tìm theo tên hoặc mã khu/i).fill(name);
     await expect(page.getByText(name)).toBeVisible();
   }
+  await page.getByPlaceholder(/tìm theo tên hoặc mã khu/i).fill(`Khu E2E ${suffix}`);
   await page.getByRole('link', { name: `Khu E2E ${suffix}`, exact: true }).click();
   await expect(page).toHaveURL(/\/admin\/areas\/[^/]+/);
   await expect(page.locator('.leaflet-container')).toBeVisible({ timeout: 15_000 });
