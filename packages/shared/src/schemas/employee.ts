@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { PayType } from '../types';
 import { paginationSchema } from './pagination';
-import { optionalString, optionalBoolean } from './helpers';
+import { optionalString, optionalBoolean, optionalNullableString } from './helpers';
 
 export const createEmployeeSchema = z.object({
   code: optionalString(),
@@ -23,6 +23,11 @@ export const queryEmployeeSchema = paginationSchema.extend({
   search: optionalString(),
 });
 
+export const linkEmployeeUserSchema = z.object({
+  userId: optionalNullableString(),
+});
+
 export type CreateEmployeeInput = z.infer<typeof createEmployeeSchema>;
 export type UpdateEmployeeInput = z.infer<typeof updateEmployeeSchema>;
 export type QueryEmployeeInput = z.infer<typeof queryEmployeeSchema>;
+export type LinkEmployeeUserInput = z.infer<typeof linkEmployeeUserSchema>;

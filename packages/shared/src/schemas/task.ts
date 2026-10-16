@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { TaskStatus } from '../types';
 import { paginationSchema } from './pagination';
 import { optionalDate, optionalString } from './helpers';
+import { createActivitySchema } from './activity';
 
 export const createTaskSchema = z.object({
   title: z.string().min(1, 'Tiêu đề công việc không được để trống'),
@@ -27,6 +28,7 @@ export const completeTaskSchema = z.object({
   activityId: optionalString(),
   completedAt: optionalDate(),
   notes: optionalString(),
+  activity: createActivitySchema.optional(),
 });
 
 export const queryTaskSchema = paginationSchema.extend({
