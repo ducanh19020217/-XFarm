@@ -86,6 +86,20 @@ export enum ItemCategory {
   OTHER = 'OTHER',
 }
 
+export const ITEM_CATEGORY_LABELS: Record<ItemCategory, string> = {
+  [ItemCategory.SEED]: 'Hạt giống / Cây giống',
+  [ItemCategory.FERTILIZER]: 'Phân bón',
+  [ItemCategory.PESTICIDE]: 'Thuốc BVTV',
+  [ItemCategory.FEED]: 'Thức ăn chăn nuôi',
+  [ItemCategory.VETERINARY]: 'Thuốc thú y / Thủy sản',
+  [ItemCategory.TOOL]: 'Công cụ / Dụng cụ',
+  [ItemCategory.PACKAGING]: 'Bao bì / Đóng gói',
+  [ItemCategory.PRODUCE]: 'Nông sản',
+  [ItemCategory.LIVESTOCK_PRODUCT]: 'Sản phẩm chăn nuôi',
+  [ItemCategory.AQUA_PRODUCT]: 'Sản phẩm thủy sản',
+  [ItemCategory.OTHER]: 'Khác',
+};
+
 export enum StockMoveType {
   IN = 'IN',
   OUT = 'OUT',
@@ -104,6 +118,12 @@ export enum PurchaseOrderStatus {
   PARTIAL = 'PARTIAL',
   RECEIVED = 'RECEIVED',
   CANCELLED = 'CANCELLED',
+}
+
+export enum AlertType {
+  LOW_STOCK = 'LOW_STOCK',
+  LOT_EXPIRING = 'LOT_EXPIRING',
+  LOT_EXPIRED = 'LOT_EXPIRED',
 }
 
 export interface Paginated<T> {

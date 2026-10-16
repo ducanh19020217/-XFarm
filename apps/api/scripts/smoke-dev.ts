@@ -90,6 +90,11 @@ async function main() {
       '/stock/balances',
       '/stock/moves',
       '/stock/documents',
+      '/alerts',
+      '/alerts/unread-count',
+      '/items',
+      '/warehouses',
+      '/suppliers',
     ];
 
     for (const route of routes) {

@@ -39,6 +39,14 @@ export function StatusBadge({
       );
     case 'CANCELLED':
       return <Badge variant="destructive">Đã hủy</Badge>;
+    case 'DRAFT':
+      return <Badge variant="secondary">Nháp</Badge>;
+    case 'ORDERED':
+      return <Badge variant="info">Đã đặt</Badge>;
+    case 'PARTIAL':
+      return <Badge variant="warning">Nhận một phần</Badge>;
+    case 'RECEIVED':
+      return <Badge variant="default">Đã nhận đủ</Badge>;
     case 'OWNER':
       return (
         <Badge

@@ -32,3 +32,10 @@ export const optionalNumber = (schema = z.number()) =>
 
 export const optionalDate = () =>
   z.preprocess(emptyToUndefined, z.coerce.date().nullable().optional());
+
+export const optionalBoolean = () =>
+  z.preprocess((value) => {
+    if (value === 'true' || value === true) return true;
+    if (value === 'false' || value === false) return false;
+    return emptyToUndefined(value);
+  }, z.boolean().optional());

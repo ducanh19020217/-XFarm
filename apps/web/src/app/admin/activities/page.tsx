@@ -7,8 +7,9 @@ import { apiFetch, ApiError, isAbortError } from '@/lib/api';
 import { useAdminUser } from '../admin-user-context';
 import { ActivityForm } from './_components/activity-form';
 import { canCreateActivity } from './_components/constants';
-import { activityColumns } from './_components/activity-columns';
+import { getActivityColumns } from './_components/activity-columns';
 import { ActivityFilters } from './_components/activity-filters';
+import { ActivityDetailDialog } from './_components/activity-detail-dialog';
 import type {
   ActivityArea,
   ActivityCycle,
@@ -31,7 +32,16 @@ export default function ActivitiesPage() {
   const [to, setTo] = React.useState('');
   const [loading, setLoading] = React.useState(true);
   const [formOpen, setFormOpen] = React.useState(false);
+  const [selectedActivity, setSelectedActivity] = React.useState<ActivityRecord | null>(null);
+  const [detailOpen, setDetailOpen] = React.useState(false);
   const pageSize = 10;
+
+  const handleViewDetail = React.useCallback((activity: ActivityRecord) => {
+    setSelectedActivity(activity);
+    setDetailOpen(true);
+  }, []);
+
+  const columns = React.useMemo(() => getActivityColumns(handleViewDetail), [handleViewDetail]);
   const loadOptions = React.useCallback(
     async (signal?: AbortSignal) => {
       try {
@@ -114,7 +124,7 @@ export default function ActivitiesPage() {
         onChange={updateFilter}
       />
       <DataTable
-        columns={activityColumns}
+        columns={columns}
         data={activities}
         total={total}
         page={page}
@@ -127,7 +137,7 @@ export default function ActivitiesPage() {
         onOpenChange={setFormOpen}
         title="Ghi nhật ký sản xuất"
         description="Chọn loại nhật ký để hiển thị đúng các chỉ số cần ghi"
-        className="max-w-3xl"
+        className="max-w-3xl max-h-[90vh] overflow-y-auto"
       >
         <ActivityForm
           areas={areas}
@@ -139,6 +149,11 @@ export default function ActivitiesPage() {
           onCancel={() => setFormOpen(false)}
         />
       </FormDialog>
+      <ActivityDetailDialog
+        activity={selectedActivity}
+        open={detailOpen}
+        onOpenChange={setDetailOpen}
+      />
     </div>
   );
 }

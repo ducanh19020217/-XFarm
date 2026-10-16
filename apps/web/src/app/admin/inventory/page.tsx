@@ -1,5 +1,5 @@
-import { PageHeader } from '@xfarm/ui';
+import { redirect } from 'next/navigation';
 
 export default function InventoryPage() {
-  return <PageHeader title="Kho" description="Phân hệ quản lý kho đang được hoàn thiện." />;
+  redirect('/admin/inventory/items');
 }
