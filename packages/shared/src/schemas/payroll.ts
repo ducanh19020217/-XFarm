@@ -27,7 +27,10 @@ export const createPayrollSchema = z.object({
     errorMap: () => ({ message: 'Ngày kết thúc kỳ lương không hợp lệ' }),
   }),
   amount: z.coerce.number().min(0, 'Số tiền lương không được âm'),
-  details: z.union([z.record(z.string(), z.any()), z.array(z.any())]).optional().default([]),
+  details: z
+    .union([z.record(z.string(), z.any()), z.array(z.any())])
+    .optional()
+    .default([]),
   status: z.nativeEnum(PayrollStatus).optional().default(PayrollStatus.DRAFT),
 });
 

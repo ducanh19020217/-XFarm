@@ -146,6 +146,126 @@ export class CyclesService {
     return this.present(updated);
   }
 
+  async getLaborCost(id: string) {
+    const cycle = await prisma.cycle.findUnique({ where: { id } });
+    if (!cycle) {
+      throw new NotFoundException('Không tìm thấy mùa vụ');
+    }
+
+    const attendances = await prisma.attendance.findMany({
+      where: { cycleId: id },
+      include: {
+        employee: true,
+      },
+      orderBy: [{ date: 'asc' }, { id: 'asc' }],
+    });
+
+    const employeeMap = new Map<
+      string,
+      {
+        employeeId: string;
+        employeeCode: string;
+        employeeName: string;
+        fullName: string;
+        payType: string;
+        baseRate: number;
+        totalHours: number;
+        totalDays: number;
+        totalPieceQty: number;
+        totalCost: number;
+        amount: number;
+        laborCost: number;
+        attendances: Array<{
+          date: string;
+          hours: number;
+          pieceQty: number | null;
+          amount: number;
+          notes?: string | null;
+        }>;
+        details: Array<{
+          date: string;
+          hours: number;
+          pieceQty: number | null;
+          amount: number;
+          notes?: string | null;
+        }>;
+      }
+    >();
+
+    for (const att of attendances) {
+      const emp = att.employee;
+      let empData = employeeMap.get(emp.id);
+      if (!empData) {
+        empData = {
+          employeeId: emp.id,
+          employeeCode: emp.code,
+          employeeName: emp.fullName,
+          fullName: emp.fullName,
+          payType: emp.payType,
+          baseRate: Number(emp.baseRate),
+          totalHours: 0,
+          totalDays: 0,
+          totalPieceQty: 0,
+          totalCost: 0,
+          amount: 0,
+          laborCost: 0,
+          attendances: [],
+          details: [],
+        };
+        employeeMap.set(emp.id, empData);
+      }
+
+      const hours = Number(att.hours ?? 0);
+      const pieceQty = att.pieceQty != null ? Number(att.pieceQty) : null;
+      let lineCost = 0;
+      let dayWork = 0;
+
+      if (emp.payType === 'DAILY') {
+        dayWork = hours >= 4 ? 1 : 0.5;
+        lineCost = Math.round(dayWork * Number(emp.baseRate));
+        empData.totalDays += dayWork;
+      } else if (emp.payType === 'PIECE') {
+        lineCost = Math.round(Number(pieceQty ?? 0) * Number(emp.baseRate));
+        empData.totalPieceQty += Number(pieceQty ?? 0);
+      } else if (emp.payType === 'MONTHLY') {
+        dayWork = hours >= 4 ? 1 : 0.5;
+        const dailyRate = Number(emp.baseRate) / 26;
+        lineCost = Math.round(dayWork * dailyRate);
+        empData.totalDays += dayWork;
+      }
+
+      empData.totalHours += hours;
+      empData.totalCost += lineCost;
+      empData.amount += lineCost;
+      empData.laborCost += lineCost;
+
+      const detailLine = {
+        date: att.date.toISOString().split('T')[0],
+        hours,
+        pieceQty,
+        amount: lineCost,
+        notes: att.notes ?? null,
+      };
+      empData.attendances.push(detailLine);
+      empData.details.push(detailLine);
+    }
+
+    const employees = Array.from(employeeMap.values());
+    const totalLaborCost = employees.reduce((sum, e) => sum + e.totalCost, 0);
+
+    return {
+      cycleId: id,
+      cycleCode: cycle.code,
+      cycleName: cycle.name,
+      total: totalLaborCost,
+      totalLaborCost,
+      amount: totalLaborCost,
+      employees,
+      byEmployee: employees,
+      details: employees,
+    };
+  }
+
   private async ensureExists(id: string) {
     const cycle = await prisma.cycle.findUnique({ where: { id } });
     if (!cycle) throw new NotFoundException('Không tìm thấy mùa vụ');

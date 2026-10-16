@@ -95,6 +95,7 @@ async function main() {
       '/items',
       '/warehouses',
       '/suppliers',
+      '/payrolls',
     ];
 
     for (const route of routes) {
