@@ -8,6 +8,7 @@ import { Button, StatusBadge } from '@xfarm/ui';
 import { apiFetch } from '@/lib/api';
 import { useAdminUser } from '../admin-user-context';
 import { RegisterServiceWorker } from './_components/register-sw';
+import { SyncStatusBar } from './_components/sync-status-bar';
 
 interface MobileTabItem {
   title: string;
@@ -82,54 +83,59 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
       <RegisterServiceWorker />
 
       {/* Top Mobile Bar */}
-      <header className="sticky top-0 z-30 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-xs px-4 py-3">
-        <div className="max-w-md mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-600 text-white shadow-xs">
-              <Sprout className="h-5 w-5" />
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-base font-bold text-slate-900 dark:text-slate-100">
-                  XFarm Công nhân
-                </span>
-                {isOnline ? (
-                  <span
-                    className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full text-[10px] font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-400"
-                    title="Đang có kết nối mạng"
-                  >
-                    <Wifi className="h-2.5 w-2.5" />
-                    Online
+      <header className="sticky top-0 z-30 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-xs">
+        <div className="px-4 py-3">
+          <div className="max-w-md mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-600 text-white shadow-xs">
+                <Sprout className="h-5 w-5" />
+              </div>
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-base font-bold text-slate-900 dark:text-slate-100">
+                    XFarm Công nhân
                   </span>
-                ) : (
-                  <span
-                    className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full text-[10px] font-medium bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-400"
-                    title="Chế độ ngoại tuyến"
-                  >
-                    <WifiOff className="h-2.5 w-2.5" />
-                    Offline
-                  </span>
+                  {isOnline ? (
+                    <span
+                      className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full text-[10px] font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-400"
+                      title="Đang có kết nối mạng"
+                    >
+                      <Wifi className="h-2.5 w-2.5" />
+                      Online
+                    </span>
+                  ) : (
+                    <span
+                      className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full text-[10px] font-medium bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-400"
+                      title="Chế độ ngoại tuyến"
+                    >
+                      <WifiOff className="h-2.5 w-2.5" />
+                      Offline
+                    </span>
+                  )}
+                </div>
+                {user && (
+                  <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                    <span className="font-medium truncate max-w-[140px]">{user.fullName}</span>
+                    <span>•</span>
+                    <StatusBadge status={user.role} />
+                  </div>
                 )}
               </div>
-              {user && (
-                <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
-                  <span className="font-medium truncate max-w-[140px]">{user.fullName}</span>
-                  <span>•</span>
-                  <StatusBadge status={user.role} />
-                </div>
-              )}
             </div>
-          </div>
 
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleLogout}
-            className="h-9 w-9 p-0 text-slate-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/50"
-            title="Đăng xuất"
-          >
-            <LogOut className="h-4 w-4" />
-          </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLogout}
+              className="h-9 w-9 p-0 text-slate-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/50"
+              title="Đăng xuất"
+            >
+              <LogOut className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+        <div className="max-w-md mx-auto">
+          <SyncStatusBar />
         </div>
       </header>
 

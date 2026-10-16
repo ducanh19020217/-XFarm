@@ -181,6 +181,7 @@ export default function TodayTasksPage() {
                 ...t,
                 status: updated?.status || TaskStatus.DONE,
                 completedAt: new Date().toISOString(),
+                pendingSync: Boolean(updated?.pendingSync),
               }
             : t,
         ),
@@ -283,11 +284,18 @@ export default function TodayTasksPage() {
                       </p>
                     )}
                   </div>
-                  <span
-                    className={`inline-flex shrink-0 items-center px-2 py-0.5 rounded-full text-[11px] font-bold ${statusConfig.color}`}
-                  >
-                    {statusConfig.text}
-                  </span>
+                  <div className="flex flex-col items-end gap-1 shrink-0">
+                    <span
+                      className={`inline-flex shrink-0 items-center px-2 py-0.5 rounded-full text-[11px] font-bold ${statusConfig.color}`}
+                    >
+                      {statusConfig.text}
+                    </span>
+                    {task.pendingSync && (
+                      <span className="inline-flex shrink-0 items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-400">
+                        Chờ đồng bộ
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 {/* Metadata badges */}

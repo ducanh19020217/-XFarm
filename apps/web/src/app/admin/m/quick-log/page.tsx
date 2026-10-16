@@ -175,9 +175,15 @@ function QuickLogContent() {
         mediaIds: mediaIds.length > 0 ? mediaIds : undefined,
       };
 
-      await mobileApi.createQuickActivity(payload);
+      const res = (await mobileApi.createQuickActivity(payload)) as {
+        pendingSync?: boolean;
+      } | null;
 
-      showToast('Đã lưu nhật ký thành công!');
+      if (res?.pendingSync || (typeof navigator !== 'undefined' && !navigator.onLine)) {
+        showToast('Đã lưu ngoại tuyến (Chờ đồng bộ)!');
+      } else {
+        showToast('Đã lưu nhật ký thành công!');
+      }
       // Reset form
       setNotes('');
       setMetricValue('');
