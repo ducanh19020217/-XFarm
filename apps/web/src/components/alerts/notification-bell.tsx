@@ -20,11 +20,15 @@ export function NotificationBell() {
   const [recentAlerts, setRecentAlerts] = React.useState<AlertItem[]>([]);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
+  const countRequestVersion = React.useRef(0);
 
   const fetchCount = React.useCallback(async () => {
+    const requestVersion = countRequestVersion.current;
     try {
       const count = await getUnreadAlertCount();
-      setUnreadCount(count);
+      if (requestVersion === countRequestVersion.current) {
+        setUnreadCount(count);
+      }
     } catch {
       // Ignore count fetch errors
     }
@@ -101,12 +105,15 @@ export function NotificationBell() {
 
   const handleMarkAsRead = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    countRequestVersion.current += 1;
+    setUnreadCount((count) => Math.max(0, count - 1));
     try {
       await markAlertAsRead(id);
       setRecentAlerts((prev) =>
         prev.map((a) => (a.id === id ? { ...a, readAt: new Date().toISOString() } : a)),
       );
     } catch {
+      setUnreadCount((count) => count + 1);
       // Ignore mark read errors
     }
   };

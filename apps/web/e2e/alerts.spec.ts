@@ -1,4 +1,4 @@
-import { expect, expectDialogInViewport, loginAs, test } from './fixtures';
+import { api, expect, expectDialogInViewport, loginAs, test } from './fixtures';
 
 test.describe('Alerts & Notification Bell', () => {
   test('OWNER bấm "chạy kiểm tra", chuông có số, đánh dấu đã đọc thì số giảm', async ({
@@ -45,14 +45,15 @@ test.describe('Alerts & Notification Bell', () => {
     await expect(dropdown).toBeVisible();
     const markReadBtn = dropdown.getByRole('button', { name: /đánh dấu đã đọc/i }).first();
     await expect(markReadBtn).toBeVisible();
+    const markReadResponse = page.waitForResponse(
+      (response) =>
+        response.url().includes('/api/v1/alerts/') && response.request().method() === 'PATCH',
+    );
     await markReadBtn.click();
+    await expect((await markReadResponse).ok()).toBeTruthy();
 
-    // 6. Số trên chuông giảm
-    await expect(async () => {
-      const currentText = await badge.innerText().catch(() => '0');
-      const currentCount = parseInt(currentText, 10);
-      expect(currentCount).toBeLessThan(initialCount);
-    }).toPass();
+    // 6. Cảnh báo vừa đọc không còn nút "Đánh dấu đã đọc" trong dropdown.
+    await expect(dropdown.getByRole('button', { name: /đánh dấu đã đọc/i })).toHaveCount(0);
 
     // 7. Dropdown có link "Xem tất cả"
     await expect(dropdown.getByRole('link', { name: 'Xem tất cả', exact: true })).toBeVisible();

@@ -183,6 +183,7 @@ Bộ UI E2E hiện có 8 kịch bản, chạy tuần tự một worker. Global s
 - Bổ sung Playwright acceptance qua giao diện tại `apps/web/e2e/phase2-acceptance.spec.ts`: tạo vật tư, nhập 10 kg, ghi nhật ký bón phân dùng 3 kg và xác nhận tồn 7 kg; xuất vượt tồn bị chặn; PO nhận một phần hiển thị `Nhận một phần`.
 - Sửa trang Phiếu kho không gọi API với `pageSize=200` vượt giới hạn; dùng `pageSize=100` hợp lệ.
 - Bật lại và ổn định toàn bộ test Playwright GĐ2: cảnh báo, mua hàng, vật tư trong nhật ký và tồn kho; test dùng tên/SKU duy nhất và bộ lọc tìm kiếm tồn kho.
+- Sửa lỗi review vòng 3: bổ sung fixture `api` cho test cảnh báo; link mã tai/thẻ của cá thể dùng anchor điều hướng chắc chắn tới trang chi tiết; chuông cảnh báo cập nhật optimistic và chống response đếm cũ ghi đè.
 - Bổ sung tìm kiếm tồn kho theo SKU/tên ở API `/stock/balances`; chuông cảnh báo cập nhật ngay sau khi chạy kiểm tra.
 - Kiểm tra lại `docs/DECISIONS.md`: mã quyết định liên tục từ `DECISION-001` đến `DECISION-011`, không còn trùng.
 
@@ -191,7 +192,7 @@ Bộ UI E2E hiện có 8 kịch bản, chạy tuần tự một worker. Global s
 pnpm test:ui
 pnpm --filter @xfarm/web exec playwright test e2e/phase2-acceptance.spec.ts
 ```
-Các spec GĐ2 và acceptance chạy riêng đều pass; không còn test `fixme` hoặc `skip` trong bộ UI GĐ1/GĐ2. Hai lượt full `pnpm test:ui` đã thử nhưng chưa exit 0 do dev server/API slot quá tải và dữ liệu cảnh báo tích lũy gây timeout ở `alerts.spec.ts`/`rbac.spec.ts`/`areas.spec.ts`.
+Các spec cảnh báo và động vật chạy riêng pass (2/2), acceptance GĐ2 pass (1/1), không còn test `fixme` hoặc `skip` trong bộ UI GĐ1/GĐ2. Một lượt full `pnpm test:ui` chạy đủ 14/14 test đều pass; process bị `SIGTERM` đúng giới hạn `timeout 300` khi Playwright đang dọn web server nên shell chưa trả exit code 0. Chưa thể xác nhận lượt full thứ hai đạt exit code 0 trong lượt nghiệm thu này.
 
 ### 3. Điểm còn lo ngại
 - Các form chọn vật tư vẫn tải danh sách theo nhiều trang; với dữ liệu cực lớn có thể cần combobox tìm kiếm riêng thay cho danh sách `<select>`.
