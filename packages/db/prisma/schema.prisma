@@ -1,0 +1,317 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  OWNER
+  MANAGER
+  ACCOUNTANT
+  SALES
+  WORKER
+}
+
+enum AreaType {
+  ZONE
+  FIELD
+  GREENHOUSE
+  BARN
+  POND
+  VISITOR_ZONE
+  WAREHOUSE_ZONE
+}
+
+enum CycleKind {
+  CROP
+  LIVESTOCK
+  AQUA
+}
+
+enum CycleStatus {
+  PLANNED
+  ACTIVE
+  HARVESTING
+  CLOSED
+  CANCELLED
+}
+
+enum ActivityType {
+  SOWING
+  PLANTING
+  FERTILIZING
+  SPRAYING
+  IRRIGATION
+  PRUNING
+  WEEDING
+  FEEDING
+  VACCINATION
+  TREATMENT
+  WATER_TEST
+  STOCKING
+  MORTALITY
+  WEIGHING
+  HARVEST
+  CLEANING
+  OTHER
+}
+
+enum AnimalSex {
+  MALE
+  FEMALE
+  UNKNOWN
+}
+
+enum AnimalStatus {
+  ALIVE
+  SOLD
+  DEAD
+}
+
+enum AnimalEventType {
+  VACCINATION
+  TREATMENT
+  BREEDING
+  BIRTH
+  WEIGHING
+  DEATH
+  SALE
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  fullName     String
+  phone        String?
+  role         Role     @default(WORKER)
+  isActive     Boolean  @default(true)
+  employeeId   String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  refreshTokens       RefreshToken[]
+  auditLogs           AuditLog[]
+  media               Media[]
+  areasCreated        Area[]        @relation("AreasCreated")
+  cyclesCreated       Cycle[]       @relation("CyclesCreated")
+  activitiesCreated   Activity[]    @relation("ActivitiesCreated")
+  activitiesPerformed Activity[]    @relation("ActivitiesPerformed")
+  animalGroupsCreated AnimalGroup[] @relation("AnimalGroupsCreated")
+  animalsCreated      Animal[]      @relation("AnimalsCreated")
+  animalEventsCreated AnimalEvent[] @relation("AnimalEventsCreated")
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([tokenHash])
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model Sequence {
+  id      String @id @default(cuid())
+  key     String
+  year    Int
+  current Int    @default(0)
+
+  @@unique([key, year])
+  @@map("sequences")
+}
+
+model Media {
+  id           String   @id @default(cuid())
+  url          String
+  key          String
+  mime         String
+  size         Int
+  alt          String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  uploadedById String?
+
+  uploadedBy User? @relation(fields: [uploadedById], references: [id])
+
+  @@map("media")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String
+  entity    String
+  entityId  String
+  diff      Json?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([entity, entityId])
+  @@index([userId])
+  @@map("audit_logs")
+}
+
+model Area {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  name        String
+  type        AreaType
+  parentId    String?
+  areaM2      Decimal?  @db.Decimal(18, 3)
+  geojson     Json?
+  description String?
+  isActive    Boolean   @default(true)
+  createdById String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  parent       Area?         @relation("AreaHierarchy", fields: [parentId], references: [id])
+  children     Area[]        @relation("AreaHierarchy")
+  createdBy    User?         @relation("AreasCreated", fields: [createdById], references: [id])
+  cycles       Cycle[]
+  activities   Activity[]
+  animalGroups AnimalGroup[]
+
+  @@index([parentId])
+  @@index([type])
+  @@map("areas")
+}
+
+model Cycle {
+  id              String      @id @default(cuid())
+  code            String      @unique
+  name            String
+  kind            CycleKind
+  areaId          String
+  species         String
+  variety         String?
+  startDate       DateTime
+  expectedEndDate DateTime?
+  endDate         DateTime?
+  status          CycleStatus @default(PLANNED)
+  expectedYield   Decimal?    @db.Decimal(18, 3)
+  yieldUnit       String?
+  initialQuantity Decimal?    @db.Decimal(18, 3)
+  notes           String?
+  createdById     String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  area         Area          @relation(fields: [areaId], references: [id])
+  createdBy    User?         @relation("CyclesCreated", fields: [createdById], references: [id])
+  activities   Activity[]
+  animalGroups AnimalGroup[]
+
+  @@index([areaId, status])
+  @@index([status])
+  @@map("cycles")
+}
+
+model Activity {
+  id            String       @id @default(cuid())
+  cycleId       String?
+  areaId        String
+  type          ActivityType
+  performedAt   DateTime     @default(now())
+  performedById String?
+  quantity      Decimal?     @db.Decimal(18, 3)
+  unit          String?
+  data          Json?
+  notes         String?
+  mediaIds      String[]     @default([])
+  createdById   String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  cycle       Cycle? @relation(fields: [cycleId], references: [id], onDelete: SetNull)
+  area        Area   @relation(fields: [areaId], references: [id])
+  performedBy User?  @relation("ActivitiesPerformed", fields: [performedById], references: [id])
+  createdBy   User?  @relation("ActivitiesCreated", fields: [createdById], references: [id])
+
+  @@index([cycleId, performedAt])
+  @@index([areaId, performedAt])
+  @@index([type])
+  @@map("activities")
+}
+
+model AnimalGroup {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  cycleId     String
+  species     String
+  breed       String?
+  headCount   Int      @default(0)
+  areaId      String
+  notes       String?
+  createdById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  cycle     Cycle    @relation(fields: [cycleId], references: [id])
+  area      Area     @relation(fields: [areaId], references: [id])
+  createdBy User?    @relation("AnimalGroupsCreated", fields: [createdById], references: [id])
+  animals   Animal[]
+
+  @@index([cycleId])
+  @@index([areaId])
+  @@map("animal_groups")
+}
+
+model Animal {
+  id          String       @id @default(cuid())
+  tag         String       @unique
+  groupId     String?
+  species     String
+  breed       String?
+  sex         AnimalSex    @default(UNKNOWN)
+  birthDate   DateTime?
+  status      AnimalStatus @default(ALIVE)
+  motherId    String?
+  notes       String?
+  createdById String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  group     AnimalGroup?  @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  mother    Animal?       @relation("AnimalOffspring", fields: [motherId], references: [id], onDelete: SetNull)
+  offspring Animal[]      @relation("AnimalOffspring")
+  createdBy User?         @relation("AnimalsCreated", fields: [createdById], references: [id])
+  events    AnimalEvent[]
+
+  @@index([groupId])
+  @@index([motherId])
+  @@index([status])
+  @@map("animals")
+}
+
+model AnimalEvent {
+  id          String          @id @default(cuid())
+  animalId    String
+  type        AnimalEventType
+  date        DateTime        @default(now())
+  data        Json?
+  notes       String?
+  createdById String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  animal    Animal @relation(fields: [animalId], references: [id], onDelete: Cascade)
+  createdBy User?  @relation("AnimalEventsCreated", fields: [createdById], references: [id])
+
+  @@index([animalId, date])
+  @@index([type])
+  @@map("animal_events")
+}

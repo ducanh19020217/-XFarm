@@ -1,0 +1,84 @@
+name: xfarm
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: xfarm_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-xfarm}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-xfarm_secret}
+      POSTGRES_DB: ${POSTGRES_DB:-xfarm}
+    ports:
+      - '${POSTGRES_PORT:-5442}:5432'
+    volumes:
+      - xfarm_pgdata:/var/lib/postgresql/data
+      - ./scripts/init-test-db.sql:/docker-entrypoint-initdb.d/init-test-db.sql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-xfarm}']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: xfarm_redis
+    restart: unless-stopped
+    ports:
+      - '${REDIS_PORT:-6389}:6379'
+    volumes:
+      - xfarm_redisdata:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    # rustfs 1.0.1 (pin theo digest để không tự lên bản mới)
+    image: rustfs/rustfs@sha256:1803faef57627e2d9c2e7d89d655d712ddded5389040054987163043fecb6a3c
+    container_name: xfarm_minio
+    restart: unless-stopped
+    user: root
+    environment:
+      RUSTFS_ACCESS_KEY: ${MINIO_ROOT_USER:-xfarm_minio}
+      RUSTFS_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-xfarm_minio_secret}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-xfarm_minio}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-xfarm_minio_secret}
+      RUSTFS_CONSOLE_ENABLE: 'true'
+      RUSTFS_CONSOLE_ADDRESS: ':9001'
+      RUSTFS_ADDRESS: ':9000'
+    ports:
+      - '${MINIO_PORT:-9010}:9000'
+      - '${MINIO_CONSOLE_PORT:-9011}:9001'
+    volumes:
+      - xfarm_miniodata:/data
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -sf http://localhost:9000/minio/health/live || exit 1']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  createbuckets:
+    image: amazon/aws-cli
+    container_name: xfarm_createbuckets
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      AWS_ACCESS_KEY_ID: ${MINIO_ROOT_USER:-xfarm_minio}
+      AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD:-xfarm_minio_secret}
+      AWS_DEFAULT_REGION: us-east-1
+      MINIO_BUCKET: ${MINIO_BUCKET:-xfarm-media}
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        aws --endpoint-url http://minio:9000 s3 mb s3://$${MINIO_BUCKET:-xfarm-media} || true
+        aws --endpoint-url http://minio:9000 s3api put-bucket-policy --bucket $${MINIO_BUCKET:-xfarm-media} --policy '{"Version":"2012-10-17","Statement":[{"Sid":"PublicRead","Effect":"Allow","Principal":"*","Action":["s3:GetObject"],"Resource":["arn:aws:s3:::'"$${MINIO_BUCKET:-xfarm-media}"'/*"]}]}' || true
+        echo 'Bucket created successfully'
+
+volumes:
+  xfarm_pgdata:
+  xfarm_redisdata:
+  xfarm_miniodata:

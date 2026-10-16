@@ -1,0 +1,26 @@
+# phase-0-fixes – Hoàn tất
+
+## Tóm tắt
+
+Đã sửa đầy đủ các lỗi sau review trên nhánh `phase-0-foundation`:
+
+1. Refresh đồng thời: single-flight refresh ở web; refresh rotation nguyên tử trong transaction; grace period 30 giây; bổ sung e2e cho refresh song song và token reuse quá grace period. Commit: `fe67402`.
+2. Token không còn xuất hiện trong JSON login/refresh; refresh/logout chỉ đọc cookie. E2E đọc token qua `set-cookie`. Commit: `fe67402`.
+3. Thêm cookie cờ `session`, middleware kiểm tra `access_token || session`, logout xóa session; client chuyển `/login` khi refresh thất bại. Commit: `fe67402`.
+4. Audit bỏ qua toàn bộ `/auth/*` và che đệ quy các key `pass|token|secret|authorization`; thêm unit test. Commit: `4137aa3`.
+5. Media chỉ nhận key đúng định dạng, kiểm tra `HeadObject`, tự dựng URL và lấy MIME/size từ object; extension presign lấy từ whitelist MIME. Commit: `0e2af46`.
+6. Login verify mật khẩu trước khi kiểm tra active, verify hash giả khi email không tồn tại; cookie `secure` theo `NODE_ENV`; gom helper cookie; JWT secret tối thiểu 32 ký tự và cập nhật `.env.example`. Commit: `fe67402`, `9516fdf`.
+
+## Kiểm tra
+
+- Trước sửa: 13 API e2e + 2 web Vitest = 15 test.
+- Sau sửa: 14 API e2e + 1 API unit + 3 web Vitest = 18 test.
+- `pnpm lint` — đạt.
+- `pnpm typecheck` — đạt.
+- `pnpm test` — đạt: API 15 test, web 3 test.
+- `pnpm test:e2e` — đạt: API 14 test.
+- `pnpm build` — đạt.
+
+## Chưa làm được
+
+Không có.

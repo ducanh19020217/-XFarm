@@ -1,0 +1,3 @@
+pong
+Gemini 3.8 Flash
+Kế hoạch trong docs/PLAN.md gồm 8 giai đoạn (GĐ 0–7), trong đó GĐ 0 là xây dựng nền tảng kỹ thuật (monorepo, docker-compose, package db với schema hệ thống, API NestJS auth/users và giao diện Web Next.js admin).

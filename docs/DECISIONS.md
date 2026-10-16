@@ -1,0 +1,81 @@
+# XFarm – Nhật ký Quyết định Kỹ thuật (Decisions Log)
+
+Tài liệu này ghi lại các quyết định thiết kế và kỹ thuật quan trọng trong quá trình triển khai dự án XFarm.
+
+### DECISION-008: Đưa Playwright E2E lên GĐ 1
+- **Bối cảnh**: Lỗi giao diện liên quan đến layout và tương tác trình duyệt thật không được phát hiện bởi test jsdom; yêu cầu sản phẩm cần kiểm tra ngay các luồng GĐ 0–1.
+- **Quyết định**: Bổ sung bộ test Playwright tại `apps/web/e2e` trong task P1, dùng Chrome hệ thống và không tải browser riêng.
+- **Hệ quả**: `test:ui` cần web/API đang chạy và database slot đã migrate/seed; kế hoạch gốc đặt Playwright ở GĐ 3 được điều chỉnh cho mục tiêu kiểm thử sớm.
+
+---
+
+### DECISION-007: Dùng TypeScript watch và Node watch cho API development server
+- **Bối cảnh**: `tsx watch` dùng esbuild và không phát sinh `emitDecoratorMetadata`, khiến NestJS không inject được các dependency constructor không có `@Inject()` trong môi trường dev.
+- **Quyết định**: Đổi script `@xfarm/api dev` sang script chạy `tsc` một lần, sau đó chạy `tsc --watch` song song với `node --watch dist/src/main.js`. TypeScript compiler dùng `tsconfig.json` hiện tại nên phát sinh decorator metadata trong lúc watch.
+- **Lý do chọn phương án**: Nest CLI Webpack cần thêm loader và khi chạy trong monorepo này externalize `@xfarm/shared`, dẫn tới lỗi ESM source không có extension. Phương án compiler/runtime tách đôi không cần thay đổi package shared.
+- **Hệ quả**: Hot reload vẫn được giữ, dev server dùng cùng cơ chế metadata với bản build `tsc`; thêm smoke test khởi động bằng chính script `dev` để kiểm tra các route bị ảnh hưởng.
+
+---
+
+### DECISION-001: Quản lý biến môi trường trong Monorepo Prisma với dotenv-cli
+- **Bối cảnh**: Trong kiến trúc monorepo Turborepo, tệp cấu hình `.env` duy nhất được lưu tại thư mục gốc của dự án. Mặc định, Prisma CLI chạy trong thư mục `packages/db` sẽ chỉ tìm tệp `.env` tại thư mục làm việc hiện tại của nó.
+- **Quyết định**: Sử dụng `dotenv-cli` trong các kịch bản script của `@xfarm/db` (`dotenv -e ../../.env -- prisma ...`) và export biến môi trường tương ứng.
+- **Hệ quả**: Tất cả các thao tác `pnpm db:migrate`, `pnpm db:seed`, `pnpm db:studio`, `pnpm db:reset` từ thư mục gốc hoặc trong package `db` đều đồng bộ, không cần duplicate file `.env`.
+
+---
+
+### DECISION-002: Hỗ trợ xác thực kép (HttpOnly Cookie & Authorization Bearer Header)
+- **Bối cảnh**: Yêu cầu đề bài chỉ định lưu `access_token` và `refresh_token` trong httpOnly cookie để bảo mật cho trình duyệt Web Next.js. Tuy nhiên, việc kiểm thử tự động, tích hợp tài liệu Swagger OpenAPI (`/docs`), và các công cụ dòng lệnh như `curl` cũng cần cơ chế xác thực tiện lợi.
+- **Quyết định**: `JwtStrategy` của NestJS được cấu hình với custom extractor: ưu tiên trích xuất JWT từ cookie `access_token`, nếu không có sẽ trích xuất từ header `Authorization: Bearer <token>`.
+- **Hệ quả**: Frontend hoạt động mượt mà và bảo mật với httpOnly cookie, đồng thời Swagger UI và các bài test API e2e đều có thể dễ dàng kiểm thử.
+
+---
+
+### DECISION-003: Cơ chế xoay vòng Refresh Token (Rotation) và Thu hồi toàn bộ khi phát hiện tái sử dụng
+- **Bối cảnh**: Refresh token có thời hạn 7 ngày. Nếu bị lộ, kẻ tấn công có thể cố gắng làm mới token liên tục.
+- **Quyết định**:
+  1. Mỗi lần gọi `POST /auth/refresh`, refresh token cũ ngay lập tức bị gán `revokedAt = now()`.
+  2. Một refresh token ngẫu nhiên mới được cấp phát và lưu mã băm SHA-256 vào database.
+  3. Nếu nhận được một refresh token đã có `revokedAt !== null` (tức token cũ đã từng được sử dụng trước đó), hệ thống lập tức phát hiện nguy cơ tấn công đánh cắp token và tiến hành **thu hồi (revoke) toàn bộ refresh token hiện có của user đó**, buộc đăng nhập lại từ đầu.
+- **Hệ quả**: Ngăn chặn hoàn toàn các cuộc tấn công tái sử dụng token (Token Reuse Attack).
+
+---
+
+### DECISION-004: Tách biệt cơ sở dữ liệu kiểm thử (xfarm_test)
+- **Bối cảnh**: Test e2e cần chạy liên tục trong quá trình phát triển và CI/CD mà không làm bẩn hoặc xóa nhầm dữ liệu đang phát triển trong database `xfarm`.
+- **Quyết định**: Khởi tạo database riêng biệt `xfarm_test` trong cùng container PostgreSQL thông qua script `scripts/init-test-db.sql`. Bộ test `app.e2e-spec.ts` tự động đồng bộ schema và dọn dẹp các bảng trên `xfarm_test` trước khi chạy.
+- **Hệ quả**: Test e2e chạy nhanh, độc lập, tin cậy và không bao giờ ảnh hưởng tới môi trường dev.
+
+---
+
+### DECISION-005: Thay thế MinIO bằng RustFS và amazon/aws-cli cho môi trường phát triển (S3-compatible Storage)
+- **Bối cảnh**:
+  - Image `minio/minio` trên Docker Hub trả về lỗi `pull access denied` (không còn cho phép pull công khai).
+  - Tương tự, image `quay.io/minio/minio` báo `unauthorized` và `minio/mc` cũng bị hạn chế truy cập (`pull access denied`).
+  - Hệ thống cần một dịch vụ lưu trữ tương thích chuẩn S3 API cho môi trường dev và test để lưu trữ media (`xfarm-media`).
+- **Các phương án đã thử nghiệm**:
+  1. `rustfs/rustfs`: Hình ảnh công khai tải về thành công ngay lập tức (`docker pull rustfs/rustfs`). Tương thích hoàn toàn chuẩn AWS S3 API, hỗ trợ path-style addressing (`forcePathStyle: true`), hỗ trợ trực tiếp các biến môi trường cấu hình gốc của MinIO (`MINIO_ROOT_USER`, `MINIO_ROOT_PASSWORD`), có endpoint kiểm tra sức khỏe tương thích `/minio/health/live`, khởi động cực nhanh và tốn ít tài nguyên.
+  2. `minio/mc`: Đã thử pull nhưng gặp lỗi `pull access denied` từ Docker Hub.
+  3. `amazon/aws-cli`: Hình ảnh công khai tải về thành công (`docker pull amazon/aws-cli`), thay thế hoàn hảo cho `minio/mc` trong tác vụ khởi tạo bucket `xfarm-media` và áp dụng chính sách truy cập công khai (public read policy) qua AWS CLI chuẩn (`s3 mb`, `s3api put-bucket-policy`).
+  (Các ứng viên dự phòng khác trong danh sách đề bài gồm `chrislusf/seaweedfs`, `garagehq/garage`, `bitnami/minio`, `bitnamilegacy/minio` không cần dùng đến do `rustfs/rustfs` hoạt động tốt ngay từ lần thử đầu tiên).
+- **Quyết định**:
+  - Sử dụng `rustfs/rustfs` thay thế `minio/minio` trong `docker-compose.yml`, giữ nguyên cổng 9010 (S3 API) và 9011 (Console), giữ nguyên tên biến môi trường `MINIO_*` và cấu hình volume `xfarm_miniodata`.
+  - Sử dụng `amazon/aws-cli` thay thế `minio/minio` trong container `createbuckets` để tạo bucket `xfarm-media` và set anonymous public read policy một cách idempotent.
+- **Hệ quả**:
+  - Môi trường phát triển và kiểm thử khôi phục đầy đủ khả năng lưu trữ đối tượng tương thích S3.
+  - Không cần sửa đổi bất kỳ biến môi trường nào trong ứng dụng và toàn bộ luồng tạo presigned PUT, upload, head object, public get và delete đều hoạt động chính xác.
+
+---
+
+### DECISION-006: Lựa chọn Leaflet kết hợp @geoman-io/leaflet-geoman-free cho bản đồ khu/lô
+- **Bối cảnh**:
+  - Giao diện quản lý Khu/lô yêu cầu hiển thị bản đồ nền OpenStreetMap, trực quan hóa ranh giới polygon theo loại khu, và cho phép vẽ, sửa đổi polygon để lưu tọa độ GeoJSON vào database.
+  - Đề bài gợi ý hai phương án: `leaflet-draw` hoặc `@geoman-io/leaflet-geoman-free`.
+- **Đánh giá phương án**:
+  1. `leaflet-draw`: Phiên bản cuối cùng ra mắt cách đây nhiều năm (v1.0.4 từ 2018), thiếu hỗ trợ TypeScript chính thức, gặp nhiều xung đột và vấn đề tương thích khi chạy cùng Leaflet 1.9+ và React 19 / Next.js 15.
+  2. `@geoman-io/leaflet-geoman-free`: Thư viện vẽ và chỉnh sửa hình học (polygon, marker, rectangle...) hiện đại hàng đầu cho Leaflet, được duy trì tích cực (v2.20+), hỗ trợ TypeScript đầy đủ, API thao tác trực tiếp với layer GeoJSON tiện lợi (`map.pm.getGeomanLayers()`, `toGeoJSON()`), hỗ trợ chế độ chỉnh sửa đỉnh (vertex edit), kéo dãn (drag), cắt hình (cut), xoay và xóa rất mượt mà.
+- **Quyết định**:
+  - Sử dụng `leaflet` kết hợp `@geoman-io/leaflet-geoman-free` (cùng `react-leaflet` khi cần) cho tính năng bản đồ và biên tập polygon.
+  - Sử dụng `next/dynamic` với `ssr: false` để tải các thành phần bản đồ ở client-side nhằm tránh lỗi SSR do Leaflet yêu cầu đối tượng `window`.
+- **Hệ quả**:
+  - Đảm bảo tính ổn định, dễ bảo trì, khả năng mở rộng tốt cho các giai đoạn tiếp theo (như cắt lô, chia luống, đo diện tích tự động).

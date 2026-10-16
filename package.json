@@ -1,0 +1,24 @@
+{
+  "name": "xfarm",
+  "private": true,
+  "packageManager": "pnpm@9.15.9",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "pnpm format:check && turbo lint",
+    "typecheck": "turbo typecheck",
+    "test": "turbo test",
+    "test:e2e": "turbo test:e2e",
+    "test:ui": "pnpm --filter @xfarm/web test:ui",
+    "db:migrate": "pnpm --filter @xfarm/db db:migrate",
+    "db:seed": "pnpm --filter @xfarm/db db:seed",
+    "db:studio": "pnpm --filter @xfarm/db db:studio",
+    "db:reset": "pnpm --filter @xfarm/db db:reset"
+  },
+  "devDependencies": {
+    "prettier": "^3.9.10",
+    "turbo": "^2.5.0"
+  }
+}

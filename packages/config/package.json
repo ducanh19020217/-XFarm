@@ -1,0 +1,10 @@
+{
+  "name": "@xfarm/config",
+  "private": true,
+  "version": "0.0.0",
+  "exports": {
+    "./tsconfig/*": "./tsconfig/*",
+    "./eslint": "./eslint.config.mjs",
+    "./prettier": "./prettier.config.mjs"
+  }
+}

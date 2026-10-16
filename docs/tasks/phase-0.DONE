@@ -1,0 +1,107 @@
+# Báo cáo hoàn thành Task: phase-0 – Nền tảng (GĐ 0)
+
+- **Nhánh thực hiện**: `phase-0-foundation`
+- **Cam kết cuối**: `b739851` (`feat: implement phase-0 foundation (monorepo, auth, users, media, web and shared packages)`)
+- **Trạng thái**: HOÀN THÀNH
+
+---
+
+## 1. Tóm tắt việc đã làm
+
+1. **Khởi tạo và cấu trúc Monorepo**:
+   - `pnpm-workspace.yaml`, `turbo.json`.
+   - `packages/config`: base, library, nextjs, nestjs tsconfigs; eslint flat config dùng chung; prettier config.
+   - Scripts gốc: `dev`, `build`, `lint`, `typecheck`, `test`, `test:e2e`, `db:migrate`, `db:seed`, `db:studio`, `db:reset`.
+2. **Hạ tầng Docker (`docker-compose.yml`)**:
+   - `postgres:16` (port 5442), `redis:7-alpine` (port 6389), `minio` (API 9010, Console 9011).
+   - Container `createbuckets` tự động thiết lập bucket `xfarm-media` và quyền tải công khai.
+   - Cấu hình database kiểm thử riêng biệt `xfarm_test` qua `scripts/init-test-db.sql`.
+3. **Cơ sở dữ liệu (`packages/db`)**:
+   - Prisma schema cho phân hệ Hệ thống: `User`, `RefreshToken`, `Sequence`, `Media`, `AuditLog`, enum `Role`.
+   - Cuid id, timestamps `createdAt`/`updatedAt`.
+   - Singleton `prisma` export.
+   - `prisma/seed.ts` tạo tài khoản OWNER `admin@xfarm.local` và các tài khoản MANAGER, ACCOUNTANT, SALES, WORKER với mật khẩu `Admin@123` (băm argon2, idempotency qua upsert).
+4. **Gói dùng chung (`packages/shared`)**:
+   - Zod schema: login, create/update user, pagination query.
+   - Type `Paginated<T>` và enum `Role`.
+5. **Thư viện giao diện (`packages/ui`)**:
+   - Đầy đủ các component: `DataTable` (TanStack Table, phân trang phía server, ô tìm kiếm), `FormDialog`, `PageHeader`, `StatusBadge`, `ConfirmDialog`.
+   - Các primitive components shadcn: `Button`, `Input`, `Label`, `Dialog`, `Table`, `Badge`, `Select`.
+6. **Backend API (`apps/api` - NestJS 11, prefix `/api/v1`)**:
+   - Validate biến môi trường bằng Zod khi khởi động (`src/config/env.config.ts`).
+   - Global guards: `JwtAuthGuard` (kèm `@Public()`), `RolesGuard` (kèm `@Roles()`), `ThrottlerGuard`.
+   - Global filter: `AllExceptionsFilter` (bắt ngoại lệ, tự format ZodError thành 400).
+   - Global interceptor: `AuditLogInterceptor` ghi nhật ký mọi request POST/PATCH/PUT/DELETE thành công.
+   - `SequenceService.next(key)` trả mã dạng `KEY-YYYY-0001` trong transaction.
+   - Auth:
+     - `POST /auth/login` cấp 2 cookie httpOnly `access_token` (15 phút) và `refresh_token` (7 ngày, path `/api/v1/auth`), có rate limit.
+     - `POST /auth/refresh` có rotation và cơ chế phát hiện reuse (thu hồi toàn bộ token của user).
+     - `POST /auth/logout`, `GET /auth/me`.
+     - Refresh token hash SHA-256 trong database.
+     - User có `isActive=false` bị chặn login và refresh.
+   - Users CRUD (chỉ OWNER): phân trang, tìm kiếm, tạo, sửa, khóa/mở khóa. Response không chứa `passwordHash`.
+   - Media: `POST /media/presign` (kiểm tra mime ảnh/pdf, giới hạn 10MB, trả về presigned URL qua MinIO S3 SDK), `POST /media` lưu bản ghi.
+   - Swagger OpenAPI tại `/docs`, CORS theo `WEB_URL`, bảo vệ bảo mật với `helmet`.
+7. **Frontend Web (`apps/web` - Next.js 15, Tailwind 4)**:
+   - `middleware.ts` bảo vệ route `/admin/*`, điều hướng về `/login` nếu thiếu cookie xác thực.
+   - `src/lib/api.ts` tự động gửi `credentials: 'include'` và tự động gọi refresh khi gặp 401 rồi gửi lại request.
+   - Trang `/login` dùng react-hook-form + zod schema tiếng Việt.
+   - Layout `/admin`: Sidebar đầy đủ 10 phân hệ trong PLAN (phân hệ chưa làm làm mờ và gắn nhãn "Sắp có"), Header có tên user/vai trò/đăng xuất, hỗ trợ responsive thu gọn trên mobile.
+   - Trang `/admin` chào mừng và `/admin/users` quản lý tài khoản.
+   - 100% giao diện tiếng Việt.
+8. **Tài liệu**:
+   - `README.md`: Hướng dẫn đầy đủ từ đầu.
+   - `.env.example`: Đầy đủ cấu hình biến môi trường.
+   - `docs/PROGRESS.md` và `docs/DECISIONS.md`.
+
+---
+
+## 2. Kết quả các lệnh kiểm tra
+
+### Lệnh 1: `docker compose up -d`
+- Cả 3 container `xfarm_postgres`, `xfarm_redis`, `xfarm_minio` đều Up và Healthy.
+- Container `xfarm_createbuckets` tạo bucket `xfarm-media` thành công.
+
+### Lệnh 2: `pnpm i`
+- Lockfile up to date, 7 workspace projects đã được liên kết và cài đặt đầy đủ.
+
+### Lệnh 3: `pnpm db:migrate && pnpm db:seed`
+- Migration `20261015040401_init` được áp dụng thành công.
+- Seed thành công 5 tài khoản mẫu cho cả 5 vai trò.
+
+### Lệnh 4: `pnpm lint && pnpm typecheck && pnpm test && pnpm test:e2e`
+- **Lint**: 0 lỗi, 0 cảnh báo trên toàn bộ monorepo.
+- **Typecheck**: 0 lỗi TypeScript trên toàn bộ packages (`@xfarm/config`, `@xfarm/db`, `@xfarm/shared`, `@xfarm/ui`, `@xfarm/api`, `@xfarm/web`).
+- **Unit test**:
+  - Web: 2/2 tests Vitest cho `lib/api.ts` passed (refresh token và xử lý lỗi khi refresh thất bại).
+- **API E2E test** (`jest --config test/jest-e2e.json`):
+  - 13/13 tests passed trên database `xfarm_test`:
+    - `SequenceService`: sinh mã tăng dần `KEY-YYYY-0001` (Passed)
+    - `POST /auth/login`: login sai trả về 401 (Passed)
+    - `POST /auth/login`: login đúng trả về 200 và set 2 cookies (Passed)
+    - `GET /auth/me`: không có token trả về 401 (Passed)
+    - `GET /auth/me`: có token trả về thông tin user (Passed)
+    - `POST /auth/refresh`: cấp token mới thành công (Passed)
+    - `POST /auth/refresh`: dùng lại refresh token cũ nhận 401 và toàn bộ phiên bị thu hồi (Passed)
+    - `GET /users`: WORKER gọi nhận 403 (Passed)
+    - `POST /users`: OWNER tạo user thành công, response không có `passwordHash` (Passed)
+    - Login với user mới tạo thành công (Passed)
+    - `PATCH /users/:id/status`: OWNER khóa user và user bị khóa không login được (Passed)
+    - `POST /media/presign`: presign ảnh trả về presigned URL (Passed)
+    - `POST /media/presign`: file quá 10MB trả về 400 (Passed)
+    - `POST /media/presign`: mime không hợp lệ trả về 400 (Passed)
+
+### Lệnh 5: `pnpm build`
+- Turbo build thành công 5/5 packages (`@xfarm/db`, `@xfarm/shared`, `@xfarm/ui`, `@xfarm/api`, `@xfarm/web`).
+- Next.js build sinh static pages tối ưu cho `/`, `/admin`, `/admin/users`, `/login`.
+
+### Kiểm tra qua `pnpm dev` và `curl`:
+- `POST http://localhost:4100/api/v1/auth/login` với `admin@xfarm.local` / `Admin@123`: HTTP 200 OK, trả về cookie `access_token` và `refresh_token`.
+- `GET http://localhost:4100/api/v1/auth/me` kèm cookie: HTTP 200 OK, trả về đúng dữ liệu người dùng `admin@xfarm.local` vai trò `OWNER`.
+- `GET http://localhost:3100/login`: HTTP 200 OK, trả về đầy đủ HTML giao diện trang đăng nhập XFarm.
+- Đã tắt dev server, giữ nguyên các container Docker.
+
+---
+
+## 3. Những việc chưa làm được và lý do
+- Không có. Mọi yêu cầu và tiêu chí nghiệm thu của Giai đoạn 0 (phase-0) đã hoàn thành trọn vẹn và đạt chuẩn chất lượng.
