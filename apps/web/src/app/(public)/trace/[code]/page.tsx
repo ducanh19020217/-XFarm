@@ -13,9 +13,7 @@ import { TraceLotCard } from './_components/trace-lot-card';
 import { TraceTimelineView } from './_components/trace-timeline-view';
 import { TraceLightbox } from './_components/trace-lightbox';
 import { TraceFooter } from './_components/trace-footer';
-
-const API_BASE_URL =
-  process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4650/api/v1';
+import { API_BASE_URL } from '@/lib/public-api';
 
 async function getTraceData(code: string): Promise<PublicTraceData | null> {
   const url = `${API_BASE_URL}/public/trace/${encodeURIComponent(code)}`;
