@@ -106,6 +106,12 @@ export enum PurchaseOrderStatus {
   CANCELLED = 'CANCELLED',
 }
 
+export enum AlertType {
+  LOW_STOCK = 'LOW_STOCK',
+  LOT_EXPIRING = 'LOT_EXPIRING',
+  LOT_EXPIRED = 'LOT_EXPIRED',
+}
+
 export interface Paginated<T> {
   data: T[];
   total: number;
