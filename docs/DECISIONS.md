@@ -5,6 +5,13 @@
 - `StockMove.quantity` luôn là số dương. Với `ADJUST`, cột `direction` (IN/OUT) biểu diễn tăng hoặc giảm; view `stock_balances` không suy diễn dấu từ `refType`.
 - View tổng hợp mọi biến động theo `(itemId, stockLotId, warehouseId)`, nên không lưu số tồn riêng trong bảng nghiệp vụ.
 
+---
+
+### DECISION-010: Hoãn tính năng Trả tiền và Transaction chi của Đơn mua hàng sang GĐ 4
+- **Bối cảnh**: Kế hoạch tổng thể (`docs/PLAN.md` mục 6 "Mua hàng") có nêu: "Nếu đánh dấu đã trả tiền thì tạo thêm Transaction chi". Tuy nhiên, phân hệ Tài chính (FinanceCategory, Transaction thu/chi) và luồng thanh toán thuộc Giai đoạn 4.
+- **Quyết định**: Trong Giai đoạn 2 (task `p2-api-purchase`), API đơn mua hàng chỉ tập trung giải quyết trọn vẹn vòng đời mua hàng và quản lý kho vận: lập đơn (DRAFT), duyệt đặt hàng (ORDERED), hủy đơn (CANCELLED), và tiếp nhận hàng hóa vào kho qua `InventoryService.receive` (PARTIAL / RECEIVED). Nghiệp vụ thanh toán và tự động hạch toán bút toán chi (Transaction EXPENSE) sẽ được tích hợp đồng bộ ở GĐ 4 khi phân hệ Tài chính được hoàn thiện.
+- **Hệ quả**: Giữ đúng phạm vi ranh giới của GĐ 2, tránh phụ thuộc chéo vào schema tài chính chưa sẵn sàng, đảm bảo module `purchase-orders` độc lập, an toàn và dễ kiểm thử.
+
 Tài liệu này ghi lại các quyết định thiết kế và kỹ thuật quan trọng trong quá trình triển khai dự án XFarm.
 
 ### DECISION-008: Đưa Playwright E2E lên GĐ 1
