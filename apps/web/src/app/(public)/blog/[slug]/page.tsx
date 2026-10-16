@@ -3,7 +3,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { ChevronRight, ArrowLeft, Calendar, User } from 'lucide-react';
-import { getPublicPostBySlug, formatDate } from '@/lib/public-api';
+import { getPublicPostBySlug, formatDate, getSiteSettings } from '@/lib/public-api';
+import { getSiteUrl } from '@/lib/site-url';
 import { sanitizeHtml } from '@/lib/sanitize';
 
 interface BlogPostDetailPageProps {
@@ -13,16 +14,40 @@ interface BlogPostDetailPageProps {
 export async function generateMetadata({ params }: BlogPostDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
   const post = await getPublicPostBySlug(slug);
+  const siteUrl = getSiteUrl();
 
   if (!post) {
     return {
       title: 'Không tìm thấy bài viết',
+      description: 'Bài viết không tồn tại hoặc đã được gỡ bỏ.',
     };
   }
 
+  const title = post.title;
+  const description = post.excerpt;
+  const canonicalUrl = `${siteUrl}/blog/${post.slug}`;
+  const images = post.coverMediaId ? [post.coverMediaId] : undefined;
+
   return {
-    title: post.title,
-    description: post.excerpt,
+    title,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title,
+      description,
+      url: canonicalUrl,
+      type: 'article',
+      publishedTime: post.publishedAt ? new Date(post.publishedAt).toISOString() : undefined,
+      images,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images,
+    },
   };
 }
 
@@ -34,11 +59,41 @@ export default async function BlogPostDetailPage({ params }: BlogPostDetailPageP
     notFound();
   }
 
+  const siteUrl = getSiteUrl();
+  const settings = await getSiteSettings();
+  const farmName = settings['farm.name'] || 'XFarm – Nông trại sinh thái';
+
   const coverSrc = post.coverMediaId || null;
   const sanitizedContent = sanitizeHtml(post.content);
 
+  const articleJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: post.title,
+    description: post.excerpt,
+    image: coverSrc ? [coverSrc] : undefined,
+    datePublished: post.publishedAt ? new Date(post.publishedAt).toISOString() : undefined,
+    author: {
+      '@type': 'Organization',
+      name: farmName,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: farmName,
+      url: siteUrl,
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `${siteUrl}/blog/${post.slug}`,
+    },
+  };
+
   return (
     <div className="py-10 sm:py-16">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+      />
       <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
         {/* Breadcrumb */}
         <nav

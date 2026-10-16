@@ -1,7 +1,10 @@
 import type { Metadata } from 'next';
 import './globals.css';
 
+import { getSiteUrl } from '@/lib/site-url';
+
 export const metadata: Metadata = {
+  metadataBase: new URL(getSiteUrl()),
   title: 'XFarm - Hệ thống Quản lý Nông trại',
   description: 'Nền tảng ERP & Quảng bá nông trại sinh thái XFarm',
 };

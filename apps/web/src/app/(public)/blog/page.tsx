@@ -1,14 +1,39 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ChevronRight, ChevronLeft, BookOpen } from 'lucide-react';
-import { getPublicPosts } from '@/lib/public-api';
+import { getPublicPosts, getSiteSettings } from '@/lib/public-api';
+import { getSiteUrl } from '@/lib/site-url';
 import { PostCard } from '../_components/post-card';
 
-export const metadata: Metadata = {
-  title: 'Tin tức & Cẩm nang',
-  description:
-    'Cập nhật tin tức hoạt động nông trại, cẩm nang canh tác hữu cơ và lối sống xanh tại XFarm.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  const farmName = settings['farm.name'] || 'XFarm – Nông trại sinh thái';
+  const siteUrl = getSiteUrl();
+  const title = 'Tin tức & Cẩm nang';
+  const description =
+    'Cập nhật tin tức hoạt động nông trại, cẩm nang canh tác hữu cơ và lối sống xanh tại XFarm.';
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: `${siteUrl}/blog`,
+    },
+    openGraph: {
+      title: `${title} | ${farmName}`,
+      description,
+      url: `${siteUrl}/blog`,
+      siteName: farmName,
+      locale: 'vi_VN',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${title} | ${farmName}`,
+      description,
+    },
+  };
+}
 
 interface BlogPageProps {
   searchParams: Promise<{ page?: string }>;

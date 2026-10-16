@@ -2,13 +2,38 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ChevronRight, MapPin, Phone, Mail, Clock, MessageSquare } from 'lucide-react';
 import { getSiteSettings } from '@/lib/public-api';
+import { getSiteUrl } from '@/lib/site-url';
 import { ContactForm } from './contact-form';
 
-export const metadata: Metadata = {
-  title: 'Liên hệ',
-  description:
-    'Liên hệ với Nông trại sinh thái XFarm để đặt hàng, tham quan hoặc tìm hiểu thông tin hợp tác.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  const farmName = settings['farm.name'] || 'XFarm – Nông trại sinh thái';
+  const siteUrl = getSiteUrl();
+  const title = 'Liên hệ';
+  const description =
+    'Liên hệ với Nông trại sinh thái XFarm để đặt hàng, tham quan hoặc tìm hiểu thông tin hợp tác.';
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: `${siteUrl}/lien-he`,
+    },
+    openGraph: {
+      title: `${title} | ${farmName}`,
+      description,
+      url: `${siteUrl}/lien-he`,
+      siteName: farmName,
+      locale: 'vi_VN',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${title} | ${farmName}`,
+      description,
+    },
+  };
+}
 
 export default async function ContactPage() {
   const settings = await getSiteSettings();

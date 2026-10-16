@@ -8,6 +8,7 @@ import {
   PublicSiteSettings,
   PublicTraceData,
 } from './trace-utils';
+import { getSiteUrl } from '@/lib/site-url';
 import { TraceHeader } from './_components/trace-header';
 import { TraceLotCard } from './_components/trace-lot-card';
 import { TraceTimelineView } from './_components/trace-timeline-view';
@@ -79,11 +80,16 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { code } = await params;
   const trace = await getTraceData(code);
+  const siteUrl = getSiteUrl();
+  const canonicalUrl = `${siteUrl}/trace/${encodeURIComponent(code)}`;
 
   if (!trace || !trace.lot) {
     return {
       title: 'Không tìm thấy thông tin truy xuất | XFarm',
       description: 'Mã truy xuất nguồn gốc nông sản không tồn tại hoặc chưa được công khai.',
+      alternates: {
+        canonical: canonicalUrl,
+      },
     };
   }
 
@@ -98,10 +104,21 @@ export async function generateMetadata({
   return {
     title,
     description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
       title,
       description,
+      url: canonicalUrl,
+      type: 'website',
       images: ogImage ? [{ url: ogImage }] : [],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: ogImage ? [ogImage] : undefined,
     },
   };
 }

@@ -2,13 +2,39 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ChevronRight, Award, HeartHandshake, Leaf, Users } from 'lucide-react';
-import { getPublicPageBySlug } from '@/lib/public-api';
+import { getPublicPageBySlug, getSiteSettings } from '@/lib/public-api';
+import { getSiteUrl } from '@/lib/site-url';
 import { sanitizeHtml } from '@/lib/sanitize';
 
-export const metadata: Metadata = {
-  title: 'Giới thiệu',
-  description: 'Khám phá câu chuyện hình thành và mô hình canh tác sinh thái tuần hoàn tại XFarm.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  const farmName = settings['farm.name'] || 'XFarm – Nông trại sinh thái';
+  const siteUrl = getSiteUrl();
+  const title = 'Giới thiệu';
+  const description =
+    'Khám phá câu chuyện hình thành và mô hình canh tác sinh thái tuần hoàn tại XFarm.';
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: `${siteUrl}/gioi-thieu`,
+    },
+    openGraph: {
+      title: `${title} | ${farmName}`,
+      description,
+      url: `${siteUrl}/gioi-thieu`,
+      siteName: farmName,
+      locale: 'vi_VN',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${title} | ${farmName}`,
+      description,
+    },
+  };
+}
 
 export default async function AboutPage() {
   const page = await getPublicPageBySlug('gioi-thieu');
