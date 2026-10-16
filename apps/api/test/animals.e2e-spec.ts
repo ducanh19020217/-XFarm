@@ -1,4 +1,3 @@
-import { execSync } from 'child_process';
 import path from 'path';
 import * as dotenv from 'dotenv';
 
@@ -32,12 +31,6 @@ describe('Animal & AnimalGroup & AnimalEvent API (e2e)', () => {
   let aquaCycleId: string;
 
   beforeAll(async () => {
-    // Push test db schema
-    execSync(
-      `DATABASE_URL="${testDbUrl}" pnpm --filter @xfarm/db exec prisma db push --skip-generate --accept-data-loss`,
-      { stdio: 'pipe' },
-    );
-
     const { prisma } = await import('@xfarm/db');
     const argon2 = await import('argon2');
 

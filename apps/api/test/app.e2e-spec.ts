@@ -1,4 +1,3 @@
-import { execSync } from 'child_process';
 import * as crypto from 'crypto';
 import path from 'path';
 import * as dotenv from 'dotenv';
@@ -26,12 +25,6 @@ describe('XFarm API E2E Tests', () => {
   let sequenceService: SequenceService;
 
   beforeAll(async () => {
-    // Reset and push test database schema
-    execSync(
-      `DATABASE_URL="${testDbUrl}" pnpm --filter @xfarm/db exec prisma db push --skip-generate --accept-data-loss`,
-      { stdio: 'pipe' },
-    );
-
     // Direct clean and seed using prisma client
     const { prisma } = await import('@xfarm/db');
     const argon2 = await import('argon2');
@@ -90,6 +83,17 @@ describe('XFarm API E2E Tests', () => {
       expect(code1).toBe(`TEST-${year}-0001`);
       expect(code2).toBe(`TEST-${year}-0002`);
     });
+  });
+
+  it('có view stock_balances sau khi dựng database bằng migration', async () => {
+    const rows = await (
+      await import('@xfarm/db')
+    ).prisma.$queryRaw<Array<{ exists: boolean }>>`
+      SELECT EXISTS (
+        SELECT 1 FROM pg_views WHERE schemaname = 'public' AND viewname = 'stock_balances'
+      ) AS exists
+    `;
+    expect(rows[0]?.exists).toBe(true);
   });
 
   describe('Auth', () => {

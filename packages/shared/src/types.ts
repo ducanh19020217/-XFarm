@@ -72,6 +72,40 @@ export enum AnimalEventType {
   SALE = 'SALE',
 }
 
+export enum ItemCategory {
+  SEED = 'SEED',
+  FERTILIZER = 'FERTILIZER',
+  PESTICIDE = 'PESTICIDE',
+  FEED = 'FEED',
+  VETERINARY = 'VETERINARY',
+  TOOL = 'TOOL',
+  PACKAGING = 'PACKAGING',
+  PRODUCE = 'PRODUCE',
+  LIVESTOCK_PRODUCT = 'LIVESTOCK_PRODUCT',
+  AQUA_PRODUCT = 'AQUA_PRODUCT',
+  OTHER = 'OTHER',
+}
+
+export enum StockMoveType {
+  IN = 'IN',
+  OUT = 'OUT',
+  TRANSFER = 'TRANSFER',
+  ADJUST = 'ADJUST',
+}
+
+export enum StockMoveDirection {
+  IN = 'IN',
+  OUT = 'OUT',
+}
+
+export enum PurchaseOrderStatus {
+  DRAFT = 'DRAFT',
+  ORDERED = 'ORDERED',
+  PARTIAL = 'PARTIAL',
+  RECEIVED = 'RECEIVED',
+  CANCELLED = 'CANCELLED',
+}
+
 export interface Paginated<T> {
   data: T[];
   total: number;

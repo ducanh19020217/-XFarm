@@ -1,5 +1,15 @@
-import { PrismaClient, Role, AreaType, CycleKind, CycleStatus, ActivityType } from '@prisma/client';
+import {
+  PrismaClient,
+  Role,
+  AreaType,
+  CycleKind,
+  CycleStatus,
+  ActivityType,
+  ItemCategory,
+  StockMoveType,
+} from '@prisma/client';
 import * as argon2 from 'argon2';
+import { Prisma } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -54,7 +64,134 @@ async function main() {
     where: { email: 'worker@xfarm.local' },
   });
 
-  // 2. Seed Areas
+  // 2. Seed inventory master data and opening stock.
+  const materialWarehouse = await prisma.warehouse.upsert({
+    where: { code: 'WH-MATERIAL' },
+    update: { name: 'Kho vật tư' },
+    create: { code: 'WH-MATERIAL', name: 'Kho vật tư' },
+  });
+  const finishedWarehouse = await prisma.warehouse.upsert({
+    where: { code: 'WH-FINISHED' },
+    update: { name: 'Kho thành phẩm' },
+    create: { code: 'WH-FINISHED', name: 'Kho thành phẩm' },
+  });
+
+  const inventoryItems = [
+    {
+      sku: 'NPK-16-16-8',
+      name: 'Phân NPK 16-16-8',
+      category: ItemCategory.FERTILIZER,
+      unit: 'kg',
+      minStock: 5,
+    },
+    {
+      sku: 'BIO-PEST',
+      name: 'Thuốc trừ sâu sinh học',
+      category: ItemCategory.PESTICIDE,
+      unit: 'lít',
+      minStock: 2,
+    },
+    { sku: 'CHICKEN-FEED', name: 'Cám gà', category: ItemCategory.FEED, unit: 'kg', minStock: 20 },
+    { sku: 'FISH-FEED', name: 'Thức ăn cá', category: ItemCategory.FEED, unit: 'kg', minStock: 20 },
+    {
+      sku: 'KALE-SEED',
+      name: 'Hạt giống cải',
+      category: ItemCategory.SEED,
+      unit: 'gói',
+      minStock: 10,
+    },
+    {
+      sku: 'PACK-BAG',
+      name: 'Bao bì',
+      category: ItemCategory.PACKAGING,
+      unit: 'cái',
+      minStock: 50,
+    },
+  ] as const;
+  const items = new Map<string, { id: string }>();
+  for (const item of inventoryItems) {
+    const saved = await prisma.item.upsert({
+      where: { sku: item.sku },
+      update: {
+        name: item.name,
+        category: item.category,
+        unit: item.unit,
+        minStock: item.minStock,
+      },
+      create: { ...item, isSellable: false, isActive: true },
+      select: { id: true },
+    });
+    items.set(item.sku, saved);
+  }
+
+  const suppliers = [
+    { code: 'SUP-AGRI', name: 'Công ty Vật tư Nông nghiệp Xanh', phone: '0901000001' },
+    { code: 'SUP-FEED', name: 'Nhà cung cấp Thức ăn Chăn nuôi Việt', phone: '0901000002' },
+  ] as const;
+  for (const supplier of suppliers) {
+    await prisma.supplier.upsert({
+      where: { code: supplier.code },
+      update: supplier,
+      create: { ...supplier, createdById: admin.id },
+    });
+  }
+
+  const npk = items.get('NPK-16-16-8');
+  if (!npk) throw new Error('NPK item was not seeded');
+  const openingLots = [
+    {
+      lotCode: 'NPK-OPEN-01',
+      quantity: new Prisma.Decimal(4),
+      unitCost: new Prisma.Decimal(12000),
+      expiryDate: new Date('2026-10-30T00:00:00Z'),
+    },
+    {
+      lotCode: 'NPK-OPEN-02',
+      quantity: new Prisma.Decimal(6),
+      unitCost: new Prisma.Decimal(12500),
+      expiryDate: new Date('2027-04-30T00:00:00Z'),
+    },
+  ];
+  for (const opening of openingLots) {
+    const lot = await prisma.stockLot.upsert({
+      where: { itemId_lotCode: { itemId: npk.id, lotCode: opening.lotCode } },
+      update: {
+        expiryDate: opening.expiryDate,
+        warehouseId: materialWarehouse.id,
+        unitCost: opening.unitCost,
+      },
+      create: {
+        itemId: npk.id,
+        warehouseId: materialWarehouse.id,
+        lotCode: opening.lotCode,
+        expiryDate: opening.expiryDate,
+        unitCost: opening.unitCost,
+      },
+    });
+    const refId = `OPENING-${opening.lotCode}`;
+    const move = await prisma.stockMove.findFirst({ where: { refType: 'OPENING', refId } });
+    if (!move) {
+      await prisma.stockMove.create({
+        data: {
+          type: StockMoveType.IN,
+          itemId: npk.id,
+          stockLotId: lot.id,
+          toWarehouseId: materialWarehouse.id,
+          quantity: opening.quantity,
+          unitCost: opening.unitCost,
+          refType: 'OPENING',
+          refId,
+          movedAt: new Date('2026-10-16T00:00:00Z'),
+          notes: 'Nhập tồn đầu kỳ',
+        },
+      });
+    }
+  }
+  console.log(
+    `Seeded inventory: ${materialWarehouse.name}, ${finishedWarehouse.name}, ${inventoryItems.length} items`,
+  );
+
+  // 3. Seed Areas
   // Khu A (ZONE)
   const khuA = await prisma.area.upsert({
     where: { code: 'AR-0001' },

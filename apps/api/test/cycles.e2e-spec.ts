@@ -9,7 +9,6 @@ const testDbUrl =
 process.env.DATABASE_URL = testDbUrl;
 process.env.NODE_ENV = 'test';
 
-import { execSync } from 'child_process';
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import cookieParser from 'cookie-parser';
@@ -37,10 +36,6 @@ describe('Cycles API E2E', () => {
   }
 
   beforeAll(async () => {
-    execSync(
-      `DATABASE_URL="${testDbUrl}" pnpm --filter @xfarm/db exec prisma db push --skip-generate --accept-data-loss`,
-      { stdio: 'pipe' },
-    );
     const { prisma } = await import('@xfarm/db');
     const argon2 = await import('argon2');
     await prisma.auditLog.deleteMany();

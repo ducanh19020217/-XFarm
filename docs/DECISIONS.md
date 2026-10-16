@@ -1,5 +1,10 @@
 # XFarm – Nhật ký Quyết định Kỹ thuật (Decisions Log)
 
+### DECISION-009: Tồn kho theo kho và hướng điều chỉnh
+- `StockLot.warehouseId` được lưu nullable để lô nhập kho xác định được kho hiện tại; các lô thu hoạch ở giai đoạn sau có thể được gán kho khi phát sinh nhập.
+- `StockMove.quantity` luôn là số dương. Với `ADJUST`, cột `direction` (IN/OUT) biểu diễn tăng hoặc giảm; view `stock_balances` không suy diễn dấu từ `refType`.
+- View tổng hợp mọi biến động theo `(itemId, stockLotId, warehouseId)`, nên không lưu số tồn riêng trong bảng nghiệp vụ.
+
 Tài liệu này ghi lại các quyết định thiết kế và kỹ thuật quan trọng trong quá trình triển khai dự án XFarm.
 
 ### DECISION-008: Đưa Playwright E2E lên GĐ 1

@@ -1,4 +1,3 @@
-import { execSync } from 'child_process';
 import * as crypto from 'crypto';
 import path from 'path';
 import * as dotenv from 'dotenv';
@@ -43,10 +42,6 @@ describe('Activities API E2E', () => {
   }
 
   beforeAll(async () => {
-    execSync(
-      `DATABASE_URL="${testDbUrl}" pnpm --filter @xfarm/db exec prisma db push --skip-generate --accept-data-loss`,
-      { stdio: 'pipe' },
-    );
     await prisma.activity.deleteMany();
     await prisma.animalEvent.deleteMany();
     await prisma.animal.deleteMany();
