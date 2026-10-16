@@ -16,4 +16,5 @@ docs
 AGENTS.md
 CLAUDE.md
 GEMINI.md
+apps/web/public/sw.js*
 
