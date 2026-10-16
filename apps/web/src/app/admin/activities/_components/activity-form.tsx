@@ -2,12 +2,110 @@
 
 import * as React from 'react';
 import { ActivityType, activityDataSchemas, parseActivityData } from '@xfarm/shared';
-import { Camera, Loader2, Save, X } from 'lucide-react';
+import { Camera, Loader2, Plus, Save, Trash2, X } from 'lucide-react';
 import { Button, Input, Label } from '@xfarm/ui';
 import { ApiError, apiFetch } from '@/lib/api';
 import { activityFieldLabels, activityTypeLabels } from './constants';
 import { uploadMediaFiles } from './upload-media';
-import type { ActivityArea, ActivityCycle } from './types';
+import type { ActivityArea, ActivityCycle, AvailableItem } from './types';
+
+export const ACTIVITY_CATEGORY_SUGGESTIONS: Partial<Record<ActivityType, string>> = {
+  [ActivityType.FERTILIZING]: 'FERTILIZER',
+  [ActivityType.SPRAYING]: 'PESTICIDE',
+  [ActivityType.FEEDING]: 'FEED',
+};
+
+export async function fetchAvailableItems(): Promise<AvailableItem[]> {
+  try {
+    const res = await apiFetch<
+      | {
+          data: Array<{
+            itemId: string;
+            itemSku?: string;
+            itemName?: string;
+            category?: string;
+            unit?: string;
+            quantity?: number;
+            warehouseId?: string;
+          }>;
+        }
+      | Array<{
+          itemId: string;
+          itemSku?: string;
+          itemName?: string;
+          category?: string;
+          unit?: string;
+          quantity?: number;
+          warehouseId?: string;
+        }>
+    >('/stock/balances?pageSize=100');
+    const rawBalances = Array.isArray(res) ? res : res?.data || [];
+    if (rawBalances.length > 0) {
+      const itemMap = new Map<string, AvailableItem>();
+      for (const b of rawBalances) {
+        const existing = itemMap.get(b.itemId);
+        const qty = Number(b.quantity) || 0;
+        if (existing) {
+          existing.currentStock += qty;
+        } else {
+          itemMap.set(b.itemId, {
+            id: b.itemId,
+            sku: b.itemSku,
+            name: b.itemName || 'Vật tư',
+            category: b.category || 'OTHER',
+            unit: b.unit || '',
+            currentStock: qty,
+            warehouseId: b.warehouseId,
+          });
+        }
+      }
+      return Array.from(itemMap.values());
+    }
+  } catch {
+    // fallback to /items if stock balances endpoint is not available
+  }
+
+  try {
+    const res = await apiFetch<
+      | {
+          data: Array<{
+            id: string;
+            sku?: string;
+            name: string;
+            category?: string;
+            unit: string;
+            currentStock?: number;
+          }>;
+        }
+      | Array<{
+          id: string;
+          sku?: string;
+          name: string;
+          category?: string;
+          unit: string;
+          currentStock?: number;
+        }>
+    >('/items?pageSize=100&isActive=true');
+    const rawItems = Array.isArray(res) ? res : res?.data || [];
+    return rawItems.map((item) => ({
+      id: item.id,
+      sku: item.sku,
+      name: item.name,
+      category: item.category || 'OTHER',
+      unit: item.unit,
+      currentStock: Number(item.currentStock ?? 0),
+    }));
+  } catch {
+    return [];
+  }
+}
+
+export interface FormMaterialRow {
+  id?: string;
+  itemId: string;
+  quantity: string;
+  warehouseId?: string;
+}
 
 function fieldsForType(type: ActivityType) {
   const schema = activityDataSchemas[type];
@@ -19,6 +117,7 @@ export interface ActivityFormProps {
   areas: ActivityArea[];
   cycles: ActivityCycle[];
   initialCycleId?: string;
+  availableItems?: AvailableItem[];
   onSaved: () => Promise<void> | void;
   onCancel?: () => void;
 }
@@ -27,6 +126,7 @@ export function ActivityForm({
   areas,
   cycles,
   initialCycleId,
+  availableItems: propAvailableItems,
   onSaved,
   onCancel,
 }: ActivityFormProps) {
@@ -35,16 +135,62 @@ export function ActivityForm({
   const [areaId, setAreaId] = React.useState('');
   const [performedAt, setPerformedAt] = React.useState(() => new Date().toISOString().slice(0, 16));
   const [data, setData] = React.useState<Record<string, string>>({});
+  const [materials, setMaterials] = React.useState<FormMaterialRow[]>([]);
+  const [fetchedItems, setFetchedItems] = React.useState<AvailableItem[]>([]);
   const [notes, setNotes] = React.useState('');
   const [files, setFiles] = React.useState<File[]>([]);
   const [saving, setSaving] = React.useState(false);
   const [uploadMessage, setUploadMessage] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
 
+  const itemsList = propAvailableItems ?? fetchedItems;
+
+  React.useEffect(() => {
+    if (propAvailableItems) return;
+    let active = true;
+    fetchAvailableItems()
+      .then((items) => {
+        if (active) setFetchedItems(items);
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, [propAvailableItems]);
+
   React.useEffect(() => {
     const selectedCycle = cycles.find((cycle) => cycle.id === cycleId);
     if (selectedCycle) setAreaId(selectedCycle.areaId);
   }, [cycleId, cycles]);
+
+  const applySuggestion = React.useCallback((targetType: ActivityType, items: AvailableItem[]) => {
+    const targetCategory = ACTIVITY_CATEGORY_SUGGESTIONS[targetType];
+    if (!targetCategory) return;
+    const inStock = items.filter(
+      (item) => item.category === targetCategory && item.currentStock > 0,
+    );
+    const candidate = inStock[0] || items.find((item) => item.category === targetCategory);
+    if (candidate) {
+      setMaterials([
+        {
+          itemId: candidate.id,
+          quantity: '',
+          warehouseId: candidate.warehouseId,
+        },
+      ]);
+    } else {
+      setMaterials([{ itemId: '', quantity: '' }]);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    if (itemsList.length > 0 && materials.length === 0) {
+      const targetCategory = ACTIVITY_CATEGORY_SUGGESTIONS[type];
+      if (targetCategory) {
+        applySuggestion(type, itemsList);
+      }
+    }
+  }, [applySuggestion, itemsList, materials.length, type]);
 
   const fields = fieldsForType(type);
   const activeAreas = areas.filter((area) => area.isActive !== false);
@@ -55,6 +201,36 @@ export function ActivityForm({
   const changeType = (nextType: ActivityType) => {
     setType(nextType);
     setData({});
+    applySuggestion(nextType, itemsList);
+  };
+
+  const addMaterialRow = () => {
+    setMaterials((current) => [...current, { itemId: '', quantity: '' }]);
+  };
+
+  const removeMaterialRow = (index: number) => {
+    setMaterials((current) => current.filter((_, idx) => idx !== index));
+  };
+
+  const updateMaterialItem = (index: number, itemId: string) => {
+    const selected = itemsList.find((item) => item.id === itemId);
+    setMaterials((current) =>
+      current.map((row, idx) =>
+        idx === index
+          ? {
+              ...row,
+              itemId,
+              warehouseId: selected?.warehouseId ?? row.warehouseId,
+            }
+          : row,
+      ),
+    );
+  };
+
+  const updateMaterialQuantity = (index: number, quantity: string) => {
+    setMaterials((current) =>
+      current.map((row, idx) => (idx === index ? { ...row, quantity } : row)),
+    );
   };
 
   const submit = async (event: React.FormEvent) => {
@@ -74,6 +250,15 @@ export function ActivityForm({
           );
         }
       }
+
+      const payloadMaterials = materials
+        .filter((row) => row.itemId.trim() !== '' && Number(row.quantity) > 0)
+        .map((row) => ({
+          itemId: row.itemId,
+          quantity: Number(row.quantity),
+          ...(row.warehouseId ? { warehouseId: row.warehouseId } : {}),
+        }));
+
       await apiFetch('/activities', {
         method: 'POST',
         body: JSON.stringify({
@@ -84,6 +269,7 @@ export function ActivityForm({
           data: parsedData,
           notes: notes || null,
           mediaIds,
+          ...(payloadMaterials.length > 0 ? { materials: payloadMaterials } : {}),
         }),
       });
       await onSaved();
@@ -99,9 +285,12 @@ export function ActivityForm({
   return (
     <form onSubmit={submit} className="space-y-4">
       {error && (
-        <p role="alert" className="rounded-md bg-red-50 p-3 text-sm text-red-700">
+        <div
+          role="alert"
+          className="rounded-md border border-red-200 bg-red-50 p-3 text-sm font-medium text-red-700"
+        >
           {error}
-        </p>
+        </div>
       )}
       {uploadMessage && (
         <p role="status" className="rounded-md bg-amber-50 p-3 text-sm text-amber-800">
@@ -194,6 +383,99 @@ export function ActivityForm({
           </div>
         </fieldset>
       )}
+
+      <fieldset className="space-y-3 rounded-md border border-slate-200 p-4">
+        <div className="flex items-center justify-between">
+          <legend className="px-1 text-sm font-medium">Vật tư sử dụng</legend>
+          <Button type="button" variant="outline" size="sm" onClick={addMaterialRow}>
+            <Plus className="mr-1 h-3.5 w-3.5" />
+            Thêm vật tư
+          </Button>
+        </div>
+        {materials.length === 0 ? (
+          <p className="text-sm text-slate-500">Chưa có vật tư nào được chọn.</p>
+        ) : (
+          <div className="space-y-3">
+            {materials.map((row, index) => {
+              const selectedItem = itemsList.find((i) => i.id === row.itemId);
+              const inStockItems = itemsList.filter((item) => item.currentStock > 0);
+              const itemOptions = inStockItems.some((i) => i.id === row.itemId)
+                ? inStockItems
+                : [
+                    ...inStockItems,
+                    ...(row.itemId ? itemsList.filter((i) => i.id === row.itemId) : []),
+                  ];
+
+              return (
+                <div
+                  key={index}
+                  className="grid grid-cols-1 items-end gap-3 rounded-md bg-slate-50 p-3 sm:grid-cols-12"
+                >
+                  <div className="space-y-1 sm:col-span-5">
+                    <Label htmlFor={`material-item-${index}`}>Vật tư</Label>
+                    <select
+                      id={`material-item-${index}`}
+                      aria-label="Chọn vật tư"
+                      value={row.itemId}
+                      onChange={(event) => updateMaterialItem(index, event.target.value)}
+                      className="flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm"
+                    >
+                      <option value="">-- Chọn vật tư còn tồn --</option>
+                      {itemOptions.map((item) => (
+                        <option key={item.id} value={item.id}>
+                          {item.name} (Tồn: {item.currentStock} {item.unit})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="space-y-1 sm:col-span-3">
+                    <Label htmlFor={`material-quantity-${index}`}>Số lượng</Label>
+                    <Input
+                      id={`material-quantity-${index}`}
+                      aria-label="Số lượng vật tư"
+                      type="number"
+                      step="any"
+                      min="0.001"
+                      placeholder="Số lượng"
+                      value={row.quantity}
+                      onChange={(event) => updateMaterialQuantity(index, event.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-1 sm:col-span-3">
+                    <span className="block text-xs font-medium text-slate-500">
+                      Tồn &amp; Đơn vị
+                    </span>
+                    <div className="flex h-10 items-center rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-700">
+                      {selectedItem ? (
+                        <span>
+                          Tồn:{' '}
+                          <strong className="font-semibold">{selectedItem.currentStock}</strong>{' '}
+                          {selectedItem.unit}
+                        </span>
+                      ) : (
+                        <span className="text-slate-400">—</span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex justify-end sm:col-span-1">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      aria-label={`Xóa vật tư dòng ${index + 1}`}
+                      onClick={() => removeMaterialRow(index)}
+                      className="text-red-600 hover:bg-red-50 hover:text-red-700"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </fieldset>
+
       <div className="space-y-1">
         <Label htmlFor="activity-notes">Ghi chú</Label>
         <textarea
