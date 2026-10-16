@@ -11,12 +11,32 @@ interface PayrollDetailsDialogProps {
   payroll: PayrollItem | null;
 }
 
+interface BreakdownItem {
+  date?: string | Date;
+  cycle?: string;
+  cycleName?: string;
+  cycleId?: string;
+  hours?: number;
+  pieceQty?: number;
+  amount?: number;
+  total?: number;
+}
+
 export function PayrollDetailsDialog({ open, onOpenChange, payroll }: PayrollDetailsDialogProps) {
   if (!payroll) return null;
 
   const emp = payroll.employee;
-  const details = payroll.details || {};
-  const breakdown = details.dailyBreakdown || [];
+  const rawDetails = payroll.details as unknown;
+  const breakdown: BreakdownItem[] = Array.isArray(rawDetails)
+    ? (rawDetails as BreakdownItem[])
+    : (rawDetails as { dailyBreakdown?: BreakdownItem[]; lines?: BreakdownItem[] })
+        ?.dailyBreakdown ||
+      (rawDetails as { dailyBreakdown?: BreakdownItem[]; lines?: BreakdownItem[] })?.lines ||
+      [];
+  const details = (Array.isArray(rawDetails) ? {} : rawDetails || {}) as Record<
+    string,
+    number | string | undefined
+  >;
 
   return (
     <FormDialog
@@ -126,7 +146,9 @@ export function PayrollDetailsDialog({ open, onOpenChange, payroll }: PayrollDet
                   {breakdown.map((row, idx) => (
                     <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/40">
                       <td className="p-2 font-medium">{formatDate(row.date)}</td>
-                      <td className="p-2 text-slate-500">{row.cycleName || row.cycleId || '-'}</td>
+                      <td className="p-2 text-slate-500">
+                        {row.cycle || row.cycleName || row.cycleId || '-'}
+                      </td>
                       <td className="p-2 text-center">
                         {row.hours !== undefined ? `${row.hours}h` : '-'}
                       </td>

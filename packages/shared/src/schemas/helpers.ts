@@ -18,7 +18,8 @@ export const normalizeEmptyValues = (value: unknown): unknown => {
   return value;
 };
 
-export const optionalString = () => z.preprocess(emptyToUndefined, z.string().optional());
+export const optionalString = () =>
+  z.preprocess((val) => (val === null ? undefined : emptyToUndefined(val)), z.string().optional());
 
 export const optionalNullableString = () =>
   z.preprocess(emptyToUndefined, z.string().nullable().optional());

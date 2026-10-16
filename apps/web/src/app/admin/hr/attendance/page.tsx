@@ -110,7 +110,24 @@ export default function AttendancePage() {
           if (err instanceof ApiError && err.statusCode === 404) {
             setAttendances([]);
           } else {
-            showToast(err instanceof ApiError ? err.message : 'Không thể tải dữ liệu chấm công');
+            let msg = 'Không thể tải dữ liệu chấm công';
+            if (err instanceof ApiError) {
+              if (Array.isArray(err.errors) && err.errors.length > 0) {
+                const details = (
+                  err.errors as Array<{ field?: string; path?: string[]; message?: string }>
+                )
+                  .map((item) => {
+                    const f = item.field || (Array.isArray(item.path) ? item.path.join('.') : '');
+                    return f ? `${f}: ${item.message}` : item.message;
+                  })
+                  .filter(Boolean)
+                  .join('; ');
+                msg = details ? `${err.message}: ${details}` : err.message;
+              } else {
+                msg = err.message;
+              }
+            }
+            showToast(msg);
           }
         }
       } finally {
@@ -169,8 +186,15 @@ export default function AttendancePage() {
     pieceQty?: number | null;
     notes?: string | null;
   }) => {
-    if (payload.id) {
-      await apiFetch(`/attendance/${payload.id}`, {
+    const existingAtt = payload.id
+      ? null
+      : attendances.find(
+          (a) => a.employeeId === payload.employeeId && a.date.slice(0, 10) === payload.date,
+        );
+    const targetId = payload.id || existingAtt?.id;
+
+    if (targetId) {
+      await apiFetch(`/attendance/${targetId}`, {
         method: 'PATCH',
         body: JSON.stringify({
           hours: payload.hours,
