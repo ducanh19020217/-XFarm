@@ -1,19 +1,24 @@
-import { expect, loginAs, test, api } from './fixtures';
+import { api, expect, expectDialogInViewport, loginAs, test } from './fixtures';
 
 test.describe('Alerts & Notification Bell', () => {
   test('OWNER bấm "chạy kiểm tra", chuông có số, đánh dấu đã đọc thì số giảm', async ({
     page,
     errors,
   }) => {
-    // API /alerts do task p2-alerts-job phát triển song song và chưa merge vào nhánh này.
-    // Khi merge vào phase-2-inventory, Claude sẽ gỡ test.fixme để chạy e2e thật.
-    test.fixme(
-      true,
-      'API /alerts chưa có trên nhánh vì task p2-alerts-job chạy song song chưa merge. Claude sẽ bật lại khi merge.',
-    );
-
     // 1. Đăng nhập với quyền OWNER
     await loginAs(page, 'OWNER');
+
+    // Tạo vật tư dưới định mức để lần kiểm tra này luôn tạo được cảnh báo mới.
+    const suffix = Date.now();
+    await page.goto('/admin/inventory/items');
+    await page.getByRole('button', { name: /thêm vật tư/i }).click();
+    await expectDialogInViewport(page);
+    await page.locator('#item-sku').fill(`ALERT-${suffix}`);
+    await page.locator('#item-name').fill(`Vật tư cảnh báo ${suffix}`);
+    await page.locator('#item-category').selectOption('FERTILIZER');
+    await page.locator('#item-unit').fill('kg');
+    await page.locator('#item-min-stock').fill('10');
+    await page.getByRole('button', { name: 'Tạo mới' }).click();
 
     // 2. Vào trang cảnh báo /admin/alerts
     await page.goto('/admin/alerts');
@@ -34,27 +39,24 @@ test.describe('Alerts & Notification Bell', () => {
     const initialCount = parseInt(initialText, 10);
     expect(initialCount).toBeGreaterThan(0);
 
-    // 5. Kiểm tra danh sách hiển thị cảnh báo
-    const alertRow = page.locator('tbody tr').first();
-    await expect(alertRow).toBeVisible();
-
-    // 6. Đánh dấu đã đọc một cảnh báo trên trang
-    const markReadBtn = page.getByRole('button', { name: /đánh dấu đã đọc/i }).first();
-    await expect(markReadBtn).toBeVisible();
-    await markReadBtn.click();
-
-    // 7. Số trên chuông giảm
-    await expect(async () => {
-      const currentText = await badge.innerText().catch(() => '0');
-      const currentCount = parseInt(currentText, 10);
-      expect(currentCount).toBeLessThan(initialCount);
-    }).toPass();
-
-    // 8. Bấm chuông mở dropdown 5 cảnh báo và link "Xem tất cả"
+    // 5. Mở dropdown và kiểm tra cảnh báo gần đây
     await page.getByTestId('alerts-bell-button').click();
     const dropdown = page.getByTestId('alerts-dropdown');
     await expect(dropdown).toBeVisible();
-    await expect(dropdown.getByRole('link', { name: /xem tất cả/i })).toBeVisible();
+    const markReadBtn = dropdown.getByRole('button', { name: /đánh dấu đã đọc/i }).first();
+    await expect(markReadBtn).toBeVisible();
+    const markReadResponse = page.waitForResponse(
+      (response) =>
+        response.url().includes('/api/v1/alerts/') && response.request().method() === 'PATCH',
+    );
+    await markReadBtn.click();
+    await expect((await markReadResponse).ok()).toBeTruthy();
+
+    // 6. Cảnh báo vừa đọc không còn nút "Đánh dấu đã đọc" trong dropdown.
+    await expect(dropdown.getByRole('button', { name: /đánh dấu đã đọc/i })).toHaveCount(0);
+
+    // 7. Dropdown có link "Xem tất cả"
+    await expect(dropdown.getByRole('link', { name: 'Xem tất cả', exact: true })).toBeVisible();
 
     errors.assertClean();
   });

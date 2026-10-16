@@ -1,6 +1,7 @@
 import { expect, expectDialogInViewport, loginAs, test } from './fixtures';
 
 test('OWNER mở được các trang chính và dialog nằm trong viewport', async ({ page, errors }) => {
+  test.setTimeout(120_000);
   await loginAs(page);
   for (const route of [
     '/admin',

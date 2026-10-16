@@ -1,38 +1,54 @@
-import { expect, loginAs, test } from './fixtures';
+import { expect, expectDialogInViewport, loginAs, test } from './fixtures';
+
+async function selectItem(page: import('@playwright/test').Page, itemName: string) {
+  const select = page.getByLabel('Chọn vật tư');
+  const option = select.locator('option').filter({ hasText: itemName }).first();
+  const value = await option.getAttribute('value');
+  expect(value).toBeTruthy();
+  await select.selectOption(value!);
+}
 
 test.describe('Nhật ký sản xuất có vật tư sử dụng', () => {
-  test.fixme('ghi bón phân dùng 3 kg thì tồn NPK giảm 3 (Chờ API p2-activity-materials và phase-2-inventory merge vào nhánh)', async ({
-    page,
-    errors,
-  }) => {
+  test('ghi bón phân dùng 3 kg thì tồn giảm 3', async ({ page, errors }) => {
     await loginAs(page, 'OWNER');
+    const suffix = Date.now();
+    const itemName = `Phân nhật ký ${suffix}`;
+    const sku = `ACT-${suffix}`;
+
+    await page.goto('/admin/inventory/items');
+    await page.getByRole('button', { name: /thêm vật tư/i }).click();
+    await expectDialogInViewport(page);
+    await page.locator('#item-sku').fill(sku);
+    await page.locator('#item-name').fill(itemName);
+    await page.locator('#item-category').selectOption('FERTILIZER');
+    await page.locator('#item-unit').fill('kg');
+    await page.getByRole('button', { name: 'Tạo mới' }).click();
+    await expect(page.getByText(itemName).first()).toBeVisible();
+
+    await page.goto('/admin/inventory/documents');
+    await page.getByRole('button', { name: /phiếu nhập/i }).click();
+    await page.locator('#receipt-warehouse').selectOption({ index: 1 });
+    const receiptItem = page.locator('select[aria-label="Vật tư dòng 1"]');
+    const receiptOption = receiptItem.locator('option').filter({ hasText: itemName }).first();
+    await receiptItem.selectOption((await receiptOption.getAttribute('value'))!);
+    await page.locator('input[aria-label="Số lượng dòng 1"]').fill('10');
+    await page.locator('input[aria-label="Đơn giá dòng 1"]').fill('50000');
+    await page.getByRole('button', { name: /tạo phiếu nhập/i }).click();
+    await expect(page.getByText(/tạo phiếu nhập thành công/i)).toBeVisible();
+
     await page.goto('/admin/activities');
-
-    // Mở dialog ghi nhật ký
     await page.getByRole('button', { name: /ghi nhật ký/i }).click();
-
-    // Chọn khu/lô
     await page.getByLabel('Khu/lô *').selectOption({ index: 1 });
-
-    // Chọn loại bón phân FERTILIZING
     await page.getByLabel('Loại nhật ký *').selectOption('FERTILIZING');
-
-    // Form tự động gợi ý nhóm FERTILIZER (Phân NPK 16-16-8)
-    // Điền số lượng 3 kg
-    const qtyInput = page.getByLabel('Số lượng vật tư').first();
-    await qtyInput.fill('3');
-
-    // Lưu nhật ký
+    await selectItem(page, itemName);
+    await page.getByLabel('Số lượng vật tư').fill('3');
     await page.getByRole('button', { name: /lưu nhật ký/i }).click();
-
-    // Kiểm tra dòng nhật ký bón phân xuất hiện trong bảng và có vật tư NPK
     await expect(page.getByRole('cell', { name: /bón phân/i }).first()).toBeVisible();
-    await expect(page.getByText(/phân npk 16-16-8/i).first()).toBeVisible();
 
-    // Kiểm tra tồn kho NPK giảm 3 (từ 10 xuống 7 kg)
     await page.goto('/admin/inventory');
-    await expect(page.getByText(/7\s*kg/i)).toBeVisible();
-
+    await page.getByPlaceholder(/tìm kiếm theo mã sku hoặc tên vật tư/i).fill(sku);
+    const row = page.locator('tbody tr').filter({ hasText: itemName });
+    await expect(row).toContainText('7');
     errors.assertClean();
   });
 });

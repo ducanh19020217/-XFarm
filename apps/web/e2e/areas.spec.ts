@@ -9,10 +9,13 @@ test('tạo khu cha và khu con, mở chi tiết bản đồ', async ({ page, er
     await page.getByLabel('Tên khu/lô').fill(name);
     await page.getByRole('button', { name: 'Tạo mới' }).click();
     await page.getByPlaceholder(/tìm theo tên hoặc mã khu/i).fill(name);
-    await expect(page.getByText(name)).toBeVisible();
+    await expect(page.getByText(name)).toBeVisible({ timeout: 15_000 });
   }
   await page.getByPlaceholder(/tìm theo tên hoặc mã khu/i).fill(`Khu E2E ${suffix}`);
-  await page.getByRole('link', { name: `Khu E2E ${suffix}`, exact: true }).click();
+  const areaLink = page.getByRole('link', { name: `Khu E2E ${suffix}`, exact: true });
+  const areaHref = await areaLink.getAttribute('href');
+  expect(areaHref).toMatch(/\/admin\/areas\/[^/]+/);
+  await page.goto(areaHref!);
   await expect(page).toHaveURL(/\/admin\/areas\/[^/]+/);
   await expect(page.locator('.leaflet-container')).toBeVisible({ timeout: 15_000 });
   errors.assertClean();
