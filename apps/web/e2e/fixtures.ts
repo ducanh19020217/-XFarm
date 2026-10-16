@@ -21,6 +21,8 @@ export async function loginAs(page: Page, role: Role = 'OWNER') {
   await page.context().addCookies(state.cookies || []);
   await page.goto('/admin');
   await page.waitForURL('**/admin');
+  await page.waitForLoadState('networkidle');
+  await expect(page.getByText(/Xin chào,/)).toBeVisible({ timeout: 15_000 });
 }
 
 export async function api<T>(page: Page, path: string, init: RequestInit = {}) {

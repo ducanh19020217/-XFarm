@@ -31,7 +31,7 @@ test.describe('Public Traceability (/trace/[code])', () => {
 
     // Kiểm tra thẻ thông tin lô
     await expect(page.getByText(/thông tin lô thu hoạch/i)).toBeVisible();
-    await expect(page.getByText(/DEMO000001/)).toBeVisible();
+    await expect(page.getByText(/DEMO000001/).first()).toBeVisible();
 
     // Kiểm tra chứng nhận
     await expect(page.getByText(/VietGAP/i).first()).toBeVisible();
@@ -47,7 +47,9 @@ test.describe('Public Traceability (/trace/[code])', () => {
     expect(pageContent).not.toContain('createdById');
 
     // Kiểm tra footer
-    await expect(page.getByText(/XFarm – Nông trại sinh thái/i)).toBeVisible();
+    await expect(
+      page.getByRole('contentinfo').getByText('XFarm – Nông trại sinh thái', { exact: true }),
+    ).toBeVisible();
     await expect(page.getByRole('link', { name: /về trang chủ xfarm/i })).toBeVisible();
 
     errors.assertClean();

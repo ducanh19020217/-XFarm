@@ -28,6 +28,7 @@ type ActivityWithRelations = Prisma.ActivityGetPayload<{
     performedBy: { select: { id: true; fullName: true; email: true } };
     area: true;
     cycle: { select: { id: true; code: true; name: true; areaId: true; status: true } };
+    harvestLot: { select: { id: true } };
     materials: {
       include: {
         item: { select: { id: true; name: true; unit: true } };
@@ -87,7 +88,10 @@ export class ActivitiesService {
     }
     const warehouse = await tx.warehouse.findUnique({ where: { id: data.warehouseId } });
     if (!warehouse) throw new UnprocessableEntityException('Kho không tồn tại');
-    const code = await this.sequenceService.nextInTransaction(tx, 'HL');
+    let code = await this.sequenceService.nextInTransaction(tx, 'HL');
+    while (await tx.harvestLot.findUnique({ where: { code }, select: { id: true } })) {
+      code = await this.sequenceService.nextInTransaction(tx, 'HL');
+    }
     let traceCode = this.newTraceCode();
     while (await tx.harvestLot.findUnique({ where: { traceCode }, select: { id: true } })) {
       traceCode = this.newTraceCode();
@@ -321,6 +325,7 @@ export class ActivitiesService {
     performedBy: { select: { id: true, fullName: true, email: true } },
     area: true,
     cycle: { select: { id: true, code: true, name: true, areaId: true, status: true } },
+    harvestLot: { select: { id: true } },
     materials: {
       include: {
         item: { select: { id: true, name: true, unit: true } },

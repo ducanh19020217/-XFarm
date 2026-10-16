@@ -5,12 +5,6 @@ test.describe('Lô thu hoạch, QR và in tem nhãn (E2E)', () => {
     page,
     errors,
   }) => {
-    // API backend harvest-lots đang được phát triển song song ở task p3-api-harvest
-    test.fixme(
-      true,
-      'Chờ task p3-api-harvest merge backend module harvest-lots và xử lý nhật ký HARVEST',
-    );
-
     await loginAs(page);
 
     // 1. Ghi nhật ký thu hoạch (HARVEST)
@@ -19,16 +13,19 @@ test.describe('Lô thu hoạch, QR và in tem nhãn (E2E)', () => {
 
     // Chọn loại nhật ký HARVEST
     await page.getByLabel('Loại nhật ký').selectOption('HARVEST');
-    await page.getByLabel('Khu/lô').selectOption({ index: 1 });
+    await page
+      .getByLabel('Mùa vụ', { exact: true })
+      .selectOption({ label: 'CY-2026-0001 - Vụ rau cải ngọt mùa xuân 2026' });
+    await page.getByLabel('Khu/lô').selectOption({ label: 'AR-0002 - Lô rau 1' });
 
     // Điền các trường nông sản thu hoạch
-    await page.getByLabel('Sản phẩm thu hoạch').selectOption({ index: 1 });
+    await page.getByLabel('Sản phẩm thu hoạch').selectOption({ label: 'Rau cải ngọt (kg)' });
     await page.getByLabel('Kho nhập').selectOption({ index: 1 });
     await page.getByLabel('Số lượng thu hoạch').fill('100');
     await page.getByLabel('Đơn vị tính').fill('kg');
     await page.getByLabel('Phân loại chất lượng').fill('Hạng A');
-    await page.getByLabel('Tiêu chuẩn / Chứng nhận').fill('VietGAP');
-    await page.getByLabel('Công khai truy xuất nguồn gốc').check();
+    await page.getByLabel('Chứng nhận').fill('VietGAP');
+    await page.getByLabel('Công khai truy xuất').check();
 
     // Lưu nhật ký
     await page.getByRole('button', { name: /lưu nhật ký/i }).click();
@@ -40,9 +37,9 @@ test.describe('Lô thu hoạch, QR và in tem nhãn (E2E)', () => {
 
     // 3. Mở chi tiết lô: kiểm tra URL, thông tin lô và QR code
     await expect(page).toHaveURL(/\/admin\/harvest-lots\/[a-zA-Z0-9_-]+/);
-    await expect(page.getByText(/Lô thu hoạch HL-/)).toBeVisible();
-    await expect(page.getByText('Hạng A')).toBeVisible();
-    await expect(page.getByText('VietGAP')).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Lô thu hoạch HL-/ })).toBeVisible();
+    await expect(page.getByText('Hạng A').first()).toBeVisible();
+    await expect(page.getByText('VietGAP').first()).toBeVisible();
 
     // Kiểm tra QR code (thẻ img hoặc canvas)
     const qrImage = page.locator('img[data-testid="harvest-lot-qr"], canvas');

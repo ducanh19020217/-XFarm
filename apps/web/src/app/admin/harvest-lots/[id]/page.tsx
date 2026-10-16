@@ -346,6 +346,7 @@ export default function HarvestLotDetailPage() {
                   <img
                     id="harvest-lot-qr"
                     data-testid="harvest-lot-qr"
+                    data-trace-url={traceUrl}
                     src={qrDataUrl}
                     alt={`Mã QR truy xuất ${lot.traceCode}`}
                     className="h-52 w-52"
