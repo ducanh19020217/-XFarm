@@ -197,7 +197,7 @@ export default function MobileAttendancePage() {
             type="button"
             variant="default"
             size="lg"
-            disabled={hasCheckedIn || actionLoading}
+            disabled={loading || hasCheckedIn || actionLoading}
             onClick={handleCheckIn}
             className={`h-16 text-base font-extrabold rounded-2xl flex flex-col items-center justify-center gap-1 active:scale-95 transition-all shadow-sm ${
               hasCheckedIn
@@ -213,7 +213,7 @@ export default function MobileAttendancePage() {
             type="button"
             variant="default"
             size="lg"
-            disabled={!hasCheckedIn || hasCheckedOut || actionLoading}
+            disabled={loading || !hasCheckedIn || hasCheckedOut || actionLoading}
             onClick={handleCheckOut}
             className={`h-16 text-base font-extrabold rounded-2xl flex flex-col items-center justify-center gap-1 active:scale-95 transition-all shadow-sm ${
               !hasCheckedIn || hasCheckedOut
