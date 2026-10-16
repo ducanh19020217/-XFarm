@@ -1,58 +1,68 @@
-import { expect, loginAs, test } from './fixtures';
+import { expect, expectDialogInViewport, loginAs, test } from './fixtures';
 
-test.describe('Quản lý tồn kho và phiếu kho (Inventory Stock E2E)', () => {
-  test('nhập 10 kg rồi xuất 3 kg thì tồn hiện 7; xuất quá tồn thì thấy lỗi tiếng Việt', async ({
-    page,
-    errors,
-  }) => {
-    // Đánh dấu fixme do API thực tế từ task p2-api-stock-docs đang chạy song song, chưa merge vào nhánh này.
-    // Claude sẽ bật lại test khi merge API backend.
-    test.fixme(true, 'Chờ API p2-api-stock-docs merge vào nhánh');
+async function selectItem(page: import('@playwright/test').Page, itemName: string) {
+  const select = page.locator('select[aria-label="Vật tư dòng 1"]');
+  const option = select.locator('option').filter({ hasText: itemName }).first();
+  const value = await option.getAttribute('value');
+  expect(value).toBeTruthy();
+  await select.selectOption(value!);
+}
 
-    await loginAs(page, 'OWNER');
+test('nhập 10 kg rồi xuất 3 kg thì tồn hiện 7; xuất quá tồn thì thấy lỗi tiếng Việt', async ({
+  page,
+  errors,
+}) => {
+  test.setTimeout(60_000);
+  await loginAs(page, 'OWNER');
+  const suffix = Date.now();
+  const itemName = `Phân tồn kho ${suffix}`;
+  const sku = `STOCK-${suffix}`;
 
-    // 1. Vào trang chứng từ kho và lập phiếu nhập 10 kg
-    await page.goto('/admin/inventory/documents');
-    await page.getByRole('button', { name: /phiếu nhập/i }).click();
+  await page.goto('/admin/inventory/items');
+  await page.getByRole('button', { name: /thêm vật tư/i }).click();
+  await expectDialogInViewport(page);
+  await page.locator('#item-sku').fill(sku);
+  await page.locator('#item-name').fill(itemName);
+  await page.locator('#item-category').selectOption('FERTILIZER');
+  await page.locator('#item-unit').fill('kg');
+  await page.getByRole('button', { name: 'Tạo mới' }).click();
+  await expect(page.getByText(itemName).first()).toBeVisible();
 
-    // Điền thông tin phiếu nhập
-    await page.locator('#receipt-warehouse').selectOption({ index: 1 });
-    await page.locator('select[aria-label="Vật tư dòng 1"]').selectOption({ index: 1 });
-    await page.locator('input[aria-label="Số lượng dòng 1"]').fill('10');
-    await page.locator('input[aria-label="Đơn giá dòng 1"]').fill('50000');
-    await page.getByRole('button', { name: /tạo phiếu nhập/i }).click();
+  await page.goto('/admin/inventory/documents');
+  await page.getByRole('button', { name: /phiếu nhập/i }).click();
+  await page.locator('#receipt-warehouse').selectOption({ index: 1 });
+  await selectItem(page, itemName);
+  await page.locator('input[aria-label="Số lượng dòng 1"]').fill('10');
+  await page.locator('input[aria-label="Đơn giá dòng 1"]').fill('50000');
+  await page.getByRole('button', { name: /tạo phiếu nhập/i }).click();
+  await expect(page.getByText(/tạo phiếu nhập thành công/i)).toBeVisible();
 
-    // 2. Chuyển sang trang Tồn kho để kiểm tra tồn 10 kg
-    await page.goto('/admin/inventory');
-    await expect(page.getByText(/10\s*(kg|gói|hộp|con|cây)?/i)).toBeVisible();
+  await page.goto('/admin/inventory');
+  await page.getByPlaceholder(/tìm kiếm theo mã sku hoặc tên vật tư/i).fill(sku);
+  let row = page.locator('tbody tr').filter({ hasText: itemName });
+  await expect(row).toContainText('10');
 
-    // 3. Lập phiếu xuất 3 kg
-    await page.goto('/admin/inventory/documents');
-    await page.getByRole('button', { name: /phiếu xuất/i }).click();
+  await page.goto('/admin/inventory/documents');
+  await page.getByRole('button', { name: /phiếu xuất/i }).click();
+  await page.locator('#issue-warehouse').selectOption({ index: 1 });
+  await selectItem(page, itemName);
+  await page.locator('input[aria-label="Số lượng dòng 1"]').fill('3');
+  await page.getByRole('button', { name: /tạo phiếu xuất/i }).click();
+  await expect(page.getByText(/tạo phiếu xuất thành công/i)).toBeVisible();
 
-    await page.locator('#issue-warehouse').selectOption({ index: 1 });
-    await page.locator('select[aria-label="Vật tư dòng 1"]').selectOption({ index: 1 });
-    await page.locator('input[aria-label="Số lượng dòng 1"]').fill('3');
-    await page.getByRole('button', { name: /tạo phiếu xuất/i }).click();
+  await page.goto('/admin/inventory');
+  await page.getByPlaceholder(/tìm kiếm theo mã sku hoặc tên vật tư/i).fill(sku);
+  row = page.locator('tbody tr').filter({ hasText: itemName });
+  await expect(row).toContainText('7');
 
-    // 4. Kiểm tra tồn kho sau xuất giảm còn 7 kg
-    await page.goto('/admin/inventory');
-    await expect(page.getByText(/7\s*(kg|gói|hộp|con|cây)?/i)).toBeVisible();
+  await page.goto('/admin/inventory/documents');
+  await page.getByRole('button', { name: /phiếu xuất/i }).click();
+  await page.locator('#issue-warehouse').selectOption({ index: 1 });
+  await selectItem(page, itemName);
+  await page.locator('input[aria-label="Số lượng dòng 1"]').fill('8');
+  errors.expectError('/stock/issues');
+  await page.getByRole('button', { name: /tạo phiếu xuất/i }).click();
+  await expect(page.getByRole('alert')).toContainText(/lỗi xuất kho|không đủ tồn/i);
 
-    // 5. Thử xuất quá tồn (ví dụ 100 kg) -> hiển thị lỗi 422 bằng tiếng Việt
-    await page.goto('/admin/inventory/documents');
-    await page.getByRole('button', { name: /phiếu xuất/i }).click();
-
-    await page.locator('#issue-warehouse').selectOption({ index: 1 });
-    await page.locator('select[aria-label="Vật tư dòng 1"]').selectOption({ index: 1 });
-    await page.locator('input[aria-label="Số lượng dòng 1"]').fill('100');
-    await page.getByRole('button', { name: /tạo phiếu xuất/i }).click();
-
-    // Kiểm tra thông báo lỗi tiếng Việt hiển thị
-    const alert = page.getByRole('alert');
-    await expect(alert).toBeVisible();
-    await expect(alert).toContainText(/không đủ tồn|lỗi xuất kho/i);
-
-    errors.assertClean();
-  });
+  errors.assertClean();
 });

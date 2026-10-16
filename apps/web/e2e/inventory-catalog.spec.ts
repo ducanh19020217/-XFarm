@@ -1,8 +1,6 @@
 import { expect, loginAs, test, expectDialogInViewport } from './fixtures';
 
 test('tạo item, sửa minStock, thấy trong danh sách', async ({ page, errors }) => {
-  test.fixme(true, 'Chờ task p2-api-catalog merge endpoint /api/v1/items và /api/v1/items/:id');
-
   await loginAs(page);
   await page.goto('/admin/inventory/items');
 

@@ -101,6 +101,7 @@ export default function AlertsPage() {
       await runInventoryCheck();
       showToast('Đã chạy kiểm tra cảnh báo tồn kho thành công');
       fetchAlerts();
+      window.dispatchEvent(new CustomEvent('xfarm:alerts-updated'));
     } catch {
       showToast('Lỗi khi chạy kiểm tra tồn kho');
     } finally {

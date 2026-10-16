@@ -75,9 +75,9 @@ export function getInventoryLink(alert: AlertItem): { href: string; label: strin
   };
 }
 
-export function notifyAlertsUpdated(): void {
+export function notifyAlertsUpdated(unreadDelta?: number): void {
   if (typeof window !== 'undefined') {
-    window.dispatchEvent(new CustomEvent('xfarm:alerts-updated'));
+    window.dispatchEvent(new CustomEvent('xfarm:alerts-updated', { detail: { unreadDelta } }));
   }
 }
 
@@ -150,7 +150,7 @@ export async function getAlerts(params: QueryAlertsParams = {}): Promise<Paginat
 
 export async function markAlertAsRead(id: string): Promise<void> {
   await apiFetch(`/alerts/${id}/read`, { method: 'PATCH' });
-  notifyAlertsUpdated();
+  notifyAlertsUpdated(-1);
 }
 
 export async function markAllAlertsAsRead(): Promise<void> {
