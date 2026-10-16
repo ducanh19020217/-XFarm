@@ -37,3 +37,31 @@ const serwist = new Serwist({
 });
 
 serwist.addEventListeners();
+
+// Background Sync
+self.addEventListener('sync', (event: unknown) => {
+  const syncEvent = event as { tag?: string; waitUntil: (p: Promise<unknown>) => void };
+  if (syncEvent.tag === 'xfarm-sync-outbox') {
+    syncEvent.waitUntil(
+      (async () => {
+        const swScope = self as unknown as {
+          clients?: {
+            matchAll: (opts: {
+              type: string;
+              includeUncontrolled: boolean;
+            }) => Promise<{ postMessage: (msg: unknown) => void }[]>;
+          };
+        };
+        if (swScope.clients) {
+          const clients = await swScope.clients.matchAll({
+            type: 'window',
+            includeUncontrolled: true,
+          });
+          for (const client of clients) {
+            client.postMessage({ type: 'SYNC_OUTBOX' });
+          }
+        }
+      })(),
+    );
+  }
+});
