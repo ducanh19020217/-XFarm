@@ -92,6 +92,7 @@ async function main() {
       '/items',
       '/warehouses',
       '/suppliers',
+      '/purchase-orders',
     ];
 
     for (const route of routes) {
