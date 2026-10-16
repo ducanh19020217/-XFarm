@@ -79,7 +79,7 @@ const navItems: NavItem[] = [
     isReady: true,
   },
   { title: 'Kho', href: '/admin/inventory', icon: Boxes, isReady: false },
-  { title: 'Mua hàng', href: '/admin/purchase-orders', icon: ShoppingCart, isReady: false },
+  { title: 'Mua hàng', href: '/admin/purchase-orders', icon: ShoppingCart, isReady: true },
   { title: 'Cảnh báo', href: '/admin/alerts', icon: Boxes, isReady: false },
   {
     title: 'Thu hoạch & Truy xuất',
