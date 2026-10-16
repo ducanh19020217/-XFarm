@@ -41,8 +41,9 @@ test.describe('E2E Quản lý Nhân sự, Giao việc, Chấm công, Tính lươ
 
     // Xác nhận nhân viên mới xuất hiện trong DataTable
     await page.getByPlaceholder(/tìm theo mã hoặc họ tên/i).fill(empName);
-    await expect(page.getByText(empName)).toBeVisible();
-    await expect(page.getByText(/300.000/)).toBeVisible();
+    const empRow = page.getByText(empName).locator('xpath=ancestor::tr');
+    await expect(empRow).toBeVisible();
+    await expect(empRow.getByText(/300.000/)).toBeVisible();
 
     // 3. Giao việc mới cho nhân viên
     await page.goto('/admin/hr/tasks');
@@ -80,7 +81,8 @@ test.describe('E2E Quản lý Nhân sự, Giao việc, Chấm công, Tính lươ
     await page.getByRole('button', { name: /lưu chấm công/i }).click();
 
     // Xác nhận giờ công được cập nhật trên ô và tổng giờ
-    await expect(row.getByText('8h')).toBeVisible();
+    await expect(row.getByText('8h').first()).toBeVisible();
+    await expect(row.getByText('8h')).toHaveCount(2);
 
     // 5. Tính lương và thấy đúng số tiền
     await page.goto('/admin/hr/payroll');
@@ -91,8 +93,9 @@ test.describe('E2E Quản lý Nhân sự, Giao việc, Chấm công, Tính lươ
 
     // Kiểm tra nhân viên xuất hiện và thấy đúng số tiền lương (ít nhất 1 ngày 8h = 300.000 ₫)
     await page.getByPlaceholder(/tìm theo mã nv hoặc tên/i).fill(empName);
-    await expect(page.getByText(empName)).toBeVisible();
-    await expect(page.getByText(/300.000/)).toBeVisible();
+    const payrollRow = page.getByText(empName).locator('xpath=ancestor::tr');
+    await expect(payrollRow).toBeVisible();
+    await expect(payrollRow.getByText(/300.000/)).toBeVisible();
 
     // Xem chi tiết bảng lương
     await page
@@ -101,7 +104,7 @@ test.describe('E2E Quản lý Nhân sự, Giao việc, Chấm công, Tính lươ
       .click();
     await expectDialogInViewport(page);
     await expect(page.getByText(/chi tiết từng ngày/i)).toBeVisible();
-    await page.getByRole('button', { name: /đóng/i }).click();
+    await page.getByRole('button', { name: /đóng/i }).first().click();
 
     // Duyệt bảng lương
     await page.getByRole('button', { name: /duyệt/i }).first().click();
