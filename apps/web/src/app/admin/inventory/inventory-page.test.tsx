@@ -108,16 +108,20 @@ describe('InventoryBalancesPage (Giao diện tồn kho)', () => {
         return { data: mockWarehouses, total: 1 };
       }
       if (url.startsWith('/stock/balances')) {
-        // Nếu query có pageSize lớn (fetchAggregatedTotals)
-        if (url.includes('pageSize=1000') || url.includes('pageSize=30')) {
+        const parsedUrl = new URL(url, 'http://localhost');
+        const reqPageSize = Number(parsedUrl.searchParams.get('pageSize'));
+        // Schema phân trang giới hạn tối đa 100, tuyệt đối không gửi > 100
+        expect(reqPageSize).toBeLessThanOrEqual(100);
+
+        if (reqPageSize === 100) {
           return {
             data: all30Items,
             total: 30,
             page: 1,
-            pageSize: 1000,
+            pageSize: 100,
           };
         }
-        // Query trang 1 bình thường
+        // Query trang 1 bình thường (pageSize=20)
         return {
           data: page1Items,
           total: 30,
@@ -136,5 +140,138 @@ describe('InventoryBalancesPage (Giao diện tồn kho)', () => {
     });
 
     expect(screen.getAllByText('30').length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('tự tính tổng qua nhiều trang khi tổng số dòng vượt quá 100 và API chưa có totalAmount', async () => {
+    const page1Items: StockBalanceItem[] = [
+      {
+        itemId: 'i-1',
+        itemName: 'Vật tư 1',
+        category: 'FERTILIZER',
+        unit: 'kg',
+        warehouseId: 'wh-1',
+        quantity: 1,
+        unitCost: 100000,
+        totalValue: 100000,
+      },
+    ];
+
+    const first100Items: StockBalanceItem[] = Array.from({ length: 100 }, (_, index) => ({
+      itemId: `i-${index}`,
+      itemName: `Vật tư ${index}`,
+      category: 'FERTILIZER',
+      unit: 'kg',
+      warehouseId: 'wh-1',
+      quantity: 1,
+      unitCost: 100000,
+      totalValue: 100000,
+    })); // 100 * 100,000 = 10,000,000 ₫
+
+    const next50Items: StockBalanceItem[] = Array.from({ length: 50 }, (_, index) => ({
+      itemId: `i-${index + 100}`,
+      itemName: `Vật tư ${index + 100}`,
+      category: 'FERTILIZER',
+      unit: 'kg',
+      warehouseId: 'wh-1',
+      quantity: 1,
+      unitCost: 100000,
+      totalValue: 100000,
+    })); // 50 * 100,000 = 5,000,000 ₫
+    // Total: 15,000,000 ₫
+
+    vi.mocked(apiModule.apiFetch).mockImplementation(async (url: string) => {
+      if (url.startsWith('/warehouses')) {
+        return { data: mockWarehouses, total: 1 };
+      }
+      if (url.startsWith('/stock/balances')) {
+        const parsedUrl = new URL(url, 'http://localhost');
+        const reqPage = Number(parsedUrl.searchParams.get('page'));
+        const reqPageSize = Number(parsedUrl.searchParams.get('pageSize'));
+        expect(reqPageSize).toBeLessThanOrEqual(100);
+
+        if (reqPageSize === 100 && reqPage === 1) {
+          return {
+            data: first100Items,
+            total: 150,
+            page: 1,
+            pageSize: 100,
+          };
+        }
+        if (reqPageSize === 100 && reqPage === 2) {
+          return {
+            data: next50Items,
+            total: 150,
+            page: 2,
+            pageSize: 100,
+          };
+        }
+        return {
+          data: page1Items,
+          total: 150,
+          page: 1,
+          pageSize: 20,
+        };
+      }
+      throw new Error(`Unexpected url: ${url}`);
+    });
+
+    render(<InventoryBalancesPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('15.000.000 ₫')).toBeInTheDocument();
+    });
+
+    expect(screen.getAllByText('150').length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('không hiển thị tổng của trang hiện tại như tổng toàn bộ khi việc tổng hợp thất bại', async () => {
+    const page1Items: StockBalanceItem[] = [
+      {
+        itemId: 'i-1',
+        itemName: 'Vật tư 1',
+        category: 'FERTILIZER',
+        unit: 'kg',
+        warehouseId: 'wh-1',
+        quantity: 2,
+        unitCost: 1000000,
+        totalValue: 2000000, // 2 triệu cho trang 1
+      },
+    ];
+
+    vi.mocked(apiModule.apiFetch).mockImplementation(async (url: string) => {
+      if (url.startsWith('/warehouses')) {
+        return { data: mockWarehouses, total: 1 };
+      }
+      if (url.startsWith('/stock/balances')) {
+        const parsedUrl = new URL(url, 'http://localhost');
+        const reqPageSize = Number(parsedUrl.searchParams.get('pageSize'));
+        // Khi gọi fetchAggregatedTotals (pageSize=100), giả lập lỗi
+        if (reqPageSize === 100) {
+          throw new Error('Network error during aggregation');
+        }
+        // Trang 1 bình thường
+        return {
+          data: page1Items,
+          total: 50,
+          page: 1,
+          pageSize: 20,
+        };
+      }
+      throw new Error(`Unexpected url: ${url}`);
+    });
+
+    render(<InventoryBalancesPage />);
+
+    await waitFor(() => {
+      expect(screen.getAllByText('50').length).toBeGreaterThanOrEqual(1);
+    });
+
+    // Tuyệt đối không hiển thị 2.000.000 ₫ của riêng trang 1 như tổng toàn bộ ở card thống kê
+    const summaryCard = screen.getByTestId('summary-total-value');
+    expect(summaryCard).not.toHaveTextContent('2.000.000 ₫');
+    // Thay vào đó, ô tổng thành tiền hiển thị dấu "—"
+    expect(summaryCard).toHaveTextContent('—');
+    expect(screen.getByTestId('summary-expiring-count')).toHaveTextContent('—');
+    expect(screen.getAllByTitle('Không thể tổng hợp toàn bộ các trang')).toHaveLength(2);
   });
 });

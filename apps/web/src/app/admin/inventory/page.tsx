@@ -47,28 +47,49 @@ export default function InventoryBalancesPage() {
   // Aggregated totals across all filtered items (for multi-page datasets)
   const [aggregatedTotalAmount, setAggregatedTotalAmount] = React.useState<number | null>(null);
   const [aggregatedExpiringCount, setAggregatedExpiringCount] = React.useState<number | null>(null);
+  const [aggregationFailed, setAggregationFailed] = React.useState(false);
+  const [isAggregating, setIsAggregating] = React.useState(false);
+  const aggregationSeq = React.useRef(0);
 
-  // Helper to query all filtered records when API doesn't provide aggregated totalAmount
+  // Helper to query all filtered records across pages (respecting schema max pageSize=100)
+  // when API doesn't provide aggregated totalAmount
   const fetchAggregatedTotals = React.useCallback(
     async (totalCount: number) => {
+      const currentSeq = ++aggregationSeq.current;
+      setIsAggregating(true);
+      setAggregationFailed(false);
       try {
-        const summaryParams = new URLSearchParams();
-        summaryParams.set('page', '1');
-        summaryParams.set('pageSize', String(Math.max(totalCount, 1000)));
-        if (warehouseId) summaryParams.set('warehouseId', warehouseId);
-        if (category) summaryParams.set('category', category);
-        if (lotCode.trim()) summaryParams.set('lotCode', lotCode.trim());
-        summaryParams.set('includeZero', includeZero ? 'true' : 'false');
-        if (search.trim()) summaryParams.set('search', search.trim());
+        const MAX_PAGE_SIZE = 100;
+        const totalPages = Math.ceil(totalCount / MAX_PAGE_SIZE);
 
-        const fullRes = await apiFetch<StockBalancesResponse>(
-          `/stock/balances?${summaryParams.toString()}`,
-        );
+        const pageRequests: Promise<StockBalancesResponse>[] = [];
+        for (let p = 1; p <= totalPages; p++) {
+          const summaryParams = new URLSearchParams();
+          summaryParams.set('page', String(p));
+          summaryParams.set('pageSize', String(MAX_PAGE_SIZE));
+          if (warehouseId) summaryParams.set('warehouseId', warehouseId);
+          if (category) summaryParams.set('category', category);
+          if (lotCode.trim()) summaryParams.set('lotCode', lotCode.trim());
+          summaryParams.set('includeZero', includeZero ? 'true' : 'false');
+          if (search.trim()) summaryParams.set('search', search.trim());
 
-        if (fullRes && typeof fullRes.totalAmount === 'number') {
-          setAggregatedTotalAmount(fullRes.totalAmount);
+          pageRequests.push(
+            apiFetch<StockBalancesResponse>(`/stock/balances?${summaryParams.toString()}`),
+          );
+        }
+
+        const responses = await Promise.all(pageRequests);
+        if (currentSeq !== aggregationSeq.current) return;
+
+        // 1. If any response provided totalAmount directly, use it
+        const firstWithTotal = responses.find((r) => typeof r?.totalAmount === 'number');
+        if (firstWithTotal && typeof firstWithTotal.totalAmount === 'number') {
+          setAggregatedTotalAmount(firstWithTotal.totalAmount);
+          if (typeof firstWithTotal.totalExpiring === 'number') {
+            setAggregatedExpiringCount(firstWithTotal.totalExpiring);
+          }
         } else {
-          const allItems = fullRes?.data || [];
+          const allItems = responses.flatMap((r) => r?.data || []);
           const fullSum = allItems.reduce((acc, item) => {
             const lineVal =
               item.totalValue != null
@@ -86,8 +107,16 @@ export default function InventoryBalancesPage() {
           }).length;
           setAggregatedExpiringCount(fullExpiring);
         }
+        setAggregationFailed(false);
       } catch {
-        // Fallback: calculation will use balances of current page
+        if (currentSeq !== aggregationSeq.current) return;
+        setAggregationFailed(true);
+        setAggregatedTotalAmount(null);
+        setAggregatedExpiringCount(null);
+      } finally {
+        if (currentSeq === aggregationSeq.current) {
+          setIsAggregating(false);
+        }
       }
     },
     [warehouseId, category, lotCode, includeZero, search],
@@ -118,7 +147,15 @@ export default function InventoryBalancesPage() {
         setAggregatedTotalAmount(res.totalAmount);
         if (typeof res.totalExpiring === 'number') {
           setAggregatedExpiringCount(res.totalExpiring);
+        } else if (totalCount <= items.length) {
+          const expCount = items.filter((b) => {
+            const st = getExpiryStatus(b.expiryDate);
+            return st?.isExpired || st?.isExpiringSoon;
+          }).length;
+          setAggregatedExpiringCount(expCount);
         }
+        setAggregationFailed(false);
+        setIsAggregating(false);
       } else if (totalCount <= items.length) {
         // All items fit within the current single page
         const sum = items.reduce((acc, item) => {
@@ -137,6 +174,8 @@ export default function InventoryBalancesPage() {
           return st?.isExpired || st?.isExpiringSoon;
         }).length;
         setAggregatedExpiringCount(expCount);
+        setAggregationFailed(false);
+        setIsAggregating(false);
       } else {
         // Multi-page results and API did not return totalAmount: fetch full dataset for summary
         fetchAggregatedTotals(totalCount);
@@ -147,6 +186,8 @@ export default function InventoryBalancesPage() {
       setTotal(0);
       setAggregatedTotalAmount(0);
       setAggregatedExpiringCount(0);
+      setAggregationFailed(false);
+      setIsAggregating(false);
     } finally {
       setLoading(false);
     }
@@ -158,16 +199,16 @@ export default function InventoryBalancesPage() {
 
   // Reset aggregated totals when filter criteria change (so new totals are computed)
   const resetFiltersState = React.useCallback(() => {
+    aggregationSeq.current++;
     setAggregatedTotalAmount(null);
     setAggregatedExpiringCount(null);
+    setAggregationFailed(false);
+    setIsAggregating(false);
     setPage(1);
   }, []);
 
-  // Calculate total inventory value: prefer aggregated total across all filtered records, fallback to current page
-  const totalValueSum = React.useMemo(() => {
-    if (aggregatedTotalAmount != null) {
-      return aggregatedTotalAmount;
-    }
+  // Calculate page-level totals (only accurate as grand totals when dataset fits on single page)
+  const pageTotalValue = React.useMemo(() => {
     return balances.reduce((sum, item) => {
       const lineVal =
         item.totalValue != null
@@ -177,18 +218,14 @@ export default function InventoryBalancesPage() {
             : Number(item.quantity) * Number(item.unitCost || 0);
       return sum + (Number.isNaN(lineVal) ? 0 : lineVal);
     }, 0);
-  }, [aggregatedTotalAmount, balances]);
+  }, [balances]);
 
-  // Count items expiring or expired: prefer aggregated count across all filtered records, fallback to current page
-  const expiringCount = React.useMemo(() => {
-    if (aggregatedExpiringCount != null) {
-      return aggregatedExpiringCount;
-    }
+  const pageExpiringCount = React.useMemo(() => {
     return balances.filter((b) => {
       const st = getExpiryStatus(b.expiryDate);
       return st?.isExpired || st?.isExpiringSoon;
     }).length;
-  }, [aggregatedExpiringCount, balances]);
+  }, [balances]);
 
   const columns: ColumnDef<StockBalanceItem>[] = [
     {
@@ -338,8 +375,26 @@ export default function InventoryBalancesPage() {
             </span>
             <DollarSign className="h-5 w-5 text-emerald-600" />
           </div>
-          <div className="mt-2 text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-            {formatCurrency(totalValueSum)}
+          <div
+            data-testid="summary-total-value"
+            className="mt-2 text-2xl font-bold text-emerald-600 dark:text-emerald-400"
+          >
+            {aggregatedTotalAmount != null ? (
+              formatCurrency(aggregatedTotalAmount)
+            ) : total <= balances.length ? (
+              formatCurrency(pageTotalValue)
+            ) : isAggregating ? (
+              <span className="text-base font-normal text-slate-400">Đang tính...</span>
+            ) : aggregationFailed ? (
+              <span
+                className="text-base font-normal text-slate-400"
+                title="Không thể tổng hợp toàn bộ các trang"
+              >
+                —
+              </span>
+            ) : (
+              <span className="text-base font-normal text-slate-400">—</span>
+            )}
           </div>
         </div>
 
@@ -350,8 +405,26 @@ export default function InventoryBalancesPage() {
             </span>
             <AlertTriangle className="h-5 w-5 text-amber-500" />
           </div>
-          <div className="mt-2 text-2xl font-bold text-amber-600 dark:text-amber-400">
-            {formatNumber(expiringCount, 0)}
+          <div
+            data-testid="summary-expiring-count"
+            className="mt-2 text-2xl font-bold text-amber-600 dark:text-amber-400"
+          >
+            {aggregatedExpiringCount != null ? (
+              formatNumber(aggregatedExpiringCount, 0)
+            ) : total <= balances.length ? (
+              formatNumber(pageExpiringCount, 0)
+            ) : isAggregating ? (
+              <span className="text-base font-normal text-slate-400">...</span>
+            ) : aggregationFailed ? (
+              <span
+                className="text-base font-normal text-slate-400"
+                title="Không thể tổng hợp toàn bộ các trang"
+              >
+                —
+              </span>
+            ) : (
+              <span className="text-base font-normal text-slate-400">—</span>
+            )}
           </div>
         </div>
       </div>
