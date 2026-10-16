@@ -54,10 +54,7 @@ test.describe('Public Traceability (/trace/[code])', () => {
   });
 
   test('mã không tồn tại thì hiện trang 404 thân thiện', async ({ page }) => {
-    const isReady = await checkApiTraceReady('DEMO000001');
-    test.fixme(!isReady, 'Chờ module public-trace từ task p3-api-trace được merge vào nhánh');
-
-    // Truy cập mã không tồn tại
+    // Truy cập mã không tồn tại - Server Component fetch sẽ trả 404 và kích hoạt notFound()
     await page.goto('/trace/KHONG_TON_TAI_999999');
 
     // Kỳ vọng trang 404 thân thiện
