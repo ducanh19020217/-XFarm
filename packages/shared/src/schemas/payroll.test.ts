@@ -68,9 +68,28 @@ describe('payroll schemas', () => {
     const query = queryPayrollSchema.parse({
       employeeId: 'emp-1',
       status: PayrollStatus.PAID,
+      period: '2026-10',
     });
     expect(query.employeeId).toBe('emp-1');
     expect(query.status).toBe(PayrollStatus.PAID);
+    expect(query.period).toBe('2026-10');
+  });
+
+  it('parses createPayrollSchema with array details', () => {
+    const input = {
+      employeeId: 'emp-1',
+      periodStart: '2026-10-01',
+      periodEnd: '2026-10-31',
+      amount: 900000,
+      details: [
+        { date: '2026-10-01', hours: 8, amount: 300000 },
+        { date: '2026-10-02', hours: 8, amount: 300000 },
+        { date: '2026-10-03', hours: 8, amount: 300000 },
+      ],
+    };
+    const parsed = createPayrollSchema.parse(input);
+    expect(Array.isArray(parsed.details)).toBe(true);
+    expect(parsed.details).toHaveLength(3);
   });
 
   it('defines labels for all PayrollStatus values', () => {
