@@ -7,6 +7,7 @@ import {
   ActivityType,
   ItemCategory,
   StockMoveType,
+  PostStatus,
 } from '@prisma/client';
 import * as argon2 from 'argon2';
 import { Prisma } from '@prisma/client';
@@ -190,6 +191,27 @@ async function main() {
   console.log(
     `Seeded inventory: ${materialWarehouse.name}, ${finishedWarehouse.name}, ${inventoryItems.length} items`,
   );
+
+  const produceItems = [
+    { sku: 'PRODUCE-CAI-NGOT', name: 'Rau cải ngọt', category: ItemCategory.PRODUCE, unit: 'kg' },
+    { sku: 'EGG-CHICKEN', name: 'Trứng gà', category: ItemCategory.LIVESTOCK_PRODUCT, unit: 'quả' },
+    { sku: 'AQUA-RO-PHI', name: 'Cá rô phi', category: ItemCategory.AQUA_PRODUCT, unit: 'kg' },
+  ] as const;
+  for (const item of produceItems) {
+    const saved = await prisma.item.upsert({
+      where: { sku: item.sku },
+      update: {
+        name: item.name,
+        category: item.category,
+        unit: item.unit,
+        isSellable: true,
+        isActive: true,
+      },
+      create: { ...item, isSellable: true, isActive: true },
+      select: { id: true },
+    });
+    items.set(item.sku, saved);
+  }
 
   // 3. Seed Areas
   // Khu A (ZONE)
@@ -589,6 +611,244 @@ async function main() {
       });
       console.log(`Updated activity ${act.type} for cycle ${act.cycleId}`);
     }
+  }
+
+  // 6. Seed harvest traceability, CMS content, and public site settings.
+  const harvestItem = items.get('PRODUCE-CAI-NGOT');
+  if (!harvestItem) throw new Error('Produce item was not seeded');
+  const harvestDate = new Date('2026-03-20T08:00:00Z');
+  const harvestActivity = await prisma.activity.upsert({
+    where: { id: 'seed-harvest-activity-2026' },
+    update: {
+      cycleId: cycleCrop.id,
+      areaId: loRau1.id,
+      type: ActivityType.HARVEST,
+      performedAt: harvestDate,
+      quantity: new Prisma.Decimal(1200),
+      unit: 'kg',
+      data: {
+        itemId: harvestItem.id,
+        quantity: 1200,
+        unit: 'kg',
+        warehouseId: finishedWarehouse.id,
+        qualityGrade: 'A',
+        certification: 'VietGAP',
+        isPublic: true,
+      },
+      notes: 'Thu hoạch lô rau cải ngọt mẫu',
+      performedById: worker.id,
+      createdById: admin.id,
+    },
+    create: {
+      id: 'seed-harvest-activity-2026',
+      cycleId: cycleCrop.id,
+      areaId: loRau1.id,
+      type: ActivityType.HARVEST,
+      performedAt: harvestDate,
+      quantity: new Prisma.Decimal(1200),
+      unit: 'kg',
+      data: {
+        itemId: harvestItem.id,
+        quantity: 1200,
+        unit: 'kg',
+        warehouseId: finishedWarehouse.id,
+        qualityGrade: 'A',
+        certification: 'VietGAP',
+        isPublic: true,
+      },
+      notes: 'Thu hoạch lô rau cải ngọt mẫu',
+      performedById: worker.id,
+      createdById: admin.id,
+    },
+  });
+  const harvestLot = await prisma.harvestLot.upsert({
+    where: { activityId: harvestActivity.id },
+    update: {
+      code: 'HL-2026-0001',
+      traceCode: 'DEMO000001',
+      cycleId: cycleCrop.id,
+      itemId: harvestItem.id,
+      quantity: new Prisma.Decimal(1200),
+      unit: 'kg',
+      harvestedAt: harvestDate,
+      warehouseId: finishedWarehouse.id,
+      qualityGrade: 'A',
+      certification: 'VietGAP',
+      isPublic: true,
+      createdById: admin.id,
+    },
+    create: {
+      code: 'HL-2026-0001',
+      traceCode: 'DEMO000001',
+      cycleId: cycleCrop.id,
+      activityId: harvestActivity.id,
+      itemId: harvestItem.id,
+      quantity: new Prisma.Decimal(1200),
+      unit: 'kg',
+      harvestedAt: harvestDate,
+      warehouseId: finishedWarehouse.id,
+      qualityGrade: 'A',
+      certification: 'VietGAP',
+      isPublic: true,
+      createdById: admin.id,
+    },
+  });
+  const harvestStockLot = await prisma.stockLot.upsert({
+    where: { itemId_lotCode: { itemId: harvestItem.id, lotCode: 'HL-2026-0001' } },
+    update: {
+      harvestLotId: harvestLot.id,
+      warehouseId: finishedWarehouse.id,
+      unitCost: new Prisma.Decimal(0),
+    },
+    create: {
+      itemId: harvestItem.id,
+      lotCode: 'HL-2026-0001',
+      harvestLotId: harvestLot.id,
+      warehouseId: finishedWarehouse.id,
+      unitCost: new Prisma.Decimal(0),
+    },
+  });
+  const harvestRefId = 'HARVEST-HL-2026-0001';
+  const existingHarvestMove = await prisma.stockMove.findFirst({
+    where: { refType: 'HARVEST', refId: harvestRefId },
+  });
+  if (!existingHarvestMove) {
+    await prisma.stockMove.create({
+      data: {
+        type: StockMoveType.IN,
+        itemId: harvestItem.id,
+        stockLotId: harvestStockLot.id,
+        toWarehouseId: finishedWarehouse.id,
+        quantity: new Prisma.Decimal(1200),
+        unitCost: new Prisma.Decimal(0),
+        refType: 'HARVEST',
+        refId: harvestRefId,
+        movedAt: harvestDate,
+        notes: 'Nhập kho từ lô thu hoạch mẫu',
+      },
+    });
+  }
+
+  const products = [
+    {
+      slug: 'rau-cai-ngot',
+      name: 'Rau cải ngọt',
+      itemId: harvestItem.id,
+      price: 35000,
+      unit: 'kg',
+      sortOrder: 1,
+    },
+    {
+      slug: 'trung-ga-tuoi',
+      name: 'Trứng gà tươi',
+      itemId: items.get('EGG-CHICKEN')!.id,
+      price: 4500,
+      unit: 'quả',
+      sortOrder: 2,
+    },
+    {
+      slug: 'ca-ro-phi-tuoi',
+      name: 'Cá rô phi tươi',
+      itemId: items.get('AQUA-RO-PHI')!.id,
+      price: 75000,
+      unit: 'kg',
+      sortOrder: 3,
+    },
+  ];
+  for (const product of products) {
+    await prisma.product.upsert({
+      where: { slug: product.slug },
+      update: {
+        ...product,
+        description: `<p>${product.name} từ XFarm.</p>`,
+        isPublished: true,
+        createdById: admin.id,
+      },
+      create: {
+        ...product,
+        description: `<p>${product.name} từ XFarm.</p>`,
+        isPublished: true,
+        createdById: admin.id,
+      },
+    });
+  }
+
+  const posts = [
+    {
+      slug: 'vuon-rau-huu-co',
+      title: 'Một ngày ở vườn rau hữu cơ',
+      excerpt: 'Khám phá quy trình chăm sóc rau tại XFarm.',
+      content: '<p>Rau được chăm sóc theo quy trình thân thiện với môi trường.</p>',
+      status: PostStatus.PUBLISHED,
+      publishedAt: new Date('2026-03-01T08:00:00Z'),
+    },
+    {
+      slug: 'tu-trang-trai-den-ban-an',
+      title: 'Từ trang trại đến bàn ăn',
+      excerpt: 'Hành trình minh bạch của nông sản XFarm.',
+      content: '<p>Mỗi sản phẩm đều có mã truy xuất riêng.</p>',
+      status: PostStatus.PUBLISHED,
+      publishedAt: new Date('2026-03-10T08:00:00Z'),
+    },
+    {
+      slug: 'lich-tham-quan-xfarm',
+      title: 'Lịch tham quan XFarm',
+      excerpt: 'Thông tin lịch tham quan sắp tới.',
+      content: '<p>Nội dung đang được cập nhật.</p>',
+      status: PostStatus.DRAFT,
+      publishedAt: null,
+    },
+  ];
+  for (const post of posts) {
+    await prisma.post.upsert({
+      where: { slug: post.slug },
+      update: { ...post, createdById: admin.id },
+      create: { ...post, createdById: admin.id },
+    });
+  }
+  await prisma.page.upsert({
+    where: { slug: 'gioi-thieu' },
+    update: {
+      title: 'Giới thiệu XFarm',
+      content: '<p>XFarm là nông trại sinh thái phát triển bền vững.</p>',
+      createdById: admin.id,
+    },
+    create: {
+      slug: 'gioi-thieu',
+      title: 'Giới thiệu XFarm',
+      content: '<p>XFarm là nông trại sinh thái phát triển bền vững.</p>',
+      createdById: admin.id,
+    },
+  });
+  await prisma.page.upsert({
+    where: { slug: 'lien-he' },
+    update: {
+      title: 'Liên hệ',
+      content: '<p>Hãy liên hệ với XFarm để được hỗ trợ.</p>',
+      createdById: admin.id,
+    },
+    create: {
+      slug: 'lien-he',
+      title: 'Liên hệ',
+      content: '<p>Hãy liên hệ với XFarm để được hỗ trợ.</p>',
+      createdById: admin.id,
+    },
+  });
+  const settings: Record<string, unknown> = {
+    'farm.name': 'XFarm – Nông trại sinh thái',
+    'farm.slogan': 'Tươi lành từ đất, an tâm đến bàn ăn',
+    'farm.about': 'Nông trại sinh thái kết nối con người với thiên nhiên.',
+    'contact.phone': '0901 234 567',
+    'contact.email': 'hello@xfarm.local',
+    'contact.address': 'Khu nông nghiệp sinh thái XFarm, Hà Nội',
+    'social.facebook': 'https://facebook.com/xfarm',
+    'social.zalo': 'https://zalo.me/0901234567',
+    'social.youtube': 'https://youtube.com/@xfarm',
+    'home.banners': ['/images/banner-1.jpg', '/images/banner-2.jpg'],
+    'bank.vietqr': { bank: 'VCB', accountNumber: '0123456789', accountName: 'XFARM' },
+  };
+  for (const [key, value] of Object.entries(settings)) {
+    await prisma.siteSetting.upsert({ where: { key }, update: { value }, create: { key, value } });
   }
 
   console.log('Seed completed successfully!');
