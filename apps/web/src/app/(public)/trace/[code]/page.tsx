@@ -16,11 +16,13 @@ import { TraceLightbox } from './_components/trace-lightbox';
 import { TraceFooter } from './_components/trace-footer';
 import { API_BASE_URL } from '@/lib/public-api';
 
+export const dynamic = 'force-dynamic';
+
 async function getTraceData(code: string): Promise<PublicTraceData | null> {
   const url = `${API_BASE_URL}/public/trace/${encodeURIComponent(code)}`;
   try {
     const res = await fetch(url, {
-      next: { revalidate: 300 },
+      cache: 'no-store',
       headers: {
         Accept: 'application/json',
       },

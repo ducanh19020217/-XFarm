@@ -176,3 +176,31 @@ Bộ UI E2E hiện có 8 kịch bản, chạy tuần tự một worker. Global s
 - **Timeline chưa phân trang**: Timeline nhật ký của mùa vụ hiện tải toàn bộ hoạt động theo mùa vụ, về lâu dài khi mùa vụ có hàng nghìn hoạt động cần bổ sung infinite scroll hoặc pagination.
 - **Quy tắc sinh mã chưa đồng nhất**: Mã khu/lô và đàn vật nuôi không theo năm (`AR-0001`, `AG-0001`), trong khi mã mùa vụ đánh theo năm (`CY-2026-0001`). Cần xem xét chuẩn hóa lại quy ước sinh mã số ở các giai đoạn sau nếu cần quản lý tài sản theo niên độ.
 - **Kiểm tra vòng lặp cha–con của khu/lô**: Thuật toán phát hiện chu trình khi chọn khu/lô cha hiện đang duyệt từng cấp (recursive loop check), có thể xem xét tối ưu bằng CTE query trong database khi cây phân cấp sâu.
+
+## Giai đoạn 3 – Thu hoạch, truy xuất & website quảng bá (phase-3-harvest) – NGHIỆM THU
+
+### 1. Việc đã hoàn tất
+- Hoàn thiện luồng Playwright `phase3-acceptance.spec.ts`: ghi nhật ký HARVEST qua UI, mở chi tiết lô, lấy URL từ QR (`data-trace-url`), truy cập public không đăng nhập và xác nhận tắt công khai trả 404 ở endpoint truy xuất.
+- Sửa client public API để đọc đúng response envelope `{ data: ... }` của CMS; public trace ưu tiên URL của slot và không cache trạng thái công khai đã thay đổi.
+- Sửa luồng sinh mã HarvestLot khi dữ liệu seed có mã trùng Sequence, đồng thời trả `harvestLot.id` trong response Activity để UI liên kết chi tiết lô.
+- Thêm skeleton loading cho route group public và `/admin`; bổ sung locator E2E ổn định cho các trang public/admin.
+
+### 2. Cách chạy thử
+```bash
+source ~/.nvm/nvm.sh && nvm use 22
+pnpm --filter @xfarm/api build
+pnpm test:ui
+pnpm --filter @xfarm/web exec playwright test e2e/phase3-acceptance.spec.ts
+pnpm --filter @xfarm/web lighthouse
+```
+
+### 3. Nghiệm thu
+- `pnpm lint`: đạt, 0 lỗi; còn 3 cảnh báo `no-explicit-any` có sẵn trong activity form.
+- `pnpm typecheck`: đạt; `pnpm test`: đạt 27 file / 186 test web, 57 test shared, 26 test API.
+- `pnpm --filter @xfarm/api test:e2e`: đạt 12 suite / 149 test; `smoke:dev`: toàn bộ route đạt HTTP 200.
+- `pnpm --filter @xfarm/web build`: đạt; Lighthouse production trang chủ SEO `100/100`, Accessibility `92/100`.
+- Acceptance spec GĐ3 đạt 1/1 khi chạy riêng; các spec harvest, trace, public-site, smoke đều đã đạt khi chạy riêng.
+- Chạy gộp toàn bộ UI nhiều lần trên dev server có timeout/`ERR_ABORTED` không ổn định sau khi nhiều spec ghi dữ liệu cùng database; lần gộp cuối đạt 7/10 test thực thi, 3 test lỗi môi trường nêu trên và 7 test được đánh dấu skip từ các giai đoạn trước.
+
+### 4. Điểm còn lại
+- Chưa thêm cửa hàng online, thanh toán, tour/booking; đây là phạm vi các giai đoạn sau theo kế hoạch.

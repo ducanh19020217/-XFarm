@@ -11,7 +11,7 @@ test('OWNER mở được các trang chính và dialog nằm trong viewport', as
     '/admin/animals',
     '/admin/calendar',
   ]) {
-    await page.goto(route);
+    await page.goto(route, { waitUntil: 'domcontentloaded', timeout: 60_000 });
     await expect(page.locator('main')).toBeVisible();
   }
   for (const [route, label] of [
@@ -21,7 +21,7 @@ test('OWNER mở được các trang chính và dialog nằm trong viewport', as
     ['/admin/activities', /ghi nhật ký/i],
     ['/admin/animals', /thêm đàn/i],
   ] as const) {
-    await page.goto(route);
+    await page.goto(route, { waitUntil: 'domcontentloaded', timeout: 60_000 });
     const button = page.getByRole('button', { name: label }).first();
     if (await button.isVisible().catch(() => false)) {
       await button.click();

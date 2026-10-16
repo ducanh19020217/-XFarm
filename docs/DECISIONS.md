@@ -93,3 +93,8 @@ Tài liệu này ghi lại các quyết định thiết kế và kỹ thuật qu
   - Sử dụng `next/dynamic` với `ssr: false` để tải các thành phần bản đồ ở client-side nhằm tránh lỗi SSR do Leaflet yêu cầu đối tượng `window`.
 - **Hệ quả**:
   - Đảm bảo tính ổn định, dễ bảo trì, khả năng mở rộng tốt cho các giai đoạn tiếp theo (như cắt lô, chia luống, đo diện tích tự động).
+
+### DECISION-012: Không cache trang truy xuất khi trạng thái công khai thay đổi
+- **Bối cảnh**: Khi tắt `HarvestLot.isPublic`, URL truy xuất phải ngừng hiển thị ngay; cache ISR có thể tiếp tục trả nội dung public cũ trong thời gian revalidate.
+- **Quyết định**: Trang `/trace/[code]` dùng `cache: 'no-store'` và `force-dynamic`; các trang public CMS khác vẫn dùng revalidate theo quy ước chung.
+- **Hệ quả**: Thay đổi công khai được phản ánh ngay trên URL truy xuất, đổi lại mỗi lượt truy xuất cần gọi API backend.

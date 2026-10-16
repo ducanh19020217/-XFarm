@@ -294,7 +294,8 @@ export async function getPublicProductBySlug(slug: string): Promise<PublicProduc
       next: { revalidate: 60 },
     });
     if (res.ok) {
-      const data = await res.json();
+      const body = await res.json();
+      const data = body?.data ?? body;
       if (data && data.isPublished !== false) {
         return data;
       }
@@ -360,9 +361,10 @@ export async function getPublicPostBySlug(slug: string): Promise<PublicPost | nu
       next: { revalidate: 60 },
     });
     if (res.ok) {
-      const post = await res.json();
+      const body = await res.json();
+      const post = body?.data ?? body;
       if (post && post.status !== 'DRAFT') {
-        return post;
+        return { ...post, status: 'PUBLISHED' };
       }
       // If draft, do not expose
       return null;
@@ -387,7 +389,8 @@ export async function getPublicPageBySlug(slug: string): Promise<PublicPage | nu
       next: { revalidate: 60 },
     });
     if (res.ok) {
-      const page = await res.json();
+      const body = await res.json();
+      const page = body?.data ?? body;
       if (page) return page;
     }
   } catch {
