@@ -106,11 +106,11 @@ test.describe('E2E Quản lý Nhân sự, Giao việc, Chấm công, Tính lươ
 
     // Duyệt bảng lương
     await payrollRow.getByRole('button', { name: /duyệt/i }).click();
-    await expect(page.getByText(/đã duyệt/i)).toBeVisible();
+    await expect(page.getByText(/đã duyệt bảng lương/i)).toBeVisible();
 
     // Đã trả (thanh toán)
     await payrollRow.getByRole('button', { name: /đã trả/i }).click();
-    await expect(page.getByText(/đã thanh toán/i)).toBeVisible();
+    await expect(page.getByText(/đã xác nhận thanh toán/i)).toBeVisible();
 
     errors.assertClean();
   });
