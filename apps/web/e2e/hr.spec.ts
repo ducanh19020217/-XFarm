@@ -90,6 +90,7 @@ test.describe('E2E Quản lý Nhân sự, Giao việc, Chấm công, Tính lươ
 
     // Bấm "Tính lương"
     await page.getByRole('button', { name: /tính lương/i }).click();
+    await expect(page.getByText(/tính toán bảng lương thành công/i)).toBeVisible();
 
     // Kiểm tra nhân viên xuất hiện và thấy đúng số tiền lương (ít nhất 1 ngày 8h = 300.000 ₫)
     await page.getByPlaceholder(/tìm theo mã nv hoặc tên/i).fill(empName);
