@@ -29,7 +29,7 @@ export class StockController {
     return this.stock.documents(Number(page), Number(pageSize));
   }
   @Get('documents/:code') document(@Param('code') code: string) {
-    return this.stock.getDocument(code);
+    return this.stock.getDocument(code).then((data) => ({ data }));
   }
 
   @Post('receipts')

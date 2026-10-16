@@ -40,7 +40,10 @@ describe('Stock documents API E2E', () => {
       .query({ warehouseId, itemId })
       .set('Cookie', ownerCookies);
     expect(response.status).toBe(200);
-    return Number(response.body.data[0]?.quantity ?? 0);
+    return response.body.data.reduce(
+      (total: number, row: { quantity?: string | number }) => total + Number(row.quantity ?? 0),
+      0,
+    );
   };
 
   beforeAll(async () => {
@@ -174,7 +177,10 @@ describe('Stock documents API E2E', () => {
         .set('Cookie', ownerCookies)
         .send({
           warehouseId: warehouseAId,
-          lines: [{ itemId, quantity: 2 }, { itemId: secondItem.id, quantity: 1 }],
+          lines: [
+            { itemId, quantity: 2 },
+            { itemId: secondItem.id, quantity: 1 },
+          ],
         });
       expect(partial.status).toBe(422);
       expect(await prisma.stockMove.count({ where: { refType: 'STOCK_DOC' } })).toBe(1);
