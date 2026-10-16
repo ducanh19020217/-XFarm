@@ -29,7 +29,7 @@ describe('payroll schemas', () => {
     ).toThrow('Ngày kết thúc phải sau hoặc bằng ngày bắt đầu');
   });
 
-  it('parses createPayrollSchema and defaults status to DRAFT', () => {
+  it('parses createPayrollSchema without status field', () => {
     const input = {
       employeeId: 'emp-1',
       periodStart: '2026-10-01',
@@ -40,11 +40,12 @@ describe('payroll schemas', () => {
         workingDays: 22,
         allowance: 500000,
       },
+      status: PayrollStatus.PAID, // Should be ignored/stripped
     };
     const parsed = createPayrollSchema.parse(input);
     expect(parsed.employeeId).toBe('emp-1');
     expect(parsed.amount).toBe(8000000);
-    expect(parsed.status).toBe(PayrollStatus.DRAFT);
+    expect((parsed as Record<string, unknown>).status).toBeUndefined();
     expect(parsed.details).toHaveProperty('workingDays', 22);
   });
 
@@ -59,11 +60,19 @@ describe('payroll schemas', () => {
     ).toThrow('Số tiền lương không được âm');
   });
 
-  it('parses updatePayrollSchema and queryPayrollSchema', () => {
+  it('parses updatePayrollSchema with reason when amount is updated', () => {
     const updated = updatePayrollSchema.parse({
-      status: PayrollStatus.APPROVED,
+      amount: 8500000,
+      reason: 'Bổ sung thưởng vụ mùa',
     });
-    expect(updated.status).toBe(PayrollStatus.APPROVED);
+    expect(updated.amount).toBe(8500000);
+    expect(updated.reason).toBe('Bổ sung thưởng vụ mùa');
+
+    expect(() =>
+      updatePayrollSchema.parse({
+        amount: 8500000,
+      }),
+    ).toThrow('Cần cung cấp lý do khi điều chỉnh số tiền lương');
 
     const query = queryPayrollSchema.parse({
       employeeId: 'emp-1',

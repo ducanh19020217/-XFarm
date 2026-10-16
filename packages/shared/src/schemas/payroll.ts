@@ -31,14 +31,26 @@ export const createPayrollSchema = z.object({
     .union([z.record(z.string(), z.any()), z.array(z.any())])
     .optional()
     .default([]),
-  status: z.nativeEnum(PayrollStatus).optional().default(PayrollStatus.DRAFT),
 });
 
-export const updatePayrollSchema = z.object({
-  amount: z.coerce.number().min(0, 'Số tiền lương không được âm').optional(),
-  details: z.union([z.record(z.string(), z.any()), z.array(z.any())]).optional(),
-  status: z.nativeEnum(PayrollStatus).optional(),
-});
+export const updatePayrollSchema = z
+  .object({
+    amount: z.coerce.number().min(0, 'Số tiền lương không được âm').optional(),
+    reason: optionalString(),
+    details: z.union([z.record(z.string(), z.any()), z.array(z.any())]).optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.amount !== undefined && (!data.reason || !data.reason.trim())) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: 'Cần cung cấp lý do khi điều chỉnh số tiền lương',
+      path: ['reason'],
+    },
+  );
 
 export const queryPayrollSchema = paginationSchema.extend({
   employeeId: optionalString(),
