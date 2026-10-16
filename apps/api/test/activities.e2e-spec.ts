@@ -372,13 +372,10 @@ describe('Activities API E2E', () => {
     expect(
       await prisma.stockMove.count({ where: { refType: 'ACTIVITY', refId: created.body.data.id } }),
     ).toBe(1);
-    expect(
-      (
-        await prisma.$queryRaw<[{ quantity: string }]>(Prisma.sql`
+    const createdBalance = await prisma.$queryRaw<[{ quantity: string }]>(Prisma.sql`
         SELECT quantity FROM stock_balances
-        WHERE "itemId" = ${fertilizerItemId} AND "warehouseId" = ${fertilizerWarehouseId}`)
-      ).then((rows) => rows[0]?.quantity.toString()),
-    ).toBe('7');
+        WHERE "itemId" = ${fertilizerItemId} AND "warehouseId" = ${fertilizerWarehouseId}`);
+    expect(createdBalance[0]?.quantity.toString()).toBe('7');
 
     const updated = await request(app.getHttpServer())
       .patch(`/api/v1/activities/${created.body.data.id}`)
@@ -386,14 +383,12 @@ describe('Activities API E2E', () => {
       .send({ materials: [{ itemId: fertilizerItemId, quantity: 2 }] });
     expect(updated.status).toBe(200);
     expect(updated.body.data.materials[0].quantity).toBe('2');
-    expect(
-      (
-        await prisma.$queryRaw<[{ quantity: string }]>(Prisma.sql`
+    const updatedBalance = await prisma.$queryRaw<[{ quantity: string }]>(Prisma.sql`
         SELECT quantity FROM stock_balances
-        WHERE "itemId" = ${fertilizerItemId} AND "warehouseId" = ${fertilizerWarehouseId}`)
-      ).then((rows) => rows[0]?.quantity.toString()),
-    ).toBe('8');
+        WHERE "itemId" = ${fertilizerItemId} AND "warehouseId" = ${fertilizerWarehouseId}`);
+    expect(updatedBalance[0]?.quantity.toString()).toBe('8');
 
+    const activityCountBeforeInsufficient = await prisma.activity.count();
     const insufficient = await request(app.getHttpServer())
       .post('/api/v1/activities')
       .set('Cookie', ownerCookies)
@@ -404,18 +399,15 @@ describe('Activities API E2E', () => {
         materials: [{ itemId: fertilizerItemId, quantity: 20 }],
       });
     expect(insufficient.status).toBe(422);
-    expect(await prisma.activity.count({ where: { id: insufficient.body.data?.id } })).toBe(0);
+    expect(await prisma.activity.count()).toBe(activityCountBeforeInsufficient);
 
     const removed = await request(app.getHttpServer())
       .delete(`/api/v1/activities/${created.body.data.id}`)
       .set('Cookie', ownerCookies);
     expect(removed.status).toBe(200);
-    expect(
-      (
-        await prisma.$queryRaw<[{ quantity: string }]>(Prisma.sql`
+    const removedBalance = await prisma.$queryRaw<[{ quantity: string }]>(Prisma.sql`
         SELECT quantity FROM stock_balances
-        WHERE "itemId" = ${fertilizerItemId} AND "warehouseId" = ${fertilizerWarehouseId}`)
-      ).then((rows) => rows[0]?.quantity.toString()),
-    ).toBe('10');
+        WHERE "itemId" = ${fertilizerItemId} AND "warehouseId" = ${fertilizerWarehouseId}`);
+    expect(removedBalance[0]?.quantity.toString()).toBe('10');
   });
 });

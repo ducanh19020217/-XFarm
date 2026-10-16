@@ -129,7 +129,7 @@ export class ActivitiesService {
     let currentId: string | null = areaId;
     while (currentId && !ids.includes(currentId)) {
       ids.push(currentId);
-      const area = await tx.area.findUnique({
+      const area: { parentId: string | null } | null = await tx.area.findUnique({
         where: { id: currentId },
         select: { parentId: true },
       });
