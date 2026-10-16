@@ -17,6 +17,7 @@ import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import cookieParser from 'cookie-parser';
 import { AppModule } from '../src/app.module';
+import { cleanupDatabase } from './helpers/cleanup';
 
 describe('Animal & AnimalGroup & AnimalEvent API (e2e)', () => {
   let app: INestApplication;
@@ -34,18 +35,7 @@ describe('Animal & AnimalGroup & AnimalEvent API (e2e)', () => {
     const { prisma } = await import('@xfarm/db');
     const argon2 = await import('argon2');
 
-    // Clean all tables
-    await prisma.animalEvent.deleteMany();
-    await prisma.animal.deleteMany();
-    await prisma.animalGroup.deleteMany();
-    await prisma.activity.deleteMany();
-    await prisma.cycle.deleteMany();
-    await prisma.area.deleteMany();
-    await prisma.auditLog.deleteMany();
-    await prisma.refreshToken.deleteMany();
-    await prisma.media.deleteMany();
-    await prisma.sequence.deleteMany();
-    await prisma.user.deleteMany();
+    await cleanupDatabase(prisma);
 
     const passwordHash = await argon2.hash('Admin@123');
     const users = [

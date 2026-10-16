@@ -15,6 +15,7 @@ import request from 'supertest';
 import { prisma } from '@xfarm/db';
 import argon2 from 'argon2';
 import { AppModule } from '../src/app.module';
+import { cleanupInventoryData } from './helpers/cleanup';
 
 describe('Stock documents API E2E', () => {
   let app: INestApplication;
@@ -103,10 +104,10 @@ describe('Stock documents API E2E', () => {
   });
 
   afterEach(async () => {
-    await prisma.stockMove.deleteMany({ where: { itemId } });
-    await prisma.stockLot.deleteMany({ where: { itemId } });
-    await prisma.item.delete({ where: { id: itemId } });
-    await prisma.warehouse.deleteMany({ where: { id: { in: [warehouseAId, warehouseBId] } } });
+    await cleanupInventoryData(prisma, {
+      itemIds: [itemId],
+      warehouseIds: [warehouseAId, warehouseBId],
+    });
   });
 
   afterAll(async () => {

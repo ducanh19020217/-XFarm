@@ -19,6 +19,7 @@ import cookieParser from 'cookie-parser';
 import * as argon2 from 'argon2';
 import { prisma, Prisma, ItemCategory, StockMoveType } from '@xfarm/db';
 import { AppModule } from '../src/app.module';
+import { cleanupDatabase } from './helpers/cleanup';
 
 describe('Catalog E2E Tests (/api/v1/items, /api/v1/warehouses, /api/v1/suppliers)', () => {
   let app: INestApplication;
@@ -208,6 +209,8 @@ describe('Catalog E2E Tests (/api/v1/items, /api/v1/warehouses, /api/v1/supplier
   }
 
   beforeAll(async () => {
+    await cleanupDatabase(prisma);
+
     // 1. Ensure test users exist
     const passwordHash = await argon2.hash('Admin@123');
     const users = [

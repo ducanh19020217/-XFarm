@@ -17,6 +17,7 @@ import request from 'supertest';
 import cookieParser from 'cookie-parser';
 import { CalendarActivityItem, CalendarCycleEvent } from '@xfarm/shared';
 import { AppModule } from '../src/app.module';
+import { cleanupDatabase } from './helpers/cleanup';
 
 describe('Calendar API E2E Tests (GET /calendar)', () => {
   let app: INestApplication;
@@ -33,16 +34,7 @@ describe('Calendar API E2E Tests (GET /calendar)', () => {
     const { prisma } = await import('@xfarm/db');
     const argon2 = await import('argon2');
 
-    // Clean tables related to calendar
-    await prisma.activity.deleteMany();
-    await prisma.animalEvent.deleteMany();
-    await prisma.animal.deleteMany();
-    await prisma.animalGroup.deleteMany();
-    await prisma.cycle.deleteMany();
-    await prisma.area.deleteMany();
-    await prisma.auditLog.deleteMany();
-    await prisma.refreshToken.deleteMany();
-    await prisma.user.deleteMany();
+    await cleanupDatabase(prisma);
 
     const passwordHash = await argon2.hash('Admin@123');
 
