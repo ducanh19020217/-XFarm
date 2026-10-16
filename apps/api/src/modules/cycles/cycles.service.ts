@@ -4,9 +4,8 @@ import {
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { prisma } from '@xfarm/db';
-import type { Prisma } from '@xfarm/db';
-import { canTransition, CycleStatus } from '@xfarm/shared';
+import { prisma, Prisma } from '@xfarm/db';
+import { canTransition, CycleStatus, PayType } from '@xfarm/shared';
 import { SequenceService } from '../../common/sequence/sequence.service';
 import { CreateCycleDto, QueryCycleDto, UpdateCycleDto } from './cycles.dto';
 
@@ -160,6 +159,39 @@ export class CyclesService {
       orderBy: [{ date: 'asc' }, { id: 'asc' }],
     });
 
+    if (attendances.length === 0) {
+      return {
+        cycleId: id,
+        cycleCode: cycle.code,
+        cycleName: cycle.name,
+        total: 0,
+        totalLaborCost: 0,
+        amount: 0,
+        employees: [],
+        byEmployee: [],
+        details: [],
+      };
+    }
+
+    const empIds = [...new Set(attendances.map((a) => a.employeeId))];
+    const dates = attendances.map((a) => a.date);
+
+    const allDayAttendances = await prisma.attendance.findMany({
+      where: {
+        employeeId: { in: empIds },
+        date: { in: dates },
+      },
+    });
+
+    const dayHoursMap = new Map<string, Prisma.Decimal>();
+    for (const a of allDayAttendances) {
+      const dateStr = a.date.toISOString().split('T')[0];
+      const key = `${a.employeeId}_${dateStr}`;
+      const current = dayHoursMap.get(key) ?? new Prisma.Decimal(0);
+      const hours = a.hours ? new Prisma.Decimal(a.hours) : new Prisma.Decimal(0);
+      dayHoursMap.set(key, current.add(hours));
+    }
+
     const employeeMap = new Map<
       string,
       {
@@ -192,6 +224,8 @@ export class CyclesService {
       }
     >();
 
+    let totalLaborCostDecimal = new Prisma.Decimal(0);
+
     for (const att of attendances) {
       const emp = att.employee;
       let empData = employeeMap.get(emp.id);
@@ -215,35 +249,72 @@ export class CyclesService {
         employeeMap.set(emp.id, empData);
       }
 
-      const hours = Number(att.hours ?? 0);
-      const pieceQty = att.pieceQty != null ? Number(att.pieceQty) : null;
-      let lineCost = 0;
-      let dayWork = 0;
+      const dateStr = att.date.toISOString().split('T')[0];
+      const lineHours = att.hours ? new Prisma.Decimal(att.hours) : new Prisma.Decimal(0);
+      const pieceQty = att.pieceQty != null ? new Prisma.Decimal(att.pieceQty) : null;
+      let lineCost = new Prisma.Decimal(0);
+      let dayWork = new Prisma.Decimal(0);
 
-      if (emp.payType === 'DAILY') {
-        dayWork = hours >= 4 ? 1 : 0.5;
-        lineCost = Math.round(dayWork * Number(emp.baseRate));
-        empData.totalDays += dayWork;
-      } else if (emp.payType === 'PIECE') {
-        lineCost = Math.round(Number(pieceQty ?? 0) * Number(emp.baseRate));
-        empData.totalPieceQty += Number(pieceQty ?? 0);
-      } else if (emp.payType === 'MONTHLY') {
-        dayWork = hours >= 4 ? 1 : 0.5;
-        const dailyRate = Number(emp.baseRate) / 26;
-        lineCost = Math.round(dayWork * dailyRate);
-        empData.totalDays += dayWork;
+      if (emp.payType === PayType.PIECE) {
+        lineCost = (pieceQty ?? new Prisma.Decimal(0))
+          .mul(emp.baseRate)
+          .toDecimalPlaces(0, Prisma.Decimal.ROUND_HALF_UP);
+        empData.totalPieceQty += pieceQty ? pieceQty.toNumber() : 0;
+      } else if (emp.payType === PayType.DAILY) {
+        const totalDayHours = dayHoursMap.get(`${emp.id}_${dateStr}`) ?? lineHours;
+        let totalDayWork = new Prisma.Decimal(0);
+        if (totalDayHours.gte(4)) {
+          totalDayWork = new Prisma.Decimal(1);
+        } else if (totalDayHours.gt(0)) {
+          totalDayWork = new Prisma.Decimal('0.5');
+        }
+
+        const dayCost = totalDayWork
+          .mul(emp.baseRate)
+          .toDecimalPlaces(0, Prisma.Decimal.ROUND_HALF_UP);
+        if (totalDayHours.gt(0)) {
+          lineCost = dayCost
+            .mul(lineHours)
+            .div(totalDayHours)
+            .toDecimalPlaces(0, Prisma.Decimal.ROUND_HALF_UP);
+          dayWork = totalDayWork.mul(lineHours).div(totalDayHours);
+        }
+        empData.totalDays += dayWork.toNumber();
+      } else if (emp.payType === PayType.MONTHLY) {
+        const totalDayHours = dayHoursMap.get(`${emp.id}_${dateStr}`) ?? lineHours;
+        let totalDayWork = new Prisma.Decimal(0);
+        if (totalDayHours.gte(4)) {
+          totalDayWork = new Prisma.Decimal(1);
+        } else if (totalDayHours.gt(0)) {
+          totalDayWork = new Prisma.Decimal('0.5');
+        }
+
+        const dayCost = totalDayWork
+          .mul(emp.baseRate)
+          .div(26)
+          .toDecimalPlaces(0, Prisma.Decimal.ROUND_HALF_UP);
+        if (totalDayHours.gt(0)) {
+          lineCost = dayCost
+            .mul(lineHours)
+            .div(totalDayHours)
+            .toDecimalPlaces(0, Prisma.Decimal.ROUND_HALF_UP);
+          dayWork = totalDayWork.mul(lineHours).div(totalDayHours);
+        }
+        empData.totalDays += dayWork.toNumber();
       }
 
-      empData.totalHours += hours;
-      empData.totalCost += lineCost;
-      empData.amount += lineCost;
-      empData.laborCost += lineCost;
+      const lineCostNum = lineCost.toNumber();
+      empData.totalHours += lineHours.toNumber();
+      empData.totalCost += lineCostNum;
+      empData.amount += lineCostNum;
+      empData.laborCost += lineCostNum;
+      totalLaborCostDecimal = totalLaborCostDecimal.add(lineCost);
 
       const detailLine = {
-        date: att.date.toISOString().split('T')[0],
-        hours,
-        pieceQty,
-        amount: lineCost,
+        date: dateStr,
+        hours: lineHours.toNumber(),
+        pieceQty: pieceQty ? pieceQty.toNumber() : null,
+        amount: lineCostNum,
         notes: att.notes ?? null,
       };
       empData.attendances.push(detailLine);
@@ -251,7 +322,7 @@ export class CyclesService {
     }
 
     const employees = Array.from(employeeMap.values());
-    const totalLaborCost = employees.reduce((sum, e) => sum + e.totalCost, 0);
+    const totalLaborCost = totalLaborCostDecimal.toNumber();
 
     return {
       cycleId: id,

@@ -55,8 +55,12 @@ export class PayrollsController {
 
   @Patch(':id')
   @Roles(Role.OWNER, Role.ACCOUNTANT)
-  async update(@Param('id') id: string, @Body() dto: UpdatePayrollDto) {
-    return { data: await this.payrollsService.update(id, dto) };
+  async update(
+    @Param('id') id: string,
+    @Body() dto: UpdatePayrollDto,
+    @CurrentUser('id') userId: string,
+  ) {
+    return { data: await this.payrollsService.update(id, dto, userId) };
   }
 
   @Delete(':id')

@@ -93,61 +93,199 @@ export class PayrollsService {
         cycle?: string | null;
         pieceQty: number | null;
         dayWork?: number;
+        dailyDayWork?: number;
         amount: number;
       }> = [];
 
-      let totalAmount = 0;
+      let totalAmountDecimal = new Prisma.Decimal(0);
 
-      if (emp.payType === PayType.DAILY) {
+      if (emp.payType === PayType.PIECE) {
         for (const att of attendances) {
-          const hours = Number(att.hours ?? 0);
-          const dayWork = hours >= 4 ? 1 : 0.5;
-          const lineAmount = Math.round(dayWork * Number(emp.baseRate));
-          totalAmount += lineAmount;
+          const hours = att.hours != null ? Number(att.hours) : 0;
+          const pieceQtyDec =
+            att.pieceQty != null ? new Prisma.Decimal(att.pieceQty) : new Prisma.Decimal(0);
+          const lineAmount = pieceQtyDec
+            .mul(emp.baseRate)
+            .toDecimalPlaces(0, Prisma.Decimal.ROUND_HALF_UP);
+          totalAmountDecimal = totalAmountDecimal.add(lineAmount);
           lines.push({
             date: att.date.toISOString().split('T')[0],
             hours,
             cycleId: att.cycleId ?? null,
             cycle: att.cycle?.name ?? null,
             pieceQty: att.pieceQty != null ? Number(att.pieceQty) : null,
-            dayWork,
-            amount: lineAmount,
+            amount: lineAmount.toNumber(),
           });
         }
-      } else if (emp.payType === PayType.PIECE) {
+      } else if (emp.payType === PayType.DAILY) {
+        // Group attendances by date to avoid duplicate dayWork across cycles
+        const dateMap = new Map<string, typeof attendances>();
         for (const att of attendances) {
-          const hours = Number(att.hours ?? 0);
-          const pieceQty = att.pieceQty != null ? Number(att.pieceQty) : 0;
-          const lineAmount = Math.round(pieceQty * Number(emp.baseRate));
-          totalAmount += lineAmount;
-          lines.push({
-            date: att.date.toISOString().split('T')[0],
-            hours,
-            cycleId: att.cycleId ?? null,
-            cycle: att.cycle?.name ?? null,
-            pieceQty,
-            amount: lineAmount,
-          });
+          const dStr = att.date.toISOString().split('T')[0];
+          const list = dateMap.get(dStr) ?? [];
+          list.push(att);
+          dateMap.set(dStr, list);
+        }
+
+        for (const [dStr, dayAtts] of dateMap.entries()) {
+          const totalDayHours = dayAtts.reduce(
+            (sum, a) => sum.add(a.hours ? new Prisma.Decimal(a.hours) : new Prisma.Decimal(0)),
+            new Prisma.Decimal(0),
+          );
+
+          let totalDayWork = new Prisma.Decimal(0);
+          if (totalDayHours.gte(4)) {
+            totalDayWork = new Prisma.Decimal(1);
+          } else if (totalDayHours.gt(0)) {
+            totalDayWork = new Prisma.Decimal('0.5');
+          }
+
+          const dayCost = totalDayWork
+            .mul(emp.baseRate)
+            .toDecimalPlaces(0, Prisma.Decimal.ROUND_HALF_UP);
+          totalAmountDecimal = totalAmountDecimal.add(dayCost);
+
+          if (dayAtts.length === 1) {
+            const att = dayAtts[0];
+            lines.push({
+              date: dStr,
+              hours: att.hours != null ? Number(att.hours) : 0,
+              cycleId: att.cycleId ?? null,
+              cycle: att.cycle?.name ?? null,
+              pieceQty: att.pieceQty != null ? Number(att.pieceQty) : null,
+              dayWork: totalDayWork.toNumber(),
+              dailyDayWork: totalDayWork.toNumber(),
+              amount: dayCost.toNumber(),
+            });
+          } else {
+            let accumulatedLineCost = new Prisma.Decimal(0);
+            let accumulatedLineWork = new Prisma.Decimal(0);
+
+            for (let i = 0; i < dayAtts.length; i++) {
+              const att = dayAtts[i];
+              const isLast = i === dayAtts.length - 1;
+              const lineHours = att.hours ? new Prisma.Decimal(att.hours) : new Prisma.Decimal(0);
+
+              let lineDayWork: Prisma.Decimal;
+              let lineCost: Prisma.Decimal;
+
+              if (isLast) {
+                lineDayWork = totalDayWork.sub(accumulatedLineWork);
+                lineCost = dayCost.sub(accumulatedLineCost);
+              } else {
+                const ratio = totalDayHours.gt(0)
+                  ? lineHours.div(totalDayHours)
+                  : new Prisma.Decimal(1).div(dayAtts.length);
+                lineDayWork = totalDayWork.mul(ratio);
+                lineCost = dayCost.mul(ratio).toDecimalPlaces(0, Prisma.Decimal.ROUND_HALF_UP);
+                accumulatedLineWork = accumulatedLineWork.add(lineDayWork);
+                accumulatedLineCost = accumulatedLineCost.add(lineCost);
+              }
+
+              lines.push({
+                date: dStr,
+                hours: lineHours.toNumber(),
+                cycleId: att.cycleId ?? null,
+                cycle: att.cycle?.name ?? null,
+                pieceQty: att.pieceQty != null ? Number(att.pieceQty) : null,
+                dayWork: lineDayWork.toNumber(),
+                dailyDayWork: totalDayWork.toNumber(),
+                amount: lineCost.toNumber(),
+              });
+            }
+          }
         }
       } else if (emp.payType === PayType.MONTHLY) {
-        let actualDays = 0;
-        const dailyRate = Number(emp.baseRate) / 26;
+        // Group attendances by date
+        const dateMap = new Map<string, typeof attendances>();
         for (const att of attendances) {
-          const hours = Number(att.hours ?? 0);
-          const dayWork = hours >= 4 ? 1 : 0.5;
-          actualDays += dayWork;
-          const lineAmount = Math.round(dayWork * dailyRate);
-          lines.push({
-            date: att.date.toISOString().split('T')[0],
-            hours,
-            cycleId: att.cycleId ?? null,
-            cycle: att.cycle?.name ?? null,
-            pieceQty: att.pieceQty != null ? Number(att.pieceQty) : null,
-            dayWork,
-            amount: lineAmount,
-          });
+          const dStr = att.date.toISOString().split('T')[0];
+          const list = dateMap.get(dStr) ?? [];
+          list.push(att);
+          dateMap.set(dStr, list);
         }
-        totalAmount = Math.round(Number(emp.baseRate) * (actualDays / 26));
+
+        let actualDays = new Prisma.Decimal(0);
+
+        for (const [dStr, dayAtts] of dateMap.entries()) {
+          const totalDayHours = dayAtts.reduce(
+            (sum, a) => sum.add(a.hours ? new Prisma.Decimal(a.hours) : new Prisma.Decimal(0)),
+            new Prisma.Decimal(0),
+          );
+
+          let totalDayWork = new Prisma.Decimal(0);
+          if (totalDayHours.gte(4)) {
+            totalDayWork = new Prisma.Decimal(1);
+          } else if (totalDayHours.gt(0)) {
+            totalDayWork = new Prisma.Decimal('0.5');
+          }
+
+          actualDays = actualDays.add(totalDayWork);
+
+          if (dayAtts.length === 1) {
+            const att = dayAtts[0];
+            lines.push({
+              date: dStr,
+              hours: att.hours != null ? Number(att.hours) : 0,
+              cycleId: att.cycleId ?? null,
+              cycle: att.cycle?.name ?? null,
+              pieceQty: att.pieceQty != null ? Number(att.pieceQty) : null,
+              dayWork: totalDayWork.toNumber(),
+              dailyDayWork: totalDayWork.toNumber(),
+              amount: 0,
+            });
+          } else {
+            let accumulatedLineWork = new Prisma.Decimal(0);
+            for (let i = 0; i < dayAtts.length; i++) {
+              const att = dayAtts[i];
+              const isLast = i === dayAtts.length - 1;
+              const lineHours = att.hours ? new Prisma.Decimal(att.hours) : new Prisma.Decimal(0);
+
+              let lineDayWork: Prisma.Decimal;
+              if (isLast) {
+                lineDayWork = totalDayWork.sub(accumulatedLineWork);
+              } else {
+                const ratio = totalDayHours.gt(0)
+                  ? lineHours.div(totalDayHours)
+                  : new Prisma.Decimal(1).div(dayAtts.length);
+                lineDayWork = totalDayWork.mul(ratio);
+                accumulatedLineWork = accumulatedLineWork.add(lineDayWork);
+              }
+
+              lines.push({
+                date: dStr,
+                hours: lineHours.toNumber(),
+                cycleId: att.cycleId ?? null,
+                cycle: att.cycle?.name ?? null,
+                pieceQty: att.pieceQty != null ? Number(att.pieceQty) : null,
+                dayWork: lineDayWork.toNumber(),
+                dailyDayWork: totalDayWork.toNumber(),
+                amount: 0,
+              });
+            }
+          }
+        }
+
+        totalAmountDecimal = emp.baseRate
+          .mul(actualDays)
+          .div(26)
+          .toDecimalPlaces(0, Prisma.Decimal.ROUND_HALF_UP);
+
+        // Allocate rounding remainder to the last line to ensure exact consistency
+        if (lines.length > 0) {
+          let accumulatedLineAmount = new Prisma.Decimal(0);
+          for (let i = 0; i < lines.length - 1; i++) {
+            const lineDayWork = new Prisma.Decimal(lines[i].dayWork ?? 0);
+            const lineAmt = emp.baseRate
+              .div(26)
+              .mul(lineDayWork)
+              .toDecimalPlaces(0, Prisma.Decimal.ROUND_HALF_UP);
+            accumulatedLineAmount = accumulatedLineAmount.add(lineAmt);
+            lines[i].amount = lineAmt.toNumber();
+          }
+          const lastLineAmt = totalAmountDecimal.sub(accumulatedLineAmount);
+          lines[lines.length - 1].amount = lastLineAmt.toNumber();
+        }
       }
 
       const existing = existingPayrolls.find((p) => p.employeeId === emp.id);
@@ -156,7 +294,7 @@ export class PayrollsService {
         saved = await prisma.payroll.update({
           where: { id: existing.id },
           data: {
-            amount: new Prisma.Decimal(totalAmount),
+            amount: totalAmountDecimal,
             details: lines,
             status: PayrollStatus.DRAFT,
           },
@@ -168,7 +306,7 @@ export class PayrollsService {
             employeeId: emp.id,
             periodStart: start,
             periodEnd: end,
-            amount: new Prisma.Decimal(totalAmount),
+            amount: totalAmountDecimal,
             details: lines,
             status: PayrollStatus.DRAFT,
           },
@@ -338,13 +476,13 @@ export class PayrollsService {
         periodEnd: end,
         amount: new Prisma.Decimal(dto.amount),
         details: (dto.details as Prisma.InputJsonValue) ?? [],
-        status: dto.status ?? PayrollStatus.DRAFT,
+        status: PayrollStatus.DRAFT,
       },
       include: payrollInclude,
     });
   }
 
-  async update(id: string, dto: UpdatePayrollDto) {
+  async update(id: string, dto: UpdatePayrollDto, userId?: string) {
     const payroll = await this.findById(id);
 
     if (payroll.status !== PayrollStatus.DRAFT) {
@@ -353,15 +491,41 @@ export class PayrollsService {
       );
     }
 
-    return prisma.payroll.update({
+    if (dto.amount !== undefined) {
+      if (!dto.reason || !dto.reason.trim()) {
+        throw new UnprocessableEntityException('Cần cung cấp lý do khi điều chỉnh số tiền lương');
+      }
+    }
+
+    const oldAmount = Number(payroll.amount);
+    const newAmount = dto.amount !== undefined ? Number(dto.amount) : undefined;
+
+    const updated = await prisma.payroll.update({
       where: { id },
       data: {
         amount: dto.amount !== undefined ? new Prisma.Decimal(dto.amount) : undefined,
         details: dto.details !== undefined ? (dto.details as Prisma.InputJsonValue) : undefined,
-        status: dto.status,
       },
       include: payrollInclude,
     });
+
+    if (userId && dto.amount !== undefined) {
+      await prisma.auditLog.create({
+        data: {
+          userId,
+          action: 'UPDATE_AMOUNT',
+          entity: 'payrolls',
+          entityId: id,
+          diff: {
+            oldAmount,
+            newAmount,
+            reason: dto.reason,
+          },
+        },
+      });
+    }
+
+    return updated;
   }
 
   async remove(id: string) {
