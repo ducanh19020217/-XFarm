@@ -26,9 +26,11 @@ describe('Payrolls API E2E', () => {
   let workerCookies: string[];
 
   let cycleId: string;
+  let cycleBId: string;
   let empDailyId: string;
   let empPieceId: string;
   let empMonthlyId: string;
+  let empMultiCycleId: string;
 
   const users = [
     ['payroll-owner@xfarm.local', Role.OWNER],
@@ -126,6 +128,30 @@ describe('Payrolls API E2E', () => {
       },
     });
     empMonthlyId = empMonthly.id;
+
+    const cycleB = await prisma.cycle.create({
+      data: {
+        code: 'CYCLE-PAYROLL-2',
+        name: 'Vụ mùa thử nghiệm lương B',
+        kind: 'CROP',
+        species: 'Rau muống',
+        areaId: area.id,
+        startDate: new Date('2026-10-01T00:00:00Z'),
+      },
+    });
+    cycleBId = cycleB.id;
+
+    const empMulti = await prisma.employee.create({
+      data: {
+        code: 'EMP-MULTI-CYCLE-TEST',
+        fullName: 'Lê Đa Vụ',
+        position: 'Công nhân làm nhiều vụ',
+        payType: PayType.DAILY,
+        baseRate: new Prisma.Decimal('300000'),
+        isActive: true,
+      },
+    });
+    empMultiCycleId = empMulti.id;
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
@@ -260,6 +286,11 @@ describe('Payrolls API E2E', () => {
     expect(payroll.employeeId).toBe(empMonthlyId);
     expect(Number(payroll.amount)).toBe(13000000);
     expect(payroll.details).toHaveLength(13);
+    const sumLines = payroll.details.reduce(
+      (sum: number, l: { amount: number }) => sum + l.amount,
+      0,
+    );
+    expect(sumLines).toBe(Number(payroll.amount));
   });
 
   it('4. approve rồi generate lại thì 422', async () => {
@@ -409,5 +440,222 @@ describe('Payrolls API E2E', () => {
       .set('Cookie', workerCookies);
 
     expect(res.status).toBe(403);
+  });
+
+  it('9. Nhân viên DAILY làm 2 mùa vụ trong cùng 1 ngày (3h cycle A, 3h cycle B): lương 300.000đ (không trùng công), labor-cost A = B = 150.000đ', async () => {
+    const d = '2026-10-20';
+    // Chấm công 3h cycle A và 3h cycle B cùng ngày 2026-10-20
+    await prisma.attendance.create({
+      data: {
+        employeeId: empMultiCycleId,
+        date: new Date(`${d}T00:00:00Z`),
+        hours: new Prisma.Decimal('3.00'),
+        cycleId,
+        notes: '3h tại cycle A',
+      },
+    });
+
+    await prisma.attendance.create({
+      data: {
+        employeeId: empMultiCycleId,
+        date: new Date(`${d}T00:00:00Z`),
+        hours: new Prisma.Decimal('3.00'),
+        cycleId: cycleBId,
+        notes: '3h tại cycle B',
+      },
+    });
+
+    // Generate payroll cho nhân viên
+    const genRes = await request(app.getHttpServer())
+      .post('/api/v1/payrolls/generate')
+      .set('Cookie', accountantCookies)
+      .send({
+        periodStart: '2026-10-01',
+        periodEnd: '2026-10-31',
+        employeeIds: [empMultiCycleId],
+      });
+
+    expect(genRes.status).toBe(201);
+    const payroll = genRes.body.data[0];
+    expect(payroll.employeeId).toBe(empMultiCycleId);
+    // Tổng 6 giờ >= 4 giờ => 1 công => 300.000đ (KHÔNG trùng công thành 600.000đ hay 450.000đ)
+    expect(Number(payroll.amount)).toBe(300000);
+    expect(payroll.details).toHaveLength(2);
+
+    const lineA = payroll.details.find((l: { cycleId: string }) => l.cycleId === cycleId);
+    const lineB = payroll.details.find((l: { cycleId: string }) => l.cycleId === cycleBId);
+    expect(lineA).toBeDefined();
+    expect(lineB).toBeDefined();
+    expect(lineA.hours).toBe(3);
+    expect(lineB.hours).toBe(3);
+    expect(lineA.amount).toBe(150000);
+    expect(lineB.amount).toBe(150000);
+
+    // Kiểm tra labor-cost cycle A
+    const costARes = await request(app.getHttpServer())
+      .get(`/api/v1/cycles/${cycleId}/labor-cost`)
+      .set('Cookie', managerCookies);
+    expect(costARes.status).toBe(200);
+    const empInA = costARes.body.employees.find(
+      (e: { employeeId: string }) => e.employeeId === empMultiCycleId,
+    );
+    expect(empInA).toBeDefined();
+    expect(empInA.totalCost).toBe(150000);
+
+    // Kiểm tra labor-cost cycle B
+    const costBRes = await request(app.getHttpServer())
+      .get(`/api/v1/cycles/${cycleBId}/labor-cost`)
+      .set('Cookie', managerCookies);
+    expect(costBRes.status).toBe(200);
+    const empInB = costBRes.body.employees.find(
+      (e: { employeeId: string }) => e.employeeId === empMultiCycleId,
+    );
+    expect(empInB).toBeDefined();
+    expect(empInB.totalCost).toBe(150000);
+  });
+
+  it('10. Sửa amount tay chỉ cho khi DRAFT, bắt buộc có lý do và ghi AuditLog', async () => {
+    // Tạo bản lương nháp thủ công
+    const createRes = await request(app.getHttpServer())
+      .post('/api/v1/payrolls')
+      .set('Cookie', accountantCookies)
+      .send({
+        employeeId: empDailyId,
+        periodStart: '2026-11-01',
+        periodEnd: '2026-11-30',
+        amount: 500000,
+      });
+
+    expect(createRes.status).toBe(201);
+    const payrollId = createRes.body.data.id;
+    expect(createRes.body.data.status).toBe(PayrollStatus.DRAFT);
+
+    // Thử sửa amount không có reason => 400/422
+    const failUpdate = await request(app.getHttpServer())
+      .patch(`/api/v1/payrolls/${payrollId}`)
+      .set('Cookie', accountantCookies)
+      .send({
+        amount: 600000,
+      });
+    expect([400, 422]).toContain(failUpdate.status);
+
+    // Sửa amount có lý do => thành công
+    const successUpdate = await request(app.getHttpServer())
+      .patch(`/api/v1/payrolls/${payrollId}`)
+      .set('Cookie', accountantCookies)
+      .send({
+        amount: 600000,
+        reason: 'Thưởng làm việc ngoài giờ đặc biệt',
+      });
+    expect(successUpdate.status).toBe(200);
+    expect(Number(successUpdate.body.data.amount)).toBe(600000);
+
+    // Kiểm tra AuditLog được ghi lại
+    const auditLog = await prisma.auditLog.findFirst({
+      where: {
+        entity: 'payrolls',
+        entityId: payrollId,
+        action: 'UPDATE_AMOUNT',
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    expect(auditLog).toBeDefined();
+    const diff = auditLog?.diff as Record<string, unknown>;
+    expect(diff?.reason).toBe('Thưởng làm việc ngoài giờ đặc biệt');
+    expect(diff?.oldAmount).toBe(500000);
+    expect(diff?.newAmount).toBe(600000);
+
+    // Duyệt bảng lương
+    await request(app.getHttpServer())
+      .post(`/api/v1/payrolls/${payrollId}/approve`)
+      .set('Cookie', accountantCookies);
+
+    // Thử sửa bảng lương khi đã APPROVED => 422
+    const approvedUpdate = await request(app.getHttpServer())
+      .patch(`/api/v1/payrolls/${payrollId}`)
+      .set('Cookie', accountantCookies)
+      .send({
+        amount: 700000,
+        reason: 'Cố sửa sau khi duyệt',
+      });
+    expect(approvedUpdate.status).toBe(422);
+  });
+
+  it('11. Bản lương mới LUÔN là DRAFT (POST/PATCH với status PAID không thể vượt quyền duyệt)', async () => {
+    // Gửi POST tạo bảng lương kèm status: 'PAID'
+    const createRes = await request(app.getHttpServer())
+      .post('/api/v1/payrolls')
+      .set('Cookie', accountantCookies)
+      .send({
+        employeeId: empPieceId,
+        periodStart: '2026-12-01',
+        periodEnd: '2026-12-31',
+        amount: 400000,
+        status: PayrollStatus.PAID,
+      });
+
+    expect(createRes.status).toBe(201);
+    expect(createRes.body.data.status).toBe(PayrollStatus.DRAFT);
+    const payrollId = createRes.body.data.id;
+
+    // Gửi PATCH thử chuyển status sang PAID trực tiếp
+    const patchRes = await request(app.getHttpServer())
+      .patch(`/api/v1/payrolls/${payrollId}`)
+      .set('Cookie', accountantCookies)
+      .send({
+        status: PayrollStatus.PAID,
+      });
+
+    expect(patchRes.status).toBe(200);
+    expect(patchRes.body.data.status).toBe(PayrollStatus.DRAFT);
+  });
+
+  it('12. MONTHLY lẻ ngày và lẻ tỷ lệ luôn có tổng amount bằng tổng details (không lệch đồng nào)', async () => {
+    const empOddMonthly = await prisma.employee.create({
+      data: {
+        code: 'EMP-ODD-MONTHLY',
+        fullName: 'Phạm Lẻ Tiền',
+        position: 'Kỹ thuật viên',
+        payType: PayType.MONTHLY,
+        baseRate: new Prisma.Decimal('10000000'), // 10.000.000đ / 26 ngày = 384.615,38đ/ngày
+        isActive: true,
+      },
+    });
+
+    // Chấm công 7 ngày
+    for (let day = 1; day <= 7; day++) {
+      const dayStr = day < 10 ? `0${day}` : `${day}`;
+      await prisma.attendance.create({
+        data: {
+          employeeId: empOddMonthly.id,
+          date: new Date(`2026-10-${dayStr}T00:00:00Z`),
+          hours: new Prisma.Decimal('8.00'),
+          notes: `Ngày ${day}`,
+        },
+      });
+    }
+
+    const genRes = await request(app.getHttpServer())
+      .post('/api/v1/payrolls/generate')
+      .set('Cookie', accountantCookies)
+      .send({
+        periodStart: '2026-10-01',
+        periodEnd: '2026-10-31',
+        employeeIds: [empOddMonthly.id],
+      });
+
+    expect(genRes.status).toBe(201);
+    const payroll = genRes.body.data[0];
+    // 10.000.000 * 7 / 26 = 2.692.307,69... làm tròn HALF_UP => 2.692.308đ
+    expect(Number(payroll.amount)).toBe(2692308);
+    expect(payroll.details).toHaveLength(7);
+
+    // Tổng details đúng bằng 2.692.308đ
+    const totalDetailAmount = payroll.details.reduce(
+      (sum: number, line: { amount: number }) => sum + line.amount,
+      0,
+    );
+    expect(totalDetailAmount).toBe(2692308);
+    expect(totalDetailAmount).toBe(Number(payroll.amount));
   });
 });
