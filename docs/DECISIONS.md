@@ -7,6 +7,11 @@
 
 Tài liệu này ghi lại các quyết định thiết kế và kỹ thuật quan trọng trong quá trình triển khai dự án XFarm.
 
+### DECISION-010: Chọn kho mặc định khi Activity xuất vật tư
+- Khi dòng vật tư có `warehouseId`, hệ thống xuất đúng kho đó.
+- Nếu bỏ trống, hệ thống ưu tiên kho có `areaId` trùng với khu/lô của Activity, sau đó lần lượt các kho gắn với khu cha của khu/lô đó.
+- Nếu không tìm được kho theo cây khu/lô, dùng kho đầu tiên theo `createdAt`, rồi `id` để kết quả deterministic. Không có kho nào thì trả 422 và transaction tạo Activity bị rollback.
+
 ### DECISION-008: Đưa Playwright E2E lên GĐ 1
 - **Bối cảnh**: Lỗi giao diện liên quan đến layout và tương tác trình duyệt thật không được phát hiện bởi test jsdom; yêu cầu sản phẩm cần kiểm tra ngay các luồng GĐ 0–1.
 - **Quyết định**: Bổ sung bộ test Playwright tại `apps/web/e2e` trong task P1, dùng Chrome hệ thống và không tải browser riêng.

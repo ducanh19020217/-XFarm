@@ -258,8 +258,13 @@ export class InventoryService {
       where: { refType, refId },
       orderBy: { createdAt: 'asc' },
     });
+    const reversedMoves = await tx.stockMove.findMany({
+      where: { refType: 'REVERSAL', refId: { in: moves.map((move) => move.id) } },
+      select: { refId: true },
+    });
+    const reversedIds = new Set(reversedMoves.map((move) => move.refId));
     const reversed = [];
-    for (const move of moves) {
+    for (const move of moves.filter((candidate) => !reversedIds.has(candidate.id))) {
       const data = {
         itemId: move.itemId,
         stockLotId: move.stockLotId,

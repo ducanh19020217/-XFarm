@@ -10,6 +10,7 @@ import { ActivityType, Role } from '@xfarm/shared';
 import { parseActivityData } from '@xfarm/shared';
 import { prisma } from '@xfarm/db';
 import type { Prisma } from '@xfarm/db';
+import { InventoryService } from '../inventory/inventory.service';
 import { CreateActivityDto, QueryActivityDto, UpdateActivityDto } from './activities.dto';
 
 const PREPARATION_TYPES = new Set<ActivityType>([
@@ -25,6 +26,12 @@ type ActivityWithRelations = Prisma.ActivityGetPayload<{
     performedBy: { select: { id: true; fullName: true; email: true } };
     area: true;
     cycle: { select: { id: true; code: true; name: true; areaId: true; status: true } };
+    materials: {
+      include: {
+        item: { select: { id: true; name: true; unit: true } };
+        stockLot: { select: { id: true; lotCode: true } };
+      };
+    };
   };
 }>;
 
@@ -32,6 +39,8 @@ type ActivityWithMedia = ActivityWithRelations & { media: Prisma.MediaGetPayload
 
 @Injectable()
 export class ActivitiesService {
+  constructor(private readonly inventoryService: InventoryService) {}
+
   private async mediaForIds(mediaIds: string[]) {
     if (mediaIds.length === 0) return [];
     const media = await prisma.media.findMany({
@@ -115,27 +124,111 @@ export class ActivitiesService {
     return userId;
   }
 
+  private async areaAncestors(tx: Prisma.TransactionClient, areaId: string) {
+    const ids: string[] = [];
+    let currentId: string | null = areaId;
+    while (currentId && !ids.includes(currentId)) {
+      ids.push(currentId);
+      const area: { parentId: string | null } | null = await tx.area.findUnique({
+        where: { id: currentId },
+        select: { parentId: true },
+      });
+      currentId = area?.parentId ?? null;
+    }
+    return ids;
+  }
+
+  private async resolveWarehouse(
+    tx: Prisma.TransactionClient,
+    areaId: string,
+    warehouseId?: string,
+  ) {
+    if (warehouseId) {
+      const warehouse = await tx.warehouse.findUnique({ where: { id: warehouseId } });
+      if (!warehouse) throw new BadRequestException('Kho không tồn tại');
+      return warehouse;
+    }
+
+    const areaIds = await this.areaAncestors(tx, areaId);
+    const warehouse = await tx.warehouse.findFirst({
+      where: { areaId: { in: areaIds } },
+      orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+    });
+    return (
+      warehouse ??
+      (await tx.warehouse.findFirst({
+        orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+      }))
+    );
+  }
+
+  private async issueMaterials(
+    tx: Prisma.TransactionClient,
+    activityId: string,
+    areaId: string,
+    materials: NonNullable<CreateActivityDto['materials']> | undefined,
+    userId: string,
+    movedAt: Date,
+  ) {
+    if (!materials?.length) return;
+    for (const material of materials) {
+      const warehouse = await this.resolveWarehouse(tx, areaId, material.warehouseId);
+      if (!warehouse) throw new UnprocessableEntityException('Chưa có kho để xuất vật tư');
+      const issued = await this.inventoryService.issueFifo(tx, {
+        itemId: material.itemId,
+        warehouseId: warehouse.id,
+        quantity: material.quantity,
+        refType: 'ACTIVITY',
+        refId: activityId,
+        movedAt,
+      });
+      await tx.activityMaterial.createMany({
+        data: issued.lots.map((lot) => ({
+          activityId,
+          itemId: material.itemId,
+          stockLotId: lot.stockLotId,
+          quantity: lot.quantity,
+          unitCost: lot.unitCost,
+          createdById: userId,
+        })),
+      });
+    }
+  }
+
   async create(dto: CreateActivityDto, userId: string, role: string) {
     const data = parseActivityData(dto.type, dto.data);
     await this.mediaForIds(dto.mediaIds);
     await this.validateContext(dto.areaId, dto.cycleId, dto.type);
     const performedById = await this.resolvePerformedById(dto.performedById, userId, role);
 
-    const activity = await prisma.activity.create({
-      data: {
-        cycleId: dto.cycleId ?? null,
-        areaId: dto.areaId,
-        type: dto.type,
-        performedAt: dto.performedAt,
-        performedById,
-        quantity: dto.quantity ?? null,
-        unit: dto.unit ?? null,
-        data: data as Prisma.InputJsonValue,
-        notes: dto.notes ?? null,
-        mediaIds: dto.mediaIds,
-        createdById: userId,
-      },
-      include: this.activityInclude,
+    const activity = await prisma.$transaction(async (tx) => {
+      const created = await tx.activity.create({
+        data: {
+          cycleId: dto.cycleId ?? null,
+          areaId: dto.areaId,
+          type: dto.type,
+          performedAt: dto.performedAt,
+          performedById,
+          quantity: dto.quantity ?? null,
+          unit: dto.unit ?? null,
+          data: data as Prisma.InputJsonValue,
+          notes: dto.notes ?? null,
+          mediaIds: dto.mediaIds,
+          createdById: userId,
+        },
+      });
+      await this.issueMaterials(
+        tx,
+        created.id,
+        created.areaId,
+        dto.materials,
+        userId,
+        created.performedAt,
+      );
+      return tx.activity.findUniqueOrThrow({
+        where: { id: created.id },
+        include: this.activityInclude,
+      });
     });
     return (await this.withMedia([activity]))[0];
   }
@@ -144,6 +237,13 @@ export class ActivitiesService {
     performedBy: { select: { id: true, fullName: true, email: true } },
     area: true,
     cycle: { select: { id: true, code: true, name: true, areaId: true, status: true } },
+    materials: {
+      include: {
+        item: { select: { id: true, name: true, unit: true } },
+        stockLot: { select: { id: true, lotCode: true } },
+      },
+      orderBy: { createdAt: 'asc' as const },
+    },
   } satisfies Prisma.ActivityInclude;
 
   private whereForUser(
@@ -224,20 +324,34 @@ export class ActivitiesService {
     const mediaIds = dto.mediaIds ?? existing.mediaIds;
     await this.mediaForIds(mediaIds);
     const data = dto.data === undefined ? existing.data : parseActivityData(type, dto.data);
-    const activity = await prisma.activity.update({
-      where: { id },
-      data: {
-        cycleId,
+    const activity = await prisma.$transaction(async (tx) => {
+      if (dto.materials !== undefined) {
+        await this.inventoryService.reverseByRef(tx, 'ACTIVITY', id);
+        await tx.activityMaterial.deleteMany({ where: { activityId: id } });
+      }
+      await tx.activity.update({
+        where: { id },
+        data: {
+          cycleId,
+          areaId,
+          type,
+          performedAt: dto.performedAt,
+          quantity: dto.quantity,
+          unit: dto.unit,
+          data: data as Prisma.InputJsonValue,
+          notes: dto.notes,
+          mediaIds,
+        },
+      });
+      await this.issueMaterials(
+        tx,
+        id,
         areaId,
-        type,
-        performedAt: dto.performedAt,
-        quantity: dto.quantity,
-        unit: dto.unit,
-        data: data as Prisma.InputJsonValue,
-        notes: dto.notes,
-        mediaIds,
-      },
-      include: this.activityInclude,
+        dto.materials,
+        userId,
+        dto.performedAt ?? existing.performedAt,
+      );
+      return tx.activity.findUniqueOrThrow({ where: { id }, include: this.activityInclude });
     });
     return (await this.withMedia([activity]))[0];
   }
@@ -251,7 +365,10 @@ export class ActivitiesService {
     if (activity.cycle?.status === 'CLOSED') {
       throw new ConflictException('Không thể xóa nhật ký của mùa vụ đã đóng');
     }
-    await prisma.activity.delete({ where: { id } });
+    await prisma.$transaction(async (tx) => {
+      await this.inventoryService.reverseByRef(tx, 'ACTIVITY', id);
+      await tx.activity.delete({ where: { id } });
+    });
     return { message: 'Đã xóa nhật ký' };
   }
 }

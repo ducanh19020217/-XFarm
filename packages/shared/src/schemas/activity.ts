@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { ActivityType } from '../types';
 import { paginationSchema } from './pagination';
+import { activityMaterialSchema } from './activity-material';
 
 export const waterTestDataSchema = z.object({
   pH: z.coerce.number().min(0, 'pH tối thiểu là 0').max(14, 'pH tối đa là 14'),
@@ -93,6 +94,7 @@ export const createActivitySchema = z.object({
   data: z.any().nullable().optional(),
   notes: z.string().nullable().optional(),
   mediaIds: z.array(z.string()).optional().default([]),
+  materials: z.array(activityMaterialSchema).optional(),
 });
 
 export const updateActivitySchema = createActivitySchema.partial();
