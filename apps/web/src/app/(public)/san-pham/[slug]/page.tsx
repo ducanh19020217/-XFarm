@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { ChevronRight, ArrowLeft, ShieldCheck, Truck, RefreshCw } from 'lucide-react';
 import { getPublicProductBySlug, formatCurrency } from '@/lib/public-api';
+import { getSiteUrl } from '@/lib/site-url';
 import { sanitizeHtml } from '@/lib/sanitize';
 import { OrderButton } from '../../_components/order-button';
 
@@ -14,16 +15,39 @@ interface ProductDetailPageProps {
 export async function generateMetadata({ params }: ProductDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
   const product = await getPublicProductBySlug(slug);
+  const siteUrl = getSiteUrl();
 
   if (!product) {
     return {
       title: 'Không tìm thấy sản phẩm',
+      description: 'Sản phẩm không tồn tại hoặc đã ngừng kinh doanh.',
     };
   }
 
+  const title = product.name;
+  const description = `Mua ${product.name} tươi sạch tại nông trại sinh thái XFarm. Giá: ${formatCurrency(product.price)}/${product.unit}.`;
+  const canonicalUrl = `${siteUrl}/san-pham/${product.slug}`;
+  const images = product.mediaIds && product.mediaIds.length > 0 ? product.mediaIds : undefined;
+
   return {
-    title: product.name,
-    description: `Mua ${product.name} tươi sạch tại nông trại sinh thái XFarm. Giá: ${formatCurrency(product.price)}/${product.unit}.`,
+    title,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title,
+      description,
+      url: canonicalUrl,
+      type: 'website',
+      images,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images,
+    },
   };
 }
 
@@ -38,9 +62,32 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
   const inStock = product.inStock !== false;
   const imageSrc = product.mediaIds && product.mediaIds.length > 0 ? product.mediaIds[0] : null;
   const sanitizedDescription = sanitizeHtml(product.description);
+  const rawDescription = product.description
+    ? product.description.replace(/<[^>]+>/g, '').trim()
+    : product.name;
+  const siteUrl = getSiteUrl();
+
+  const productJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.name,
+    description: rawDescription,
+    image: product.mediaIds && product.mediaIds.length > 0 ? product.mediaIds : undefined,
+    offers: {
+      '@type': 'Offer',
+      price: product.price,
+      priceCurrency: 'VND',
+      availability: inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+      url: `${siteUrl}/san-pham/${product.slug}`,
+    },
+  };
 
   return (
     <div className="py-10 sm:py-16">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
         {/* Breadcrumb */}
         <nav

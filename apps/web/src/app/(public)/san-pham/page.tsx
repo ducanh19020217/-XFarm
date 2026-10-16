@@ -1,13 +1,39 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
-import { getPublicProducts } from '@/lib/public-api';
+import { getPublicProducts, getSiteSettings } from '@/lib/public-api';
+import { getSiteUrl } from '@/lib/site-url';
 import { ProductCard } from '../_components/product-card';
 
-export const metadata: Metadata = {
-  title: 'Sản phẩm',
-  description: 'Danh mục nông sản tươi sạch, đạt tiêu chuẩn VietGAP thu hoạch mỗi ngày tại XFarm.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  const farmName = settings['farm.name'] || 'XFarm – Nông trại sinh thái';
+  const siteUrl = getSiteUrl();
+  const title = 'Sản phẩm';
+  const description =
+    'Danh mục nông sản tươi sạch, đạt tiêu chuẩn VietGAP thu hoạch mỗi ngày tại XFarm.';
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: `${siteUrl}/san-pham`,
+    },
+    openGraph: {
+      title: `${title} | ${farmName}`,
+      description,
+      url: `${siteUrl}/san-pham`,
+      siteName: farmName,
+      locale: 'vi_VN',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${title} | ${farmName}`,
+      description,
+    },
+  };
+}
 
 export default async function ProductsPage() {
   const products = await getPublicProducts();

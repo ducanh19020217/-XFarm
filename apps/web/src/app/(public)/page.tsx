@@ -1,9 +1,43 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Sprout, Egg, Fish, Compass, ArrowRight, Clock, CheckCircle2 } from 'lucide-react';
 import { getSiteSettings, getPublicProducts, getPublicPosts } from '@/lib/public-api';
+import { getSiteUrl } from '@/lib/site-url';
 import { BannerSlider } from './_components/banner-slider';
 import { ProductCard } from './_components/product-card';
 import { PostCard } from './_components/post-card';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  const farmName = settings['farm.name'] || 'XFarm – Nông trại sinh thái';
+  const slogan = settings['farm.slogan'] || 'Tươi lành từ đất, an tâm đến bàn ăn';
+  const description =
+    settings['farm.about'] || `${slogan}. Nền tảng nông trại sinh thái tuần hoàn bền vững XFarm`;
+  const siteUrl = getSiteUrl();
+
+  return {
+    title: {
+      absolute: `Trang chủ | ${farmName}`,
+    },
+    description,
+    alternates: {
+      canonical: `${siteUrl}/`,
+    },
+    openGraph: {
+      title: `Trang chủ | ${farmName}`,
+      description,
+      url: `${siteUrl}/`,
+      siteName: farmName,
+      locale: 'vi_VN',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `Trang chủ | ${farmName}`,
+      description,
+    },
+  };
+}
 
 export default async function HomePage() {
   const [settings, products, postsResult] = await Promise.all([
@@ -11,6 +45,32 @@ export default async function HomePage() {
     getPublicProducts(),
     getPublicPosts({ page: 1, pageSize: 3 }),
   ]);
+
+  const siteUrl = getSiteUrl();
+  const farmName = settings['farm.name'] || 'XFarm – Nông trại sinh thái';
+  const description =
+    settings['farm.about'] || 'Nền tảng nông trại sinh thái tuần hoàn bền vững XFarm';
+
+  const organizationJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: farmName,
+    url: siteUrl,
+    description,
+    telephone: settings['contact.phone'] || '0901 234 567',
+    email: settings['contact.email'] || 'hello@xfarm.local',
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress:
+        settings['contact.address'] || 'Khu nông nghiệp sinh thái XFarm, Hòa Lạc, Hà Nội',
+      addressCountry: 'VN',
+    },
+    sameAs: [
+      settings['social.facebook'],
+      settings['social.zalo'],
+      settings['social.youtube'],
+    ].filter(Boolean),
+  };
 
   // 6 sản phẩm đầu tiên theo sortOrder
   const featuredProducts = products.slice(0, 6);
@@ -51,6 +111,10 @@ export default async function HomePage() {
 
   return (
     <div className="space-y-16 sm:space-y-24 pb-20">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+      />
       {/* KHU VỰC 1: Banner Slider */}
       <BannerSlider banners={settings['home.banners']} />
 
