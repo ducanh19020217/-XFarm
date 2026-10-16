@@ -1,5 +1,10 @@
 # XFarm – Nhật ký Quyết định Kỹ thuật (Decisions Log)
 
+### DECISION-011: Hook phát sinh chi phí thanh toán lương (PayrollPaidEvent) cho Giai đoạn 4
+- **Bối cảnh**: Khi bảng lương chuyển trạng thái sang `PAID`, hệ thống cần ghi nhận giao dịch chi phí (`Transaction { type: EXPENSE, refType: 'PAYROLL', refId }`) gắn vào sổ quỹ tài chính. Tuy nhiên, phân hệ Tài chính thuộc Giai đoạn 4 (PLAN mục 6), còn nhánh hiện tại là Giai đoạn 6 (tách từ Phase 2 chưa có GĐ 4).
+- **Quyết định**: Khi OWNER gọi `POST /payrolls/:id/pay`, nghiệp vụ chuyển trạng thái bảng lương thành `PAID`, cập nhật `paidAt = now()`, đồng thời phát sự kiện `PayrollPaidEvent` thông qua Node.js `EventEmitter` (`payrollEvents`).
+- **Hệ quả**: Giữ kiến trúc tách biệt (loose coupling) giữa module Nhân sự và Tài chính. Khi triển khai Giai đoạn 4, module Tài chính chỉ cần đăng ký listener lắng nghe sự kiện `payroll.paid` để tự động tạo `Transaction` chi tương ứng mà không làm gián đoạn hay phụ thuộc vòng vào module Payroll.
+
 ### DECISION-009: Tồn kho theo kho và hướng điều chỉnh
 - `StockLot.warehouseId` được lưu nullable để lô nhập kho xác định được kho hiện tại; các lô thu hoạch ở giai đoạn sau có thể được gán kho khi phát sinh nhập.
 - `StockMove.quantity` luôn là số dương. Với `ADJUST`, cột `direction` (IN/OUT) biểu diễn tăng hoặc giảm; view `stock_balances` không suy diễn dấu từ `refType`.
