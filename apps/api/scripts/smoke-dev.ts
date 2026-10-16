@@ -89,6 +89,9 @@ async function main() {
       `/calendar?month=${new Date().toISOString().slice(0, 7)}`,
       '/alerts',
       '/alerts/unread-count',
+      '/items',
+      '/warehouses',
+      '/suppliers',
     ];
 
     for (const route of routes) {

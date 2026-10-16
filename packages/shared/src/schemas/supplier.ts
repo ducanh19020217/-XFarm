@@ -14,3 +14,4 @@ export const updateSupplierSchema = createSupplierSchema.partial();
 export const querySupplierSchema = paginationSchema;
 export type CreateSupplierInput = z.infer<typeof createSupplierSchema>;
 export type UpdateSupplierInput = z.infer<typeof updateSupplierSchema>;
+export type QuerySupplierInput = z.infer<typeof querySupplierSchema>;
