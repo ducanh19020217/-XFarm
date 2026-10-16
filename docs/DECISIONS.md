@@ -21,6 +21,20 @@
 
 Tài liệu này ghi lại các quyết định thiết kế và kỹ thuật quan trọng trong quá trình triển khai dự án XFarm.
 
+### DECISION-011: Lựa chọn Serwist cho PWA Next.js 15 và cơ chế quét mã QR kép (Dual-engine)
+- **Bối cảnh**:
+  - Giai đoạn 6 yêu cầu giao diện PWA di động cho công nhân tại `/admin/m`, có manifest, service worker cache app shell và các trang `/admin/m/*` để mở được khi offline. Kế hoạch gốc (`docs/PLAN.md`) gợi ý `next-pwa`.
+  - Quét mã QR khu/lô (`xfarm:area:<code>`) cần hoạt động nhanh, chính xác trên đa dạng thiết bị di động của công nhân.
+- **Quyết định Serwist**:
+  - Thư viện `next-pwa` đã ngưng bảo trì và không tương thích tốt với Next.js 15 / React 19. Dự án lựa chọn `@serwist/next` + `serwist` (bản kế thừa hiện đại của Workbox/next-pwa).
+  - Cấu hình Serwist tự động precache app static chunks và dùng chiến lược `NetworkFirst` cho các trang `/admin/m/*`, đảm bảo công nhân luôn mở được giao diện kể cả khi mất kết nối mạng.
+- **Quyết định Quét QR**:
+  - Ưu tiên sử dụng API phần cứng chuẩn `BarcodeDetector` khi trình duyệt hỗ trợ (Chromium trên Android, Chrome hiện đại) cho hiệu năng tối đa, không tốn tài nguyên giải mã JS.
+  - Tự động fallback sang `@zxing/browser` (`BrowserQRCodeReader.decodeFromVideoElement`) đối với các trình duyệt chưa hỗ trợ `BarcodeDetector` (như Safari trên iOS, Firefox, hoặc môi trường headless).
+  - Bổ sung chế độ nhập mã thủ công dự phòng khi camera gặp lỗi phân quyền hoặc thiết bị không có camera.
+- **Hệ quả**:
+  - PWA tải nhanh, ổn định trên Next.js 15, sẵn sàng cho lớp offline queue của `p6-pwa-offline`. Quét QR mượt mà trên cả Android và iOS.
+
 ### DECISION-010: Chọn kho mặc định khi Activity xuất vật tư
 - Khi dòng vật tư có `warehouseId`, hệ thống xuất đúng kho đó.
 - Nếu bỏ trống, hệ thống ưu tiên kho có `areaId` trùng với khu/lô của Activity, sau đó lần lượt các kho gắn với khu cha của khu/lô đó.
