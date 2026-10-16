@@ -17,4 +17,6 @@ AGENTS.md
 CLAUDE.md
 GEMINI.md
 apps/web/public/sw.js*
+apps/web/public/swe-worker-*
+apps/web/public/workbox-*
 
