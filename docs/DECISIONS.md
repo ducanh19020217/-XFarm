@@ -1,5 +1,19 @@
 # XFarm – Nhật ký Quyết định Kỹ thuật (Decisions Log)
 
+### DECISION-012: Nhất quán số tiền lương MONTHLY và phân bổ ngày công đa mùa vụ
+- **Bối cảnh**:
+  1. Khi một nhân viên làm việc cho nhiều mùa vụ trong cùng một ngày, mỗi mùa vụ ghi nhận một dòng `Attendance` (`unique(employeeId, date, cycleId)`). Việc tính độc lập từng dòng dẫn tới lỗi tính trùng ngày công (nhân viên làm 2 mùa vụ trong 1 ngày bị tính thành 2 công).
+  2. Với nhân viên hưởng lương tháng (`MONTHLY`), việc tính độc lập từng dòng theo `(baseRate / 26) * dayWork` rồi làm tròn ở từng dòng có thể dẫn tới độ lệch giữa tổng các dòng và tổng bảng lương `baseRate * (actualDays / 26)`.
+- **Quyết định**:
+  1. Khi tính lương (`POST /payrolls/generate`) và chi phí công theo mùa vụ (`GET /cycles/:id/labor-cost`), hệ thống gộp giờ công theo ngày (`employeeId`, `date`) trước để xác định tổng ngày công chuẩn của ngày (≥ 4h tính 1 công, < 4h tính 0,5 công). Sau đó, chi phí và ngày công được phân bổ cho từng mùa vụ theo tỷ lệ giờ làm.
+  2. Với `MONTHLY`, tổng số tiền bảng lương `amount` được tính làm tròn chuẩn từ `baseRate * (actualDays / 26)` dùng `Prisma.Decimal.ROUND_HALF_UP`. Trong danh sách `details`, các dòng được làm tròn chuẩn và phần dư làm tròn được bù vào dòng cuối cùng. Mọi phép tính tiền tệ đều sử dụng `Prisma.Decimal`.
+- **Hệ quả**: Bảng lương và giá thành nhân công mùa vụ phản ánh đúng thực tế lao động trong ngày, không bị trùng công, và tổng số tiền bảng lương luôn khớp chính xác tuyệt đối với tổng các dòng chi tiết.
+
+### DECISION-011: Hook phát sinh chi phí thanh toán lương (PayrollPaidEvent) cho Giai đoạn 4
+- **Bối cảnh**: Khi bảng lương chuyển trạng thái sang `PAID`, hệ thống cần ghi nhận giao dịch chi phí (`Transaction { type: EXPENSE, refType: 'PAYROLL', refId }`) gắn vào sổ quỹ tài chính. Tuy nhiên, phân hệ Tài chính thuộc Giai đoạn 4 (PLAN mục 6), còn nhánh hiện tại là Giai đoạn 6 (tách từ Phase 2 chưa có GĐ 4).
+- **Quyết định**: Khi OWNER gọi `POST /payrolls/:id/pay`, nghiệp vụ chuyển trạng thái bảng lương thành `PAID`, cập nhật `paidAt = now()`, đồng thời phát sự kiện `PayrollPaidEvent` thông qua Node.js `EventEmitter` (`payrollEvents`).
+- **Hệ quả**: Giữ kiến trúc tách biệt (loose coupling) giữa module Nhân sự và Tài chính. Khi triển khai Giai đoạn 4, module Tài chính chỉ cần đăng ký listener lắng nghe sự kiện `payroll.paid` để tự động tạo `Transaction` chi tương ứng mà không làm gián đoạn hay phụ thuộc vòng vào module Payroll.
+
 ### DECISION-009: Tồn kho theo kho và hướng điều chỉnh
 - `StockLot.warehouseId` được lưu nullable để lô nhập kho xác định được kho hiện tại; các lô thu hoạch ở giai đoạn sau có thể được gán kho khi phát sinh nhập.
 - `StockMove.quantity` luôn là số dương. Với `ADJUST`, cột `direction` (IN/OUT) biểu diễn tăng hoặc giảm; view `stock_balances` không suy diễn dấu từ `refType`.

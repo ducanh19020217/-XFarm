@@ -27,21 +27,37 @@ export const createPayrollSchema = z.object({
     errorMap: () => ({ message: 'Ngày kết thúc kỳ lương không hợp lệ' }),
   }),
   amount: z.coerce.number().min(0, 'Số tiền lương không được âm'),
-  details: z.record(z.string(), z.any()).optional().default({}),
-  status: z.nativeEnum(PayrollStatus).optional().default(PayrollStatus.DRAFT),
+  details: z
+    .union([z.record(z.string(), z.any()), z.array(z.any())])
+    .optional()
+    .default([]),
 });
 
-export const updatePayrollSchema = z.object({
-  amount: z.coerce.number().min(0, 'Số tiền lương không được âm').optional(),
-  details: z.record(z.string(), z.any()).optional(),
-  status: z.nativeEnum(PayrollStatus).optional(),
-});
+export const updatePayrollSchema = z
+  .object({
+    amount: z.coerce.number().min(0, 'Số tiền lương không được âm').optional(),
+    reason: optionalString(),
+    details: z.union([z.record(z.string(), z.any()), z.array(z.any())]).optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.amount !== undefined && (!data.reason || !data.reason.trim())) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: 'Cần cung cấp lý do khi điều chỉnh số tiền lương',
+      path: ['reason'],
+    },
+  );
 
 export const queryPayrollSchema = paginationSchema.extend({
   employeeId: optionalString(),
   status: z.nativeEnum(PayrollStatus).optional(),
   periodStart: optionalDate(),
   periodEnd: optionalDate(),
+  period: optionalString(),
 });
 
 export type GeneratePayrollInput = z.infer<typeof generatePayrollSchema>;

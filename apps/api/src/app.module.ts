@@ -20,6 +20,7 @@ import { StockModule } from './modules/stock/stock.module';
 import { EmployeesModule } from './modules/employees/employees.module';
 import { TasksModule } from './modules/tasks/tasks.module';
 import { AttendanceModule } from './modules/attendance/attendance.module';
+import { PayrollsModule } from './modules/payrolls/payrolls.module';
 import { SequenceModule } from './common/sequence/sequence.module';
 
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
@@ -53,6 +54,7 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
     EmployeesModule,
     TasksModule,
     AttendanceModule,
+    PayrollsModule,
   ],
   providers: [
     {

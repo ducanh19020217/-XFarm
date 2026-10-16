@@ -98,6 +98,7 @@ async function main() {
       '/employees',
       '/tasks',
       '/attendance',
+      '/payrolls',
     ];
 
     for (const route of routes) {
