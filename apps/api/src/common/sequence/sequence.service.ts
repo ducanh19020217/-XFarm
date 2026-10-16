@@ -46,6 +46,7 @@ export class SequenceService {
     key: string,
     year: number,
   ): Promise<number> {
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`${key}:${year}`}))`;
     const sequence = await tx.sequence.upsert({
       where: { key_year: { key, year } },
       update: { current: { increment: 1 } },
