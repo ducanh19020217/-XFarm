@@ -37,7 +37,7 @@ test.describe('Lô thu hoạch, QR và in tem nhãn (E2E)', () => {
 
     // 3. Mở chi tiết lô: kiểm tra URL, thông tin lô và QR code
     await expect(page).toHaveURL(/\/admin\/harvest-lots\/[a-zA-Z0-9_-]+/);
-    await expect(page.getByText(/Lô thu hoạch HL-/)).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Lô thu hoạch HL-/ })).toBeVisible();
     await expect(page.getByText('Hạng A').first()).toBeVisible();
     await expect(page.getByText('VietGAP').first()).toBeVisible();
 

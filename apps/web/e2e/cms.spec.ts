@@ -75,13 +75,10 @@ test.describe('CMS Admin & Content Workflow', () => {
     errors.assertClean();
   });
 
-  test.fixme('Tạo bài viết mới, xuất bản và kiểm tra hiển thị trên /blog/<slug>', async ({
+  test('Tạo bài viết mới, xuất bản và kiểm tra hiển thị trên /blog/<slug>', async ({
     page,
     errors,
   }) => {
-    // Lưu ý: Task p3-api-cms (API /posts) và p3-web-public-site (trang /blog/<slug>)
-    // đang chạy song song và chưa merge vào nhánh này.
-    // Khi hai task trên merge, bỏ đánh dấu test.fixme để chạy e2e hoàn chỉnh.
     await loginAs(page);
 
     await page.goto('/admin/cms/posts');
@@ -100,6 +97,10 @@ test.describe('CMS Admin & Content Workflow', () => {
     await page
       .getByLabel(/Tóm tắt ngắn \*/i)
       .fill('Đây là đoạn tóm tắt bài viết phục vụ kiểm thử tự động e2e.');
+
+    await page
+      .locator('[data-testid="rich-text-editor"] .tiptap')
+      .fill('Nội dung bài viết phục vụ kiểm thử tự động e2e.');
 
     // Chọn trạng thái PUBLISHED
     await page.getByRole('combobox').click();

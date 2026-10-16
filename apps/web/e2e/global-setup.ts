@@ -2,6 +2,8 @@ import { request, type FullConfig } from '@playwright/test';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
+process.loadEnvFile?.(path.resolve(__dirname, '../../../.env'));
+
 const users = {
   OWNER: 'admin@xfarm.local',
   MANAGER: 'manager@xfarm.local',

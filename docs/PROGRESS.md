@@ -184,6 +184,8 @@ Bộ UI E2E hiện có 8 kịch bản, chạy tuần tự một worker. Global s
 - Sửa client public API để đọc đúng response envelope `{ data: ... }` của CMS; public trace ưu tiên URL của slot và không cache trạng thái công khai đã thay đổi.
 - Sửa luồng sinh mã HarvestLot khi dữ liệu seed có mã trùng Sequence, đồng thời trả `harvestLot.id` trong response Activity để UI liên kết chi tiết lô.
 - Thêm skeleton loading cho route group public và `/admin`; bổ sung locator E2E ổn định cho các trang public/admin.
+- Sửa web đọc `.env` gốc của worktree: `next.config.ts` nạp env, script `dev`/`start` lấy cổng từ `WEB_URL`, và toàn bộ client dùng chung `API_BASE_URL`.
+- Chuyển Playwright sang build production (`next build` rồi `next start`) để bộ `test:ui` gộp chạy ổn định; bật lại test tạo bài viết và kiểm tra trang `/blog/[slug]`.
 
 ### 2. Cách chạy thử
 ```bash
@@ -200,7 +202,7 @@ pnpm --filter @xfarm/web lighthouse
 - `pnpm --filter @xfarm/api test:e2e`: đạt 12 suite / 149 test; `smoke:dev`: toàn bộ route đạt HTTP 200.
 - `pnpm --filter @xfarm/web build`: đạt; Lighthouse production trang chủ SEO `100/100`, Accessibility `92/100`.
 - Acceptance spec GĐ3 đạt 1/1 khi chạy riêng; các spec harvest, trace, public-site, smoke đều đã đạt khi chạy riêng.
-- Chạy gộp toàn bộ UI nhiều lần trên dev server có timeout/`ERR_ABORTED` không ổn định sau khi nhiều spec ghi dữ liệu cùng database; lần gộp cuối đạt 7/10 test thực thi, 3 test lỗi môi trường nêu trên và 7 test được đánh dấu skip từ các giai đoạn trước.
+- Playwright được chuyển sang bản build production để loại bỏ lỗi timeout/`ERR_ABORTED` do Next dev biên dịch động; cần chạy lại toàn bộ nghiệm thu sau thay đổi này.
 
 ### 4. Điểm còn lại
 - Chưa thêm cửa hàng online, thanh toán, tour/booking; đây là phạm vi các giai đoạn sau theo kế hoạch.

@@ -98,3 +98,8 @@ Tài liệu này ghi lại các quyết định thiết kế và kỹ thuật qu
 - **Bối cảnh**: Khi tắt `HarvestLot.isPublic`, URL truy xuất phải ngừng hiển thị ngay; cache ISR có thể tiếp tục trả nội dung public cũ trong thời gian revalidate.
 - **Quyết định**: Trang `/trace/[code]` dùng `cache: 'no-store'` và `force-dynamic`; các trang public CMS khác vẫn dùng revalidate theo quy ước chung.
 - **Hệ quả**: Thay đổi công khai được phản ánh ngay trên URL truy xuất, đổi lại mỗi lượt truy xuất cần gọi API backend.
+
+### DECISION-013: Chạy Playwright trên bản build production và dùng env theo worktree
+- **Bối cảnh**: Next dev biên dịch động trong lúc test khiến bộ UI gộp dễ timeout/`ERR_ABORTED`; các worktree cần dùng đúng API và cổng web riêng trong `.env` gốc.
+- **Quyết định**: Playwright build web một lần rồi chạy `next start`; Next config và script `dev`/`start` nạp `.env` gốc, lấy cổng từ `WEB_URL`. Client server/public dùng chung một `API_BASE_URL`.
+- **Hệ quả**: UI E2E kiểm tra gần với môi trường production và không tranh cổng mặc định giữa các slot; đổi lại mỗi lượt `test:ui` cần thời gian build.
