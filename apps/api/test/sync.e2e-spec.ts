@@ -27,7 +27,6 @@ describe('Sync API E2E (POST /api/v1/sync/batch)', () => {
 
   let ownerUser: User;
   let workerUser: User;
-  let otherWorkerUser: User;
   let workerEmployee: Employee;
   let otherEmployee: Employee;
   let activeCycle: Cycle;
@@ -123,7 +122,7 @@ describe('Sync API E2E (POST /api/v1/sync/batch)', () => {
       },
     });
 
-    otherWorkerUser = await prisma.user.create({
+    await prisma.user.create({
       data: {
         email: 'sync-worker2@xfarm.local',
         fullName: 'Sync Other Worker',
@@ -197,9 +196,7 @@ describe('Sync API E2E (POST /api/v1/sync/batch)', () => {
 
   describe('1. Phân quyền truy cập (RBAC)', () => {
     it('chặn truy cập khi chưa đăng nhập (401)', async () => {
-      const res = await request(app.getHttpServer())
-        .post('/api/v1/sync/batch')
-        .send({ items: [] });
+      const res = await request(app.getHttpServer()).post('/api/v1/sync/batch').send({ items: [] });
       expect(res.status).toBe(401);
     });
 

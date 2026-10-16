@@ -69,11 +69,11 @@ export class SyncService {
       select: { entityId: true, diff: true },
     });
     if (audit) {
-      const diff = audit.diff as Record<string, any> | null;
+      const diff = audit.diff as Record<string, unknown> | null;
       return {
         clientId: item.clientId,
         status: 'duplicate',
-        id: diff?.id ?? audit.entityId,
+        id: (diff?.id as string | undefined) ?? audit.entityId,
       };
     }
 
@@ -107,11 +107,11 @@ export class SyncService {
       select: { entityId: true, diff: true },
     });
     if (auditDuplicate) {
-      const diff = auditDuplicate.diff as Record<string, any> | null;
+      const diff = auditDuplicate.diff as Record<string, unknown> | null;
       return {
         clientId: item.clientId,
         status: 'duplicate',
-        id: diff?.id ?? auditDuplicate.entityId,
+        id: (diff?.id as string | undefined) ?? auditDuplicate.entityId,
       };
     }
 
@@ -131,10 +131,7 @@ export class SyncService {
     }
   }
 
-  private async handleActivity(
-    item: SyncItem,
-    user: CurrentUserPayload,
-  ): Promise<SyncResultItem> {
+  private async handleActivity(item: SyncItem, user: CurrentUserPayload): Promise<SyncResultItem> {
     const existing = await prisma.activity.findUnique({
       where: { clientId: item.clientId },
       select: { id: true },
@@ -147,7 +144,7 @@ export class SyncService {
       };
     }
 
-    const payload: Record<string, any> = { ...item.payload };
+    const payload: Record<string, unknown> = { ...item.payload };
     payload.clientId = item.clientId;
     if (!payload.performedAt) {
       payload.performedAt = item.createdAt;
@@ -190,7 +187,7 @@ export class SyncService {
       };
     }
 
-    const payload: Record<string, any> = { ...item.payload };
+    const payload: Record<string, unknown> = { ...item.payload };
     payload.clientId = item.clientId;
     // Use offline timestamp 'at' if provided, otherwise fallback to item.createdAt
     if (!payload.at) {
@@ -238,7 +235,7 @@ export class SyncService {
       };
     }
 
-    const payload: Record<string, any> = { ...item.payload };
+    const payload: Record<string, unknown> = { ...item.payload };
     payload.clientId = item.clientId;
     // Use offline timestamp 'at' if provided, otherwise fallback to item.createdAt
     if (!payload.at) {
@@ -289,8 +286,8 @@ export class SyncService {
       };
     }
 
-    const payload: Record<string, any> = { ...item.payload };
-    const taskId = payload.taskId || payload.id;
+    const payload: Record<string, unknown> = { ...item.payload };
+    const taskId = (payload.taskId as string | undefined) || (payload.id as string | undefined);
     if (!taskId) {
       return {
         clientId: item.clientId,
