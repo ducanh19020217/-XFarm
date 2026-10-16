@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { normalizeEmptyValues, optionalNumber } from './helpers';
+import { normalizeEmptyValues, optionalNumber, slugify } from './helpers';
 
 describe('schema helpers', () => {
   it('preserves Date instances while normalizing plain objects', () => {
@@ -16,5 +16,9 @@ describe('schema helpers', () => {
   it('treats NaN as an omitted optional number', () => {
     expect(optionalNumber().parse(Number.NaN)).toBeUndefined();
     expect(optionalNumber().parse('')).toBeUndefined();
+  });
+
+  it('slugifies Vietnamese text and converts đ to d', () => {
+    expect(slugify('  Đặc sản Đồng bằng sông Cửu Long! ')).toBe('dac-san-dong-bang-song-cuu-long');
   });
 });

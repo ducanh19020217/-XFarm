@@ -104,8 +104,13 @@ describe('parseActivityData', () => {
     const sowing = parseActivityData(ActivityType.SOWING, { seedLot: 'L01' });
     expect(sowing).toMatchObject({ seedLot: 'L01' });
 
-    const harvest = parseActivityData(ActivityType.HARVEST, undefined);
-    expect(harvest).toEqual({});
+    const harvest = parseActivityData(ActivityType.HARVEST, {
+      itemId: 'item-1',
+      quantity: 10,
+      unit: 'kg',
+      warehouseId: 'warehouse-1',
+    });
+    expect(harvest).toMatchObject({ itemId: 'item-1', quantity: 10 });
   });
 
   it('handles JSON string inputs properly', () => {
