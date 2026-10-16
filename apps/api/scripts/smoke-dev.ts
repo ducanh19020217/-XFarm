@@ -96,6 +96,13 @@ async function main() {
       '/warehouses',
       '/suppliers',
       '/harvest-lots',
+      '/products',
+      '/posts',
+      '/pages',
+      '/site-settings',
+      '/public/products',
+      '/public/posts',
+      '/public/site-settings',
     ];
 
     for (const route of routes) {

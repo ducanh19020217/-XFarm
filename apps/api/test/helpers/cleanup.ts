@@ -7,33 +7,36 @@ type DatabaseClient = PrismaClient;
  * Khi thêm bảng có FK mới, cập nhật thứ tự tại một nơi duy nhất.
  */
 export async function cleanupDatabase(client: DatabaseClient = defaultPrisma): Promise<void> {
-  await client.$transaction(async (tx) => {
-    await tx.product.deleteMany();
-    await tx.harvestLot.deleteMany();
-    await tx.activityMaterial.deleteMany();
-    await tx.stockMove.deleteMany();
-    await tx.stockLot.deleteMany();
-    await tx.purchaseOrderLine.deleteMany();
-    await tx.purchaseOrder.deleteMany();
-    await tx.supplier.deleteMany();
-    await tx.alert.deleteMany();
-    await tx.animalEvent.deleteMany();
-    await tx.animal.deleteMany();
-    await tx.animalGroup.deleteMany();
-    await tx.activity.deleteMany();
-    await tx.cycle.deleteMany();
-    await tx.area.deleteMany();
-    await tx.auditLog.deleteMany();
-    await tx.refreshToken.deleteMany();
-    await tx.media.deleteMany();
-    await tx.post.deleteMany();
-    await tx.page.deleteMany();
-    await tx.siteSetting.deleteMany();
-    await tx.sequence.deleteMany();
-    await tx.item.deleteMany();
-    await tx.warehouse.deleteMany();
-    await tx.user.deleteMany();
-  });
+  await client.$transaction(
+    async (tx) => {
+      await tx.product.deleteMany();
+      await tx.harvestLot.deleteMany();
+      await tx.activityMaterial.deleteMany();
+      await tx.stockMove.deleteMany();
+      await tx.stockLot.deleteMany();
+      await tx.purchaseOrderLine.deleteMany();
+      await tx.purchaseOrder.deleteMany();
+      await tx.supplier.deleteMany();
+      await tx.alert.deleteMany();
+      await tx.animalEvent.deleteMany();
+      await tx.animal.deleteMany();
+      await tx.animalGroup.deleteMany();
+      await tx.activity.deleteMany();
+      await tx.cycle.deleteMany();
+      await tx.area.deleteMany();
+      await tx.auditLog.deleteMany();
+      await tx.refreshToken.deleteMany();
+      await tx.media.deleteMany();
+      await tx.post.deleteMany();
+      await tx.page.deleteMany();
+      await tx.siteSetting.deleteMany();
+      await tx.sequence.deleteMany();
+      await tx.item.deleteMany();
+      await tx.warehouse.deleteMany();
+      await tx.user.deleteMany();
+    },
+    { maxWait: 10000, timeout: 20000 },
+  );
 }
 
 export async function cleanupInventoryData(

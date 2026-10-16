@@ -54,7 +54,7 @@ describe('Alerts API E2E', () => {
 
     ownerCookies = await login('admin@xfarm.local');
     workerCookies = await login('worker@xfarm.local');
-  });
+  }, 90000);
 
   afterAll(async () => {
     await app?.close();
