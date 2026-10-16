@@ -11,6 +11,9 @@ import { AreasModule } from './modules/areas/areas.module';
 import { ActivitiesModule } from './modules/activities/activities.module';
 import { AnimalsModule } from './modules/animals/animals.module';
 import { CalendarModule } from './modules/calendar/calendar.module';
+import { ItemsModule } from './modules/items/items.module';
+import { WarehousesModule } from './modules/warehouses/warehouses.module';
+import { SuppliersModule } from './modules/suppliers/suppliers.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
 import { SequenceModule } from './common/sequence/sequence.module';
 
@@ -36,6 +39,9 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
     ActivitiesModule,
     AnimalsModule,
     CalendarModule,
+    ItemsModule,
+    WarehousesModule,
+    SuppliersModule,
     InventoryModule,
   ],
   providers: [
