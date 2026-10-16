@@ -238,13 +238,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <AdminUserProvider user={user}>
       <div className="flex min-h-screen bg-slate-50 dark:bg-slate-900">
         {/* Desktop Sidebar */}
-        <aside className="hidden w-64 border-r border-slate-200 bg-white md:block dark:border-slate-800 dark:bg-slate-950">
+        <aside className="hidden w-64 border-r border-slate-200 bg-white md:block dark:border-slate-800 dark:bg-slate-950 print:hidden">
           <SidebarContent />
         </aside>
 
         {/* Mobile Drawer */}
         {mobileMenuOpen && (
-          <div className="fixed inset-0 z-50 flex md:hidden">
+          <div className="fixed inset-0 z-50 flex md:hidden print:hidden">
             <div
               className="fixed inset-0 bg-black/50 backdrop-blur-sm"
               onClick={() => setMobileMenuOpen(false)}
@@ -262,9 +262,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         )}
 
         {/* Main Content Area */}
-        <div className="flex flex-1 flex-col overflow-hidden">
+        <div className="flex flex-1 flex-col overflow-hidden print:overflow-visible">
           {/* Top Header */}
-          <header className="flex h-16 items-center justify-between border-b border-slate-200 bg-white px-4 md:px-6 dark:border-slate-800 dark:bg-slate-950">
+          <header className="flex h-16 items-center justify-between border-b border-slate-200 bg-white px-4 md:px-6 dark:border-slate-800 dark:bg-slate-950 print:hidden">
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setMobileMenuOpen(true)}
@@ -298,8 +298,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </header>
 
           {/* Page Content */}
-          <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
-            <div className="mx-auto max-w-7xl">{children}</div>
+          <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 print:p-0 print:overflow-visible">
+            <div className="mx-auto max-w-7xl print:max-w-none">{children}</div>
           </main>
         </div>
       </div>

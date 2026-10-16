@@ -113,11 +113,7 @@ function fieldsForType(type: ActivityType) {
   return Object.keys(schema.shape as Record<string, unknown>);
 }
 
-export const HARVEST_PRODUCE_CATEGORIES = new Set([
-  'PRODUCE',
-  'LIVESTOCK_PRODUCT',
-  'AQUA_PRODUCT',
-]);
+export const HARVEST_PRODUCE_CATEGORIES = new Set(['PRODUCE', 'LIVESTOCK_PRODUCT', 'AQUA_PRODUCT']);
 
 export interface WarehouseOption {
   id: string;

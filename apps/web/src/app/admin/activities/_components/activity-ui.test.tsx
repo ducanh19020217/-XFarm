@@ -309,16 +309,22 @@ describe('activity UI', () => {
       },
     ];
 
-    const mockWarehouses = [
-      { id: 'wh-main', code: 'KHO-CHINH', name: 'Kho nông sản chính' },
-    ];
+    const mockWarehouses = [{ id: 'wh-main', code: 'KHO-CHINH', name: 'Kho nông sản chính' }];
 
     const onSaved = vi.fn();
     const user = userEvent.setup();
     render(
       <ActivityForm
         areas={[{ id: 'area-1', code: 'A1', name: 'Khu A' }]}
-        cycles={[{ id: 'cycle-1', code: 'C1', name: 'Vụ Dưa 2026', areaId: 'area-1' }]}
+        cycles={[
+          {
+            id: 'cycle-1',
+            code: 'C1',
+            name: 'Vụ Dưa 2026',
+            areaId: 'area-1',
+            status: CycleStatus.ACTIVE,
+          },
+        ]}
         initialCycleId="cycle-1"
         availableItems={mockProduceItems}
         warehouses={mockWarehouses}
