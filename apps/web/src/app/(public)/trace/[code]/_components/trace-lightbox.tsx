@@ -43,9 +43,7 @@ export function TraceLightbox({ photos }: TraceLightboxProps) {
       <div className="flex items-center gap-2 mb-3">
         <ImageIcon className="w-5 h-5 text-emerald-600" />
         <h2 className="text-base font-semibold text-slate-800">Hình ảnh thực tế</h2>
-        <span className="text-xs text-slate-400 font-medium ml-auto">
-          {photos.length} hình ảnh
-        </span>
+        <span className="text-xs text-slate-400 font-medium ml-auto">{photos.length} hình ảnh</span>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">

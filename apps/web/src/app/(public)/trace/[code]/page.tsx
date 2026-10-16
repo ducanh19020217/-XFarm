@@ -106,11 +106,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function TracePage({
-  params,
-}: {
-  params: Promise<{ code: string }>;
-}) {
+export default async function TracePage({ params }: { params: Promise<{ code: string }> }) {
   const { code } = await params;
   const trace = await getTraceData(code);
 

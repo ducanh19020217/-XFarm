@@ -198,9 +198,7 @@ export function formatActivitySummary(
 ): string {
   if (rawSummary && rawSummary.trim()) {
     // Basic hygiene check on raw summary to ensure no cost/personal leaks
-    const sanitized = rawSummary
-      .replace(/(\d+[\d,.]*\s*(đ|vnd|đồng|vnđ))/gi, '')
-      .trim();
+    const sanitized = rawSummary.replace(/(\d+[\d,.]*\s*(đ|vnd|đồng|vnđ))/gi, '').trim();
     if (sanitized) return sanitized;
   }
 

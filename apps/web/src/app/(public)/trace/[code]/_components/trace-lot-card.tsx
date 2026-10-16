@@ -1,13 +1,5 @@
 import * as React from 'react';
-import {
-  Calendar,
-  MapPin,
-  Sprout,
-  Award,
-  Package,
-  QrCode,
-  Tag,
-} from 'lucide-react';
+import { Calendar, MapPin, Sprout, Award, Package, QrCode, Tag } from 'lucide-react';
 import { formatDate, PublicArea, PublicCycle, PublicLot } from '../trace-utils';
 
 interface TraceLotCardProps {
@@ -58,7 +50,9 @@ export function TraceLotCard({ lot, area, cycle }: TraceLotCardProps) {
           <div>
             <span className="block text-xs text-slate-500 font-medium">Khu / Vùng canh tác</span>
             <span className="font-semibold text-slate-900">
-              {area?.name ? `${area.name}${area.type ? ` (${area.type})` : ''}` : 'Khu canh tác XFarm'}
+              {area?.name
+                ? `${area.name}${area.type ? ` (${area.type})` : ''}`
+                : 'Khu canh tác XFarm'}
             </span>
           </div>
         </div>
