@@ -43,7 +43,11 @@ export interface QuickActivityPayload {
   type: ActivityType;
   areaId: string;
   cycleId?: string;
+  performedAt?: string;
   date?: string;
+  data?: unknown;
+  quantity?: number;
+  unit?: string;
   notes?: string;
   metrics?: Record<string, unknown>;
   mediaIds?: string[];
@@ -264,12 +268,8 @@ export class DefaultMobileApi implements IMobileApi {
   }
 
   async getAreas(signal?: AbortSignal): Promise<AreaOption[]> {
-    try {
-      const res = await apiFetch<{ data: AreaOption[] }>('/areas?pageSize=100', { signal });
-      return res.data || [];
-    } catch {
-      return [];
-    }
+    const res = await apiFetch<{ data: AreaOption[] }>('/areas?pageSize=100', { signal });
+    return res.data || [];
   }
 
   async getAreaByCode(code: string, signal?: AbortSignal): Promise<AreaOption | null> {
@@ -280,12 +280,8 @@ export class DefaultMobileApi implements IMobileApi {
   }
 
   async getCycles(signal?: AbortSignal): Promise<CycleOption[]> {
-    try {
-      const res = await apiFetch<{ data: CycleOption[] }>('/cycles?pageSize=100', { signal });
-      return res.data || [];
-    } catch {
-      return [];
-    }
+    const res = await apiFetch<{ data: CycleOption[] }>('/cycles?pageSize=100', { signal });
+    return res.data || [];
   }
 }
 
@@ -300,7 +296,43 @@ export class OfflineAwareMobileApi implements IMobileApi {
     return this.inner;
   }
 
+  private async getCachedTasksWithOutbox(): Promise<TaskItem[]> {
+    let cached: TaskItem[] = [];
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem('xfarm_cached_tasks');
+        if (raw) cached = JSON.parse(raw);
+      } catch {
+        /* ignore */
+      }
+    }
+    // Overlay pending task completion from outbox
+    try {
+      const outbox = await getOutbox();
+      for (const item of outbox) {
+        if (item.kind === 'task-complete') {
+          const p = item.payload as { taskId?: string; id?: string };
+          const tId = p.taskId || p.id;
+          const found = cached.find((t) => t.id === tId);
+          if (found) {
+            found.status = TaskStatus.DONE;
+            found.completedAt = item.createdAt;
+            found.pendingSync = true;
+          }
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+    return cached;
+  }
+
   async getMyTasks(date?: string, signal?: AbortSignal): Promise<TaskItem[]> {
+    const isOffline = typeof navigator !== 'undefined' && !navigator.onLine;
+    if (isOffline) {
+      return this.getCachedTasksWithOutbox();
+    }
+
     try {
       const tasks = await this.inner.getMyTasks(date, signal);
       if (typeof window !== 'undefined' && Array.isArray(tasks) && tasks.length > 0) {
@@ -313,35 +345,8 @@ export class OfflineAwareMobileApi implements IMobileApi {
       return tasks;
     } catch (err) {
       if (isAbortError(err)) throw err;
-      if (isNetworkError(err) || (typeof navigator !== 'undefined' && !navigator.onLine)) {
-        let cached: TaskItem[] = [];
-        if (typeof window !== 'undefined') {
-          try {
-            const raw = localStorage.getItem('xfarm_cached_tasks');
-            if (raw) cached = JSON.parse(raw);
-          } catch {
-            /* ignore */
-          }
-        }
-        // Overlay pending task completion from outbox
-        try {
-          const outbox = await getOutbox();
-          for (const item of outbox) {
-            if (item.kind === 'task-complete') {
-              const p = item.payload as { taskId?: string; id?: string };
-              const tId = p.taskId || p.id;
-              const found = cached.find((t) => t.id === tId);
-              if (found) {
-                found.status = TaskStatus.DONE;
-                found.completedAt = item.createdAt;
-                found.pendingSync = true;
-              }
-            }
-          }
-        } catch {
-          /* ignore */
-        }
-        return cached;
+      if (isNetworkError(err)) {
+        return this.getCachedTasksWithOutbox();
       }
       throw err;
     }
@@ -537,7 +542,57 @@ export class OfflineAwareMobileApi implements IMobileApi {
     }
   }
 
+  private async getCachedTodayAttendanceWithOutbox(): Promise<AttendanceItem | null> {
+    let cached: AttendanceItem | null = null;
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem('xfarm_cached_today_att');
+        if (raw) cached = JSON.parse(raw);
+      } catch {
+        /* ignore */
+      }
+    }
+    // Overlay pending outbox check-in/out
+    try {
+      const outbox = await getOutbox();
+      for (const item of outbox) {
+        if (item.kind === 'check-in') {
+          const p = item.payload as CheckInPayload;
+          if (!cached) {
+            cached = {
+              id: 'optimistic-' + item.clientId,
+              employeeId: p.employeeId || 'current-emp',
+              date: (p.at || item.createdAt).slice(0, 10),
+              checkIn: p.at || item.createdAt,
+              checkOut: null,
+              hours: 0,
+              pendingSync: true,
+              clientId: item.clientId,
+            };
+          } else {
+            cached.checkIn = p.at || item.createdAt;
+            cached.pendingSync = true;
+          }
+        } else if (item.kind === 'check-out') {
+          const p = item.payload as CheckOutPayload;
+          if (cached) {
+            cached.checkOut = p.at || item.createdAt;
+            cached.pendingSync = true;
+          }
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+    return cached;
+  }
+
   async getTodayAttendance(signal?: AbortSignal): Promise<AttendanceItem | null> {
+    const isOffline = typeof navigator !== 'undefined' && !navigator.onLine;
+    if (isOffline) {
+      return this.getCachedTodayAttendanceWithOutbox();
+    }
+
     try {
       const att = await this.inner.getTodayAttendance(signal);
       if (typeof window !== 'undefined' && att) {
@@ -550,49 +605,8 @@ export class OfflineAwareMobileApi implements IMobileApi {
       return att;
     } catch (err) {
       if (isAbortError(err)) throw err;
-      if (isNetworkError(err) || (typeof navigator !== 'undefined' && !navigator.onLine)) {
-        let cached: AttendanceItem | null = null;
-        if (typeof window !== 'undefined') {
-          try {
-            const raw = localStorage.getItem('xfarm_cached_today_att');
-            if (raw) cached = JSON.parse(raw);
-          } catch {
-            /* ignore */
-          }
-        }
-        // Overlay pending outbox check-in/out
-        try {
-          const outbox = await getOutbox();
-          for (const item of outbox) {
-            if (item.kind === 'check-in') {
-              const p = item.payload as CheckInPayload;
-              if (!cached) {
-                cached = {
-                  id: 'optimistic-' + item.clientId,
-                  employeeId: p.employeeId || 'current-emp',
-                  date: (p.at || item.createdAt).slice(0, 10),
-                  checkIn: p.at || item.createdAt,
-                  checkOut: null,
-                  hours: 0,
-                  pendingSync: true,
-                  clientId: item.clientId,
-                };
-              } else {
-                cached.checkIn = p.at || item.createdAt;
-                cached.pendingSync = true;
-              }
-            } else if (item.kind === 'check-out') {
-              const p = item.payload as CheckOutPayload;
-              if (cached) {
-                cached.checkOut = p.at || item.createdAt;
-                cached.pendingSync = true;
-              }
-            }
-          }
-        } catch {
-          /* ignore */
-        }
-        return cached;
+      if (isNetworkError(err)) {
+        return this.getCachedTodayAttendanceWithOutbox();
       }
       throw err;
     }
@@ -675,7 +689,24 @@ export class OfflineAwareMobileApi implements IMobileApi {
     }
   }
 
+  private getCachedAreas(): AreaOption[] {
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem('xfarm_cached_areas');
+        if (raw) return JSON.parse(raw);
+      } catch {
+        /* ignore */
+      }
+    }
+    return [];
+  }
+
   async getAreas(signal?: AbortSignal): Promise<AreaOption[]> {
+    const isOffline = typeof navigator !== 'undefined' && !navigator.onLine;
+    if (isOffline) {
+      return this.getCachedAreas();
+    }
+
     try {
       const res = await this.inner.getAreas(signal);
       if (typeof window !== 'undefined' && Array.isArray(res) && res.length > 0) {
@@ -684,18 +715,11 @@ export class OfflineAwareMobileApi implements IMobileApi {
         } catch {
           /* ignore */
         }
+        return res;
       }
-      return res;
+      return this.getCachedAreas();
     } catch {
-      if (typeof window !== 'undefined') {
-        try {
-          const raw = localStorage.getItem('xfarm_cached_areas');
-          if (raw) return JSON.parse(raw);
-        } catch {
-          /* ignore */
-        }
-      }
-      return [];
+      return this.getCachedAreas();
     }
   }
 
@@ -711,7 +735,24 @@ export class OfflineAwareMobileApi implements IMobileApi {
     }
   }
 
+  private getCachedCycles(): CycleOption[] {
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem('xfarm_cached_cycles');
+        if (raw) return JSON.parse(raw);
+      } catch {
+        /* ignore */
+      }
+    }
+    return [];
+  }
+
   async getCycles(signal?: AbortSignal): Promise<CycleOption[]> {
+    const isOffline = typeof navigator !== 'undefined' && !navigator.onLine;
+    if (isOffline) {
+      return this.getCachedCycles();
+    }
+
     try {
       const res = await this.inner.getCycles(signal);
       if (typeof window !== 'undefined' && Array.isArray(res) && res.length > 0) {
@@ -720,18 +761,11 @@ export class OfflineAwareMobileApi implements IMobileApi {
         } catch {
           /* ignore */
         }
+        return res;
       }
-      return res;
+      return this.getCachedCycles();
     } catch {
-      if (typeof window !== 'undefined') {
-        try {
-          const raw = localStorage.getItem('xfarm_cached_cycles');
-          if (raw) return JSON.parse(raw);
-        } catch {
-          /* ignore */
-        }
-      }
-      return [];
+      return this.getCachedCycles();
     }
   }
 }

@@ -28,6 +28,7 @@ import { Button, StatusBadge, Badge } from '@xfarm/ui';
 import { apiFetch, isAbortError } from '@/lib/api';
 import { NotificationBell } from '@/components/alerts/notification-bell';
 import { AdminUserProvider, type AdminUser } from './admin-user-context';
+import { RegisterServiceWorker } from './m/_components/register-sw';
 
 type UserProfile = AdminUser;
 
@@ -149,12 +150,50 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   React.useEffect(() => {
     let isMounted = true;
     const controller = new AbortController();
+
+    const isOffline = typeof navigator !== 'undefined' && !navigator.onLine;
+    if (isOffline) {
+      try {
+        const raw = localStorage.getItem('xfarm_cached_user');
+        if (raw && isMounted) {
+          setUser(JSON.parse(raw));
+          return;
+        }
+      } catch {
+        /* ignore */
+      }
+      if (pathname?.startsWith('/admin/m')) {
+        return;
+      }
+    }
+
     apiFetch<{ data: UserProfile }>('/auth/me', { signal: controller.signal })
       .then((res) => {
-        if (isMounted) setUser(res.data);
+        if (isMounted) {
+          setUser(res.data);
+          try {
+            localStorage.setItem('xfarm_cached_user', JSON.stringify(res.data));
+          } catch {
+            /* ignore */
+          }
+        }
       })
       .catch((error) => {
         if (isAbortError(error)) return;
+        if (typeof navigator !== 'undefined' && !navigator.onLine) {
+          try {
+            const raw = localStorage.getItem('xfarm_cached_user');
+            if (raw && isMounted) {
+              setUser(JSON.parse(raw));
+              return;
+            }
+          } catch {
+            /* ignore */
+          }
+          if (pathname?.startsWith('/admin/m')) {
+            return;
+          }
+        }
         // If auth/me fails, redirect to login
         router.push('/login');
       });
@@ -163,7 +202,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       isMounted = false;
       controller.abort();
     };
-  }, [router]);
+  }, [router, pathname]);
 
   const handleLogout = async () => {
     try {
@@ -281,11 +320,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const isMobileApp = pathname?.startsWith('/admin/m');
 
   if (isMobileApp) {
-    return <AdminUserProvider user={user}>{children}</AdminUserProvider>;
+    return (
+      <AdminUserProvider user={user}>
+        <RegisterServiceWorker />
+        {children}
+      </AdminUserProvider>
+    );
   }
 
   return (
     <AdminUserProvider user={user}>
+      <RegisterServiceWorker />
       <div className="flex min-h-screen bg-slate-50 dark:bg-slate-900">
         {/* Desktop Sidebar */}
         <aside className="hidden w-64 border-r border-slate-200 bg-white md:block dark:border-slate-800 dark:bg-slate-950">

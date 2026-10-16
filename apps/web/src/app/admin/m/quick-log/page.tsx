@@ -154,9 +154,11 @@ function QuickLogContent() {
       }
 
       const metricsObj: Record<string, unknown> = {};
+      let numVal: number | undefined;
       if (metricValue.trim()) {
         const num = parseFloat(metricValue.trim());
         if (!isNaN(num)) {
+          numVal = num;
           metricsObj.amount = num;
           metricsObj.unit = metricUnit;
         } else {
@@ -164,12 +166,54 @@ function QuickLogContent() {
         }
       }
 
+      // Chuẩn bị dữ liệu đặc thù theo loại hoạt động (phù hợp với schema backend)
+      const activityData: Record<string, unknown> = {};
+      if (selectedType === ActivityType.IRRIGATION) {
+        if (numVal && numVal > 0) {
+          const unitLower = metricUnit.toLowerCase();
+          if (
+            unitLower.includes('phút') ||
+            unitLower.includes('min') ||
+            unitLower.includes('giờ') ||
+            unitLower.includes('h')
+          ) {
+            activityData.durationMin =
+              unitLower.includes('giờ') || unitLower.includes('h') ? numVal * 60 : numVal;
+          } else {
+            activityData.durationMin = 30;
+            activityData.volumeL = numVal;
+          }
+        } else {
+          activityData.durationMin = 30;
+        }
+      } else if (selectedType === ActivityType.FEEDING) {
+        activityData.feedKg = numVal && numVal > 0 ? numVal : 1;
+      } else if (selectedType === ActivityType.WEIGHING) {
+        activityData.avgWeightKg = numVal && numVal > 0 ? numVal : 1;
+        activityData.sampleSize = 1;
+      } else if (selectedType === ActivityType.MORTALITY) {
+        activityData.count = numVal && numVal >= 1 ? Math.floor(numVal) : 1;
+      } else if (selectedType === ActivityType.STOCKING) {
+        activityData.count = numVal && numVal >= 1 ? Math.floor(numVal) : 1;
+      } else if (selectedType === ActivityType.FERTILIZING) {
+        if (notes.trim()) activityData.product = notes.trim();
+        if (numVal) activityData.dosage = `${numVal} ${metricUnit}`;
+      } else if (selectedType === ActivityType.SPRAYING) {
+        if (notes.trim()) activityData.product = notes.trim();
+        if (numVal) activityData.dosage = `${numVal} ${metricUnit}`;
+      }
+
+      const now = new Date().toISOString();
       const payload: QuickActivityPayload = {
         clientId,
         type: selectedType,
         areaId: selectedAreaId,
         cycleId: selectedCycleId !== 'NONE' ? selectedCycleId : undefined,
-        date: new Date().toISOString(),
+        performedAt: now,
+        date: now,
+        data: activityData,
+        quantity: numVal && numVal > 0 ? numVal : undefined,
+        unit: numVal && numVal > 0 ? metricUnit : undefined,
         notes: notes.trim() || undefined,
         metrics: Object.keys(metricsObj).length > 0 ? metricsObj : undefined,
         mediaIds: mediaIds.length > 0 ? mediaIds : undefined,
@@ -191,7 +235,7 @@ function QuickLogContent() {
 
       setTimeout(() => {
         router.push('/admin/m');
-      }, 1200);
+      }, 500);
     } catch (err: unknown) {
       showToast(err instanceof Error ? err.message : 'Không thể lưu nhật ký. Vui lòng thử lại!');
     } finally {
