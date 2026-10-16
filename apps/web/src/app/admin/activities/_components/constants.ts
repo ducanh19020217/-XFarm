@@ -37,6 +37,11 @@ export const activityFieldLabels: Record<string, string> = {
   volumeL: 'Lượng nước (lít)',
   product: 'Sản phẩm',
   dosage: 'Liều lượng',
+  itemId: 'Sản phẩm',
+  warehouseId: 'Kho',
+  qualityGrade: 'Phân loại',
+  certification: 'Chứng nhận',
+  isPublic: 'Công khai truy xuất',
 };
 
 export const activityIcons: Record<ActivityType, string> = {

@@ -3,7 +3,7 @@
 import * as React from 'react';
 
 export interface ToastProps {
-  message: string | null;
+  message: React.ReactNode | null;
   onClose: () => void;
   variant?: 'error' | 'success';
 }
@@ -33,11 +33,26 @@ export function Toast({ message, onClose, variant = 'error' }: ToastProps) {
 }
 
 export function useToast() {
-  const [message, setMessage] = React.useState<string | null>(null);
-  const showToast = React.useCallback((nextMessage: string | null) => setMessage(nextMessage), []);
-  const closeToast = React.useCallback(() => setMessage(null), []);
+  const [toast, setToast] = React.useState<{
+    message: React.ReactNode | null;
+    variant: 'error' | 'success';
+  }>({
+    message: null,
+    variant: 'error',
+  });
+  const showToast = React.useCallback(
+    (nextMessage: React.ReactNode | null, variant: 'error' | 'success' = 'error') => {
+      setToast({ message: nextMessage, variant });
+    },
+    [],
+  );
+  const closeToast = React.useCallback(
+    () => setToast((curr) => ({ ...curr, message: null })),
+    [],
+  );
   return {
-    message,
+    message: toast.message,
+    variant: toast.variant,
     showToast,
     closeToast,
   };

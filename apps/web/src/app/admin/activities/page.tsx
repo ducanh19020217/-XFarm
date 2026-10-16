@@ -1,7 +1,9 @@
 'use client';
 
 import * as React from 'react';
+import Link from 'next/link';
 import { Plus } from 'lucide-react';
+import { ActivityType } from '@xfarm/shared';
 import { DataTable, FormDialog, PageHeader, Toast, useToast, Button } from '@xfarm/ui';
 import { apiFetch, ApiError, isAbortError } from '@/lib/api';
 import { useAdminUser } from '../admin-user-context';
@@ -18,7 +20,7 @@ import type {
 } from './_components/types';
 
 export default function ActivitiesPage() {
-  const { message, showToast, closeToast } = useToast();
+  const { message, variant, showToast, closeToast } = useToast();
   const user = useAdminUser();
   const [activities, setActivities] = React.useState<ActivityRecord[]>([]);
   const [areas, setAreas] = React.useState<ActivityArea[]>([]);
@@ -101,7 +103,7 @@ export default function ActivitiesPage() {
   };
   return (
     <div className="space-y-6">
-      <Toast message={message} onClose={closeToast} />
+      <Toast message={message} onClose={closeToast} variant={variant} />
       <PageHeader
         title="Nhật ký sản xuất"
         description="Ghi chép hoạt động canh tác, chăn nuôi và thủy sản"
@@ -142,9 +144,30 @@ export default function ActivitiesPage() {
         <ActivityForm
           areas={areas}
           cycles={cycles}
-          onSaved={async () => {
+          onSaved={async (created) => {
             setFormOpen(false);
             await loadActivities();
+            if (
+              created?.type === ActivityType.HARVEST ||
+              created?.harvestLot ||
+              created?.harvestLotId
+            ) {
+              const lotId = created?.harvestLot?.id ?? created?.harvestLotId;
+              showToast(
+                <span>
+                  Đã ghi nhật ký thu hoạch thành công.{' '}
+                  <Link
+                    href={lotId ? `/admin/harvest-lots/${lotId}` : '/admin/harvest-lots'}
+                    className="font-bold underline underline-offset-2 ml-1"
+                  >
+                    {lotId ? 'Xem lô thu hoạch vừa tạo' : 'Xem danh sách lô thu hoạch'}
+                  </Link>
+                </span>,
+                'success',
+              );
+            } else {
+              showToast('Lưu nhật ký thành công', 'success');
+            }
           }}
           onCancel={() => setFormOpen(false)}
         />
