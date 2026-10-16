@@ -126,6 +126,44 @@ export enum AlertType {
   LOT_EXPIRED = 'LOT_EXPIRED',
 }
 
+export enum PayType {
+  DAILY = 'DAILY',
+  MONTHLY = 'MONTHLY',
+  PIECE = 'PIECE',
+}
+
+export const PAY_TYPE_LABELS: Record<PayType, string> = {
+  [PayType.DAILY]: 'Theo ngày',
+  [PayType.MONTHLY]: 'Theo tháng',
+  [PayType.PIECE]: 'Theo sản phẩm',
+};
+
+export enum TaskStatus {
+  TODO = 'TODO',
+  IN_PROGRESS = 'IN_PROGRESS',
+  DONE = 'DONE',
+  CANCELLED = 'CANCELLED',
+}
+
+export const TASK_STATUS_LABELS: Record<TaskStatus, string> = {
+  [TaskStatus.TODO]: 'Chưa thực hiện',
+  [TaskStatus.IN_PROGRESS]: 'Đang thực hiện',
+  [TaskStatus.DONE]: 'Hoàn thành',
+  [TaskStatus.CANCELLED]: 'Đã hủy',
+};
+
+export enum PayrollStatus {
+  DRAFT = 'DRAFT',
+  APPROVED = 'APPROVED',
+  PAID = 'PAID',
+}
+
+export const PAYROLL_STATUS_LABELS: Record<PayrollStatus, string> = {
+  [PayrollStatus.DRAFT]: 'Bản nháp',
+  [PayrollStatus.APPROVED]: 'Đã duyệt',
+  [PayrollStatus.PAID]: 'Đã thanh toán',
+};
+
 export interface Paginated<T> {
   data: T[];
   total: number;
