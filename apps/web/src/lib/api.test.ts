@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { apiFetch } from './api';
+import { apiFetch, isAbortError } from './api';
 
 // Cùng nguồn URL với api.ts để test không phụ thuộc cổng trong .env (mỗi slot AgentHub dùng cổng riêng).
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4100/api/v1';
@@ -124,5 +124,22 @@ describe('apiFetch client', () => {
 
     expect(refreshCount).toBe(1);
     expect(results).toHaveLength(3);
+  });
+
+  it('giữ nguyên lỗi mạng khi trang chưa unload', async () => {
+    const networkError = new TypeError('Failed to fetch');
+    global.fetch = vi.fn().mockRejectedValue(networkError);
+
+    await expect(apiFetch('/users')).rejects.toBe(networkError);
+  });
+
+  it('chuẩn hóa lỗi fetch thành AbortError khi trang đang unload', async () => {
+    global.fetch = vi.fn().mockRejectedValue(new TypeError('Failed to fetch'));
+    window.dispatchEvent(new Event('pagehide'));
+
+    const error = await apiFetch('/users').catch((reason) => reason);
+
+    expect(isAbortError(error)).toBe(true);
+    expect(error).toMatchObject({ name: 'AbortError' });
   });
 });

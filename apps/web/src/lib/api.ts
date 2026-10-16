@@ -12,11 +12,41 @@ export class ApiError extends Error {
   }
 }
 
+export class ApiAbortError extends Error {
+  constructor() {
+    super('Yêu cầu đã bị hủy');
+    this.name = 'AbortError';
+  }
+}
+
 export function isAbortError(error: unknown): boolean {
-  return error instanceof DOMException && error.name === 'AbortError';
+  return (
+    (error instanceof DOMException && error.name === 'AbortError') ||
+    (error instanceof Error && error.name === 'AbortError')
+  );
 }
 
 let refreshPromise: Promise<boolean> | null = null;
+let isPageUnloading = false;
+
+if (typeof window !== 'undefined') {
+  const markPageUnloading = () => {
+    isPageUnloading = true;
+  };
+  window.addEventListener('pagehide', markPageUnloading);
+  window.addEventListener('beforeunload', markPageUnloading);
+}
+
+async function fetchWithAbortHandling(input: RequestInfo | URL, init: RequestInit) {
+  try {
+    return await fetch(input, init);
+  } catch (error) {
+    if (isPageUnloading || init.signal?.aborted) {
+      throw new ApiAbortError();
+    }
+    throw error;
+  }
+}
 
 function refreshSession(): Promise<boolean> {
   if (!refreshPromise) {
@@ -55,7 +85,7 @@ export async function apiFetch<T = unknown>(
     },
   };
 
-  let response = await fetch(url, config);
+  let response = await fetchWithAbortHandling(url, config);
 
   // If 401 and not an auth endpoint, attempt token refresh once
   if (
@@ -66,7 +96,7 @@ export async function apiFetch<T = unknown>(
     try {
       if (await refreshSession()) {
         // Retry the original request once
-        response = await fetch(url, config);
+        response = await fetchWithAbortHandling(url, config);
       } else if (typeof window !== 'undefined') {
         window.location.assign('/login');
       }
