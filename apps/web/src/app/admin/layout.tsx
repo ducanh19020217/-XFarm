@@ -278,6 +278,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     </div>
   );
 
+  const isMobileApp = pathname?.startsWith('/admin/m');
+
+  if (isMobileApp) {
+    return <AdminUserProvider user={user}>{children}</AdminUserProvider>;
+  }
+
   return (
     <AdminUserProvider user={user}>
       <div className="flex min-h-screen bg-slate-50 dark:bg-slate-900">
