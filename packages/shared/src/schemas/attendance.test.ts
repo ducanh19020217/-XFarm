@@ -92,6 +92,67 @@ describe('attendance schemas', () => {
     expect(updated.notes).toBe('Về sớm 30 phút có phép');
   });
 
+  it('parses createAttendanceSchema with null fields from web client', () => {
+    const input = {
+      employeeId: 'emp-1',
+      date: '2026-10-16',
+      hours: 8,
+      checkIn: null,
+      checkOut: null,
+      cycleId: null,
+      pieceQty: null,
+      notes: null,
+      clientId: null,
+    };
+    const parsed = createAttendanceSchema.parse(input);
+    expect(parsed.employeeId).toBe('emp-1');
+    expect(parsed.hours).toBe(8);
+    expect(parsed.checkIn).toBeNull();
+    expect(parsed.checkOut).toBeNull();
+    expect(parsed.cycleId).toBeNull();
+    expect(parsed.pieceQty).toBeNull();
+    expect(parsed.notes).toBeNull();
+    expect(parsed.clientId).toBeNull();
+  });
+
+  it('supports updating attendance with null values to clear fields', () => {
+    const payload = {
+      cycleId: null,
+      pieceQty: null,
+      notes: null,
+      checkIn: null,
+      checkOut: null,
+      hours: 0,
+    };
+    const updated = updateAttendanceSchema.parse(payload);
+    expect(updated.cycleId).toBeNull();
+    expect(updated.pieceQty).toBeNull();
+    expect(updated.notes).toBeNull();
+    expect(updated.checkIn).toBeNull();
+    expect(updated.checkOut).toBeNull();
+    expect(updated.hours).toBe(0);
+  });
+
+  it('parses checkIn and checkOut schemas with null and empty values', () => {
+    const checkIn = checkInSchema.parse({
+      cycleId: null,
+      notes: null,
+      clientId: null,
+      employeeId: null,
+    });
+    expect(checkIn.cycleId).toBeNull();
+    expect(checkIn.notes).toBeNull();
+
+    const checkOut = checkOutSchema.parse({
+      cycleId: null,
+      pieceQty: null,
+      notes: null,
+    });
+    expect(checkOut.cycleId).toBeNull();
+    expect(checkOut.pieceQty).toBeNull();
+    expect(checkOut.notes).toBeNull();
+  });
+
   it('parses queryAttendanceSchema with filters', () => {
     const query = queryAttendanceSchema.parse({
       employeeId: 'emp-1',
