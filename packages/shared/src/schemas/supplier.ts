@@ -3,11 +3,12 @@ import { optionalString } from './helpers';
 import { paginationSchema } from './pagination';
 
 export const createSupplierSchema = z.object({
-  code: z.string().min(1, 'Mã nhà cung cấp không được để trống'),
+  code: optionalString(),
   name: z.string().min(1, 'Tên nhà cung cấp không được để trống'),
   phone: optionalString(),
   address: optionalString(),
   taxCode: optionalString(),
+  isActive: z.boolean().optional(),
 });
 export const updateSupplierSchema = createSupplierSchema.partial();
 export const querySupplierSchema = paginationSchema;

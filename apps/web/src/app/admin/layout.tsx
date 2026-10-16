@@ -78,7 +78,7 @@ const navItems: NavItem[] = [
     icon: Calendar,
     isReady: true,
   },
-  { title: 'Kho', href: '/admin/inventory', icon: Boxes, isReady: false },
+  { title: 'Kho', href: '/admin/inventory/items', icon: Boxes, isReady: true },
   { title: 'Mua hàng', href: '/admin/purchase-orders', icon: ShoppingCart, isReady: false },
   { title: 'Cảnh báo', href: '/admin/alerts', icon: Boxes, isReady: false },
   {
