@@ -96,7 +96,6 @@ describe('Trace Timeline Utilities', () => {
   describe('formatTimeline', () => {
     it('handles empty timeline array gracefully', () => {
       expect(formatTimeline([])).toEqual([]);
-      // @ts-expect-error test undefined input
       expect(formatTimeline(undefined)).toEqual([]);
     });
 
@@ -142,7 +141,7 @@ describe('Trace Timeline Utilities', () => {
     });
 
     it('ensures NO employee or financial information is leaked in output', () => {
-      const items: any[] = [
+      const items: Array<Record<string, unknown>> = [
         {
           id: 'act-1',
           type: ActivityType.FERTILIZING,
@@ -158,7 +157,7 @@ describe('Trace Timeline Utilities', () => {
         },
       ];
 
-      const result = formatTimeline(items);
+      const result = formatTimeline(items as unknown as PublicTimelineItem[]);
       const serialized = JSON.stringify(result);
 
       expect(serialized).not.toContain('Trần Văn Nhân Viên');
