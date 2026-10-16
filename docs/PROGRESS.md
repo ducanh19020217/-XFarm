@@ -182,7 +182,8 @@ Bộ UI E2E hiện có 8 kịch bản, chạy tuần tự một worker. Global s
 ### 1. Việc đã làm
 - Bổ sung Playwright acceptance qua giao diện tại `apps/web/e2e/phase2-acceptance.spec.ts`: tạo vật tư, nhập 10 kg, ghi nhật ký bón phân dùng 3 kg và xác nhận tồn 7 kg; xuất vượt tồn bị chặn; PO nhận một phần hiển thị `Nhận một phần`.
 - Sửa trang Phiếu kho không gọi API với `pageSize=200` vượt giới hạn; dùng `pageSize=100` hợp lệ.
-- Ổn định selector trạng thái PO và timeout/retry Playwright cho dev server tải chậm.
+- Bật lại và ổn định toàn bộ test Playwright GĐ2: cảnh báo, mua hàng, vật tư trong nhật ký và tồn kho; test dùng tên/SKU duy nhất và bộ lọc tìm kiếm tồn kho.
+- Bổ sung tìm kiếm tồn kho theo SKU/tên ở API `/stock/balances`; chuông cảnh báo cập nhật ngay sau khi chạy kiểm tra.
 - Kiểm tra lại `docs/DECISIONS.md`: mã quyết định liên tục từ `DECISION-001` đến `DECISION-011`, không còn trùng.
 
 ### 2. Cách chạy và nghiệm thu
@@ -190,8 +191,8 @@ Bộ UI E2E hiện có 8 kịch bản, chạy tuần tự một worker. Global s
 pnpm test:ui
 pnpm --filter @xfarm/web exec playwright test e2e/phase2-acceptance.spec.ts
 ```
-`pnpm test:ui` chạy toàn bộ UI hai lượt liên tiếp, đều exit 0; acceptance GĐ2 pass. Bộ UI có một số test deferred từ task chưa merge (`alerts`, hai test phụ tồn kho/vật tư), được ghi rõ bằng `fixme`.
+Các spec GĐ2 và acceptance chạy riêng đều pass; không còn test `fixme` hoặc `skip` trong bộ UI GĐ1/GĐ2. Hai lượt full `pnpm test:ui` đã thử nhưng chưa exit 0 do dev server/API slot quá tải và dữ liệu cảnh báo tích lũy gây timeout ở `alerts.spec.ts`/`rbac.spec.ts`/`areas.spec.ts`.
 
 ### 3. Điểm còn lo ngại
-- Danh sách tồn kho và lựa chọn vật tư hiện phân trang 100 bản ghi; các test phụ tạo nhiều dữ liệu có thể cần cơ chế tìm kiếm/phân trang trong form để nghiệm thu độc lập ở quy mô lớn.
-- Dev server đôi lúc chậm khi chạy toàn bộ Playwright tuần tự; cấu hình retry 1 lần và timeout UI 60 giây (smoke 120 giây) giúp giảm lỗi transient.
+- Các form chọn vật tư vẫn tải danh sách theo nhiều trang; với dữ liệu cực lớn có thể cần combobox tìm kiếm riêng thay cho danh sách `<select>`.
+- Dev server đôi lúc chậm khi chạy toàn bộ Playwright tuần tự; timeout UI 60 giây (smoke 120 giây) vẫn cần thiết, nhưng Playwright không còn bật retry mặc định để che lỗi flaky.

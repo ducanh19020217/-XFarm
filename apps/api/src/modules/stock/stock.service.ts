@@ -24,6 +24,10 @@ export class StockService {
     const conditions = [Prisma.sql`1 = 1`];
     if (query.warehouseId) conditions.push(Prisma.sql`b."warehouseId" = ${query.warehouseId}`);
     if (query.itemId) conditions.push(Prisma.sql`b."itemId" = ${query.itemId}`);
+    if (query.search) {
+      const searchPattern = `%${query.search}%`;
+      conditions.push(Prisma.sql`(i.sku ILIKE ${searchPattern} OR i.name ILIKE ${searchPattern})`);
+    }
     if (query.category) conditions.push(Prisma.sql`i."category"::text = ${query.category}`);
     if (query.lotCode) conditions.push(Prisma.sql`l."lotCode" ILIKE ${`%${query.lotCode}%`}`);
     if (!query.includeZero) conditions.push(Prisma.sql`b.quantity <> 0`);

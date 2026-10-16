@@ -50,12 +50,24 @@ export default function StockDocumentsPage() {
       })
       .catch(() => {});
 
-    apiFetch<{ data: ItemRecord[] } | ItemRecord[]>('/items?page=1&pageSize=100')
-      .then((res) => {
-        if (!active) return;
-        setItems(Array.isArray(res) ? res : res?.data || []);
-      })
-      .catch(() => {});
+    const loadAllItems = async () => {
+      const pageSize = 100;
+      const allItems: ItemRecord[] = [];
+      let page = 1;
+      let total = Number.POSITIVE_INFINITY;
+      while (allItems.length < total) {
+        const res = await apiFetch<{ data: ItemRecord[]; total?: number } | ItemRecord[]>(
+          `/items?page=${page}&pageSize=${pageSize}`,
+        );
+        const pageItems = Array.isArray(res) ? res : res?.data || [];
+        allItems.push(...pageItems);
+        total = Array.isArray(res) ? allItems.length : (res.total ?? allItems.length);
+        if (pageItems.length < pageSize) break;
+        page += 1;
+      }
+      if (active) setItems(allItems);
+    };
+    loadAllItems().catch(() => {});
 
     return () => {
       active = false;

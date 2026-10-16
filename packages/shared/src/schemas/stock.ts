@@ -72,6 +72,7 @@ export const stockBalanceQuerySchema = paginationSchema.extend({
   warehouseId: optionalString(),
   category: z.string().optional(),
   itemId: optionalString(),
+  search: optionalString(),
   lotCode: optionalString(),
   includeZero: z.coerce.boolean().default(false),
 });

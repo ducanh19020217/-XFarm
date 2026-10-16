@@ -4,18 +4,6 @@ process.loadEnvFile?.('../../.env');
 const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4100/api/v1';
 
 test('tạo PO 2 dòng, đặt hàng, nhận một phần và nhận nốt', async ({ page, errors }) => {
-  // Kiểm tra API backend purchase-orders đã sẵn sàng chưa (task p2-api-purchase chạy song song)
-  const apiCheck = await fetch(`${apiBase}/purchase-orders`, {
-    headers: { 'Content-Type': 'application/json' },
-  }).catch(() => null);
-
-  if (!apiCheck || apiCheck.status === 404) {
-    test.fixme(
-      true,
-      'API purchase-orders chưa merge vào nhánh (task p2-api-purchase chạy song song)',
-    );
-  }
-
   // Helper lấy tổng tồn kho hiện tại của một mặt hàng qua API
   const getStockQty = async (itemId: string): Promise<number> => {
     if (!itemId) return 0;

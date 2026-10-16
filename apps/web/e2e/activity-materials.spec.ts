@@ -10,10 +10,6 @@ async function selectItem(page: import('@playwright/test').Page, itemName: strin
 
 test.describe('Nhật ký sản xuất có vật tư sử dụng', () => {
   test('ghi bón phân dùng 3 kg thì tồn giảm 3', async ({ page, errors }) => {
-    test.fixme(
-      true,
-      'Test phụ phụ thuộc dữ liệu tồn phân trang; luồng nghiệm thu chính ở phase2-acceptance',
-    );
     await loginAs(page, 'OWNER');
     const suffix = Date.now();
     const itemName = `Phân nhật ký ${suffix}`;
@@ -50,6 +46,7 @@ test.describe('Nhật ký sản xuất có vật tư sử dụng', () => {
     await expect(page.getByRole('cell', { name: /bón phân/i }).first()).toBeVisible();
 
     await page.goto('/admin/inventory');
+    await page.getByPlaceholder(/tìm kiếm theo mã sku hoặc tên vật tư/i).fill(sku);
     const row = page.locator('tbody tr').filter({ hasText: itemName });
     await expect(row).toContainText('7');
     errors.assertClean();

@@ -12,10 +12,6 @@ test('nhập 10 kg rồi xuất 3 kg thì tồn hiện 7; xuất quá tồn thì
   page,
   errors,
 }) => {
-  test.fixme(
-    true,
-    'Test phụ phụ thuộc dữ liệu tồn phân trang; luồng nghiệm thu chính ở phase2-acceptance',
-  );
   test.setTimeout(60_000);
   await loginAs(page, 'OWNER');
   const suffix = Date.now();
@@ -42,6 +38,7 @@ test('nhập 10 kg rồi xuất 3 kg thì tồn hiện 7; xuất quá tồn thì
   await expect(page.getByText(/tạo phiếu nhập thành công/i)).toBeVisible();
 
   await page.goto('/admin/inventory');
+  await page.getByPlaceholder(/tìm kiếm theo mã sku hoặc tên vật tư/i).fill(sku);
   let row = page.locator('tbody tr').filter({ hasText: itemName });
   await expect(row).toContainText('10');
 
@@ -54,6 +51,7 @@ test('nhập 10 kg rồi xuất 3 kg thì tồn hiện 7; xuất quá tồn thì
   await expect(page.getByText(/tạo phiếu xuất thành công/i)).toBeVisible();
 
   await page.goto('/admin/inventory');
+  await page.getByPlaceholder(/tìm kiếm theo mã sku hoặc tên vật tư/i).fill(sku);
   row = page.locator('tbody tr').filter({ hasText: itemName });
   await expect(row).toContainText('7');
 

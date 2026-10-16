@@ -56,6 +56,7 @@ test.describe('Nghiệm thu GĐ2 qua giao diện', () => {
     await expect(page.getByText(itemName).first()).toBeVisible();
 
     await page.goto('/admin/inventory');
+    await page.getByPlaceholder(/tìm kiếm theo mã sku hoặc tên vật tư/i).fill(sku);
     const balanceRow = page.locator('tbody tr').filter({ hasText: itemName });
     await expect(balanceRow).toContainText('7');
     await expect(balanceRow).toContainText('kg');

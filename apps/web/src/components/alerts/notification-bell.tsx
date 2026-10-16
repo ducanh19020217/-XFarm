@@ -47,8 +47,13 @@ export function NotificationBell() {
     fetchCount();
     const interval = setInterval(fetchCount, 60000);
 
-    const handleAlertsUpdated = () => {
-      fetchCount();
+    const handleAlertsUpdated = (event: Event) => {
+      const delta = (event as CustomEvent<{ unreadDelta?: number }>).detail?.unreadDelta;
+      if (typeof delta === 'number') {
+        setUnreadCount((count) => Math.max(0, count + delta));
+      } else {
+        fetchCount();
+      }
       if (isOpen) {
         fetchRecent();
       }
@@ -101,7 +106,6 @@ export function NotificationBell() {
       setRecentAlerts((prev) =>
         prev.map((a) => (a.id === id ? { ...a, readAt: new Date().toISOString() } : a)),
       );
-      setUnreadCount((c) => Math.max(0, c - 1));
     } catch {
       // Ignore mark read errors
     }

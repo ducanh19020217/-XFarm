@@ -17,29 +17,25 @@ export const ACTIVITY_CATEGORY_SUGGESTIONS: Partial<Record<ActivityType, string>
 
 export async function fetchAvailableItems(): Promise<AvailableItem[]> {
   try {
-    const res = await apiFetch<
-      | {
-          data: Array<{
-            itemId: string;
-            itemSku?: string;
-            itemName?: string;
-            category?: string;
-            unit?: string;
-            quantity?: number;
-            warehouseId?: string;
-          }>;
-        }
-      | Array<{
-          itemId: string;
-          itemSku?: string;
-          itemName?: string;
-          category?: string;
-          unit?: string;
-          quantity?: number;
-          warehouseId?: string;
-        }>
-    >('/stock/balances?pageSize=100');
-    const rawBalances = Array.isArray(res) ? res : res?.data || [];
+    type Balance = {
+      itemId: string;
+      itemSku?: string;
+      itemName?: string;
+      category?: string;
+      unit?: string;
+      quantity?: number;
+      warehouseId?: string;
+    };
+    const rawBalances: Balance[] = [];
+    for (let page = 1; ; page += 1) {
+      const res = await apiFetch<{ data: Balance[]; total?: number } | Balance[]>(
+        `/stock/balances?page=${page}&pageSize=100`,
+      );
+      const pageBalances = Array.isArray(res) ? res : res?.data || [];
+      rawBalances.push(...pageBalances);
+      const total = Array.isArray(res) ? rawBalances.length : (res.total ?? rawBalances.length);
+      if (pageBalances.length < 100 || rawBalances.length >= total) break;
+    }
     if (rawBalances.length > 0) {
       const itemMap = new Map<string, AvailableItem>();
       for (const b of rawBalances) {
