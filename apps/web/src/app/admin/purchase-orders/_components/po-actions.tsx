@@ -22,17 +22,18 @@ export function POActions({ status, role, onOrder, onCancel, onReceive, onPay }:
   const allowReceive = canReceivePO(role);
   const allowPay = canPayPO(role);
 
-  const payButton = allowPay && status !== PurchaseOrderStatus.CANCELLED && onPay ? (
-    <Button
-      type="button"
-      variant="outline"
-      onClick={onPay}
-      className="border-emerald-600 text-emerald-700 hover:bg-emerald-50"
-    >
-      <DollarSign className="mr-1.5 h-4 w-4" />
-      Trả tiền
-    </Button>
-  ) : null;
+  const payButton =
+    allowPay && status !== PurchaseOrderStatus.CANCELLED && onPay ? (
+      <Button
+        type="button"
+        variant="outline"
+        onClick={onPay}
+        className="border-emerald-600 text-emerald-700 hover:bg-emerald-50"
+      >
+        <DollarSign className="mr-1.5 h-4 w-4" />
+        Trả tiền
+      </Button>
+    ) : null;
 
   if (status === PurchaseOrderStatus.DRAFT) {
     if (!allowCancel && !allowOrder && !payButton) return null;

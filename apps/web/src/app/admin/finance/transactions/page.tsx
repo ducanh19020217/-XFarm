@@ -229,7 +229,9 @@ export default function TransactionsPage() {
 
   const openCreateDialog = () => {
     setEditingTx(null);
-    setFormType(typeFilter === TransactionType.INCOME ? TransactionType.INCOME : TransactionType.EXPENSE);
+    setFormType(
+      typeFilter === TransactionType.INCOME ? TransactionType.INCOME : TransactionType.EXPENSE,
+    );
     setFormCategoryId('');
     setFormAmount(0);
     setFormDate(new Date().toISOString().split('T')[0]);
@@ -366,7 +368,11 @@ export default function TransactionsPage() {
                 : 'bg-rose-100 text-rose-800 dark:bg-rose-950/40 dark:text-rose-400'
             }`}
           >
-            {isIncome ? <ArrowDownRight className="h-3 w-3" /> : <ArrowUpRight className="h-3 w-3" />}
+            {isIncome ? (
+              <ArrowDownRight className="h-3 w-3" />
+            ) : (
+              <ArrowUpRight className="h-3 w-3" />
+            )}
             {isIncome ? 'Thu' : 'Chi'}
           </span>
         );
@@ -402,7 +408,9 @@ export default function TransactionsPage() {
         return (
           <span
             className={`font-semibold ${
-              isIncome ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
+              isIncome
+                ? 'text-emerald-600 dark:text-emerald-400'
+                : 'text-rose-600 dark:text-rose-400'
             }`}
           >
             {isIncome ? '+' : '-'}
@@ -437,7 +445,8 @@ export default function TransactionsPage() {
           );
         }
         if (poId || refType === 'PurchaseOrder' || refType === 'PO') {
-          const targetId = poId || (refType === 'PurchaseOrder' || refType === 'PO' ? refId : undefined);
+          const targetId =
+            poId || (refType === 'PurchaseOrder' || refType === 'PO' ? refId : undefined);
           return (
             <Link
               href={targetId ? `/admin/purchase-orders/${targetId}` : '/admin/purchase-orders'}
@@ -472,7 +481,10 @@ export default function TransactionsPage() {
       header: 'Ghi chú',
       accessorKey: 'notes',
       cell: ({ row }) => (
-        <span className="text-xs text-slate-500 max-w-[150px] truncate block" title={row.original.notes || ''}>
+        <span
+          className="text-xs text-slate-500 max-w-[150px] truncate block"
+          title={row.original.notes || ''}
+        >
           {row.original.notes || '-'}
         </span>
       ),
@@ -484,11 +496,7 @@ export default function TransactionsPage() {
         const isAutomatic = Boolean(row.original.refType);
         // Giao dịch tự động không có nút sửa / xóa
         if (isAutomatic) {
-          return (
-            <span className="text-xs text-slate-400 italic">
-              Tự động
-            </span>
-          );
+          return <span className="text-xs text-slate-400 italic">Tự động</span>;
         }
 
         return (
@@ -804,10 +812,7 @@ export default function TransactionsPage() {
 
             <div className="space-y-1.5">
               <Label>Ảnh chứng từ (Hóa đơn / Biên lai)</Label>
-              <MultiImageUpload
-                value={formMediaIds}
-                onChange={(ids) => setFormMediaIds(ids)}
-              />
+              <MultiImageUpload value={formMediaIds} onChange={(ids) => setFormMediaIds(ids)} />
             </div>
 
             {formError && <p className="text-xs text-red-600">{formError}</p>}

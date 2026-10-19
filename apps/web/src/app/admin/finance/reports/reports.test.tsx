@@ -96,7 +96,9 @@ describe('Finance Reports Page', () => {
 
     expect(screen.getByText('Không có quyền truy cập')).toBeDefined();
     expect(
-      screen.getByText(/báo cáo tài chính, giá thành và lãi lỗ mùa vụ bị ẩn đối với nhân viên bán hàng/i),
+      screen.getByText(
+        /báo cáo tài chính, giá thành và lãi lỗ mùa vụ bị ẩn đối với nhân viên bán hàng/i,
+      ),
     ).toBeDefined();
   });
 
@@ -158,7 +160,9 @@ describe('Finance Reports Page', () => {
     fireEvent.click(detailBtn);
 
     await waitFor(() => {
-      expect(screen.getByText(/Chi tiết giá thành & Lãi lỗ mùa vụ: Vụ Lúa Đông Xuân/i)).toBeDefined();
+      expect(
+        screen.getByText(/Chi tiết giá thành & Lãi lỗ mùa vụ: Vụ Lúa Đông Xuân/i),
+      ).toBeDefined();
       expect(screen.getByText('Phân NPK')).toBeDefined();
       expect(screen.getByText('Thuê máy cày đất')).toBeDefined();
       expect(screen.getByText('SO-2026-0001')).toBeDefined();

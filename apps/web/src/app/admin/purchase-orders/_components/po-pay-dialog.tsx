@@ -66,7 +66,9 @@ export function POPayDialog({
     }
 
     if (amount > remaining) {
-      setError(`Số tiền thanh toán không được vượt quá số tiền còn lại (${formatCurrency(remaining)})`);
+      setError(
+        `Số tiền thanh toán không được vượt quá số tiền còn lại (${formatCurrency(remaining)})`,
+      );
       return;
     }
 

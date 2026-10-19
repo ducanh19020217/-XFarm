@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import Link from 'next/link';
 import { PaymentMethod } from '@xfarm/shared';
 import { Button, Input, Label } from '@xfarm/ui';
 import { CreditCard, CheckCircle2 } from 'lucide-react';
@@ -129,7 +130,33 @@ export function PaymentRecordCard({ order, onPaymentSuccess, userRole }: Payment
                       {paymentMethodLabels[p.method] || p.method}
                     </td>
                     <td className="py-2 px-3 text-slate-500">
-                      {p.transactionId || p.notes || '—'}
+                      {p.notes ? (
+                        <div>
+                          <div>{p.notes}</div>
+                          {p.transactionId && (
+                            <div className="text-[10px] text-slate-400">
+                              GD:{' '}
+                              <Link
+                                href="/admin/finance/transactions"
+                                className="text-emerald-600 hover:underline dark:text-emerald-400"
+                              >
+                                {p.transactionId}
+                              </Link>
+                            </div>
+                          )}
+                        </div>
+                      ) : p.transactionId ? (
+                        <div className="text-xs">
+                          <Link
+                            href="/admin/finance/transactions"
+                            className="text-emerald-600 hover:underline dark:text-emerald-400"
+                          >
+                            {p.transactionId}
+                          </Link>
+                        </div>
+                      ) : (
+                        '—'
+                      )}
                     </td>
                     <td className="py-2 px-3 text-right font-semibold text-emerald-700 dark:text-emerald-400">
                       {formatCurrency(p.amount)}

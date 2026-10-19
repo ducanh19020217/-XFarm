@@ -84,7 +84,8 @@ describe('Finance Categories Tree & Lock System Category', () => {
   });
 
   it('mở form tạo danh mục mới và gửi request POST', async () => {
-    const fetchSpy = vi.spyOn(api, 'apiFetch')
+    const fetchSpy = vi
+      .spyOn(api, 'apiFetch')
       .mockResolvedValueOnce({ data: mockCategories })
       .mockResolvedValueOnce({ data: { id: 'new-cat', name: 'Chi phí điện nước' } })
       .mockResolvedValueOnce({ data: mockCategories });

@@ -2,23 +2,8 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import {
-  AlertTriangle,
-  ArrowRight,
-  Clock,
-  DollarSign,
-  ExternalLink,
-  Users,
-} from 'lucide-react';
-import {
-  Button,
-  DataTable,
-  Input,
-  PageHeader,
-  StatusBadge,
-  Toast,
-  useToast,
-} from '@xfarm/ui';
+import { AlertTriangle, ArrowRight, Clock, DollarSign, ExternalLink, Users } from 'lucide-react';
+import { Button, DataTable, Input, PageHeader, StatusBadge, Toast, useToast } from '@xfarm/ui';
 import type { ColumnDef } from '@tanstack/react-table';
 import { apiFetch, ApiError } from '@/lib/api';
 
@@ -204,9 +189,7 @@ export default function ReceivablesPage() {
       cell: ({ row }) => (
         <span
           className={`font-bold ${
-            row.original.debt > 0
-              ? 'text-amber-600 dark:text-amber-400'
-              : 'text-slate-500'
+            row.original.debt > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-slate-500'
           }`}
         >
           {formatVND(row.original.debt)}
@@ -331,9 +314,7 @@ export default function ReceivablesPage() {
           asChild
           className="text-xs text-emerald-700 hover:bg-emerald-50"
         >
-          <Link href={`/admin/sales/orders/${row.original.orderId}`}>
-            Ghi thu
-          </Link>
+          <Link href={`/admin/sales/orders/${row.original.orderId}`}>Ghi thu</Link>
         </Button>
       ),
     },
@@ -467,17 +448,9 @@ export default function ReceivablesPage() {
       {/* Content Tables */}
       <div className="rounded-lg border bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
         {activeTab === 'customer' ? (
-          <DataTable
-            columns={customerColumns}
-            data={byCustomer}
-            isLoading={loading}
-          />
+          <DataTable columns={customerColumns} data={byCustomer} isLoading={loading} />
         ) : (
-          <DataTable
-            columns={orderColumns}
-            data={filteredOrders}
-            isLoading={loading}
-          />
+          <DataTable columns={orderColumns} data={filteredOrders} isLoading={loading} />
         )}
       </div>
     </div>

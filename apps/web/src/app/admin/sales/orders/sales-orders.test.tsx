@@ -3,6 +3,7 @@ import * as React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import SalesOrderDetailPage from './[id]/page';
 import * as api from '@/lib/api';
+import { AdminUserProvider, type AdminUser } from '../../admin-user-context';
 
 vi.mock('next/navigation', () => ({
   useParams: () => ({ id: 'so-1' }),
@@ -10,6 +11,13 @@ vi.mock('next/navigation', () => ({
 }));
 
 describe('Sales Order Detail & Payment Section', () => {
+  const mockAdminUser: AdminUser = {
+    id: 'u-owner',
+    email: 'owner@xfarm.local',
+    fullName: 'Owner',
+    role: 'OWNER',
+  };
+
   beforeEach(() => {
     vi.restoreAllMocks();
   });
@@ -48,7 +56,11 @@ describe('Sales Order Detail & Payment Section', () => {
   it('hiển thị thông tin đơn bán và khu vực thanh toán với số tiền còn lại', async () => {
     vi.spyOn(api, 'apiFetch').mockResolvedValueOnce({ data: mockOrder });
 
-    render(<SalesOrderDetailPage />);
+    render(
+      <AdminUserProvider user={mockAdminUser}>
+        <SalesOrderDetailPage />
+      </AdminUserProvider>,
+    );
 
     await waitFor(() => {
       expect(screen.getByText('SO-2026-0001')).toBeDefined();
@@ -57,11 +69,12 @@ describe('Sales Order Detail & Payment Section', () => {
       expect(screen.getByRole('heading', { name: /ghi nhận thu tiền/i })).toBeDefined();
     });
 
-    expect(screen.getByText('Chưa có khoản thu nào được ghi nhận cho đơn này')).toBeDefined();
+    expect(screen.getByText(/chưa có (khoản thu|ghi nhận thanh toán) nào/i)).toBeDefined();
   });
 
   it('ghi nhận thu tiền một phần thành công', async () => {
-    const fetchSpy = vi.spyOn(api, 'apiFetch')
+    const fetchSpy = vi
+      .spyOn(api, 'apiFetch')
       .mockResolvedValueOnce({ data: mockOrder }) // initial fetch
       .mockResolvedValueOnce({ data: { id: 'pm-1', code: 'PM-2026-0001', amount: 400000 } }) // post payment
       .mockResolvedValueOnce({
@@ -82,13 +95,17 @@ describe('Sales Order Detail & Payment Section', () => {
         },
       }); // refetch
 
-    render(<SalesOrderDetailPage />);
+    render(
+      <AdminUserProvider user={mockAdminUser}>
+        <SalesOrderDetailPage />
+      </AdminUserProvider>,
+    );
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: /ghi nhận thu tiền/i })).toBeDefined();
     });
 
-    const submitBtn = screen.getByRole('button', { name: /ghi nhận thu tiền/i });
+    const submitBtn = screen.getByRole('button', { name: /ghi nhận thanh toán/i });
     fireEvent.click(submitBtn);
 
     await waitFor(() => {

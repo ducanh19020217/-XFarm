@@ -16,9 +16,7 @@ describe('Finance Transactions Page', () => {
     { id: 'cat-labor', name: 'Chi phí nhân công', type: TransactionType.EXPENSE },
   ];
 
-  const mockCycles = [
-    { id: 'cycle-1', code: 'CY-01', name: 'Vụ Lúa Xuân 2026' },
-  ];
+  const mockCycles = [{ id: 'cycle-1', code: 'CY-01', name: 'Vụ Lúa Xuân 2026' }];
 
   const mockTransactions: TransactionItem[] = [
     {
@@ -145,14 +143,16 @@ describe('Finance Transactions Page', () => {
   });
 
   it('mở form tạo giao dịch thủ công và gửi request POST thành công', async () => {
-    const fetchSpy = vi.spyOn(api, 'apiFetch').mockImplementation((url: string, opts?: RequestInit) => {
-      if (url.includes('/finance-categories')) return Promise.resolve({ data: mockCategories });
-      if (url.includes('/cycles')) return Promise.resolve({ data: mockCycles });
-      if (opts?.method === 'POST') {
-        return Promise.resolve({ data: { id: 'tx-new', code: 'TX-2026-0004' } });
-      }
-      return Promise.resolve({ data: mockTransactions, total: 3, page: 1, pageSize: 50 });
-    });
+    const fetchSpy = vi
+      .spyOn(api, 'apiFetch')
+      .mockImplementation((url: string, opts?: RequestInit) => {
+        if (url.includes('/finance-categories')) return Promise.resolve({ data: mockCategories });
+        if (url.includes('/cycles')) return Promise.resolve({ data: mockCycles });
+        if (opts?.method === 'POST') {
+          return Promise.resolve({ data: { id: 'tx-new', code: 'TX-2026-0004' } });
+        }
+        return Promise.resolve({ data: mockTransactions, total: 3, page: 1, pageSize: 50 });
+      });
 
     render(<TransactionsPage />);
 

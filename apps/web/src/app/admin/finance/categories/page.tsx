@@ -143,7 +143,13 @@ export default function FinanceCategoriesPage() {
   const openCreateDialog = (parent?: CategoryNode) => {
     setEditingCategory(null);
     setFormName('');
-    setFormType(parent ? parent.type : typeFilter !== 'ALL' ? (typeFilter as TransactionType) : TransactionType.EXPENSE);
+    setFormType(
+      parent
+        ? parent.type
+        : typeFilter !== 'ALL'
+          ? (typeFilter as TransactionType)
+          : TransactionType.EXPENSE,
+    );
     setFormParentId(parent ? parent.id : '');
     setFormIsActive(true);
     setFormError(null);
@@ -231,12 +237,10 @@ export default function FinanceCategoriesPage() {
       return n.children.some(matches);
     }
 
-    return nodes
-      .filter(matches)
-      .map((n) => ({
-        ...n,
-        children: filterNodes(n.children),
-      }));
+    return nodes.filter(matches).map((n) => ({
+      ...n,
+      children: filterNodes(n.children),
+    }));
   };
 
   const filteredCategories = filterNodes(categories);
@@ -283,9 +287,7 @@ export default function FinanceCategoriesPage() {
               <Tag className="h-4 w-4 text-slate-400 shrink-0" />
             )}
 
-            <span className="font-medium text-slate-900 dark:text-slate-100">
-              {node.name}
-            </span>
+            <span className="font-medium text-slate-900 dark:text-slate-100">{node.name}</span>
 
             {/* Badges */}
             <div className="flex items-center gap-1.5 ml-2">
@@ -367,9 +369,7 @@ export default function FinanceCategoriesPage() {
 
         {/* Children */}
         {hasChildren && isExpanded && (
-          <div>
-            {node.children.map((child) => renderTreeNode(child, depth + 1))}
-          </div>
+          <div>{node.children.map((child) => renderTreeNode(child, depth + 1))}</div>
         )}
       </div>
     );

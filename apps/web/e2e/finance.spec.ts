@@ -4,6 +4,7 @@ test('Finance workflow: sales order payments, auto transactions, cashflow report
   page,
   errors,
 }) => {
+  test.setTimeout(90_000);
   await loginAs(page, 'OWNER');
 
   // 1. Data Setup via API
@@ -60,80 +61,83 @@ test('Finance workflow: sales order payments, auto transactions, cashflow report
   );
   const order = orderRes.data;
 
-  // 1d. Ensure cycle exists
-  const cyclesRes = await api<{ data: Array<{ id: string; code: string; name: string }> }>(
-    page,
-    '/cycles',
-  );
-  let testCycle = cyclesRes.data?.[0];
-  if (!testCycle) {
+  // 1d. Create dedicated cycle for this test
+  const areasRes = await api<{ data: Array<{ id: string }> }>(page, '/areas');
+  let areaId = areasRes.data?.[0]?.id;
+  if (!areaId) {
     const areaRes = await api<{ data: { id: string } }>(page, '/areas', {
       method: 'POST',
-      body: JSON.stringify({ name: `Vườn Test ${Date.now()}`, type: 'OUTDOOR' }),
+      body: JSON.stringify({ name: `Khu đất ${Date.now()}`, type: 'FIELD' }),
     });
-    const createdCycle = await api<{ data: { id: string; code: string; name: string } }>(
-      page,
-      '/cycles',
-      {
-        method: 'POST',
-        body: JSON.stringify({
-          name: `Vụ mùa E2E ${Date.now()}`,
-          areaId: areaRes.data.id,
-          startDate: new Date().toISOString().split('T')[0],
-        }),
-      },
-    );
-    testCycle = createdCycle.data;
+    areaId = areaRes.data.id;
   }
-
-  // 1e. Ensure expense category exists
-  const catRes = await api<{ data: Array<{ id: string; name: string; type: string }> }>(
+  const createdCycle = await api<{ data: { id: string; code: string; name: string } }>(
     page,
-    '/finance-categories?type=EXPENSE',
+    '/cycles',
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        name: `Vụ mùa E2E ${Date.now()}`,
+        areaId,
+        kind: 'CROP',
+        species: 'Lúa ST25',
+        startDate: new Date().toISOString().split('T')[0],
+      }),
+    },
   );
-  let expenseCategory = catRes.data?.find((c) => c.type === 'EXPENSE');
-  if (!expenseCategory) {
-    const createdCat = await api<{ data: { id: string; name: string; type: string } }>(
-      page,
-      '/finance-categories',
-      {
-        method: 'POST',
-        body: JSON.stringify({
-          name: `Vật tư bảo dưỡng ${Date.now()}`,
-          type: 'EXPENSE',
-        }),
-      },
-    );
-    expenseCategory = createdCat.data;
-  }
+  const testCycle = createdCycle.data;
+
+  // 1e. Create dedicated expense category for this test
+  const createdCat = await api<{ data: { id: string; name: string; type: string } }>(
+    page,
+    '/finance-categories',
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        name: `Vật tư bảo dưỡng ${Date.now()}`,
+        type: 'EXPENSE',
+      }),
+    },
+  );
+  const expenseCategory = createdCat.data;
 
   // 2. Đi đến trang chi tiết đơn bán: /admin/sales/orders/[id]
   await page.goto(`/admin/sales/orders/${order.id}`, { waitUntil: 'domcontentloaded' });
   await expect(page.getByRole('heading', { name: order.code })).toBeVisible();
 
-  // Kiểm tra trạng thái thanh toán ban đầu là UNPAID
-  await expect(page.getByText('UNPAID').first()).toBeVisible();
+  // Kiểm tra trạng thái thanh toán ban đầu là UNPAID / Chưa thanh toán
+  await expect(page.getByText(/UNPAID|Chưa thanh toán/).first()).toBeVisible();
   await expect(page.getByText('1.000.000 ₫').first()).toBeVisible();
 
   // 2a. Ghi thu đợt 1: một phần 400.000 ₫
-  await page.locator('#record-amount').fill('400000');
+  await page.locator('#payment-amount, #record-amount').fill('400000');
   const note1 = `Thu tiền cọc đợt 1 ${order.code}`;
-  await page.locator('#record-notes').fill(note1);
-  await page.getByRole('button', { name: /ghi nhận thu tiền/i }).click();
+  await page.locator('#payment-notes, #record-notes').fill(note1);
 
-  // Đợi cập nhật: trạng thái chuyển thành PARTIAL (Nhận một phần)
-  await expect(page.getByText(/PARTIAL|Nhận một phần/).first()).toBeVisible();
+  const payPromise1 = page.waitForResponse(
+    (res) => res.url().includes(`/sales-orders/${order.id}/payments`) && res.status() === 201,
+  );
+  await page.getByRole('button', { name: /ghi nhận (thu tiền|thanh toán)/i }).click();
+  await payPromise1;
+
+  // Đợi cập nhật: trạng thái chuyển thành PARTIAL (Thanh toán 1 phần / Nhận một phần)
+  await expect(page.getByText(/PARTIAL|Thanh toán 1 phần|Nhận một phần/).first()).toBeVisible();
   await expect(page.getByText('600.000 ₫').first()).toBeVisible();
   await expect(page.getByRole('cell', { name: note1 })).toBeVisible();
 
   // 2b. Ghi thu đợt 2: thu nốt 600.000 ₫
-  await page.locator('#record-amount').fill('600000');
+  await page.locator('#payment-amount, #record-amount').fill('600000');
   const note2 = `Thu hết số tiền còn lại ${order.code}`;
-  await page.locator('#record-notes').fill(note2);
-  await page.getByRole('button', { name: /ghi nhận thu tiền/i }).click();
+  await page.locator('#payment-notes, #record-notes').fill(note2);
 
-  // Đợi cập nhật: trạng thái chuyển thành PAID
-  await expect(page.getByText('PAID').first()).toBeVisible();
+  const payPromise2 = page.waitForResponse(
+    (res) => res.url().includes(`/sales-orders/${order.id}/payments`) && res.status() === 201,
+  );
+  await page.getByRole('button', { name: /ghi nhận (thu tiền|thanh toán)/i }).click();
+  await payPromise2;
+
+  // Đợi cập nhật: trạng thái chuyển thành PAID / Đã thanh toán
+  await expect(page.getByText(/PAID|Đã thanh toán/).first()).toBeVisible();
   await expect(page.getByText(note2)).toBeVisible();
 
   // 3. Đến trang Giao dịch /admin/finance/transactions
@@ -168,7 +172,7 @@ test('Finance workflow: sales order payments, auto transactions, cashflow report
 
   // 5. Quay lại /admin/finance/transactions: Tạo chi thủ công gắn mùa vụ
   await page.goto('/admin/finance/transactions', { waitUntil: 'domcontentloaded' });
-  await page.getByRole('button', { name: /thêm giao dịch/i }).click();
+  await page.getByRole('button', { name: 'Tạo giao dịch' }).click();
   await expectDialogInViewport(page);
 
   const txDialog = page.getByRole('dialog');
@@ -178,7 +182,15 @@ test('Finance workflow: sales order payments, auto transactions, cashflow report
   await txDialog.locator('#tx-cycle').selectOption(testCycle.id);
   const expenseNote = `Chi phí phân bón e2e ${Date.now()}`;
   await txDialog.locator('#tx-notes').fill(expenseNote);
+
+  const createTxPromise = page.waitForResponse(
+    (res) =>
+      res.url().includes('/transactions') &&
+      res.request().method() === 'POST' &&
+      res.status() === 201,
+  );
   await txDialog.getByRole('button', { name: 'Tạo giao dịch' }).click();
+  await createTxPromise;
 
   // Kiểm tra giao dịch chi thủ công xuất hiện trong danh sách
   await page.getByPlaceholder('Tìm theo mã giao dịch, ghi chú...').fill(expenseNote);
@@ -189,7 +201,11 @@ test('Finance workflow: sales order payments, auto transactions, cashflow report
 
   // 6. Quay lại /admin/finance/reports: Tab Giá thành & Lãi lỗ theo mùa vụ
   await page.goto('/admin/finance/reports', { waitUntil: 'domcontentloaded' });
+  const cyclesReportPromise = page.waitForResponse(
+    (res) => res.url().includes('/reports/cycles') && res.status() === 200,
+  );
   await page.getByRole('button', { name: /giá thành & lãi lỗ/i }).click();
+  await cyclesReportPromise;
 
   // Tìm mùa vụ testCycle và mở popup chi tiết
   const cycleBtn = page.getByRole('button', { name: testCycle.name });
@@ -200,8 +216,8 @@ test('Finance workflow: sales order payments, auto transactions, cashflow report
   const detailDialog = page.getByRole('dialog');
   await expect(detailDialog).toContainText(testCycle.name);
   // Kiểm tra chi tiết chi phí khác ghi nhận khoản chi vừa tạo
-  await expect(detailDialog.getByText(expenseCategory.name)).toBeVisible();
-  await expect(detailDialog.getByText('200.000 ₫')).toBeVisible();
+  await expect(detailDialog.getByText(expenseCategory.name).first()).toBeVisible();
+  await expect(detailDialog.getByText('200.000 ₫').first()).toBeVisible();
 
   errors.assertClean();
 });

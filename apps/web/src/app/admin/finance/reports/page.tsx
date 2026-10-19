@@ -12,14 +12,7 @@ import {
   ResponsiveContainer,
   ComposedChart,
 } from 'recharts';
-import {
-  Calendar,
-  Eye,
-  Layers,
-  Loader2,
-  ShieldAlert,
-  Trophy,
-} from 'lucide-react';
+import { Calendar, Eye, Layers, Loader2, ShieldAlert, Trophy } from 'lucide-react';
 import {
   Button,
   DataTable,
@@ -151,53 +144,62 @@ export default function FinanceReportsPage() {
   const isDenied = user?.role === 'SALES' || user?.role === 'WORKER';
 
   // 1. Fetch Cashflow
-  const fetchCashflow = React.useCallback(async (year: number) => {
-    setCashflowLoading(true);
-    try {
-      const res = await apiFetch<{ data: MonthlyCashflowItem[]; year: number }>(
-        `/reports/cashflow?year=${year}`,
-      );
-      setCashflowData(res.data || []);
-    } catch (error) {
-      showToast(error instanceof ApiError ? error.message : 'Không thể tải báo cáo thu chi');
-    } finally {
-      setCashflowLoading(false);
-    }
-  }, [showToast]);
+  const fetchCashflow = React.useCallback(
+    async (year: number) => {
+      setCashflowLoading(true);
+      try {
+        const res = await apiFetch<{ data: MonthlyCashflowItem[]; year: number }>(
+          `/reports/cashflow?year=${year}`,
+        );
+        setCashflowData(res.data || []);
+      } catch (error) {
+        showToast(error instanceof ApiError ? error.message : 'Không thể tải báo cáo thu chi');
+      } finally {
+        setCashflowLoading(false);
+      }
+    },
+    [showToast],
+  );
 
   // 2. Fetch Cycles
-  const fetchCycles = React.useCallback(async (status: string) => {
-    setCyclesLoading(true);
-    try {
-      const query = status !== 'ALL' ? `?status=${status}` : '';
-      const res = await apiFetch<{ data: CycleReportItem[]; total: number }>(
-        `/reports/cycles${query}`,
-      );
-      setCyclesData(res.data || []);
-    } catch (error) {
-      showToast(error instanceof ApiError ? error.message : 'Không thể tải báo cáo mùa vụ');
-    } finally {
-      setCyclesLoading(false);
-    }
-  }, [showToast]);
+  const fetchCycles = React.useCallback(
+    async (status: string) => {
+      setCyclesLoading(true);
+      try {
+        const query = status !== 'ALL' ? `?status=${status}` : '';
+        const res = await apiFetch<{ data: CycleReportItem[]; total: number }>(
+          `/reports/cycles${query}`,
+        );
+        setCyclesData(res.data || []);
+      } catch (error) {
+        showToast(error instanceof ApiError ? error.message : 'Không thể tải báo cáo mùa vụ');
+      } finally {
+        setCyclesLoading(false);
+      }
+    },
+    [showToast],
+  );
 
   // 3. Fetch Top Products
-  const fetchProducts = React.useCallback(async (from?: string, to?: string) => {
-    setProductsLoading(true);
-    try {
-      const params = new URLSearchParams();
-      if (from) params.set('from', from);
-      if (to) params.set('to', to);
-      const res = await apiFetch<{ data: ProductReportItem[]; total: number; limit: number }>(
-        `/reports/products?${params.toString()}`,
-      );
-      setProductsData(res.data || []);
-    } catch (error) {
-      showToast(error instanceof ApiError ? error.message : 'Không thể tải báo cáo sản phẩm');
-    } finally {
-      setProductsLoading(false);
-    }
-  }, [showToast]);
+  const fetchProducts = React.useCallback(
+    async (from?: string, to?: string) => {
+      setProductsLoading(true);
+      try {
+        const params = new URLSearchParams();
+        if (from) params.set('from', from);
+        if (to) params.set('to', to);
+        const res = await apiFetch<{ data: ProductReportItem[]; total: number; limit: number }>(
+          `/reports/products?${params.toString()}`,
+        );
+        setProductsData(res.data || []);
+      } catch (error) {
+        showToast(error instanceof ApiError ? error.message : 'Không thể tải báo cáo sản phẩm');
+      } finally {
+        setProductsLoading(false);
+      }
+    },
+    [showToast],
+  );
 
   React.useEffect(() => {
     if (isDenied) return;
@@ -208,7 +210,17 @@ export default function FinanceReportsPage() {
     } else if (activeTab === 'products') {
       void fetchProducts(productFrom, productTo);
     }
-  }, [activeTab, cashflowYear, cyclesStatus, productFrom, productTo, isDenied, fetchCashflow, fetchCycles, fetchProducts]);
+  }, [
+    activeTab,
+    cashflowYear,
+    cyclesStatus,
+    productFrom,
+    productTo,
+    isDenied,
+    fetchCashflow,
+    fetchCycles,
+    fetchProducts,
+  ]);
 
   if (isDenied) {
     return (
@@ -220,7 +232,8 @@ export default function FinanceReportsPage() {
             Không có quyền truy cập
           </h2>
           <p className="mt-1 text-sm text-rose-600 dark:text-rose-400 max-w-md mx-auto">
-            Báo cáo tài chính, giá thành và lãi lỗ mùa vụ bị ẩn đối với nhân viên bán hàng (SALES) và công nhân (WORKER).
+            Báo cáo tài chính, giá thành và lãi lỗ mùa vụ bị ẩn đối với nhân viên bán hàng (SALES)
+            và công nhân (WORKER).
           </p>
         </div>
       </div>
@@ -261,9 +274,7 @@ export default function FinanceReportsPage() {
       header: 'Khu/lô',
       accessorKey: 'area',
       cell: ({ row }) => (
-        <span className="text-slate-700 dark:text-slate-300">
-          {row.original.area?.name || '-'}
-        </span>
+        <span className="text-slate-700 dark:text-slate-300">{row.original.area?.name || '-'}</span>
       ),
     },
     {
@@ -324,7 +335,9 @@ export default function FinanceReportsPage() {
         return (
           <span
             className={`font-bold ${
-              val >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
+              val >= 0
+                ? 'text-emerald-600 dark:text-emerald-400'
+                : 'text-rose-600 dark:text-rose-400'
             }`}
           >
             {val >= 0 ? '+' : ''}
@@ -359,10 +372,7 @@ export default function FinanceReportsPage() {
     },
   ];
 
-  const totalProductRevenue = productsData.reduce(
-    (sum, p) => sum + (Number(p.revenue) || 0),
-    0,
-  );
+  const totalProductRevenue = productsData.reduce((sum, p) => sum + (Number(p.revenue) || 0), 0);
 
   return (
     <div className="space-y-6">
@@ -490,7 +500,10 @@ export default function FinanceReportsPage() {
             ) : (
               <div className="h-80 w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <ComposedChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                  <ComposedChart
+                    data={chartData}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                  >
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                     <XAxis dataKey="name" stroke="#64748b" fontSize={12} />
                     <YAxis
@@ -505,17 +518,39 @@ export default function FinanceReportsPage() {
                     <Tooltip
                       formatter={(value: unknown, name: unknown) => [
                         formatVND(value as number),
-                        name === 'income' ? 'Khoản thu' : name === 'expense' ? 'Khoản chi' : 'Chênh lệch',
+                        name === 'income'
+                          ? 'Khoản thu'
+                          : name === 'expense'
+                            ? 'Khoản chi'
+                            : 'Chênh lệch',
                       ]}
-                      labelFormatter={(label) => `Tháng ${String(label).replace('T', '')} năm ${cashflowYear}`}
+                      labelFormatter={(label) =>
+                        `Tháng ${String(label).replace('T', '')} năm ${cashflowYear}`
+                      }
                     />
                     <Legend
                       formatter={(val) =>
-                        val === 'income' ? 'Khoản thu' : val === 'expense' ? 'Khoản chi' : 'Chênh lệch'
+                        val === 'income'
+                          ? 'Khoản thu'
+                          : val === 'expense'
+                            ? 'Khoản chi'
+                            : 'Chênh lệch'
                       }
                     />
-                    <Bar dataKey="income" name="income" fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={30} />
-                    <Bar dataKey="expense" name="expense" fill="#f43f5e" radius={[4, 4, 0, 0]} maxBarSize={30} />
+                    <Bar
+                      dataKey="income"
+                      name="income"
+                      fill="#10b981"
+                      radius={[4, 4, 0, 0]}
+                      maxBarSize={30}
+                    />
+                    <Bar
+                      dataKey="expense"
+                      name="expense"
+                      fill="#f43f5e"
+                      radius={[4, 4, 0, 0]}
+                      maxBarSize={30}
+                    />
                     <Line
                       type="monotone"
                       dataKey="net"
@@ -549,7 +584,10 @@ export default function FinanceReportsPage() {
                   {cashflowData.map((row) => {
                     const netVal = Number(row.net) || 0;
                     return (
-                      <tr key={row.month} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
+                      <tr
+                        key={row.month}
+                        className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40"
+                      >
                         <td className="py-2.5 px-3 font-medium text-slate-800 dark:text-slate-200">
                           Tháng {row.month}
                         </td>
@@ -611,11 +649,7 @@ export default function FinanceReportsPage() {
           </div>
 
           <div className="rounded-lg border bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <DataTable
-              columns={cycleColumns}
-              data={cyclesData}
-              isLoading={cyclesLoading}
-            />
+            <DataTable columns={cycleColumns} data={cyclesData} isLoading={cyclesLoading} />
           </div>
         </div>
       )}
@@ -667,9 +701,7 @@ export default function FinanceReportsPage() {
               {productsData.map((prod, index) => {
                 const rev = Number(prod.revenue) || 0;
                 const percent =
-                  totalProductRevenue > 0
-                    ? ((rev / totalProductRevenue) * 100).toFixed(1)
-                    : '0';
+                  totalProductRevenue > 0 ? ((rev / totalProductRevenue) * 100).toFixed(1) : '0';
 
                 return (
                   <div
@@ -696,7 +728,11 @@ export default function FinanceReportsPage() {
                           {prod.productName}
                         </h4>
                         <p className="text-xs text-slate-500">
-                          Đã bán: <span className="font-semibold text-slate-700 dark:text-slate-300">{prod.quantity} {prod.unit}</span> · Chiếm {percent}%
+                          Đã bán:{' '}
+                          <span className="font-semibold text-slate-700 dark:text-slate-300">
+                            {prod.quantity} {prod.unit}
+                          </span>{' '}
+                          · Chiếm {percent}%
                         </p>
                       </div>
                     </div>
@@ -721,9 +757,7 @@ export default function FinanceReportsPage() {
       >
         <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>
-              Chi tiết giá thành &amp; Lãi lỗ mùa vụ: {selectedCycle?.name}
-            </DialogTitle>
+            <DialogTitle>Chi tiết giá thành &amp; Lãi lỗ mùa vụ: {selectedCycle?.name}</DialogTitle>
             <DialogDescription>
               Mã vụ: {selectedCycle?.code} · Khu vực: {selectedCycle?.area?.name || '-'}
             </DialogDescription>
@@ -741,21 +775,27 @@ export default function FinanceReportsPage() {
                 </div>
 
                 <div className="rounded-lg bg-rose-50 p-3 border border-rose-200 dark:bg-rose-950/20 dark:border-rose-900">
-                  <span className="text-xs text-rose-700 dark:text-rose-400 block">Tổng chi phí</span>
+                  <span className="text-xs text-rose-700 dark:text-rose-400 block">
+                    Tổng chi phí
+                  </span>
                   <p className="font-bold text-rose-700 dark:text-rose-400 mt-1">
                     {formatVND(selectedCycle.totalCost)}
                   </p>
                 </div>
 
                 <div className="rounded-lg bg-emerald-50 p-3 border border-emerald-200 dark:bg-emerald-950/20 dark:border-emerald-900">
-                  <span className="text-xs text-emerald-700 dark:text-emerald-400 block">Doanh thu</span>
+                  <span className="text-xs text-emerald-700 dark:text-emerald-400 block">
+                    Doanh thu
+                  </span>
                   <p className="font-bold text-emerald-700 dark:text-emerald-400 mt-1">
                     {formatVND(selectedCycle.revenue)}
                   </p>
                 </div>
 
                 <div className="rounded-lg bg-indigo-50 p-3 border border-indigo-200 dark:bg-indigo-950/20 dark:border-indigo-900">
-                  <span className="text-xs text-indigo-700 dark:text-indigo-400 block">Lãi thuần</span>
+                  <span className="text-xs text-indigo-700 dark:text-indigo-400 block">
+                    Lãi thuần
+                  </span>
                   <p className="font-bold text-indigo-700 dark:text-indigo-400 mt-1">
                     {formatVND(selectedCycle.profit)}
                   </p>
@@ -826,7 +866,10 @@ export default function FinanceReportsPage() {
               {/* Chi tiết từng khoản doanh thu */}
               <div className="space-y-2">
                 <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 flex items-center justify-between">
-                  <span>Chi tiết doanh thu từ đơn bán ({selectedCycle.revenueDetails?.length || 0} khoản)</span>
+                  <span>
+                    Chi tiết doanh thu từ đơn bán ({selectedCycle.revenueDetails?.length || 0}{' '}
+                    khoản)
+                  </span>
                   <span className="text-xs text-emerald-600 font-bold">
                     Tổng: {formatVND(selectedCycle.revenue)}
                   </span>
