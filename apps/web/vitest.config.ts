@@ -13,5 +13,9 @@ export default defineConfig({
     exclude: ['e2e/**', 'node_modules/**', 'dist/**'],
     // test-setup.ts: jest-dom + cleanup chung; test/setup.ts: mock Leaflet cho bản đồ khu/lô.
     setupFiles: ['./src/test-setup.ts', './src/test/setup.ts'],
+    maxWorkers: process.env.VITEST_MAX_WORKERS
+      ? Number(process.env.VITEST_MAX_WORKERS) || process.env.VITEST_MAX_WORKERS
+      : 2,
+    minWorkers: 1,
   },
 });

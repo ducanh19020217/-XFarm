@@ -9,7 +9,7 @@
     "format:check": "prettier --check .",
     "lint": "pnpm format:check && turbo lint",
     "typecheck": "turbo typecheck",
-    "test": "turbo test",
+    "test": "turbo test --concurrency=2",
     "test:e2e": "turbo test:e2e",
     "test:ui": "pnpm --filter @xfarm/web test:ui",
     "db:migrate": "pnpm --filter @xfarm/db db:migrate",
