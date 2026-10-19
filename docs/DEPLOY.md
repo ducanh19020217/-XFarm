@@ -49,7 +49,8 @@ Sao lưu PostgreSQL bằng `pg_dump` vào thư mục backup đã chuẩn bị tr
 ```bash
 mkdir -p backups
 docker compose --env-file .env.production -f docker-compose.prod.yml exec -T postgres \
-  pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc > "backups/xfarm-$(date +%Y%m%d-%H%M%S).dump"
+  sh -c 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc' \
+  > "backups/xfarm-$(date +%Y%m%d-%H%M%S).dump"
 ```
 
 Khôi phục vào database đã dừng API (lệnh sẽ ghi đè dữ liệu trong database đích):
@@ -58,7 +59,7 @@ Khôi phục vào database đã dừng API (lệnh sẽ ghi đè dữ liệu tro
 docker compose --env-file .env.production -f docker-compose.prod.yml stop api
 cat backups/xfarm-YYYYMMDD-HHMMSS.dump | docker compose \
   --env-file .env.production -f docker-compose.prod.yml exec -T postgres \
-  pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --clean --if-exists
+  sh -c 'pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --clean --if-exists'
 docker compose --env-file .env.production -f docker-compose.prod.yml start api
 ```
 
