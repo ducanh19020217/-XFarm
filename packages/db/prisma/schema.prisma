@@ -187,7 +187,11 @@ model User {
   productsCreated          Product[]          @relation("ProductsCreated")
   postsCreated             Post[]             @relation("PostsCreated")
   pagesCreated             Page[]             @relation("PagesCreated")
-  customers                Customer[]         @relation("CustomersCreated")
+  customerAccounts         Customer[]         @relation("CustomerAccount")
+  customersCreated         Customer[]         @relation("CustomersCreated")
+  salesOrdersCreated       SalesOrder[]       @relation("SalesOrdersCreated")
+  paymentsCreated          Payment[]          @relation("PaymentsCreated")
+  transactionsCreated      Transaction[]      @relation("TransactionsCreated")
 
   @@map("users")
 }
@@ -694,19 +698,21 @@ model SiteSetting {
 }
 
 model Customer {
-  id        String       @id @default(cuid())
-  code      String       @unique
-  name      String
-  phone     String       @unique
-  email     String?
-  address   String?
-  type      CustomerType @default(RETAIL)
-  userId    String?
-  isActive  Boolean      @default(true)
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
+  id          String       @id @default(cuid())
+  code        String       @unique
+  name        String
+  phone       String       @unique
+  email       String?
+  address     String?
+  type        CustomerType @default(RETAIL)
+  userId      String?
+  isActive    Boolean      @default(true)
+  createdById String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 
-  user        User?        @relation("CustomersCreated", fields: [userId], references: [id])
+  user        User?        @relation("CustomerAccount", fields: [userId], references: [id])
+  createdBy   User?        @relation("CustomersCreated", fields: [createdById], references: [id], onDelete: SetNull)
   salesOrders SalesOrder[]
 
   @@index([type, isActive])
@@ -730,11 +736,13 @@ model SalesOrder {
   confirmedAt     DateTime?
   cancelledAt     DateTime?
   warehouseId     String?
+  createdById     String?
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 
   customer  Customer         @relation(fields: [customerId], references: [id])
   warehouse Warehouse?       @relation(fields: [warehouseId], references: [id])
+  createdBy User?            @relation("SalesOrdersCreated", fields: [createdById], references: [id], onDelete: SetNull)
   lines     SalesOrderLine[]
   payments  Payment[]
 
@@ -773,8 +781,12 @@ model Payment {
   paidAt        DateTime      @default(now())
   transactionId String?       @unique
   notes         String?
+  createdById   String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 
-  order SalesOrder? @relation(fields: [orderId], references: [id])
+  order     SalesOrder? @relation(fields: [orderId], references: [id])
+  createdBy User?       @relation("PaymentsCreated", fields: [createdById], references: [id], onDelete: SetNull)
 
   @@index([orderId, paidAt])
   @@map("payments")
@@ -800,23 +812,25 @@ model FinanceCategory {
 }
 
 model Transaction {
-  id         String          @id @default(cuid())
-  code       String          @unique
-  type       TransactionType
-  categoryId String
-  amount     Decimal         @db.Decimal(18, 2)
-  date       DateTime
-  cycleId    String?
-  refType    String?
-  refId      String?
-  method     PaymentMethod
-  notes      String?
-  mediaIds   String[]        @default([])
-  createdAt  DateTime        @default(now())
-  updatedAt  DateTime        @updatedAt
+  id          String          @id @default(cuid())
+  code        String          @unique
+  type        TransactionType
+  categoryId  String
+  amount      Decimal         @db.Decimal(18, 2)
+  date        DateTime
+  cycleId     String?
+  refType     String?
+  refId       String?
+  method      PaymentMethod
+  notes       String?
+  mediaIds    String[]        @default([])
+  createdById String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
 
-  category FinanceCategory @relation(fields: [categoryId], references: [id])
-  cycle    Cycle?          @relation(fields: [cycleId], references: [id], onDelete: SetNull)
+  category  FinanceCategory @relation(fields: [categoryId], references: [id])
+  cycle     Cycle?          @relation(fields: [cycleId], references: [id], onDelete: SetNull)
+  createdBy User?           @relation("TransactionsCreated", fields: [createdById], references: [id], onDelete: SetNull)
 
   @@index([date])
   @@index([cycleId])
