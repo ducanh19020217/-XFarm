@@ -22,6 +22,7 @@ import {
   Menu,
   X,
   Bell,
+  Ticket,
 } from 'lucide-react';
 import { Button, StatusBadge, Badge } from '@xfarm/ui';
 import { apiFetch, isAbortError } from '@/lib/api';
@@ -35,6 +36,7 @@ interface NavItem {
   href: string;
   icon: React.ElementType;
   isReady?: boolean;
+  exact?: boolean;
 }
 
 const navItems: NavItem[] = [
@@ -43,6 +45,7 @@ const navItems: NavItem[] = [
     href: '/admin',
     icon: LayoutDashboard,
     isReady: true,
+    exact: true,
   },
   {
     title: 'Người dùng & Phân quyền',
@@ -130,10 +133,17 @@ const navItems: NavItem[] = [
     isReady: true,
   },
   {
-    title: 'Du lịch trải nghiệm',
+    title: 'Du lịch',
     href: '/admin/tours',
     icon: Compass,
-    isReady: false,
+    isReady: true,
+    exact: true,
+  },
+  {
+    title: 'Đặt chỗ tour',
+    href: '/admin/tours/bookings',
+    icon: Ticket,
+    isReady: true,
   },
   {
     title: 'Nhân sự & Chấm công',
@@ -203,7 +213,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <nav className="space-y-1">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`);
+            const isActive = item.exact
+              ? pathname === item.href
+              : pathname === item.href || pathname?.startsWith(`${item.href}/`);
 
             if (!item.isReady) {
               return (
