@@ -41,7 +41,7 @@ describe('IoT API E2E', () => {
     const login = await request(app.getHttpServer())
       .post('/api/v1/auth/login')
       .send({ email: 'iot-owner@xfarm.local', password: 'Admin@123' });
-    cookies = login.headers['set-cookie'];
+    cookies = login.headers['set-cookie'] as unknown as string[];
     const area = await request(app.getHttpServer())
       .post('/api/v1/areas')
       .set('Cookie', cookies)

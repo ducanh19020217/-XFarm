@@ -1,7 +1,8 @@
 import {
   ForbiddenException,
+  HttpException,
+  HttpStatus,
   Injectable,
-  TooManyRequestsException,
   UnauthorizedException,
   UnprocessableEntityException,
 } from '@nestjs/common';
@@ -43,7 +44,10 @@ export class IotService {
       return;
     }
     if (current.count >= 60)
-      throw new TooManyRequestsException('Cảm biến gửi quá nhiều yêu cầu, vui lòng thử lại sau');
+      throw new HttpException(
+        'Cảm biến gửi quá nhiều yêu cầu, vui lòng thử lại sau',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
     current.count += 1;
   }
 
