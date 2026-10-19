@@ -25,6 +25,7 @@ test('OWNER mở được các trang chính và dialog nằm trong viewport', as
     await page.goto(route, { waitUntil: 'domcontentloaded', timeout: 60_000 });
     const button = page.getByRole('button', { name: label }).first();
     if (await button.isVisible().catch(() => false)) {
+      await expect(button).toBeEnabled();
       await button.click();
       await expectDialogInViewport(page);
       await page.keyboard.press('Escape');
