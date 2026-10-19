@@ -26,6 +26,7 @@ import { FinanceModule } from './modules/finance/finance.module';
 import { CustomersModule } from './modules/customers/customers.module';
 import { SalesOrdersModule } from './modules/sales-orders/sales-orders.module';
 import { SequenceModule } from './common/sequence/sequence.module';
+import { ReportsModule } from './modules/reports/reports.module';
 
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
@@ -63,6 +64,7 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
     FinanceModule,
     CustomersModule,
     SalesOrdersModule,
+    ReportsModule,
   ],
   providers: [
     {

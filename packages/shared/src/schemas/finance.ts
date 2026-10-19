@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { PaymentMethod, TransactionType } from '../types';
+import { CycleStatus, PaymentMethod, TransactionType } from '../types';
 import { optionalDate, optionalString } from './helpers';
 import { paginationSchema } from './pagination';
 
@@ -44,6 +44,19 @@ export const financeReportQuerySchema = z.union([
   z.object({ year: z.coerce.number().int().min(2000).max(2200) }),
 ]);
 
+export const cashflowReportQuerySchema = z.object({
+  year: z.coerce.number().int().min(2000).max(2200),
+});
+
+export const cycleReportQuerySchema = z.object({
+  status: z.nativeEnum(CycleStatus).optional(),
+});
+
+export const productReportQuerySchema = z.object({
+  from: optionalDate(),
+  to: optionalDate(),
+});
+
 export const queryFinanceCategorySchema = paginationSchema.extend({
   search: optionalString(),
   type: transactionTypeSchema.optional(),
@@ -73,3 +86,6 @@ export type FinanceReportQueryInput = z.infer<typeof financeReportQuerySchema>;
 export type QueryFinanceCategoryInput = z.infer<typeof queryFinanceCategorySchema>;
 export type QueryTransactionInput = z.infer<typeof queryTransactionSchema>;
 export type QueryReceivablesInput = z.infer<typeof queryReceivablesSchema>;
+export type CashflowReportQueryInput = z.infer<typeof cashflowReportQuerySchema>;
+export type CycleReportQueryInput = z.infer<typeof cycleReportQuerySchema>;
+export type ProductReportQueryInput = z.infer<typeof productReportQuerySchema>;
