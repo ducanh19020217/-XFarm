@@ -23,6 +23,7 @@ test('OWNER mở được các trang chính và dialog nằm trong viewport', as
     ['/admin/animals', /thêm đàn/i],
   ] as const) {
     await page.goto(route, { waitUntil: 'domcontentloaded', timeout: 60_000 });
+    await expect(page).toHaveURL(new RegExp(`${route.replaceAll('/', '\\/')}$`));
     const button = page.getByRole('button', { name: label }).first();
     if (await button.isVisible().catch(() => false)) {
       await expect(button).toBeEnabled();
