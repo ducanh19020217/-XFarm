@@ -31,6 +31,16 @@ export class AlertsController {
     };
   }
 
+  @Post('run-maintenance-check')
+  @Roles(Role.OWNER, Role.MANAGER)
+  async runMaintenanceCheck() {
+    const result = await this.alertsService.runMaintenanceCheck();
+    return {
+      data: result,
+      message: 'Kiểm tra lịch bảo trì hoàn tất',
+    };
+  }
+
   @Post('read-all')
   async markAllRead() {
     const result = await this.alertsService.markAllRead();
