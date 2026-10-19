@@ -1,5 +1,18 @@
 # XFarm – Nhật ký Quyết định Kỹ thuật (Decisions Log)
 
+### DECISION-013: Xử lý bỏ qua bảng lương đã khóa (APPROVED/PAID) khi tính lương định kỳ
+- **Bối cảnh**:
+  - Khi quản trị viên/kế toán tính lương (`POST /payrolls/generate`) cho một kỳ lương, nếu một nhân viên trong kỳ đã có bảng lương được duyệt (`APPROVED`) hoặc đã thanh toán (`PAID`), hệ thống ban đầu ném lỗi HTTP 422 cho toàn bộ kỳ lương.
+  - Hậu quả: Sau khi duyệt lương cho dù chỉ 1 nhân viên, không thể tiếp tục tính toán hoặc tạo mới bảng lương cho nhân viên mới vào hoặc nhân viên đang ở trạng thái `DRAFT` trong cùng kỳ đó.
+- **Quyết định**:
+  1. Khi tính lương, nhân viên đã có bảng lương `APPROVED` hoặc `PAID` trong kỳ sẽ được **bỏ qua và giữ nguyên**, không bị tính lại hay tạo đè. Bảng lương `DRAFT` hoặc nhân viên chưa có bảng lương sẽ được tính toán và tạo mới/cập nhật.
+  2. Toàn bộ thao tác kiểm tra, đọc dữ liệu chấm công và ghi/cập nhật bảng lương được thực hiện trong một Prisma transaction (`prisma.$transaction`).
+  3. Lỗi 422 chỉ được ném khi người dùng chủ động truyền danh sách `employeeIds` cụ thể mà **tất cả** nhân viên được chỉ định đều đã có bảng lương bị khóa (`APPROVED` / `PAID`).
+  4. Nếu tính lương cho toàn bộ nhân viên active (không truyền `employeeIds` hoặc mảng rỗng), kể cả khi toàn bộ nhân viên đều đã khóa, API trả về thành công với danh sách bảng lương tạo mới rỗng (`data: []`) kèm danh sách `skipped` và `skippedCount` để giao diện web hiển thị thông báo toast: `"Tính toán bảng lương thành công (bỏ qua N bảng lương đã duyệt/đã trả)"`.
+- **Hệ quả**:
+  - Không còn tình trạng một bảng lương đã duyệt khóa chết cả kỳ lương.
+  - Quản trị viên có thể thêm nhân viên mới và chạy tính lương lại trong cùng kỳ một cách độc lập và an toàn mà không ảnh hưởng tới các bảng lương đã duyệt.
+
 ### DECISION-012: Nhất quán số tiền lương MONTHLY và phân bổ ngày công đa mùa vụ
 - **Bối cảnh**:
   1. Khi một nhân viên làm việc cho nhiều mùa vụ trong cùng một ngày, mỗi mùa vụ ghi nhận một dòng `Attendance` (`unique(employeeId, date, cycleId)`). Việc tính độc lập từng dòng dẫn tới lỗi tính trùng ngày công (nhân viên làm 2 mùa vụ trong 1 ngày bị tính thành 2 công).

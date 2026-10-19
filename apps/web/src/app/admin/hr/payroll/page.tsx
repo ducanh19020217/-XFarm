@@ -104,14 +104,27 @@ export default function PayrollPage() {
   const handleGeneratePayroll = async () => {
     setGenerating(true);
     try {
-      await apiFetch('/payrolls/generate', {
+      const res = await apiFetch<{
+        data: PayrollItem[];
+        skipped?: PayrollItem[];
+        skippedCount?: number;
+      }>('/payrolls/generate', {
         method: 'POST',
         body: JSON.stringify({
           periodStart,
           periodEnd,
         }),
       });
-      showToast('Tính toán bảng lương thành công');
+      const skippedCount = Array.isArray(res?.skipped)
+        ? res.skipped.length
+        : (res?.skippedCount ?? 0);
+      if (skippedCount > 0) {
+        showToast(
+          `Tính toán bảng lương thành công (bỏ qua ${skippedCount} bảng lương đã duyệt/đã trả)`,
+        );
+      } else {
+        showToast('Tính toán bảng lương thành công');
+      }
       await fetchPayrollsRef.current();
     } catch (err) {
       showToast(err instanceof ApiError ? err.message : 'Không thể tạo bảng lương');

@@ -99,24 +99,18 @@ test.describe('E2E Quản lý Nhân sự, Giao việc, Chấm công, Tính lươ
     await expect(payrollRow.getByText(/300.000/)).toBeVisible();
 
     // Xem chi tiết bảng lương
-    await page
-      .getByRole('button', { name: /chi tiết/i })
-      .first()
-      .click();
+    await payrollRow.getByRole('button', { name: /chi tiết/i }).click();
     await expectDialogInViewport(page);
     await expect(page.getByText(/chi tiết từng ngày/i)).toBeVisible();
     await page.getByRole('button', { name: /đóng/i }).first().click();
 
     // Duyệt bảng lương
-    await page.getByRole('button', { name: /duyệt/i }).first().click();
-    await expect(page.getByText(/đã duyệt/i)).toBeVisible();
+    await payrollRow.getByRole('button', { name: /duyệt/i }).click();
+    await expect(page.getByText(/đã duyệt bảng lương/i)).toBeVisible();
 
     // Đã trả (thanh toán)
-    await page
-      .getByRole('button', { name: /đã trả/i })
-      .first()
-      .click();
-    await expect(page.getByText(/đã thanh toán/i)).toBeVisible();
+    await payrollRow.getByRole('button', { name: /đã trả/i }).click();
+    await expect(page.getByText(/đã xác nhận thanh toán/i)).toBeVisible();
 
     errors.assertClean();
   });
