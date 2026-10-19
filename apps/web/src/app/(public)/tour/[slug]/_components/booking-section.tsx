@@ -59,7 +59,9 @@ export function BookingSection({ tour, initialSlots }: BookingSectionProps) {
   const [customerName, setCustomerName] = React.useState('');
   const [phone, setPhone] = React.useState('');
   const [email, setEmail] = React.useState('');
-  const [paymentMethod, setPaymentMethod] = React.useState<'BANK_TRANSFER' | 'CASH'>('BANK_TRANSFER');
+  const [paymentMethod, setPaymentMethod] = React.useState<'BANK_TRANSFER' | 'CASH'>(
+    'BANK_TRANSFER',
+  );
   const [notes, setNotes] = React.useState('');
 
   // Statuses
@@ -113,7 +115,9 @@ export function BookingSection({ tour, initialSlots }: BookingSectionProps) {
   // Auto-select first available slot for the date
   React.useEffect(() => {
     if (slotsForSelectedDate.length > 0) {
-      const currentValid = slotsForSelectedDate.find((s) => s.id === selectedSlotId && s.remaining > 0);
+      const currentValid = slotsForSelectedDate.find(
+        (s) => s.id === selectedSlotId && s.remaining > 0,
+      );
       if (!currentValid) {
         const firstAvailable = slotsForSelectedDate.find((s) => s.remaining > 0);
         setSelectedSlotId(firstAvailable ? firstAvailable.id : '');
@@ -162,10 +166,17 @@ export function BookingSection({ tour, initialSlots }: BookingSectionProps) {
         const body = await res.json();
         const freshTour = body?.data ?? body;
         if (freshTour && Array.isArray(freshTour.slots)) {
-          const mapped = freshTour.slots.map((s: { remaining?: number; capacity: number; bookedCount?: number; [key: string]: unknown }) => ({
-            ...s,
-            remaining: s.remaining ?? Math.max(0, s.capacity - (s.bookedCount ?? 0)),
-          })) as PublicTourSlot[];
+          const mapped = freshTour.slots.map(
+            (s: {
+              remaining?: number;
+              capacity: number;
+              bookedCount?: number;
+              [key: string]: unknown;
+            }) => ({
+              ...s,
+              remaining: s.remaining ?? Math.max(0, s.capacity - (s.bookedCount ?? 0)),
+            }),
+          ) as PublicTourSlot[];
           setSlots(mapped);
         }
       }
@@ -192,7 +203,9 @@ export function BookingSection({ tour, initialSlots }: BookingSectionProps) {
     }
 
     if (totalGuests > maxAvailable) {
-      setErrorMessage(`Số khách (${totalGuests}) vượt quá số chỗ còn lại của khung giờ (${maxAvailable} chỗ).`);
+      setErrorMessage(
+        `Số khách (${totalGuests}) vượt quá số chỗ còn lại của khung giờ (${maxAvailable} chỗ).`,
+      );
       return;
     }
 
@@ -250,7 +263,10 @@ export function BookingSection({ tour, initialSlots }: BookingSectionProps) {
           <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
             Đặt vé trực tuyến
           </span>
-          <h2 id="booking-heading" className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2">
+          <h2
+            id="booking-heading"
+            className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2"
+          >
             Chọn Ngày & Đặt Chỗ
           </h2>
         </div>
@@ -267,7 +283,8 @@ export function BookingSection({ tour, initialSlots }: BookingSectionProps) {
           <Calendar className="w-8 h-8 text-amber-700 mx-auto" aria-hidden="true" />
           <h3 className="font-bold text-amber-900 text-base">Hiện chưa có lịch khởi hành</h3>
           <p className="text-sm text-amber-800">
-            Các suất trải nghiệm cho tour này đang được sắp xếp. Vui lòng liên hệ hotline nông trại để được hỗ trợ!
+            Các suất trải nghiệm cho tour này đang được sắp xếp. Vui lòng liên hệ hotline nông trại
+            để được hỗ trợ!
           </p>
         </div>
       ) : (
@@ -433,7 +450,10 @@ export function BookingSection({ tour, initialSlots }: BookingSectionProps) {
                     value={adults}
                     onChange={(e) => {
                       const val = parseInt(e.target.value, 10) || 1;
-                      const clamped = Math.max(1, Math.min(val, Math.max(1, maxAvailable - children)));
+                      const clamped = Math.max(
+                        1,
+                        Math.min(val, Math.max(1, maxAvailable - children)),
+                      );
                       setAdults(clamped);
                     }}
                     className="w-12 text-center font-bold text-base text-slate-900 focus:outline-hidden"
@@ -530,7 +550,10 @@ export function BookingSection({ tour, initialSlots }: BookingSectionProps) {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="customerName" className="block text-xs font-semibold text-slate-700 mb-1">
+                <label
+                  htmlFor="customerName"
+                  className="block text-xs font-semibold text-slate-700 mb-1"
+                >
                   Họ và tên *
                 </label>
                 <input
@@ -577,7 +600,10 @@ export function BookingSection({ tour, initialSlots }: BookingSectionProps) {
               </div>
 
               <div>
-                <label htmlFor="paymentMethod" className="block text-xs font-semibold text-slate-700 mb-1">
+                <label
+                  htmlFor="paymentMethod"
+                  className="block text-xs font-semibold text-slate-700 mb-1"
+                >
                   Phương thức thanh toán
                 </label>
                 <select

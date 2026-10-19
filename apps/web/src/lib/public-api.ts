@@ -541,17 +541,15 @@ export async function getPublicTours(query?: {
     });
     if (res.ok) {
       const body = await res.json();
-      const list = Array.isArray(body)
-        ? body
-        : Array.isArray(body?.data)
-          ? body.data
-          : [];
+      const list = Array.isArray(body) ? body : Array.isArray(body?.data) ? body.data : [];
       if (list.length > 0) {
-        return list.map((t: { priceAdult: unknown; priceChild: unknown; [key: string]: unknown }) => ({
-          ...t,
-          priceAdult: Number(t.priceAdult),
-          priceChild: Number(t.priceChild),
-        })) as PublicTour[];
+        return list.map(
+          (t: { priceAdult: unknown; priceChild: unknown; [key: string]: unknown }) => ({
+            ...t,
+            priceAdult: Number(t.priceAdult),
+            priceChild: Number(t.priceChild),
+          }),
+        ) as PublicTour[];
       }
     }
   } catch {
@@ -577,10 +575,17 @@ export async function getPublicTourBySlug(slug: string): Promise<PublicTour | nu
           priceAdult: Number(tour.priceAdult),
           priceChild: Number(tour.priceChild),
           slots: Array.isArray(tour.slots)
-            ? tour.slots.map((s: { remaining?: number; capacity: number; bookedCount?: number; [key: string]: unknown }) => ({
-                ...s,
-                remaining: s.remaining ?? Math.max(0, s.capacity - (s.bookedCount ?? 0)),
-              }))
+            ? tour.slots.map(
+                (s: {
+                  remaining?: number;
+                  capacity: number;
+                  bookedCount?: number;
+                  [key: string]: unknown;
+                }) => ({
+                  ...s,
+                  remaining: s.remaining ?? Math.max(0, s.capacity - (s.bookedCount ?? 0)),
+                }),
+              )
             : [],
         } as PublicTour;
       }

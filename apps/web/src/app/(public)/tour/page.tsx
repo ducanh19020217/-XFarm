@@ -68,8 +68,8 @@ export default async function TourListPage() {
               Tour Trải Nghiệm Nông Trại
             </h1>
             <p className="text-slate-700 text-sm sm:text-base max-w-2xl leading-relaxed">
-              Trải nghiệm thực tế cùng người nông dân XFarm: tự tay chăm sóc vườn rau hữu cơ,
-              cho gia súc gia cầm ăn, bắt cá và tận hưởng không khí trong lành giữa thiên nhiên.
+              Trải nghiệm thực tế cùng người nông dân XFarm: tự tay chăm sóc vườn rau hữu cơ, cho
+              gia súc gia cầm ăn, bắt cá và tận hưởng không khí trong lành giữa thiên nhiên.
             </p>
           </div>
 

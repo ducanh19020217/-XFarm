@@ -1,7 +1,12 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Sprout, Egg, Fish, Compass, ArrowRight, Clock, CheckCircle2 } from 'lucide-react';
-import { getSiteSettings, getPublicProducts, getPublicPosts, getPublicTours } from '@/lib/public-api';
+import { Sprout, Egg, Fish, Compass, ArrowRight } from 'lucide-react';
+import {
+  getSiteSettings,
+  getPublicProducts,
+  getPublicPosts,
+  getPublicTours,
+} from '@/lib/public-api';
 import { getSiteUrl } from '@/lib/site-url';
 import { BannerSlider } from './_components/banner-slider';
 import { ProductCard } from './_components/product-card';
@@ -203,11 +208,12 @@ export default async function HomePage() {
             <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200">
               Du lịch sinh thái
             </span>
+            <span className="sr-only">Sắp ra mắt (Giai đoạn 5)</span>
             <h2
               id="tour-heading"
               className="mt-3 text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight"
             >
-              Tour Du Lịch Trải Nghiệm
+              Tour Du Lịch Trải Nghiệm Sinh Thái
             </h2>
             <p className="mt-2 text-slate-700 text-sm sm:text-base">
               Hòa mình vào thiên nhiên, trải nghiệm làm nông dân thực thụ và tận hưởng không gian

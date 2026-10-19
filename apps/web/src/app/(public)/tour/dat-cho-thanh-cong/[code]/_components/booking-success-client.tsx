@@ -7,13 +7,11 @@ import {
   CheckCircle2,
   Copy,
   Check,
-  Calendar,
   Clock,
   Users,
   Compass,
   ArrowRight,
   Search,
-  Building,
   CreditCard,
   QrCode as QrIcon,
 } from 'lucide-react';
@@ -147,7 +145,10 @@ export function BookingSuccessClient({ initialBooking, code }: BookingSuccessCli
             <span className="text-xs text-slate-700 font-semibold uppercase tracking-wider">
               Thời gian khởi hành
             </span>
-            <div data-testid="booking-start-at" className="text-base font-bold text-slate-900 flex items-center gap-1.5">
+            <div
+              data-testid="booking-start-at"
+              className="text-base font-bold text-slate-900 flex items-center gap-1.5"
+            >
               <Clock className="w-4 h-4 text-emerald-600 shrink-0" aria-hidden="true" />
               <span>{formattedStartAt}</span>
             </div>
@@ -157,7 +158,10 @@ export function BookingSuccessClient({ initialBooking, code }: BookingSuccessCli
             <span className="text-xs text-slate-700 font-semibold uppercase tracking-wider">
               Số lượng khách
             </span>
-            <div data-testid="booking-guests" className="text-base font-bold text-slate-900 flex items-center gap-1.5">
+            <div
+              data-testid="booking-guests"
+              className="text-base font-bold text-slate-900 flex items-center gap-1.5"
+            >
               <Users className="w-4 h-4 text-emerald-600 shrink-0" aria-hidden="true" />
               <span>
                 {booking?.adults ?? 1} người lớn
@@ -219,7 +223,9 @@ export function BookingSuccessClient({ initialBooking, code }: BookingSuccessCli
               <h3 className="text-base sm:text-lg font-bold text-slate-900">
                 Thanh Toán Chuyển Khoản Qua VietQR
               </h3>
-              <p className="text-xs text-slate-700">Quét mã bằng ứng dụng ngân hàng bất kỳ để tự động điền số tiền và nội dung</p>
+              <p className="text-xs text-slate-700">
+                Quét mã bằng ứng dụng ngân hàng bất kỳ để tự động điền số tiền và nội dung
+              </p>
             </div>
           </div>
           <span className="hidden sm:inline-flex text-xs font-bold uppercase tracking-wider text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded-full">
@@ -263,7 +269,11 @@ export function BookingSuccessClient({ initialBooking, code }: BookingSuccessCli
                 onClick={() => copyToClipboard(bankId, 'bankId')}
                 className="text-xs text-emerald-700 hover:text-emerald-800 font-semibold flex items-center gap-1"
               >
-                {copiedField === 'bankId' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                {copiedField === 'bankId' ? (
+                  <Check className="w-3.5 h-3.5" />
+                ) : (
+                  <Copy className="w-3.5 h-3.5" />
+                )}
                 <span>{copiedField === 'bankId' ? 'Đã chép' : 'Sao chép'}</span>
               </button>
             </div>
@@ -271,7 +281,10 @@ export function BookingSuccessClient({ initialBooking, code }: BookingSuccessCli
             <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200">
               <div>
                 <span className="text-xs text-slate-700 font-semibold block">Số tài khoản</span>
-                <span data-testid="bank-account-no" className="font-extrabold text-slate-900 text-base font-mono">
+                <span
+                  data-testid="bank-account-no"
+                  className="font-extrabold text-slate-900 text-base font-mono"
+                >
                   {accountNo}
                 </span>
               </div>
@@ -280,14 +293,20 @@ export function BookingSuccessClient({ initialBooking, code }: BookingSuccessCli
                 onClick={() => copyToClipboard(accountNo, 'accountNo')}
                 className="text-xs text-emerald-700 hover:text-emerald-800 font-semibold flex items-center gap-1"
               >
-                {copiedField === 'accountNo' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                {copiedField === 'accountNo' ? (
+                  <Check className="w-3.5 h-3.5" />
+                ) : (
+                  <Copy className="w-3.5 h-3.5" />
+                )}
                 <span>{copiedField === 'accountNo' ? 'Đã chép' : 'Sao chép'}</span>
               </button>
             </div>
 
             <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200">
               <div>
-                <span className="text-xs text-slate-700 font-semibold block">Tên chủ tài khoản</span>
+                <span className="text-xs text-slate-700 font-semibold block">
+                  Tên chủ tài khoản
+                </span>
                 <span className="font-extrabold text-slate-900 uppercase">{accountName}</span>
               </div>
               <button
@@ -295,7 +314,11 @@ export function BookingSuccessClient({ initialBooking, code }: BookingSuccessCli
                 onClick={() => copyToClipboard(accountName, 'accountName')}
                 className="text-xs text-emerald-700 hover:text-emerald-800 font-semibold flex items-center gap-1"
               >
-                {copiedField === 'accountName' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                {copiedField === 'accountName' ? (
+                  <Check className="w-3.5 h-3.5" />
+                ) : (
+                  <Copy className="w-3.5 h-3.5" />
+                )}
                 <span>{copiedField === 'accountName' ? 'Đã chép' : 'Sao chép'}</span>
               </button>
             </div>
@@ -312,7 +335,11 @@ export function BookingSuccessClient({ initialBooking, code }: BookingSuccessCli
                 onClick={() => copyToClipboard(amountStr, 'amount')}
                 className="text-xs text-emerald-700 hover:text-emerald-800 font-semibold flex items-center gap-1"
               >
-                {copiedField === 'amount' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                {copiedField === 'amount' ? (
+                  <Check className="w-3.5 h-3.5" />
+                ) : (
+                  <Copy className="w-3.5 h-3.5" />
+                )}
                 <span>{copiedField === 'amount' ? 'Đã chép' : 'Sao chép'}</span>
               </button>
             </div>
@@ -322,7 +349,10 @@ export function BookingSuccessClient({ initialBooking, code }: BookingSuccessCli
                 <span className="text-xs text-amber-900 font-semibold block">
                   Nội dung chuyển khoản (bắt buộc đúng mã)
                 </span>
-                <span data-testid="bank-add-info" className="font-black text-slate-950 font-mono text-base">
+                <span
+                  data-testid="bank-add-info"
+                  className="font-black text-slate-950 font-mono text-base"
+                >
                   {addInfo}
                 </span>
               </div>
@@ -332,7 +362,11 @@ export function BookingSuccessClient({ initialBooking, code }: BookingSuccessCli
                 onClick={() => copyToClipboard(addInfo, 'addInfo')}
                 className="text-xs text-amber-800 hover:text-amber-900 font-bold flex items-center gap-1"
               >
-                {copiedField === 'addInfo' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                {copiedField === 'addInfo' ? (
+                  <Check className="w-3.5 h-3.5" />
+                ) : (
+                  <Copy className="w-3.5 h-3.5" />
+                )}
                 <span>{copiedField === 'addInfo' ? 'Đã chép' : 'Sao chép'}</span>
               </button>
             </div>

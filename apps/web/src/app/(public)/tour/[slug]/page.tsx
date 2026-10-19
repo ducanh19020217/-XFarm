@@ -8,7 +8,6 @@ import {
   Users,
   Compass,
   CheckCircle2,
-  CalendarDays,
   ShieldCheck,
   MapPin,
 } from 'lucide-react';
@@ -176,7 +175,10 @@ export default async function TourDetailPage({ params }: Props) {
 
         {/* Tour Visual & Gallery */}
         <div className="relative aspect-16/9 sm:aspect-21/9 w-full rounded-3xl bg-slate-100 overflow-hidden shadow-lg border border-slate-200">
-          {coverImage && (coverImage.startsWith('http://') || coverImage.startsWith('https://') || coverImage.startsWith('/')) ? (
+          {coverImage &&
+          (coverImage.startsWith('http://') ||
+            coverImage.startsWith('https://') ||
+            coverImage.startsWith('/')) ? (
             <Image
               src={coverImage}
               alt={tour.name}
@@ -189,7 +191,9 @@ export default async function TourDetailPage({ params }: Props) {
             <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-r from-emerald-800 via-teal-900 to-slate-950 text-white p-6 text-center">
               <Compass className="w-16 h-16 text-emerald-300 mb-3" aria-hidden="true" />
               <span className="text-xl sm:text-2xl font-black">{tour.name}</span>
-              <span className="text-sm text-emerald-200 mt-1">Trải nghiệm xanh giữa lòng thiên nhiên</span>
+              <span className="text-sm text-emerald-200 mt-1">
+                Trải nghiệm xanh giữa lòng thiên nhiên
+              </span>
             </div>
           )}
         </div>
@@ -241,20 +245,40 @@ export default async function TourDetailPage({ params }: Props) {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" aria-hidden="true" />
-                  <span className="text-sm text-slate-700">Hướng dẫn viên nông dân bản địa nhiệt tình</span>
+                  <CheckCircle2
+                    className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5"
+                    aria-hidden="true"
+                  />
+                  <span className="text-sm text-slate-700">
+                    Hướng dẫn viên nông dân bản địa nhiệt tình
+                  </span>
                 </div>
                 <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" aria-hidden="true" />
-                  <span className="text-sm text-slate-700">Trải nghiệm tự tay thu hoạch nông sản tươi</span>
+                  <CheckCircle2
+                    className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5"
+                    aria-hidden="true"
+                  />
+                  <span className="text-sm text-slate-700">
+                    Trải nghiệm tự tay thu hoạch nông sản tươi
+                  </span>
                 </div>
                 <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" aria-hidden="true" />
-                  <span className="text-sm text-slate-700">Dụng cụ bảo hộ, nón lá, ủng lội nước đầy đủ</span>
+                  <CheckCircle2
+                    className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5"
+                    aria-hidden="true"
+                  />
+                  <span className="text-sm text-slate-700">
+                    Dụng cụ bảo hộ, nón lá, ủng lội nước đầy đủ
+                  </span>
                 </div>
                 <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" aria-hidden="true" />
-                  <span className="text-sm text-slate-700">Nước giải khát thảo mộc hữu cơ phục vụ suốt chuyến</span>
+                  <CheckCircle2
+                    className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5"
+                    aria-hidden="true"
+                  />
+                  <span className="text-sm text-slate-700">
+                    Nước giải khát thảo mộc hữu cơ phục vụ suốt chuyến
+                  </span>
                 </div>
               </div>
             </div>

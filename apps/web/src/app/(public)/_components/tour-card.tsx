@@ -22,7 +22,10 @@ export function TourCard({ tour }: TourCardProps) {
     >
       {/* Tour Image / Visual Header */}
       <div className="relative aspect-16/10 w-full bg-slate-100 overflow-hidden">
-        {imageSrc && (imageSrc.startsWith('http://') || imageSrc.startsWith('https://') || imageSrc.startsWith('/')) ? (
+        {imageSrc &&
+        (imageSrc.startsWith('http://') ||
+          imageSrc.startsWith('https://') ||
+          imageSrc.startsWith('/')) ? (
           <Image
             src={imageSrc}
             alt={tour.name}
