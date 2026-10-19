@@ -13,7 +13,11 @@ const users = {
 
 export default async function globalSetup(config: FullConfig) {
   const baseURL = config.projects[0]?.use.baseURL || 'http://localhost:3100';
-  const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4100/api/v1';
+  const apiBase =
+    process.env.NEXT_PUBLIC_API_URL ||
+    (process.env.API_PORT
+      ? `http://localhost:${process.env.API_PORT}/api/v1`
+      : 'http://localhost:4100/api/v1');
   const authDir = path.resolve(config.rootDir, '.auth');
   await fs.mkdir(authDir, { recursive: true });
 

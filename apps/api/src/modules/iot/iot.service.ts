@@ -148,7 +148,10 @@ export class IotService {
     return { data };
   }
 
-  async latest(areaId: string) {
+  async latest(areaId?: string) {
+    const whereCondition = areaId
+      ? Prisma.sql`WHERE s."areaId" = ${areaId} AND s."isActive" = true`
+      : Prisma.sql`WHERE s."isActive" = true`;
     const rows = await prisma.$queryRaw<
       Array<{
         sensorId: string;
@@ -159,7 +162,7 @@ export class IotService {
         recordedAt: Date;
       }>
     >(
-      Prisma.sql`SELECT DISTINCT ON (sr."sensorId") sr."sensorId", s.name AS "sensorName", s.unit, s."areaId", sr.value, sr."recordedAt" FROM "sensor_readings" sr JOIN "sensors" s ON s.id = sr."sensorId" WHERE s."areaId" = ${areaId} AND s."isActive" = true ORDER BY sr."sensorId", sr."recordedAt" DESC, sr.id DESC`,
+      Prisma.sql`SELECT DISTINCT ON (sr."sensorId") sr."sensorId", s.name AS "sensorName", s.unit, s."areaId", sr.value, sr."recordedAt" FROM "sensor_readings" sr JOIN "sensors" s ON s.id = sr."sensorId" ${whereCondition} ORDER BY sr."sensorId", sr."recordedAt" DESC, sr.id DESC`,
     );
     return { data: rows.map((row) => ({ ...row, value: Number(row.value) })) };
   }

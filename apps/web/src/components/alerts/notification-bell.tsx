@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Bell, Check, ExternalLink, Loader2, Package, Wrench } from 'lucide-react';
+import { Bell, Check, Cpu, ExternalLink, Loader2, Package, Wrench } from 'lucide-react';
 import { Badge, Button } from '@xfarm/ui';
 import {
   type AlertItem,
@@ -49,7 +49,7 @@ export function NotificationBell() {
   // Poll unread count on mount and every 60 seconds
   React.useEffect(() => {
     fetchCount();
-    const interval = setInterval(fetchCount, 60000);
+    const interval = setInterval(fetchCount, 10000);
 
     const handleAlertsUpdated = (event: Event) => {
       const delta = (event as CustomEvent<{ unreadDelta?: number }>).detail?.unreadDelta;
@@ -210,7 +210,12 @@ export function NotificationBell() {
                             onClick={() => setIsOpen(false)}
                             className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600 hover:text-emerald-700 hover:underline"
                           >
-                            {alert.refType === 'EQUIPMENT' || alert.type === 'MAINTENANCE_DUE' ? (
+                            {alert.refType === 'Sensor' ||
+                            alert.refType === 'SENSOR' ||
+                            alert.type === 'SENSOR_THRESHOLD' ? (
+                              <Cpu className="h-3 w-3" />
+                            ) : alert.refType === 'EQUIPMENT' ||
+                              alert.type === 'MAINTENANCE_DUE' ? (
                               <Wrench className="h-3 w-3" />
                             ) : (
                               <Package className="h-3 w-3" />

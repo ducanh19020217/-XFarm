@@ -6,6 +6,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import {
   Check,
   CheckCheck,
+  Cpu,
   ExternalLink,
   Loader2,
   Package,
@@ -180,6 +181,10 @@ export default function AlertsPage() {
       header: 'Đối tượng liên quan',
       cell: ({ row }) => {
         const inv = getInventoryLink(row.original);
+        const isSensor =
+          row.original.type === 'SENSOR_THRESHOLD' ||
+          row.original.refType === 'Sensor' ||
+          row.original.refType === 'SENSOR';
         const isEquipment =
           row.original.type === 'MAINTENANCE_DUE' || row.original.refType === 'EQUIPMENT';
         return (
@@ -187,7 +192,13 @@ export default function AlertsPage() {
             href={inv.href}
             className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-600 hover:text-emerald-700 hover:underline"
           >
-            {isEquipment ? <Wrench className="h-3.5 w-3.5" /> : <Package className="h-3.5 w-3.5" />}
+            {isSensor ? (
+              <Cpu className="h-3.5 w-3.5" />
+            ) : isEquipment ? (
+              <Wrench className="h-3.5 w-3.5" />
+            ) : (
+              <Package className="h-3.5 w-3.5" />
+            )}
             <span>{inv.label}</span>
             <ExternalLink className="h-3 w-3 opacity-60" />
           </Link>
@@ -317,6 +328,7 @@ export default function AlertsPage() {
             <option value="LOT_EXPIRING">Lô sắp hết hạn</option>
             <option value="LOT_EXPIRED">Lô đã hết hạn</option>
             <option value="MAINTENANCE_DUE">Đến hạn bảo trì</option>
+            <option value="SENSOR_THRESHOLD">Vượt ngưỡng cảm biến</option>
           </select>
         </div>
       </div>

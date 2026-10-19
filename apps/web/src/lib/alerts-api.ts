@@ -29,6 +29,7 @@ export const ALERT_TYPE_LABELS: Record<
   LOT_EXPIRING: { label: 'Lô sắp hết hạn', variant: 'destructive' },
   LOT_EXPIRED: { label: 'Lô đã hết hạn', variant: 'destructive' },
   MAINTENANCE_DUE: { label: 'Đến hạn bảo trì', variant: 'warning' },
+  SENSOR_THRESHOLD: { label: 'Vượt ngưỡng cảm biến', variant: 'destructive' },
 };
 
 export function getAlertTypeInfo(type: string): {
@@ -56,6 +57,17 @@ export function formatAlertDate(dateString: string | Date | null | undefined): s
 }
 
 export function getInventoryLink(alert: AlertItem): { href: string; label: string } {
+  if (
+    alert.refType === 'Sensor' ||
+    alert.refType === 'SENSOR' ||
+    alert.type === 'SENSOR_THRESHOLD'
+  ) {
+    const href = alert.refId ? `/admin/iot/charts?sensorId=${alert.refId}` : '/admin/iot/charts';
+    return {
+      href,
+      label: alert.refId ? 'Xem biểu đồ cảm biến' : 'Xem biểu đồ IoT',
+    };
+  }
   if (alert.refType === 'EQUIPMENT' || alert.type === 'MAINTENANCE_DUE') {
     const href = alert.refId ? `/admin/equipment/${alert.refId}` : '/admin/equipment';
     return {
