@@ -1,18 +1,21 @@
 import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
+import { getEnv } from '../../config/env.config';
 
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
-
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 export const presignMediaSchema = z.object({
   filename: z.string().min(1, 'Tên tệp không được để trống'),
   mime: z.string().refine((val) => ALLOWED_MIME_TYPES.includes(val), {
     message: 'Định dạng tệp không được hỗ trợ (chỉ chấp nhận ảnh hoặc PDF)',
   }),
-  size: z.number().int().positive().max(MAX_FILE_SIZE, {
-    message: 'Kích thước tệp tối đa 10MB',
-  }),
+  size: z
+    .number()
+    .int()
+    .positive()
+    .refine((size) => size <= getEnv().MEDIA_MAX_MB * 1024 * 1024, {
+      message: 'Kích thước tệp vượt quá giới hạn cho phép',
+    }),
 });
 
 export const createMediaSchema = z.object({

@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { ZodError } from 'zod';
+import { getEnv } from '../../config/env.config';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -59,8 +60,18 @@ export class AllExceptionsFilter implements ExceptionFilter {
         }));
       } else {
         this.logger.error(exception.message, exception.stack);
-        message = exception.message || 'Lỗi máy chủ nội bộ';
+        message =
+          getEnv().NODE_ENV === 'production'
+            ? 'Lỗi máy chủ nội bộ'
+            : exception.message || 'Lỗi máy chủ nội bộ';
       }
+    } else if (getEnv().NODE_ENV !== 'production') {
+      message = String(exception);
+    }
+
+    if (statusCode >= HttpStatus.INTERNAL_SERVER_ERROR && getEnv().NODE_ENV === 'production') {
+      message = 'Lỗi máy chủ nội bộ';
+      errors = undefined;
     }
 
     response.status(statusCode).json({

@@ -22,6 +22,8 @@ export const envSchema = z.object({
   MINIO_USE_SSL: z.coerce.boolean().default(false),
   API_PORT: z.coerce.number().default(4100),
   WEB_URL: z.string().default('http://localhost:3100'),
+  CORS_ORIGINS: z.string().optional(),
+  MEDIA_MAX_MB: z.coerce.number().positive().default(10),
 });
 
 export type Env = z.infer<typeof envSchema>;
