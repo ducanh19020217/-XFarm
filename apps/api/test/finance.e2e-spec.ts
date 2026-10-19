@@ -16,13 +16,30 @@ import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import cookieParser from 'cookie-parser';
 import * as argon2 from 'argon2';
-import { prisma, Prisma, TransactionType, PaymentMethod } from '@xfarm/db';
+import { prisma, Prisma, TransactionType } from '@xfarm/db';
 import { AppModule } from '../src/app.module';
+import { cleanupDatabase } from './helpers/cleanup';
+
+interface CategoryTreeNode {
+  id: string;
+  name: string;
+  children: CategoryTreeNode[];
+}
+
+interface CustomerReceivableItem {
+  customerId: string;
+  debt: number;
+}
+
+interface OrderReceivableItem {
+  customerId: string;
+  isOverdue: boolean;
+  daysOverdue: number;
+}
 
 describe('Finance E2E Tests (Categories, Transactions, Payments, PO Pay, Receivables)', () => {
   let app: INestApplication;
   let ownerCookies: string[];
-  let managerCookies: string[];
   let accountantCookies: string[];
   let salesCookies: string[];
   let workerCookies: string[];
@@ -38,16 +55,8 @@ describe('Finance E2E Tests (Categories, Transactions, Payments, PO Pay, Receiva
   }
 
   beforeAll(async () => {
-    // 1. Clean previous finance & sales test data
-    await prisma.payment.deleteMany();
-    await prisma.transaction.deleteMany();
-    await prisma.salesOrderLine.deleteMany();
-    await prisma.salesOrder.deleteMany();
-    await prisma.purchaseOrderLine.deleteMany();
-    await prisma.purchaseOrder.deleteMany();
-    await prisma.customer.deleteMany();
-    await prisma.financeCategory.updateMany({ data: { parentId: null } });
-    await prisma.financeCategory.deleteMany({ where: { systemKey: null } });
+    // 1. Clean previous test data
+    await cleanupDatabase();
 
     // 2. Ensure test users exist
     const passwordHash = await argon2.hash('Admin@123');
@@ -98,22 +107,13 @@ describe('Finance E2E Tests (Categories, Transactions, Payments, PO Pay, Receiva
 
     // 5. Login all roles
     ownerCookies = await login('admin@xfarm.local');
-    managerCookies = await login('manager@xfarm.local');
     accountantCookies = await login('accountant@xfarm.local');
     salesCookies = await login('sales@xfarm.local');
     workerCookies = await login('worker@xfarm.local');
   });
 
   afterAll(async () => {
-    await prisma.payment.deleteMany();
-    await prisma.transaction.deleteMany();
-    await prisma.salesOrderLine.deleteMany();
-    await prisma.salesOrder.deleteMany();
-    await prisma.purchaseOrderLine.deleteMany();
-    await prisma.purchaseOrder.deleteMany();
-    await prisma.customer.deleteMany();
-    await prisma.financeCategory.updateMany({ data: { parentId: null } });
-    await prisma.financeCategory.deleteMany({ where: { systemKey: null } });
+    await cleanupDatabase();
     if (app) {
       await app.close();
     }
@@ -153,9 +153,9 @@ describe('Finance E2E Tests (Categories, Transactions, Payments, PO Pay, Receiva
         .get('/api/v1/finance-categories/tree?type=EXPENSE')
         .set('Cookie', accountantCookies);
       expect(res.status).toBe(200);
-      const parentInTree = res.body.data.find((c: any) => c.id === parentCatId);
+      const parentInTree = (res.body.data as CategoryTreeNode[]).find(c => c.id === parentCatId);
       expect(parentInTree).toBeDefined();
-      expect(parentInTree.children.some((c: any) => c.id === childCatId)).toBe(true);
+      expect(parentInTree!.children.some(c => c.id === childCatId)).toBe(true);
     });
 
     it('rejects circular parent assignment with 422', async () => {
@@ -198,7 +198,7 @@ describe('Finance E2E Tests (Categories, Transactions, Payments, PO Pay, Receiva
     let expenseCatId: string;
 
     beforeAll(async () => {
-      const cat = await prisma.financeCategory.create({
+      await prisma.financeCategory.create({
         data: { name: 'Thu nhập phụ phẩm', type: 'INCOME' },
       });
       const expCat = await prisma.financeCategory.create({
@@ -271,7 +271,6 @@ describe('Finance E2E Tests (Categories, Transactions, Payments, PO Pay, Receiva
     let itemId: string;
     let orderId: string;
     let payment1Id: string;
-    let payment2Id: string;
 
     beforeAll(async () => {
       const customer = await prisma.customer.create({
@@ -373,7 +372,7 @@ describe('Finance E2E Tests (Categories, Transactions, Payments, PO Pay, Receiva
           notes: 'Thu đủ tiền',
         });
       expect(res.status).toBe(201);
-      payment2Id = res.body.data.id;
+      expect(res.body.data.id).toBeDefined();
 
       // Verify order status is PAID
       const order = await prisma.salesOrder.findUnique({ where: { id: orderId } });
@@ -628,18 +627,18 @@ describe('Finance E2E Tests (Categories, Transactions, Payments, PO Pay, Receiva
         .set('Cookie', accountantCookies);
       expect(res.status).toBe(200);
 
-      const customerDebt = res.body.data.byCustomer.find(
-        (c: any) => c.customerId === overdueCustomerId,
+      const customerDebt = (res.body.data.byCustomer as CustomerReceivableItem[]).find(
+        c => c.customerId === overdueCustomerId,
       );
       expect(customerDebt).toBeDefined();
-      expect(customerDebt.debt).toBe(800000);
+      expect(customerDebt!.debt).toBe(800000);
 
-      const orderDebt = res.body.data.byOrder.find(
-        (o: any) => o.customerId === overdueCustomerId,
+      const orderDebt = (res.body.data.byOrder as OrderReceivableItem[]).find(
+        o => o.customerId === overdueCustomerId,
       );
       expect(orderDebt).toBeDefined();
-      expect(orderDebt.isOverdue).toBe(true);
-      expect(orderDebt.daysOverdue).toBeGreaterThanOrEqual(2);
+      expect(orderDebt!.isOverdue).toBe(true);
+      expect(orderDebt!.daysOverdue).toBeGreaterThanOrEqual(2);
 
       expect(res.body.data.summary.totalReceivable).toBeGreaterThanOrEqual(800000);
       expect(res.body.data.summary.totalOverdue).toBeGreaterThanOrEqual(800000);
