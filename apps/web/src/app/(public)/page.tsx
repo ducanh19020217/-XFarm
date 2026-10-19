@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Sprout, Egg, Fish, Compass, ArrowRight, Clock, CheckCircle2 } from 'lucide-react';
-import { getSiteSettings, getPublicProducts, getPublicPosts } from '@/lib/public-api';
+import { getSiteSettings, getPublicProducts, getPublicPosts, getPublicTours } from '@/lib/public-api';
 import { getSiteUrl } from '@/lib/site-url';
 import { BannerSlider } from './_components/banner-slider';
 import { ProductCard } from './_components/product-card';
 import { PostCard } from './_components/post-card';
+import { TourCard } from './_components/tour-card';
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
@@ -40,10 +41,11 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
-  const [settings, products, postsResult] = await Promise.all([
+  const [settings, products, postsResult, tours] = await Promise.all([
     getSiteSettings(),
     getPublicProducts(),
     getPublicPosts({ page: 1, pageSize: 3 }),
+    getPublicTours({ page: 1, pageSize: 3 }),
   ]);
 
   const siteUrl = getSiteUrl();
@@ -194,43 +196,38 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* KHU VỰC 4: Mục Tour Trải Nghiệm (Placeholder Sắp ra mắt - GĐ 5) */}
+      {/* KHU VỰC 4: Mục Tour Trải Nghiệm (lấy từ API thật) */}
       <section aria-labelledby="tour-heading" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="relative overflow-hidden bg-gradient-to-r from-emerald-800 via-teal-800 to-slate-900 rounded-3xl p-8 sm:p-12 lg:p-16 text-white shadow-xl">
-          <div className="relative z-10 max-w-3xl space-y-5">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-700/80 text-emerald-200 text-xs sm:text-sm font-bold tracking-wide uppercase">
-              <Clock className="w-4 h-4 text-emerald-300" aria-hidden="true" />
-              <span>Sắp ra mắt (Giai đoạn 5)</span>
-            </div>
-
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10 sm:mb-12">
+          <div>
+            <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200">
+              Du lịch sinh thái
+            </span>
             <h2
               id="tour-heading"
-              className="text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-tight"
+              className="mt-3 text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight"
             >
-              Tour Du Lịch Trải Nghiệm Sinh Thái
+              Tour Du Lịch Trải Nghiệm
             </h2>
-
-            <p className="text-emerald-100 text-sm sm:text-base leading-relaxed">
-              Dịch vụ đặt tour tham quan nông trại sinh thái XFarm sẽ chính thức mở đăng ký trong
-              Giai đoạn 5. Các bạn nhỏ và gia đình sẽ được trải nghiệm một ngày làm nông dân, tự tay
-              bắt cá, nhặt trứng và thu hoạch rau quả tươi ngon mang về.
+            <p className="mt-2 text-slate-700 text-sm sm:text-base">
+              Hòa mình vào thiên nhiên, trải nghiệm làm nông dân thực thụ và tận hưởng không gian
+              xanh mát cùng gia đình.
             </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-3">
-              <div className="flex items-center gap-2.5 text-sm font-medium text-emerald-100">
-                <CheckCircle2 className="w-5 h-5 text-emerald-300 shrink-0" aria-hidden="true" />
-                <span>Tour Nông Dân Nhí</span>
-              </div>
-              <div className="flex items-center gap-2.5 text-sm font-medium text-emerald-100">
-                <CheckCircle2 className="w-5 h-5 text-emerald-300 shrink-0" aria-hidden="true" />
-                <span>Trải nghiệm cuối tuần</span>
-              </div>
-              <div className="flex items-center gap-2.5 text-sm font-medium text-emerald-100">
-                <CheckCircle2 className="w-5 h-5 text-emerald-300 shrink-0" aria-hidden="true" />
-                <span>Học tập & Ngoại khóa</span>
-              </div>
-            </div>
           </div>
+
+          <Link
+            href="/tour"
+            className="inline-flex items-center gap-1.5 text-sm font-bold text-emerald-700 hover:text-emerald-800 transition-colors self-start md:self-auto"
+          >
+            <span>Xem tất cả tour</span>
+            <ArrowRight className="w-4 h-4" aria-hidden="true" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+          {tours.map((tour) => (
+            <TourCard key={tour.id || tour.slug} tour={tour} />
+          ))}
         </div>
       </section>
 

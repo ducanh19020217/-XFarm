@@ -68,6 +68,22 @@ export function Footer({ settings }: FooterProps) {
               </li>
               <li>
                 <Link
+                  href="/tour"
+                  className="hover:text-emerald-400 transition-colors focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-emerald-400 rounded-sm"
+                >
+                  Tour trải nghiệm
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/tour/tra-cuu"
+                  className="hover:text-emerald-400 transition-colors focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-emerald-400 rounded-sm"
+                >
+                  Tra cứu đặt chỗ
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/blog"
                   className="hover:text-emerald-400 transition-colors focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-emerald-400 rounded-sm"
                 >
