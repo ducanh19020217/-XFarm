@@ -227,3 +227,32 @@ pnpm --filter @xfarm/web lighthouse
 
 ### 4. Điểm còn lại
 - Chưa thêm cửa hàng online, thanh toán, tour/booking; đây là phạm vi các giai đoạn sau theo kế hoạch.
+
+## Giai đoạn 4 – Bán hàng + cửa hàng online + tài chính (phase-4-sales) – NGHIỆM THU
+
+### 1. Việc đã làm
+- Hoàn thiện luồng acceptance Playwright tại `apps/web/e2e/phase4-acceptance.spec.ts`: đặt hàng public → đơn xuất hiện admin → xác nhận xuất kho FIFO → kiểm tra tồn giảm đúng → thu đủ tiền → kiểm tra Transaction INCOME → kiểm tra báo cáo thu chi và doanh thu sản phẩm.
+- Hoàn thiện Customer, SalesOrder, Payment, công nợ, FinanceCategory, Transaction và các báo cáo cashflow/cycle/product.
+- Public webshop chỉ nhận dữ liệu tối thiểu cần cho cửa hàng; tra cứu đơn bắt buộc đồng thời mã đơn và số điện thoại.
+- Siết RBAC: ACCOUNTANT chỉ xem khách hàng/đơn và ghi thu tiền, không tạo hoặc sửa khách hàng; báo cáo và tài chính không cho SALES/WORKER.
+
+### 2. Cách chạy thử
+```bash
+source ~/.nvm/nvm.sh && nvm use 22
+pnpm lint
+pnpm typecheck
+pnpm turbo run test --force
+pnpm --filter @xfarm/api test:e2e
+pnpm --filter @xfarm/api smoke:dev
+pnpm --filter @xfarm/web build
+PLAYWRIGHT_BASE_URL="$WEB_URL" pnpm --filter @xfarm/web test:ui
+```
+
+Acceptance riêng:
+```bash
+timeout 600 pnpm --filter @xfarm/web exec playwright test e2e/phase4-acceptance.spec.ts
+```
+
+### 3. Điểm còn lo ngại
+- Báo cáo mùa vụ chỉ phân bổ doanh thu cho dòng đơn gắn `stockLotId` có liên kết lô thu hoạch; sản phẩm nhập mua chỉ xuất hiện trong báo cáo doanh thu sản phẩm.
+- Webshop vẫn phụ thuộc cấu hình `SiteSetting` `bank.vietqr` khi khách chọn chuyển khoản.
