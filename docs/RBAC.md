@@ -8,27 +8,27 @@ Phạm vi rà soát: toàn bộ controller dưới `apps/api/src/modules/**/*.co
 | auth | GET `/auth/me` | mọi user đã đăng nhập |
 | users | GET `/users`, GET `/users/:id`, POST `/users`, PATCH `/users/:id`, PATCH `/users/:id/status` | OWNER |
 | media | POST `/media/presign`, POST `/media` | OWNER, MANAGER, WORKER |
-| areas | GET `/areas`, GET `/areas/tree`, GET `/areas/:id` | OWNER, MANAGER, ACCOUNTANT, SALES |
+| areas | GET `/areas`, GET `/areas/tree`, GET `/areas/:id` | OWNER, MANAGER, ACCOUNTANT, SALES, WORKER |
 | areas | POST `/areas`, PATCH `/areas/:id` | OWNER, MANAGER |
-| cycles | GET `/cycles`, GET `/cycles/:id` | OWNER, MANAGER, ACCOUNTANT, SALES |
+| cycles | GET `/cycles`, GET `/cycles/:id` | OWNER, MANAGER, ACCOUNTANT, SALES, WORKER |
 | cycles | GET `/cycles/:id/labor-cost` | OWNER, MANAGER, ACCOUNTANT |
 | cycles | POST `/cycles`, PATCH `/cycles/:id`, POST `/cycles/:id/transition` | OWNER, MANAGER |
 | activities | GET `/activities`, GET `/activities/:id`, GET `/cycles/:id/timeline` | OWNER, MANAGER, ACCOUNTANT, SALES, WORKER |
 | activities | POST `/activities`, PATCH `/activities/:id` | OWNER, MANAGER, WORKER |
 | activities | DELETE `/activities/:id` | OWNER, MANAGER |
-| animal-groups | GET `/animal-groups`, GET `/animal-groups/:id` | OWNER, MANAGER, ACCOUNTANT, SALES |
+| animal-groups | GET `/animal-groups`, GET `/animal-groups/:id` | OWNER, MANAGER, ACCOUNTANT, SALES, WORKER |
 | animal-groups | POST `/animal-groups`, PATCH `/animal-groups/:id` | OWNER, MANAGER |
-| animals | GET `/animals`, GET `/animals/:id`, GET `/animals/:id/events` | OWNER, MANAGER, ACCOUNTANT, SALES |
+| animals | GET `/animals`, GET `/animals/:id`, GET `/animals/:id/events` | OWNER, MANAGER, ACCOUNTANT, SALES, WORKER |
 | animals | POST `/animals`, PATCH `/animals/:id` | OWNER, MANAGER |
 | animals | POST `/animals/:id/events` | OWNER, MANAGER, WORKER |
-| calendar | GET `/calendar` | OWNER, MANAGER, ACCOUNTANT, SALES |
-| items | GET `/items`, GET `/items/:id` | OWNER, MANAGER, ACCOUNTANT, SALES |
+| calendar | GET `/calendar` | OWNER, MANAGER, ACCOUNTANT, SALES, WORKER |
+| items | GET `/items`, GET `/items/:id` | OWNER, MANAGER, ACCOUNTANT, SALES, WORKER |
 | items | POST `/items`, PATCH `/items/:id`, DELETE `/items/:id` | OWNER, MANAGER |
-| warehouses | GET `/warehouses`, GET `/warehouses/:id` | OWNER, MANAGER, ACCOUNTANT, SALES |
+| warehouses | GET `/warehouses`, GET `/warehouses/:id` | OWNER, MANAGER, ACCOUNTANT, SALES, WORKER |
 | warehouses | POST `/warehouses`, PATCH `/warehouses/:id`, DELETE `/warehouses/:id` | OWNER, MANAGER |
-| stock | GET `/stock/balances`, GET `/stock/moves`, GET `/stock/documents`, GET `/stock/documents/:code` | OWNER, MANAGER, ACCOUNTANT |
+| stock | GET `/stock/balances`, GET `/stock/moves`, GET `/stock/documents`, GET `/stock/documents/:code` | OWNER, MANAGER, ACCOUNTANT, WORKER (chỉ `/balances`) |
 | stock | POST `/stock/receipts`, POST `/stock/issues`, POST `/stock/transfers`, POST `/stock/counts` | OWNER, MANAGER |
-| suppliers | GET `/suppliers`, GET `/suppliers/:id` | OWNER, MANAGER, ACCOUNTANT, SALES |
+| suppliers | GET `/suppliers`, GET `/suppliers/:id` | OWNER, MANAGER, ACCOUNTANT, SALES, WORKER |
 | suppliers | POST `/suppliers`, PATCH `/suppliers/:id`, DELETE `/suppliers/:id` | OWNER, MANAGER, ACCOUNTANT |
 | purchase-orders | GET `/purchase-orders`, GET `/purchase-orders/:id`, POST `/purchase-orders`, PATCH `/purchase-orders/:id`, DELETE `/purchase-orders/:id`, POST `/purchase-orders/:id/order`, POST `/purchase-orders/:id/cancel` | OWNER, MANAGER, ACCOUNTANT |
 | purchase-orders | POST `/purchase-orders/:id/receive` | OWNER, MANAGER |
@@ -59,5 +59,5 @@ Phạm vi rà soát: toàn bộ controller dưới `apps/api/src/modules/**/*.co
 ## Nguyên tắc đối chiếu
 
 - OWNER có toàn quyền; MANAGER vận hành và quản trị dữ liệu nghiệp vụ; ACCOUNTANT chỉ vào các phân hệ tài chính, mua hàng, tồn kho, bảng lương và dữ liệu đọc cần cho giá thành; SALES chỉ vào catalogue/CMS và dữ liệu đọc phục vụ bán hàng.
-- WORKER chỉ đọc công việc của mình, đọc/ghi chấm công của mình và ghi nhật ký/sự kiện được giao. Không được đọc danh sách người dùng, danh mục nội bộ, kho, nhà cung cấp, mùa vụ, khu/lô, CMS admin hay cảnh báo.
+- WORKER chỉ đọc công việc của mình, dữ liệu sản xuất cần cho công việc/nhật ký, đọc/ghi chấm công của mình và ghi nhật ký/sự kiện được giao. Để ghi nhật ký trên PWA, WORKER được đọc khu/lô, mùa vụ, vật tư, kho và tồn khả dụng; response vật tư/tồn không trả giá vốn (`unitCost`, `totalCost`). WORKER không được đọc người dùng, phiếu kho, CMS admin hay cảnh báo; quyền đọc nhà cung cấp và dữ liệu đàn/lịch được giữ tương thích với các luồng hiện có, không kèm quyền ghi.
 - Endpoint public chỉ nằm dưới `/public/*` và service public chỉ trả dữ liệu đã publish; không dùng `@Public()` cho controller admin.

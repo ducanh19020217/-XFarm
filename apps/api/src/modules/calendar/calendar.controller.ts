@@ -8,12 +8,12 @@ import { QueryCalendarDto } from './calendar.dto';
 
 @ApiTags('calendar')
 @Controller('calendar')
-@Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES)
+@Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES, Role.WORKER)
 export class CalendarController {
   constructor(@Inject(CalendarService) private readonly calendarService: CalendarService) {}
 
   @Get()
-  @Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES)
+  @Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES, Role.WORKER)
   @ApiOperation({
     summary: 'Lấy dữ liệu lịch sản xuất theo tháng (activities và cycle milestones)',
   })

@@ -11,7 +11,7 @@ export class ItemsController {
   constructor(@Inject(ItemsService) private readonly itemsService: ItemsService) {}
 
   @Get()
-  @Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES)
+  @Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES, Role.WORKER)
   @ApiOperation({
     summary:
       'Danh sách vật tư/hàng hóa (phân trang, tìm kiếm, lọc category, isSellable, belowMinStock kèm onHand)',
@@ -22,7 +22,7 @@ export class ItemsController {
   }
 
   @Get(':id')
-  @Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES)
+  @Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES, Role.WORKER)
   @ApiOperation({ summary: 'Chi tiết vật tư kèm tồn onHand' })
   @ApiResponse({ status: 200, description: 'Lấy chi tiết thành công' })
   @ApiResponse({ status: 404, description: 'Không tìm thấy vật tư' })

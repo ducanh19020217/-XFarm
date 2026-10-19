@@ -15,17 +15,21 @@ import { StockService } from './stock.service';
 
 @ApiTags('stock')
 @Controller('stock')
-@Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT)
+@Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.WORKER)
 export class StockController {
   constructor(private readonly stock: StockService) {}
 
-  @Get('balances') balances(@Query() query: StockBalanceQueryDto) {
-    return this.stock.balances(query);
+  @Get('balances') balances(@Query() query: StockBalanceQueryDto, @CurrentUser('role') role: Role) {
+    return this.stock.balances(query, role);
   }
-  @Get('moves') moves(@Query() query: StockMoveQueryDto) {
+  @Get('moves')
+  @Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT)
+  moves(@Query() query: StockMoveQueryDto) {
     return this.stock.moves(query);
   }
-  @Get('documents') documents(@Query('page') page = '1', @Query('pageSize') pageSize = '20') {
+  @Get('documents')
+  @Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT)
+  documents(@Query('page') page = '1', @Query('pageSize') pageSize = '20') {
     return this.stock.documents(Number(page), Number(pageSize));
   }
   @Get('documents/:code')

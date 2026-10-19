@@ -8,12 +8,12 @@ import { CreateAreaDto, UpdateAreaDto, QueryAreasDto } from './areas.dto';
 
 @ApiTags('areas')
 @Controller('areas')
-@Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES)
+@Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES, Role.WORKER)
 export class AreasController {
   constructor(@Inject(AreasService) private readonly areasService: AreasService) {}
 
   @Get()
-  @Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES)
+  @Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES, Role.WORKER)
   @ApiOperation({ summary: 'Danh sách khu/lô (phân trang & tìm kiếm & lọc)' })
   @ApiResponse({ status: 200, description: 'Lấy danh sách thành công' })
   async findAll(@Query() query: QueryAreasDto) {
@@ -21,7 +21,7 @@ export class AreasController {
   }
 
   @Get('tree')
-  @Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES)
+  @Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES, Role.WORKER)
   @ApiOperation({ summary: 'Cây lồng khu/lô (chỉ các khu active)' })
   @ApiResponse({ status: 200, description: 'Lấy cây khu/lô thành công' })
   async findTree() {
@@ -29,7 +29,7 @@ export class AreasController {
   }
 
   @Get(':id')
-  @Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES)
+  @Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES, Role.WORKER)
   @ApiOperation({ summary: 'Chi tiết khu/lô kèm cha, con và số mùa vụ active' })
   @ApiResponse({ status: 200, description: 'Lấy chi tiết thành công' })
   @ApiResponse({ status: 404, description: 'Không tìm thấy khu/lô' })
