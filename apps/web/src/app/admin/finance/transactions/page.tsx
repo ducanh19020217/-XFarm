@@ -8,12 +8,9 @@ import {
   DollarSign,
   Edit2,
   ExternalLink,
-  Filter,
   Image as ImageIcon,
-  Loader2,
   Plus,
   Trash2,
-  X,
 } from 'lucide-react';
 import {
   Button,
@@ -28,11 +25,10 @@ import {
   Input,
   Label,
   PageHeader,
-  StatusBadge,
   Toast,
   useToast,
-  type ColumnDef,
 } from '@xfarm/ui';
+import type { ColumnDef } from '@tanstack/react-table';
 import { PaymentMethod, TransactionType } from '@xfarm/shared';
 import { apiFetch, ApiError } from '@/lib/api';
 import MoneyInput from '@/components/ui/money-input';
@@ -60,6 +56,10 @@ export interface TransactionItem {
   cycleId: string | null;
   refType: string | null;
   refId: string | null;
+  orderId?: string | null;
+  orderCode?: string | null;
+  poId?: string | null;
+  poCode?: string | null;
   method: PaymentMethod;
   notes: string | null;
   mediaIds: string[];
@@ -424,24 +424,26 @@ export default function TransactionsPage() {
       header: 'Nguồn chứng từ',
       accessorKey: 'refType',
       cell: ({ row }) => {
-        const { refType, refId } = row.original;
-        if (refType === 'SalesOrder' && refId) {
+        const { refType, refId, orderId, orderCode, poId, poCode } = row.original;
+        if (orderId || refType === 'SalesOrder' || refType === 'Payment') {
+          const targetId = orderId || (refType === 'SalesOrder' ? refId : undefined);
           return (
             <Link
-              href={`/admin/sales/orders/${refId}`}
+              href={targetId ? `/admin/sales/orders/${targetId}` : '/admin/sales/orders'}
               className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 hover:underline dark:text-emerald-400"
             >
-              Đơn bán <ExternalLink className="h-3 w-3" />
+              Đơn bán {orderCode ? `(${orderCode})` : ''} <ExternalLink className="h-3 w-3" />
             </Link>
           );
         }
-        if (refType === 'PurchaseOrder' && refId) {
+        if (poId || refType === 'PurchaseOrder' || refType === 'PO') {
+          const targetId = poId || (refType === 'PurchaseOrder' || refType === 'PO' ? refId : undefined);
           return (
             <Link
-              href={`/admin/purchase-orders/${refId}`}
+              href={targetId ? `/admin/purchase-orders/${targetId}` : '/admin/purchase-orders'}
               className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:underline dark:text-blue-400"
             >
-              Đơn mua PO <ExternalLink className="h-3 w-3" />
+              Đơn mua PO {poCode ? `(${poCode})` : ''} <ExternalLink className="h-3 w-3" />
             </Link>
           );
         }
@@ -677,8 +679,11 @@ export default function TransactionsPage() {
         <DataTable
           columns={columns}
           data={transactions}
-          loading={loading}
-          emptyText="Chưa có giao dịch tài chính nào phù hợp bộ lọc"
+          total={total}
+          page={page}
+          pageSize={20}
+          onPageChange={setPage}
+          isLoading={loading}
         />
       </div>
 

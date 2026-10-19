@@ -8,12 +8,11 @@ import {
   DataTable,
   Input,
   PageHeader,
-  Select,
   StatusBadge,
   Toast,
   useToast,
-  type ColumnDef,
 } from '@xfarm/ui';
+import type { ColumnDef } from '@tanstack/react-table';
 import { PaymentStatus, SalesOrderStatus } from '@xfarm/shared';
 import { apiFetch, ApiError } from '@/lib/api';
 
@@ -210,8 +209,10 @@ export default function SalesOrdersPage() {
           />
         </div>
 
-        <div className="w-44">
-          <Select
+        <div className="w-48">
+          <select
+            aria-label="Lọc trạng thái đơn"
+            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring dark:bg-slate-800"
             value={status}
             onChange={(e) => {
               setStatus(e.target.value);
@@ -225,11 +226,13 @@ export default function SalesOrdersPage() {
             <option value="SHIPPING">Đang giao hàng</option>
             <option value="COMPLETED">Đã hoàn thành</option>
             <option value="CANCELLED">Đã hủy</option>
-          </Select>
+          </select>
         </div>
 
         <div className="w-44">
-          <Select
+          <select
+            aria-label="Lọc trạng thái thanh toán"
+            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring dark:bg-slate-800"
             value={paymentStatus}
             onChange={(e) => {
               setPaymentStatus(e.target.value);
@@ -240,7 +243,7 @@ export default function SalesOrdersPage() {
             <option value="UNPAID">Chưa thanh toán</option>
             <option value="PARTIAL">Thanh toán 1 phần</option>
             <option value="PAID">Đã thanh toán đủ</option>
-          </Select>
+          </select>
         </div>
       </div>
 
@@ -249,8 +252,11 @@ export default function SalesOrdersPage() {
         <DataTable
           columns={columns}
           data={orders}
-          loading={loading}
-          emptyText="Chưa có đơn bán nào phù hợp"
+          total={total}
+          page={page}
+          pageSize={pageSize}
+          onPageChange={setPage}
+          isLoading={loading}
         />
       </div>
     </div>

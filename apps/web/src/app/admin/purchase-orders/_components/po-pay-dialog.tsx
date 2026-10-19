@@ -12,7 +12,6 @@ import {
   DialogTitle,
   Input,
   Label,
-  Select,
 } from '@xfarm/ui';
 import MoneyInput from '@/components/ui/money-input';
 import { formatCurrency } from './constants';
@@ -117,15 +116,16 @@ export function POPayDialog({
 
           <div className="space-y-1.5">
             <Label htmlFor="pay-method">Phương thức thanh toán *</Label>
-            <Select
+            <select
               id="pay-method"
+              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring dark:bg-slate-800"
               value={method}
               onChange={(e) => setMethod(e.target.value as PaymentMethod)}
             >
               <option value={PaymentMethod.BANK_TRANSFER}>Chuyển khoản</option>
               <option value={PaymentMethod.CASH}>Tiền mặt</option>
               <option value={PaymentMethod.COD}>COD</option>
-            </Select>
+            </select>
           </div>
 
           <div className="space-y-1.5">

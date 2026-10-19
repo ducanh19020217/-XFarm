@@ -8,12 +8,9 @@ import {
   Clock,
   DollarSign,
   ExternalLink,
-  Loader2,
-  Search,
   Users,
 } from 'lucide-react';
 import {
-  Badge,
   Button,
   DataTable,
   Input,
@@ -21,8 +18,8 @@ import {
   StatusBadge,
   Toast,
   useToast,
-  type ColumnDef,
 } from '@xfarm/ui';
+import type { ColumnDef } from '@tanstack/react-table';
 import { apiFetch, ApiError } from '@/lib/api';
 
 interface CustomerReceivable {
@@ -272,12 +269,12 @@ export default function ReceivablesPage() {
     {
       header: 'Trạng thái',
       accessorKey: 'status',
-      cell: ({ row }) => <StatusBadge status={row.original.status as any} />,
+      cell: ({ row }) => <StatusBadge status={row.original.status} />,
     },
     {
       header: 'Thanh toán',
       accessorKey: 'paymentStatus',
-      cell: ({ row }) => <StatusBadge status={row.original.paymentStatus as any} />,
+      cell: ({ row }) => <StatusBadge status={row.original.paymentStatus} />,
     },
     {
       header: 'Tổng tiền',
@@ -473,15 +470,13 @@ export default function ReceivablesPage() {
           <DataTable
             columns={customerColumns}
             data={byCustomer}
-            loading={loading}
-            emptyText="Không có khách hàng nào có công nợ"
+            isLoading={loading}
           />
         ) : (
           <DataTable
             columns={orderColumns}
             data={filteredOrders}
-            loading={loading}
-            emptyText="Không có đơn hàng nào còn nợ"
+            isLoading={loading}
           />
         )}
       </div>

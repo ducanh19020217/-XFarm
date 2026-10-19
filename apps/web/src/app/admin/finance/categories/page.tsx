@@ -14,7 +14,6 @@ import {
   Loader2,
 } from 'lucide-react';
 import {
-  Badge,
   Button,
   ConfirmDialog,
   Dialog,
@@ -26,7 +25,6 @@ import {
   Input,
   Label,
   PageHeader,
-  Select,
   Toast,
   useToast,
 } from '@xfarm/ui';
@@ -405,14 +403,16 @@ export default function FinanceCategoriesPage() {
         </div>
 
         <div className="w-48">
-          <Select
+          <select
+            aria-label="Lọc theo loại danh mục"
+            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring dark:bg-slate-800"
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
           >
             <option value="ALL">Tất cả loại danh mục</option>
             <option value={TransactionType.INCOME}>Khoản thu (INCOME)</option>
             <option value={TransactionType.EXPENSE}>Khoản chi (EXPENSE)</option>
-          </Select>
+          </select>
         </div>
       </div>
 
@@ -466,8 +466,9 @@ export default function FinanceCategoriesPage() {
 
             <div className="space-y-1.5">
               <Label htmlFor="cat-type">Loại giao dịch *</Label>
-              <Select
+              <select
                 id="cat-type"
+                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring dark:bg-slate-800 disabled:opacity-50"
                 value={formType}
                 disabled={Boolean(editingCategory?.systemKey)}
                 onChange={(e) => {
@@ -479,7 +480,7 @@ export default function FinanceCategoriesPage() {
               >
                 <option value={TransactionType.EXPENSE}>Khoản chi (EXPENSE)</option>
                 <option value={TransactionType.INCOME}>Khoản thu (INCOME)</option>
-              </Select>
+              </select>
               {editingCategory?.systemKey && (
                 <p className="text-xs text-amber-600 mt-1">
                   Loại của danh mục hệ thống không thể thay đổi
@@ -489,8 +490,9 @@ export default function FinanceCategoriesPage() {
 
             <div className="space-y-1.5">
               <Label htmlFor="cat-parent">Danh mục cha (tùy chọn)</Label>
-              <Select
+              <select
                 id="cat-parent"
+                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring dark:bg-slate-800"
                 value={formParentId}
                 onChange={(e) => setFormParentId(e.target.value)}
               >
@@ -500,7 +502,7 @@ export default function FinanceCategoriesPage() {
                     {opt.name}
                   </option>
                 ))}
-              </Select>
+              </select>
             </div>
 
             <div className="flex items-center gap-2 pt-1">

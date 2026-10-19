@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import {
-  BarChart,
   Bar,
   Line,
   XAxis,
@@ -15,20 +14,13 @@ import {
 } from 'recharts';
 import {
   Calendar,
-  ChevronRight,
-  DollarSign,
   Eye,
-  FileSpreadsheet,
   Layers,
   Loader2,
-  Package,
   ShieldAlert,
-  TrendingDown,
-  TrendingUp,
   Trophy,
 } from 'lucide-react';
 import {
-  Badge,
   Button,
   DataTable,
   Dialog,
@@ -38,12 +30,11 @@ import {
   DialogTitle,
   Input,
   PageHeader,
-  Select,
   StatusBadge,
   Toast,
   useToast,
-  type ColumnDef,
 } from '@xfarm/ui';
+import type { ColumnDef } from '@tanstack/react-table';
 import { useAdminUser } from '../../admin-user-context';
 import { apiFetch, ApiError } from '@/lib/api';
 
@@ -278,7 +269,7 @@ export default function FinanceReportsPage() {
     {
       header: 'Trạng thái',
       accessorKey: 'status',
-      cell: ({ row }) => <StatusBadge status={row.original.status as any} />,
+      cell: ({ row }) => <StatusBadge status={row.original.status} />,
     },
     {
       header: 'Sản lượng',
@@ -512,11 +503,11 @@ export default function FinanceReportsPage() {
                       }}
                     />
                     <Tooltip
-                      formatter={(value: any, name: any) => [
-                        formatVND(value),
+                      formatter={(value: unknown, name: unknown) => [
+                        formatVND(value as number),
                         name === 'income' ? 'Khoản thu' : name === 'expense' ? 'Khoản chi' : 'Chênh lệch',
                       ]}
-                      labelFormatter={(label) => `Tháng ${label.replace('T', '')} năm ${cashflowYear}`}
+                      labelFormatter={(label) => `Tháng ${String(label).replace('T', '')} năm ${cashflowYear}`}
                     />
                     <Legend
                       formatter={(val) =>
@@ -623,8 +614,7 @@ export default function FinanceReportsPage() {
             <DataTable
               columns={cycleColumns}
               data={cyclesData}
-              loading={cyclesLoading}
-              emptyText="Không có mùa vụ nào phù hợp"
+              isLoading={cyclesLoading}
             />
           </div>
         </div>

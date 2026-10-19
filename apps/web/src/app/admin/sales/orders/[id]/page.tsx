@@ -9,7 +9,6 @@ import {
   Input,
   Label,
   PageHeader,
-  Select,
   StatusBadge,
   Toast,
   useToast,
@@ -419,8 +418,9 @@ export default function SalesOrderDetailPage() {
 
               <div className="space-y-1.5 md:col-span-1">
                 <Label htmlFor="record-method">Hình thức thanh toán *</Label>
-                <Select
+                <select
                   id="record-method"
+                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring dark:bg-slate-800"
                   value={payMethod}
                   onChange={(e) => setPayMethod(e.target.value as PaymentMethod)}
                 >
@@ -428,7 +428,7 @@ export default function SalesOrderDetailPage() {
                   <option value={PaymentMethod.CASH}>Tiền mặt</option>
                   <option value={PaymentMethod.COD}>COD</option>
                   <option value={PaymentMethod.VNPAY}>VNPay</option>
-                </Select>
+                </select>
               </div>
 
               <div className="space-y-1.5 md:col-span-1">
