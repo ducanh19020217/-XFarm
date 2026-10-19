@@ -183,6 +183,13 @@ describe('Booking concurrency E2E', () => {
       .send({ amount: 1, method: 'BANK_TRANSFER' })
       .expect(422);
     expect(await prisma.payment.count({ where: { bookingId: booking?.id } })).toBe(1);
+
+    const detailRes = await request(app.getHttpServer())
+      .get(`/api/v1/bookings/${booking?.id}`)
+      .set('Cookie', ownerCookie)
+      .expect(200);
+    expect(detailRes.body.data.id).toBe(booking?.id);
+    expect(detailRes.body.data.payments).toHaveLength(1);
   });
 
   it('sends the booking email when Mailpit is available', async () => {

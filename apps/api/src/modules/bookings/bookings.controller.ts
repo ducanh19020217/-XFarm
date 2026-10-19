@@ -25,6 +25,11 @@ export class BookingsController {
   findAll(@Query() q: QueryBookingDto) {
     return this.service.findAll(q);
   }
+  @Get('bookings/:id')
+  @Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES)
+  findOne(@Param('id') id: string) {
+    return this.service.findOne(id).then((data) => ({ data }));
+  }
   @Post('bookings/:id/confirm')
   @Roles(Role.OWNER, Role.MANAGER, Role.SALES)
   confirm(@Param('id') id: string) {
