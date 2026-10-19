@@ -9,6 +9,7 @@ import {
   markAlertAsRead,
   markAllAlertsAsRead,
   runInventoryCheck,
+  runMaintenanceCheck,
   type AlertItem,
 } from './alerts-api';
 
@@ -50,6 +51,10 @@ describe('alerts-api', () => {
         label: 'Lô đã hết hạn',
         variant: 'destructive',
       });
+      expect(getAlertTypeInfo('MAINTENANCE_DUE')).toEqual({
+        label: 'Đến hạn bảo trì',
+        variant: 'warning',
+      });
     });
 
     it('returns fallback for unknown alert types', () => {
@@ -61,6 +66,20 @@ describe('alerts-api', () => {
   });
 
   describe('getInventoryLink', () => {
+    it('returns equipment link for equipment maintenance alert', () => {
+      const alert: AlertItem = {
+        id: 'eq-1',
+        type: 'MAINTENANCE_DUE',
+        message: 'Lịch bảo trì đến hạn',
+        refType: 'EQUIPMENT',
+        refId: 'eq-123',
+        createdAt: '2026-10-16T00:00:00Z',
+      };
+      const link = getInventoryLink(alert);
+      expect(link.href).toBe('/admin/equipment/eq-123');
+      expect(link.label).toContain('eq-123');
+    });
+
     it('returns lot link for lot alert', () => {
       const alert: AlertItem = {
         id: '1',
@@ -192,6 +211,14 @@ describe('alerts-api', () => {
       vi.mocked(apiModule.apiFetch).mockResolvedValueOnce({ status: 'ok' });
       await runInventoryCheck();
       expect(apiModule.apiFetch).toHaveBeenCalledWith('/alerts/run-inventory-check', {
+        method: 'POST',
+      });
+    });
+
+    it('runMaintenanceCheck calls POST /alerts/run-maintenance-check', async () => {
+      vi.mocked(apiModule.apiFetch).mockResolvedValueOnce({ status: 'ok' });
+      await runMaintenanceCheck();
+      expect(apiModule.apiFetch).toHaveBeenCalledWith('/alerts/run-maintenance-check', {
         method: 'POST',
       });
     });

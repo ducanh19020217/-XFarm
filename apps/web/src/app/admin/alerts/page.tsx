@@ -3,7 +3,16 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { ColumnDef } from '@tanstack/react-table';
-import { Check, CheckCheck, ExternalLink, Loader2, Package, Play, RefreshCw } from 'lucide-react';
+import {
+  Check,
+  CheckCheck,
+  ExternalLink,
+  Loader2,
+  Package,
+  Play,
+  RefreshCw,
+  Wrench,
+} from 'lucide-react';
 import { Badge, Button, DataTable, Label, PageHeader, Toast, useToast } from '@xfarm/ui';
 import {
   type AlertItem,
@@ -15,6 +24,7 @@ import {
   markAllAlertsAsRead,
   notifyAlertsUpdated,
   runInventoryCheck,
+  runMaintenanceCheck,
 } from '@/lib/alerts-api';
 import { useAdminUser } from '../admin-user-context';
 
@@ -29,6 +39,7 @@ export default function AlertsPage() {
   const [pageSize] = React.useState<number>(10);
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
   const [isChecking, setIsChecking] = React.useState<boolean>(false);
+  const [isCheckingMaint, setIsCheckingMaint] = React.useState<boolean>(false);
   const [isReadingAll, setIsReadingAll] = React.useState<boolean>(false);
 
   // Filters
@@ -111,6 +122,20 @@ export default function AlertsPage() {
     }
   };
 
+  const handleRunMaintenanceCheck = async () => {
+    setIsCheckingMaint(true);
+    try {
+      await runMaintenanceCheck();
+      showToast('Đã chạy kiểm tra lịch bảo trì thành công');
+      fetchAlerts();
+      window.dispatchEvent(new CustomEvent('xfarm:alerts-updated'));
+    } catch {
+      showToast('Lỗi khi chạy kiểm tra bảo trì');
+    } finally {
+      setIsCheckingMaint(false);
+    }
+  };
+
   const columns: ColumnDef<AlertItem>[] = [
     {
       accessorKey: 'type',
@@ -152,15 +177,17 @@ export default function AlertsPage() {
     },
     {
       id: 'inventoryLink',
-      header: 'Tồn kho liên quan',
+      header: 'Đối tượng liên quan',
       cell: ({ row }) => {
         const inv = getInventoryLink(row.original);
+        const isEquipment =
+          row.original.type === 'MAINTENANCE_DUE' || row.original.refType === 'EQUIPMENT';
         return (
           <Link
             href={inv.href}
             className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-600 hover:text-emerald-700 hover:underline"
           >
-            <Package className="h-3.5 w-3.5" />
+            {isEquipment ? <Wrench className="h-3.5 w-3.5" /> : <Package className="h-3.5 w-3.5" />}
             <span>{inv.label}</span>
             <ExternalLink className="h-3 w-3 opacity-60" />
           </Link>
@@ -215,6 +242,22 @@ export default function AlertsPage() {
                 <Play className="h-4 w-4 mr-1.5 fill-emerald-600" />
               )}
               Chạy kiểm tra
+            </Button>
+          )}
+
+          {(isOwner || user?.role === 'MANAGER') && (
+            <Button
+              variant="outline"
+              onClick={handleRunMaintenanceCheck}
+              disabled={isCheckingMaint}
+              className="border-emerald-600 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+            >
+              {isCheckingMaint ? (
+                <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+              ) : (
+                <Wrench className="h-4 w-4 mr-1.5" />
+              )}
+              Kiểm tra bảo trì
             </Button>
           )}
 
@@ -273,6 +316,7 @@ export default function AlertsPage() {
             <option value="LOW_STOCK">Tồn kho thấp</option>
             <option value="LOT_EXPIRING">Lô sắp hết hạn</option>
             <option value="LOT_EXPIRED">Lô đã hết hạn</option>
+            <option value="MAINTENANCE_DUE">Đến hạn bảo trì</option>
           </select>
         </div>
       </div>
