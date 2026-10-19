@@ -49,3 +49,10 @@ export const slugify = (value: string) =>
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
+
+export const vietnamesePhoneRegex = /^(0|\+84)(3|5|7|8|9)\d{8}$/;
+
+export const vietnamesePhoneSchema = z
+  .string()
+  .trim()
+  .regex(vietnamesePhoneRegex, 'Số điện thoại Việt Nam không hợp lệ');

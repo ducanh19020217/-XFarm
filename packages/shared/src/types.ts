@@ -164,6 +164,13 @@ export enum TransactionType {
   EXPENSE = 'EXPENSE',
 }
 
+export enum BookingStatus {
+  PENDING = 'PENDING',
+  CONFIRMED = 'CONFIRMED',
+  CANCELLED = 'CANCELLED',
+  COMPLETED = 'COMPLETED',
+}
+
 export interface Paginated<T> {
   data: T[];
   total: number;
