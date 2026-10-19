@@ -226,4 +226,50 @@ pnpm --filter @xfarm/web lighthouse
 - Playwright được chuyển sang bản build production để loại bỏ lỗi timeout/`ERR_ABORTED` do Next dev biên dịch động; cần chạy lại toàn bộ nghiệm thu sau thay đổi này.
 
 ### 4. Điểm còn lại
-- Chưa thêm cửa hàng online, thanh toán, tour/booking; đây là phạm vi các giai đoạn sau theo kế hoạch.
+- Phân hệ Bán hàng & Webshop (GĐ 4) và Thiết bị cảm biến IoT (GĐ 7) đang hoàn thiện song song.
+
+---
+
+## Giai đoạn 5 – Du lịch trải nghiệm (phase-5-tours) – NGHIỆM THU
+
+### 1. Việc đã hoàn tất
+- **Mô hình dữ liệu & Migration**:
+  - Bảng `Tour`: thông tin tour du lịch nông trại, thời lượng, sức chứa, giá vé người lớn/trẻ em, trạng thái xuất bản, slug tự động chống trùng.
+  - Bảng `TourSlot`: các suất trải nghiệm theo khung giờ, ràng buộc `bookedCount >= 0 AND bookedCount <= capacity`, index chống trùng theo `(tourId, startAt)`.
+  - Bảng `Booking`: mã đặt chỗ tăng dần theo năm `BK-YYYY-xxxx`, thông tin khách hàng, số khách (người lớn/trẻ em), tổng tiền tính toán theo Decimal, trạng thái `BookingStatus` (PENDING, CONFIRMED, CANCELLED, COMPLETED) và `PaymentStatus` (UNPAID, PARTIAL, PAID).
+  - Tự động sinh `Payment` (`TT-`) và `Transaction` (`TN-`) loại `INCOME` với danh mục `TOUR` trong cùng database transaction khi thu tiền đặt chỗ.
+- **Backend API (`apps/api`)**:
+  - Mô-đun `tours`: CRUD tour, quản lý xuất bản (`/publish`), tạo suất đơn lẻ và tạo suất hàng loạt 2-3 tháng theo mẫu lịch (`/slots/batch`), cập nhật/xóa suất với ràng buộc chặt chẽ.
+  - Mô-đun `public/tours`: danh sách tour công khai, chi tiết tour kèm suất tương lai trong 60 ngày còn chỗ trống.
+  - Mô-đun `bookings`: đặt chỗ trực tuyến công khai an toàn đồng thời (`SELECT ... FOR UPDATE`), tra cứu đặt chỗ (`/public/bookings/lookup`), chi tiết mã (`/public/bookings/:code`), sinh mã VietQR.
+  - Quản lý đặt chỗ admin: phân trang, tìm kiếm, lọc theo ngày/trạng thái; xác nhận (`/confirm`), hủy và hoàn trả số chỗ vào suất (`/cancel`), ghi nhận thu tiền (`/payments`).
+  - Gửi email thông báo qua Mailpit khi đặt chỗ và khi admin xác nhận.
+- **Frontend Web (`apps/web`)**:
+  - Admin: Quản lý danh sách tour (`/admin/tours`), Chi tiết tour & Lịch suất theo tuần/tháng (`/admin/tours/[id]`), Tạo slot hàng loạt linh hoạt, Quản lý đặt chỗ & Ghi thu tiền (`/admin/tours/bookings`).
+  - Public: Trang giới thiệu tour (`/tour`), Chi tiết tour & form đặt chỗ trực quan theo ngày/giờ (`/tour/[slug]`), Trang đặt chỗ thành công hiển thị mã VietQR chuyển khoản (`/tour/dat-cho-thanh-cong/[code]`), Trang tra cứu đặt chỗ (`/tour/tra-cuu`).
+- **Nghiệm thu luồng Acceptance GĐ5 (`apps/web/e2e/phase5-acceptance.spec.ts`)**:
+  - Admin tạo tour mới xuất bản công khai.
+  - Admin tạo slot hàng loạt cho 2 tuần tới.
+  - Khách hàng vãng lai truy cập web public, chọn ngày/suất, đặt 2 người lớn + 1 trẻ em (tổng 3 khách).
+  - Slot giảm chỗ đúng: `bookedCount` tăng từ 0 lên 3.
+  - Admin vào trang quản lý đặt chỗ, xác nhận đặt chỗ (`CONFIRMED`) và ghi thu tiền đủ 500.000 ₫ (`PAID`).
+  - Hệ thống tự động sinh bản ghi `Transaction` loại `INCOME` với category `TOUR`.
+  - Admin hủy đặt chỗ: hệ thống cập nhật `CANCELLED` và tự động hoàn trả 3 chỗ về slot (`bookedCount` trở về 0), hiển thị đúng trên giao diện.
+
+### 2. Cách chạy và nghiệm thu
+```bash
+source ~/.nvm/nvm.sh && nvm use 22
+pnpm --filter @xfarm/api test:e2e test/bookings.e2e-spec.ts
+pnpm --filter @xfarm/api test:e2e test/tours.e2e-spec.ts
+pnpm --filter @xfarm/web exec playwright test e2e/phase5-acceptance.spec.ts
+pnpm --filter @xfarm/api smoke:dev
+```
+
+### 3. Kết quả kiểm thử
+- `pnpm lint`: đạt, 0 errors, 3 warnings có sẵn trong activity form.
+- `pnpm typecheck`: đạt, 0 errors trên toàn bộ 6 packages.
+- `pnpm turbo run test --force`: đạt 8/8 tasks (shared 80/80 tests, web 188/188 tests, api passWithNoTests).
+- `pnpm --filter @xfarm/api test:e2e`: đạt 15/15 test suites, 190/190 tests (trong đó `bookings.e2e-spec.ts` 5/5 tests và `tours.e2e-spec.ts` 18/18 tests đều PASS).
+- `pnpm --filter @xfarm/api smoke:dev`: 100% các endpoint đạt status 200/hợp lệ.
+- `pnpm --filter @xfarm/web build`: đạt, hoàn thành build tối ưu production không lỗi.
+- `apps/web/e2e/phase5-acceptance.spec.ts`: PASS trọn vẹn luồng tạo tour, tạo slot hàng loạt, đặt chỗ public, giảm chỗ, xác nhận, thu tiền sinh Transaction INCOME (TOUR), hủy booking trả chỗ.
