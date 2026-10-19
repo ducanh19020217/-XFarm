@@ -120,6 +120,34 @@ enum PostStatus {
   PUBLISHED
 }
 
+enum EquipmentStatus {
+  ACTIVE
+  MAINTENANCE
+  BROKEN
+  RETIRED
+}
+
+enum MaintenanceType {
+  ROUTINE
+  REPAIR
+  INSPECTION
+}
+
+enum SensorType {
+  TEMP
+  HUMIDITY
+  SOIL_MOISTURE
+  PH
+  DO
+  LIGHT
+  OTHER
+}
+
+enum AlertOp {
+  GT
+  LT
+}
+
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -132,23 +160,29 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  refreshTokens            RefreshToken[]
-  auditLogs                AuditLog[]
-  media                    Media[]
-  areasCreated             Area[]             @relation("AreasCreated")
-  cyclesCreated            Cycle[]            @relation("CyclesCreated")
-  activitiesCreated        Activity[]         @relation("ActivitiesCreated")
-  activitiesPerformed      Activity[]         @relation("ActivitiesPerformed")
-  animalGroupsCreated      AnimalGroup[]      @relation("AnimalGroupsCreated")
-  animalsCreated           Animal[]           @relation("AnimalsCreated")
-  animalEventsCreated      AnimalEvent[]      @relation("AnimalEventsCreated")
-  activityMaterialsCreated ActivityMaterial[] @relation("ActivityMaterialsCreated")
-  suppliersCreated         Supplier[]         @relation("SuppliersCreated")
-  purchaseOrdersCreated    PurchaseOrder[]    @relation("PurchaseOrdersCreated")
-  harvestLotsCreated       HarvestLot[]       @relation("HarvestLotsCreated")
-  productsCreated          Product[]          @relation("ProductsCreated")
-  postsCreated             Post[]             @relation("PostsCreated")
-  pagesCreated             Page[]             @relation("PagesCreated")
+  refreshTokens               RefreshToken[]
+  auditLogs                   AuditLog[]
+  media                       Media[]
+  areasCreated                Area[]                @relation("AreasCreated")
+  cyclesCreated               Cycle[]               @relation("CyclesCreated")
+  activitiesCreated           Activity[]            @relation("ActivitiesCreated")
+  activitiesPerformed         Activity[]            @relation("ActivitiesPerformed")
+  animalGroupsCreated         AnimalGroup[]         @relation("AnimalGroupsCreated")
+  animalsCreated              Animal[]              @relation("AnimalsCreated")
+  animalEventsCreated         AnimalEvent[]         @relation("AnimalEventsCreated")
+  activityMaterialsCreated    ActivityMaterial[]    @relation("ActivityMaterialsCreated")
+  suppliersCreated            Supplier[]            @relation("SuppliersCreated")
+  purchaseOrdersCreated       PurchaseOrder[]       @relation("PurchaseOrdersCreated")
+  harvestLotsCreated          HarvestLot[]          @relation("HarvestLotsCreated")
+  productsCreated             Product[]             @relation("ProductsCreated")
+  postsCreated                Post[]                @relation("PostsCreated")
+  pagesCreated                Page[]                @relation("PagesCreated")
+  equipmentsCreated           Equipment[]           @relation("EquipmentsCreated")
+  maintenanceSchedulesCreated MaintenanceSchedule[] @relation("MaintenanceSchedulesCreated")
+  maintenanceLogsCreated      MaintenanceLog[]      @relation("MaintenanceLogsCreated")
+  maintenanceLogsPerformed    MaintenanceLog[]      @relation("MaintenanceLogsPerformed")
+  sensorsCreated              Sensor[]              @relation("SensorsCreated")
+  alertRulesCreated           AlertRule[]           @relation("AlertRulesCreated")
 
   @@map("users")
 }
@@ -231,6 +265,8 @@ model Area {
   activities   Activity[]
   animalGroups AnimalGroup[]
   warehouses   Warehouse[]
+  equipments   Equipment[]
+  sensors      Sensor[]
 
   @@index([parentId])
   @@index([type])
@@ -577,6 +613,8 @@ model Alert {
   createdAt DateTime  @default(now())
   readAt    DateTime?
 
+  rule AlertRule? @relation(fields: [ruleId], references: [id], onDelete: SetNull)
+
   @@index([ruleId])
   @@index([refType, refId])
   @@index([readAt])
@@ -647,4 +685,131 @@ model SiteSetting {
   updatedAt DateTime @updatedAt
 
   @@map("site_settings")
+}
+
+model Equipment {
+  id           String          @id @default(cuid())
+  code         String          @unique
+  name         String
+  type         String
+  areaId       String?
+  purchaseDate DateTime?
+  value        Decimal?        @db.Decimal(18, 2)
+  status       EquipmentStatus @default(ACTIVE)
+  notes        String?
+  isActive     Boolean         @default(true)
+  createdById  String?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  area                 Area?                 @relation(fields: [areaId], references: [id], onDelete: SetNull)
+  createdBy            User?                 @relation("EquipmentsCreated", fields: [createdById], references: [id])
+  maintenanceSchedules MaintenanceSchedule[]
+  maintenanceLogs      MaintenanceLog[]
+
+  @@index([areaId])
+  @@index([status])
+  @@map("equipments")
+}
+
+model MaintenanceSchedule {
+  id           String   @id @default(cuid())
+  equipmentId  String
+  name         String
+  intervalDays Int
+  nextDueDate  DateTime
+  isActive     Boolean  @default(true)
+  createdById  String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  equipment       Equipment        @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+  createdBy       User?            @relation("MaintenanceSchedulesCreated", fields: [createdById], references: [id])
+  maintenanceLogs MaintenanceLog[]
+
+  @@index([equipmentId])
+  @@index([nextDueDate])
+  @@map("maintenance_schedules")
+}
+
+model MaintenanceLog {
+  id            String          @id @default(cuid())
+  equipmentId   String
+  scheduleId    String?
+  date          DateTime
+  type          MaintenanceType
+  cost          Decimal         @db.Decimal(18, 2)
+  notes         String?
+  performedById String?
+  createdById   String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  equipment   Equipment            @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+  schedule    MaintenanceSchedule? @relation(fields: [scheduleId], references: [id], onDelete: SetNull)
+  performedBy User?                @relation("MaintenanceLogsPerformed", fields: [performedById], references: [id])
+  createdBy   User?                @relation("MaintenanceLogsCreated", fields: [createdById], references: [id])
+
+  @@index([equipmentId])
+  @@index([scheduleId])
+  @@index([date])
+  @@map("maintenance_logs")
+}
+
+model Sensor {
+  id           String     @id @default(cuid())
+  code         String     @unique
+  name         String
+  type         SensorType
+  unit         String
+  areaId       String
+  apiKeyHash   String     @unique
+  apiKeyPrefix String
+  lastSeenAt   DateTime?
+  isActive     Boolean    @default(true)
+  createdById  String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  area       Area            @relation(fields: [areaId], references: [id])
+  createdBy  User?           @relation("SensorsCreated", fields: [createdById], references: [id])
+  readings   SensorReading[]
+  alertRules AlertRule[]
+
+  @@index([areaId])
+  @@index([type])
+  @@index([apiKeyPrefix])
+  @@map("sensors")
+}
+
+model SensorReading {
+  id         BigInt   @id @default(autoincrement())
+  sensorId   String
+  value      Decimal  @db.Decimal(12, 4)
+  recordedAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+
+  sensor Sensor @relation(fields: [sensorId], references: [id], onDelete: Cascade)
+
+  @@index([sensorId, recordedAt])
+  @@map("sensor_readings")
+}
+
+model AlertRule {
+  id              String   @id @default(cuid())
+  sensorId        String
+  op              AlertOp
+  threshold       Decimal  @db.Decimal(12, 4)
+  isActive        Boolean  @default(true)
+  cooldownMinutes Int      @default(30)
+  createdById     String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  sensor    Sensor  @relation(fields: [sensorId], references: [id], onDelete: Cascade)
+  createdBy User?   @relation("AlertRulesCreated", fields: [createdById], references: [id])
+  alerts    Alert[]
+
+  @@index([sensorId])
+  @@map("alert_rules")
 }
