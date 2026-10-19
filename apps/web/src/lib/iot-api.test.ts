@@ -62,10 +62,9 @@ describe('iot-api', () => {
       });
 
       const res = await getSensors({ page: 1, pageSize: 10, search: 'temp' });
-      expect(apiModule.apiFetch).toHaveBeenCalledWith(
-        '/sensors?page=1&pageSize=10&search=temp',
-        { signal: undefined },
-      );
+      expect(apiModule.apiFetch).toHaveBeenCalledWith('/sensors?page=1&pageSize=10&search=temp', {
+        signal: undefined,
+      });
       expect(res.data).toHaveLength(1);
     });
 
@@ -124,7 +123,9 @@ describe('iot-api', () => {
     it('getAlertRules queries /alert-rules', async () => {
       vi.mocked(apiModule.apiFetch).mockResolvedValueOnce({ data: [{ id: 'r1' }], total: 1 });
       const res = await getAlertRules({ sensorId: 's1' });
-      expect(apiModule.apiFetch).toHaveBeenCalledWith('/alert-rules?sensorId=s1', { signal: undefined });
+      expect(apiModule.apiFetch).toHaveBeenCalledWith('/alert-rules?sensorId=s1', {
+        signal: undefined,
+      });
       expect(res.data).toHaveLength(1);
     });
 
@@ -165,7 +166,9 @@ describe('iot-api', () => {
 
   describe('timeseries and latest', () => {
     it('getTimeseries queries /iot/series with params', async () => {
-      vi.mocked(apiModule.apiFetch).mockResolvedValueOnce({ data: [{ bucket: '2026-10-19', avg: 25 }] });
+      vi.mocked(apiModule.apiFetch).mockResolvedValueOnce({
+        data: [{ bucket: '2026-10-19', avg: 25 }],
+      });
       const res = await getTimeseries({
         sensorId: 's1',
         from: '2026-10-18T00:00:00Z',
@@ -180,9 +183,13 @@ describe('iot-api', () => {
     });
 
     it('getLatestReadings queries /iot/latest', async () => {
-      vi.mocked(apiModule.apiFetch).mockResolvedValueOnce({ data: [{ sensorId: 's1', value: 25.5 }] });
+      vi.mocked(apiModule.apiFetch).mockResolvedValueOnce({
+        data: [{ sensorId: 's1', value: 25.5 }],
+      });
       const res = await getLatestReadings('area-1');
-      expect(apiModule.apiFetch).toHaveBeenCalledWith('/iot/latest?areaId=area-1', { signal: undefined });
+      expect(apiModule.apiFetch).toHaveBeenCalledWith('/iot/latest?areaId=area-1', {
+        signal: undefined,
+      });
       expect(res.data).toHaveLength(1);
     });
   });

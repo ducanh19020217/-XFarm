@@ -148,14 +148,19 @@ export interface LatestReadingItem {
 
 export function isOnline(lastSeenAt: string | Date | null | undefined): boolean {
   if (!lastSeenAt) return false;
-  const time = typeof lastSeenAt === 'string' ? new Date(lastSeenAt).getTime() : lastSeenAt.getTime();
+  const time =
+    typeof lastSeenAt === 'string' ? new Date(lastSeenAt).getTime() : lastSeenAt.getTime();
   if (Number.isNaN(time)) return false;
   const diff = Date.now() - time;
   return diff >= 0 && diff < 15 * 60 * 1000;
 }
 
 export function generateCurlExample(apiKey: string, apiBaseUrl?: string): string {
-  const base = apiBaseUrl || (typeof window !== 'undefined' ? `${window.location.origin}/api/v1` : 'http://localhost:4250/api/v1');
+  const base =
+    apiBaseUrl ||
+    (typeof window !== 'undefined'
+      ? `${window.location.origin}/api/v1`
+      : 'http://localhost:4250/api/v1');
   return `curl -X POST "${base}/iot/readings" \\
   -H "Content-Type: application/json" \\
   -H "X-Sensor-Key: ${apiKey}" \\
@@ -176,7 +181,10 @@ export async function getSensors(
   if (params.sort) query.set('sort', params.sort);
 
   const endpoint = query.toString() ? `/sensors?${query.toString()}` : '/sensors';
-  const res = await apiFetch<Paginated<SensorItem> | { data: SensorItem[]; total: number }>(endpoint, { signal });
+  const res = await apiFetch<Paginated<SensorItem> | { data: SensorItem[]; total: number }>(
+    endpoint,
+    { signal },
+  );
 
   if ('data' in res && Array.isArray(res.data)) {
     return {
@@ -236,7 +244,10 @@ export async function getAlertRules(
   if (typeof params.isActive === 'boolean') query.set('isActive', String(params.isActive));
 
   const endpoint = query.toString() ? `/alert-rules?${query.toString()}` : '/alert-rules';
-  const res = await apiFetch<Paginated<AlertRuleItem> | { data: AlertRuleItem[]; total: number }>(endpoint, { signal });
+  const res = await apiFetch<Paginated<AlertRuleItem> | { data: AlertRuleItem[]; total: number }>(
+    endpoint,
+    { signal },
+  );
 
   if ('data' in res && Array.isArray(res.data)) {
     return {

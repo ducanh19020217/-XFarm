@@ -203,7 +203,9 @@ export function SensorChartCard({
             </Badge>
           </div>
           <p className="text-xs text-slate-400">
-            Khoảng thời gian: <span className="font-medium text-slate-600 dark:text-slate-300">{rangeLabel}</span> (Độ gom: {bucket})
+            Khoảng thời gian:{' '}
+            <span className="font-medium text-slate-600 dark:text-slate-300">{rangeLabel}</span> (Độ
+            gom: {bucket})
           </p>
         </div>
 
@@ -288,7 +290,10 @@ export function SensorChartCard({
         <div className="h-72 w-full pt-2" data-testid={`recharts-container-${sensor.id}`}>
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart data={data} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-slate-100 dark:stroke-slate-800" />
+              <CartesianGrid
+                strokeDasharray="3 3"
+                className="stroke-slate-100 dark:stroke-slate-800"
+              />
               <XAxis
                 dataKey="formattedTime"
                 tick={{ fontSize: 11, fill: '#64748b' }}

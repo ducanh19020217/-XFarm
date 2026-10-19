@@ -183,7 +183,9 @@ describe('SensorsPage', () => {
     // Verify API key dialog appears
     await waitFor(() => {
       expect(screen.getByTestId('sensor-api-key')).toHaveValue('generated-sensor-secret-key-12345');
-      expect(screen.getByTestId('curl-command-block')).toHaveTextContent('generated-sensor-secret-key-12345');
+      expect(screen.getByTestId('curl-command-block')).toHaveTextContent(
+        'generated-sensor-secret-key-12345',
+      );
       expect(screen.getByTestId('copy-key-btn')).toBeInTheDocument();
       expect(screen.getByTestId('copy-curl-btn')).toBeInTheDocument();
     });

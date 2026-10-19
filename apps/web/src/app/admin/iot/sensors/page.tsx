@@ -3,24 +3,8 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { ColumnDef } from '@tanstack/react-table';
-import {
-  Bell,
-  Edit2,
-  KeyRound,
-  LineChart,
-  Plus,
-  RefreshCw,
-} from 'lucide-react';
-import {
-  Badge,
-  Button,
-  DataTable,
-  Input,
-  Label,
-  PageHeader,
-  Toast,
-  useToast,
-} from '@xfarm/ui';
+import { Bell, Edit2, KeyRound, LineChart, Plus, RefreshCw } from 'lucide-react';
+import { Badge, Button, DataTable, Input, Label, PageHeader, Toast, useToast } from '@xfarm/ui';
 import { apiFetch, isAbortError } from '@/lib/api';
 import {
   type SensorItem,
@@ -308,7 +292,9 @@ export default function SensorsPage() {
               </span>
             )}
             <p className="text-[10px] text-slate-400">
-              {row.original.lastSeenAt ? `Vừa thấy: ${formatLastSeen(row.original.lastSeenAt)}` : 'Chưa có tín hiệu'}
+              {row.original.lastSeenAt
+                ? `Vừa thấy: ${formatLastSeen(row.original.lastSeenAt)}`
+                : 'Chưa có tín hiệu'}
             </p>
           </div>
         );
@@ -432,7 +418,10 @@ export default function SensorsPage() {
       >
         <div className="flex flex-wrap items-center gap-2">
           <Link href="/admin/iot/charts">
-            <Button variant="outline" className="text-emerald-600 border-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30">
+            <Button
+              variant="outline"
+              className="text-emerald-600 border-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+            >
               <LineChart className="h-4 w-4 mr-1.5" />
               Biểu đồ trực quan
             </Button>

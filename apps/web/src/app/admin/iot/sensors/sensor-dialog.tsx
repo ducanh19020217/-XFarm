@@ -34,13 +34,7 @@ interface SensorDialogProps {
   onSubmit: (values: SensorFormValues) => Promise<void>;
 }
 
-export function SensorDialog({
-  open,
-  onOpenChange,
-  sensor,
-  areas,
-  onSubmit,
-}: SensorDialogProps) {
+export function SensorDialog({ open, onOpenChange, sensor, areas, onSubmit }: SensorDialogProps) {
   const isEditing = Boolean(sensor);
 
   const [code, setCode] = React.useState('');
@@ -294,7 +288,10 @@ export function SensorDialog({
                 onChange={(e) => setEnableInitialRule(e.target.checked)}
                 className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
               />
-              <Label htmlFor="enable-initial-rule" className="cursor-pointer text-xs font-semibold text-slate-800 dark:text-slate-200">
+              <Label
+                htmlFor="enable-initial-rule"
+                className="cursor-pointer text-xs font-semibold text-slate-800 dark:text-slate-200"
+              >
                 Thêm ngưỡng cảnh báo ban đầu (tùy chọn)
               </Label>
             </div>

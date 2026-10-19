@@ -66,8 +66,8 @@ export function ApiKeyDialog({
             <p className="font-semibold">Lưu ý quan trọng: Khóa chỉ hiển thị một lần!</p>
             <p className="mt-0.5 text-amber-800 dark:text-amber-300">
               Hãy sao chép và lưu trữ khóa này vào vi điều khiển (ESP32, Arduino) hoặc gateway IoT
-              ngay bây giờ. Sau khi đóng cửa sổ này, bạn sẽ không thể xem lại khóa bí mật này nữa (chỉ
-              có thể xoay khóa mới).
+              ngay bây giờ. Sau khi đóng cửa sổ này, bạn sẽ không thể xem lại khóa bí mật này nữa
+              (chỉ có thể xoay khóa mới).
             </p>
           </div>
         </div>

@@ -15,11 +15,7 @@ import {
 } from 'lucide-react';
 import { Badge, Button, Input, Label, PageHeader } from '@xfarm/ui';
 import { apiFetch, isAbortError } from '@/lib/api';
-import {
-  type SensorItem,
-  getSensors,
-  SENSOR_TYPE_LABELS,
-} from '@/lib/iot-api';
+import { type SensorItem, getSensors, SENSOR_TYPE_LABELS } from '@/lib/iot-api';
 import { type AreaTreeItem } from '@/lib/area-constants';
 import { SensorChartCard } from './sensor-chart';
 import { AreaTreeSelector } from './area-tree-selector';
@@ -142,7 +138,9 @@ function ChartsContent() {
       };
     }
     // Custom
-    const f = customFrom ? new Date(customFrom).toISOString() : new Date(now.getTime() - 24 * 3600 * 1000).toISOString();
+    const f = customFrom
+      ? new Date(customFrom).toISOString()
+      : new Date(now.getTime() - 24 * 3600 * 1000).toISOString();
     const t = customTo ? new Date(customTo).toISOString() : now.toISOString();
     return {
       from: f,
@@ -209,7 +207,9 @@ function ChartsContent() {
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 pb-4 dark:border-slate-800">
           {/* Mode Switcher */}
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Xem theo:</span>
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+              Xem theo:
+            </span>
             <div className="inline-flex rounded-lg border border-slate-200 bg-slate-100 p-0.5 dark:border-slate-800 dark:bg-slate-900">
               <button
                 type="button"
@@ -306,7 +306,8 @@ function ChartsContent() {
               >
                 {sensors.map((s) => (
                   <option key={s.id} value={s.id}>
-                    {s.code} – {s.name} ({s.area?.name || 'Chưa gán khu'}) [{SENSOR_TYPE_LABELS[s.type]}]
+                    {s.code} – {s.name} ({s.area?.name || 'Chưa gán khu'}) [
+                    {SENSOR_TYPE_LABELS[s.type]}]
                   </option>
                 ))}
               </select>

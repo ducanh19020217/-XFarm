@@ -22,9 +22,9 @@ test.describe('IoT Sensors & Charts Flow', () => {
 
     // 2. Vào trang quản lý cảm biến /admin/iot/sensors
     await page.goto('/admin/iot/sensors');
-    await expect(
-      page.getByRole('heading', { name: /quản lý cảm biến iot/i }),
-    ).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole('heading', { name: /quản lý cảm biến iot/i })).toBeVisible({
+      timeout: 15_000,
+    });
 
     // 3. Mở dialog tạo sensor
     const suffix = Date.now();
@@ -108,31 +108,27 @@ test.describe('IoT Sensors & Charts Flow', () => {
     await expect(dropdown).toBeVisible();
 
     // Dropdown hiển thị alert và có link sang biểu đồ cảm biến
-    const chartLink = dropdown
-      .getByRole('link', { name: /xem biểu đồ cảm biến/i })
-      .first();
+    const chartLink = dropdown.getByRole('link', { name: /xem biểu đồ cảm biến/i }).first();
     await expect(chartLink).toBeVisible();
 
     // 7. Mở biểu đồ thấy series
     await chartLink.click();
 
     await expect(page).toHaveURL(/.*\/admin\/iot\/charts.*/);
-    await expect(
-      page.getByRole('heading', { name: /biểu đồ dữ liệu iot/i }),
-    ).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole('heading', { name: /biểu đồ dữ liệu iot/i })).toBeVisible({
+      timeout: 15_000,
+    });
 
     // Thấy biểu đồ của sensor vừa tạo
-    await expect(
-      page.getByRole('heading', { name: sensorName }),
-    ).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole('heading', { name: sensorName })).toBeVisible({ timeout: 15_000 });
     await expect(page.getByTestId('sensor-charts-container')).toBeVisible({
       timeout: 15_000,
     });
 
     // Thấy giá trị vừa gửi hiển thị trên card (38.5 hoặc 38,5)
-    await expect(
-      page.getByText('38.5 °C').or(page.getByText('38,5 °C')).first(),
-    ).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText('38.5 °C').or(page.getByText('38,5 °C')).first()).toBeVisible({
+      timeout: 15_000,
+    });
 
     errors.assertClean();
   });

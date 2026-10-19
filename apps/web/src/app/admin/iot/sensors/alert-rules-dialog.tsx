@@ -1,16 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import {
-  Bell,
-  Check,
-  Edit2,
-  Loader2,
-  Plus,
-  Power,
-  Trash2,
-  X,
-} from 'lucide-react';
+import { Bell, Check, Edit2, Loader2, Plus, Power, Trash2, X } from 'lucide-react';
 import { Badge, Button, FormDialog, Input, Label } from '@xfarm/ui';
 import {
   type SensorItem,
@@ -298,7 +289,10 @@ export function AlertRulesDialog({
                           {opText} {rule.threshold} {sensor?.unit}
                         </span>
                         {rule.isActive ? (
-                          <Badge variant="default" className="text-[10px] px-1.5 py-0 bg-emerald-600">
+                          <Badge
+                            variant="default"
+                            className="text-[10px] px-1.5 py-0 bg-emerald-600"
+                          >
                             Đang bật
                           </Badge>
                         ) : (
