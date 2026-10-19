@@ -21,3 +21,8 @@ export * from './schemas/page';
 export * from './schemas/site-setting';
 export * from './schemas/trace';
 export * from './types';
+export * from './schemas/customer';
+export * from './schemas/sales-order';
+export * from './schemas/webshop';
+export * from './schemas/payment';
+export * from './schemas/finance';

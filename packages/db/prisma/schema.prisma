@@ -120,6 +120,44 @@ enum PostStatus {
   PUBLISHED
 }
 
+enum CustomerType {
+  RETAIL
+  WHOLESALE
+  AGENT
+}
+
+enum SalesChannel {
+  ADMIN
+  WEBSHOP
+}
+
+enum SalesOrderStatus {
+  PENDING
+  CONFIRMED
+  PACKING
+  SHIPPING
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PARTIAL
+  PAID
+}
+
+enum PaymentMethod {
+  COD
+  BANK_TRANSFER
+  CASH
+  VNPAY
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -149,6 +187,7 @@ model User {
   productsCreated          Product[]          @relation("ProductsCreated")
   postsCreated             Post[]             @relation("PostsCreated")
   pagesCreated             Page[]             @relation("PagesCreated")
+  customers                Customer[]         @relation("CustomersCreated")
 
   @@map("users")
 }
@@ -262,6 +301,7 @@ model Cycle {
   activities   Activity[]
   harvestLots  HarvestLot[]
   animalGroups AnimalGroup[]
+  transactions Transaction[]
 
   @@index([areaId, status])
   @@index([status])
@@ -384,6 +424,7 @@ model Item {
   purchaseOrderLines PurchaseOrderLine[]
   harvestLots        HarvestLot[]
   products           Product[]
+  salesOrderLines    SalesOrderLine[]
 
   @@index([category, isActive])
   @@map("items")
@@ -402,6 +443,7 @@ model Warehouse {
   harvestLots HarvestLot[]
   movesFrom   StockMove[]  @relation("StockMovesFrom")
   movesTo     StockMove[]  @relation("StockMovesTo")
+  salesOrders SalesOrder[]
 
   @@index([areaId])
   @@map("warehouses")
@@ -422,6 +464,7 @@ model StockLot {
   warehouse         Warehouse?         @relation(fields: [warehouseId], references: [id])
   stockMoves        StockMove[]
   activityMaterials ActivityMaterial[]
+  salesOrderLines   SalesOrderLine[]
   harvestLot        HarvestLot?        @relation(fields: [harvestLotId], references: [id])
 
   @@unique([itemId, lotCode])
@@ -598,8 +641,9 @@ model Product {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  item      Item  @relation(fields: [itemId], references: [id])
-  createdBy User? @relation("ProductsCreated", fields: [createdById], references: [id])
+  item            Item             @relation(fields: [itemId], references: [id])
+  createdBy       User?            @relation("ProductsCreated", fields: [createdById], references: [id])
+  salesOrderLines SalesOrderLine[]
 
   @@index([isPublished, sortOrder])
   @@index([itemId])
@@ -647,4 +691,135 @@ model SiteSetting {
   updatedAt DateTime @updatedAt
 
   @@map("site_settings")
+}
+
+model Customer {
+  id        String       @id @default(cuid())
+  code      String       @unique
+  name      String
+  phone     String       @unique
+  email     String?
+  address   String?
+  type      CustomerType @default(RETAIL)
+  userId    String?
+  isActive  Boolean      @default(true)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  user        User?        @relation("CustomersCreated", fields: [userId], references: [id])
+  salesOrders SalesOrder[]
+
+  @@index([type, isActive])
+  @@map("customers")
+}
+
+model SalesOrder {
+  id              String           @id @default(cuid())
+  code            String           @unique
+  customerId      String
+  channel         SalesChannel
+  status          SalesOrderStatus @default(PENDING)
+  paymentStatus   PaymentStatus    @default(UNPAID)
+  paymentMethod   PaymentMethod
+  shippingAddress String
+  subtotal        Decimal          @db.Decimal(18, 2)
+  discount        Decimal          @db.Decimal(18, 2)
+  shippingFee     Decimal          @db.Decimal(18, 2)
+  total           Decimal          @db.Decimal(18, 2)
+  notes           String?
+  confirmedAt     DateTime?
+  cancelledAt     DateTime?
+  warehouseId     String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  customer  Customer         @relation(fields: [customerId], references: [id])
+  warehouse Warehouse?       @relation(fields: [warehouseId], references: [id])
+  lines     SalesOrderLine[]
+  payments  Payment[]
+
+  @@index([customerId, status])
+  @@index([status, createdAt])
+  @@index([channel, createdAt])
+  @@map("sales_orders")
+}
+
+model SalesOrderLine {
+  id         String  @id @default(cuid())
+  orderId    String
+  productId  String?
+  itemId     String
+  stockLotId String?
+  quantity   Decimal @db.Decimal(18, 3)
+  unitPrice  Decimal @db.Decimal(18, 2)
+
+  order    SalesOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product  Product?   @relation(fields: [productId], references: [id])
+  item     Item       @relation(fields: [itemId], references: [id])
+  stockLot StockLot?  @relation(fields: [stockLotId], references: [id])
+
+  @@index([orderId])
+  @@index([productId])
+  @@index([itemId])
+  @@map("sales_order_lines")
+}
+
+model Payment {
+  id            String        @id @default(cuid())
+  code          String        @unique
+  orderId       String?
+  amount        Decimal       @db.Decimal(18, 2)
+  method        PaymentMethod
+  paidAt        DateTime      @default(now())
+  transactionId String?       @unique
+  notes         String?
+
+  order SalesOrder? @relation(fields: [orderId], references: [id])
+
+  @@index([orderId, paidAt])
+  @@map("payments")
+}
+
+model FinanceCategory {
+  id        String          @id @default(cuid())
+  name      String
+  type      TransactionType
+  parentId  String?
+  isActive  Boolean         @default(true)
+  systemKey String?         @unique
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  parent       FinanceCategory?  @relation("FinanceCategoryHierarchy", fields: [parentId], references: [id])
+  children     FinanceCategory[] @relation("FinanceCategoryHierarchy")
+  transactions Transaction[]
+
+  @@index([type, isActive])
+  @@index([parentId])
+  @@map("finance_categories")
+}
+
+model Transaction {
+  id         String          @id @default(cuid())
+  code       String          @unique
+  type       TransactionType
+  categoryId String
+  amount     Decimal         @db.Decimal(18, 2)
+  date       DateTime
+  cycleId    String?
+  refType    String?
+  refId      String?
+  method     PaymentMethod
+  notes      String?
+  mediaIds   String[]        @default([])
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+
+  category FinanceCategory @relation(fields: [categoryId], references: [id])
+  cycle    Cycle?          @relation(fields: [cycleId], references: [id], onDelete: SetNull)
+
+  @@index([date])
+  @@index([cycleId])
+  @@index([refType, refId])
+  @@map("transactions")
 }
