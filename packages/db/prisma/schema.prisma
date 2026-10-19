@@ -158,6 +158,13 @@ enum TransactionType {
   EXPENSE
 }
 
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -192,6 +199,9 @@ model User {
   salesOrdersCreated       SalesOrder[]       @relation("SalesOrdersCreated")
   paymentsCreated          Payment[]          @relation("PaymentsCreated")
   transactionsCreated      Transaction[]      @relation("TransactionsCreated")
+  toursCreated             Tour[]             @relation("ToursCreated")
+  tourSlotsCreated         TourSlot[]         @relation("TourSlotsCreated")
+  bookingsCreated          Booking[]          @relation("BookingsCreated")
 
   @@map("users")
 }
@@ -714,6 +724,7 @@ model Customer {
   user        User?        @relation("CustomerAccount", fields: [userId], references: [id])
   createdBy   User?        @relation("CustomersCreated", fields: [createdById], references: [id], onDelete: SetNull)
   salesOrders SalesOrder[]
+  bookings    Booking[]
 
   @@index([type, isActive])
   @@map("customers")
@@ -776,6 +787,7 @@ model Payment {
   id            String        @id @default(cuid())
   code          String        @unique
   orderId       String?
+  bookingId     String?
   amount        Decimal       @db.Decimal(18, 2)
   method        PaymentMethod
   paidAt        DateTime      @default(now())
@@ -786,9 +798,11 @@ model Payment {
   updatedAt     DateTime      @updatedAt
 
   order     SalesOrder? @relation(fields: [orderId], references: [id])
+  booking   Booking?    @relation(fields: [bookingId], references: [id], onDelete: SetNull)
   createdBy User?       @relation("PaymentsCreated", fields: [createdById], references: [id], onDelete: SetNull)
 
   @@index([orderId, paidAt])
+  @@index([bookingId, paidAt])
   @@map("payments")
 }
 
@@ -836,4 +850,81 @@ model Transaction {
   @@index([cycleId])
   @@index([refType, refId])
   @@map("transactions")
+}
+
+model Tour {
+  id              String     @id @default(cuid())
+  slug            String     @unique
+  name            String
+  description     String
+  durationMinutes Int
+  priceAdult      Decimal    @db.Decimal(18, 2)
+  priceChild      Decimal    @db.Decimal(18, 2)
+  capacity        Int
+  mediaIds        String[]   @default([])
+  isPublished     Boolean    @default(false)
+  sortOrder       Int        @default(0)
+  createdById     String?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  createdBy User?      @relation("ToursCreated", fields: [createdById], references: [id], onDelete: SetNull)
+  slots     TourSlot[]
+
+  @@index([isPublished, sortOrder])
+  @@map("tours")
+}
+
+model TourSlot {
+  id          String    @id @default(cuid())
+  tourId      String
+  startAt     DateTime
+  capacity    Int
+  bookedCount Int       @default(0)
+  isActive    Boolean   @default(true)
+  createdById String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  tour      Tour      @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  createdBy User?     @relation("TourSlotsCreated", fields: [createdById], references: [id], onDelete: SetNull)
+  bookings  Booking[]
+
+  @@unique([tourId, startAt])
+  @@index([startAt])
+  @@index([tourId, isActive])
+  @@map("tour_slots")
+}
+
+model Booking {
+  id            String         @id @default(cuid())
+  code          String         @unique
+  slotId        String
+  customerName  String
+  phone         String
+  email         String?
+  adults        Int
+  children      Int            @default(0)
+  total         Decimal        @db.Decimal(18, 2)
+  status        BookingStatus  @default(PENDING)
+  paymentStatus PaymentStatus  @default(UNPAID)
+  paymentMethod PaymentMethod?
+  notes         String?
+  customerId    String?
+  confirmedAt   DateTime?
+  cancelledAt   DateTime?
+  createdById   String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  slot      TourSlot  @relation(fields: [slotId], references: [id])
+  customer  Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  createdBy User?     @relation("BookingsCreated", fields: [createdById], references: [id], onDelete: SetNull)
+  payments  Payment[]
+
+  @@index([slotId])
+  @@index([status, createdAt])
+  @@index([customerId])
+  @@index([phone])
+  @@map("bookings")
 }
