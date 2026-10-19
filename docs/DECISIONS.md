@@ -118,3 +118,8 @@ Tài liệu này ghi lại các quyết định thiết kế và kỹ thuật qu
 - **Quyết định**: Cho phép người dùng vai trò `WORKER` được phép xem thiết bị và tạo bản ghi nhật ký bảo trì (`POST /equipment/:id/maintenance-logs` và `POST /maintenance-logs`) cho mọi thiết bị đang hoạt động.
 - **Hệ quả**: Đảm bảo luồng vận hành thiết bị và ghi nhận sửa chữa, bảo dưỡng không bị gián đoạn. Khi phân hệ Nhân sự (gán khu vực làm việc cho nhân viên) được hoàn thiện ở các giai đoạn tiếp theo, bộ lọc kiểm tra quyền theo khu vực của Worker sẽ được bổ sung vào `MaintenanceService` mà không làm thay đổi hợp đồng API.
 
+### DECISION-015: Giới hạn tần suất ingestion IoT theo cảm biến
+- Endpoint public `POST /iot/readings` giới hạn 60 request/phút cho mỗi sensor bằng bộ đếm trong bộ nhớ của process API.
+- Khi vượt giới hạn, API trả `429`; bộ đếm tự làm mới sau 60 giây. Đây là giới hạn đơn giản phù hợp giai đoạn đầu, chưa dùng Redis vì ingestion hiện chỉ chạy một API process trong môi trường triển khai hiện tại.
+- Khi cần scale nhiều process/replica, chuyển bộ đếm sang Redis với TTL để giữ cùng một hạn mức giữa các process.
+

@@ -22,6 +22,9 @@ import { CmsModule } from './modules/cms/cms.module';
 import { PublicTraceModule } from './modules/public-trace/public-trace.module';
 import { PurchaseOrdersModule } from './modules/purchase-orders/purchase-orders.module';
 import { EquipmentModule } from './modules/equipment/equipment.module';
+import { IotModule } from './modules/iot/iot.module';
+import { SensorsModule } from './modules/sensors/sensors.module';
+import { AlertRulesModule } from './modules/alert-rules/alert-rules.module';
 import { SequenceModule } from './common/sequence/sequence.module';
 
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
@@ -57,6 +60,9 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
     PublicTraceModule,
     PurchaseOrdersModule,
     EquipmentModule,
+    IotModule,
+    SensorsModule,
+    AlertRulesModule,
   ],
   providers: [
     {

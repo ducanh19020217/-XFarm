@@ -107,6 +107,9 @@ async function main() {
       '/purchase-orders',
       '/equipment',
       '/maintenance-schedules',
+      '/sensors',
+      '/alert-rules',
+      '/iot/latest?areaId=smoke-area',
     ];
 
     for (const route of routes) {
