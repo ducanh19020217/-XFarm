@@ -126,6 +126,34 @@ export enum AlertType {
   LOT_EXPIRED = 'LOT_EXPIRED',
 }
 
+export enum EquipmentStatus {
+  ACTIVE = 'ACTIVE',
+  MAINTENANCE = 'MAINTENANCE',
+  BROKEN = 'BROKEN',
+  RETIRED = 'RETIRED',
+}
+
+export enum MaintenanceType {
+  ROUTINE = 'ROUTINE',
+  REPAIR = 'REPAIR',
+  INSPECTION = 'INSPECTION',
+}
+
+export enum SensorType {
+  TEMP = 'TEMP',
+  HUMIDITY = 'HUMIDITY',
+  SOIL_MOISTURE = 'SOIL_MOISTURE',
+  PH = 'PH',
+  DO = 'DO',
+  LIGHT = 'LIGHT',
+  OTHER = 'OTHER',
+}
+
+export enum AlertOp {
+  GT = 'GT',
+  LT = 'LT',
+}
+
 export interface Paginated<T> {
   data: T[];
   total: number;
