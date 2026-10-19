@@ -13,6 +13,7 @@ vi.mock('@/lib/alerts-api', async () => {
     markAlertAsRead: vi.fn(),
     markAllAlertsAsRead: vi.fn(),
     runInventoryCheck: vi.fn(),
+    runMaintenanceCheck: vi.fn(),
   };
 });
 

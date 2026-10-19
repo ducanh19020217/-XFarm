@@ -68,6 +68,10 @@ export class EquipmentService {
           area: {
             select: { id: true, code: true, name: true },
           },
+          maintenanceSchedules: {
+            where: { isActive: true },
+            orderBy: { nextDueDate: 'asc' },
+          },
           _count: {
             select: {
               maintenanceSchedules: true,

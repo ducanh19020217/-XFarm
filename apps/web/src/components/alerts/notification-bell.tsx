@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Bell, Check, ExternalLink, Loader2, Package } from 'lucide-react';
+import { Bell, Check, ExternalLink, Loader2, Package, Wrench } from 'lucide-react';
 import { Badge, Button } from '@xfarm/ui';
 import {
   type AlertItem,
@@ -210,7 +210,11 @@ export function NotificationBell() {
                             onClick={() => setIsOpen(false)}
                             className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600 hover:text-emerald-700 hover:underline"
                           >
-                            <Package className="h-3 w-3" />
+                            {alert.refType === 'EQUIPMENT' || alert.type === 'MAINTENANCE_DUE' ? (
+                              <Wrench className="h-3 w-3" />
+                            ) : (
+                              <Package className="h-3 w-3" />
+                            )}
                             <span>{inv.label}</span>
                             <ExternalLink className="h-2.5 w-2.5 opacity-70" />
                           </Link>
