@@ -67,8 +67,60 @@ export class TransactionsService {
       prisma.transaction.count({ where }),
     ]);
 
+    const paymentIds = data
+      .filter((t) => t.refType === 'Payment' && t.refId)
+      .map((t) => t.refId as string);
+    const poIds = data
+      .filter((t) => (t.refType === 'PurchaseOrder' || t.refType === 'PO') && t.refId)
+      .map((t) => t.refId as string);
+
+    const [payments, pos] = await Promise.all([
+      paymentIds.length > 0
+        ? prisma.payment.findMany({
+            where: { id: { in: paymentIds } },
+            include: { order: { select: { id: true, code: true } } },
+          })
+        : [],
+      poIds.length > 0
+        ? prisma.purchaseOrder.findMany({
+            where: { id: { in: poIds } },
+            select: { id: true, code: true },
+          })
+        : [],
+    ]);
+
+    const paymentMap = new Map(payments.map((p) => [p.id, p]));
+    const poMap = new Map(pos.map((p) => [p.id, p]));
+
+    const enriched = data.map((t) => {
+      let orderId: string | undefined;
+      let orderCode: string | undefined;
+      let poId: string | undefined;
+      let poCode: string | undefined;
+
+      if (t.refType === 'Payment' && t.refId) {
+        const pm = paymentMap.get(t.refId);
+        orderId = pm?.orderId ?? undefined;
+        orderCode = pm?.order?.code ?? undefined;
+      } else if (t.refType === 'SalesOrder' && t.refId) {
+        orderId = t.refId;
+      } else if ((t.refType === 'PurchaseOrder' || t.refType === 'PO') && t.refId) {
+        const po = poMap.get(t.refId);
+        poId = po?.id ?? t.refId;
+        poCode = po?.code ?? undefined;
+      }
+
+      return {
+        ...t,
+        orderId,
+        orderCode,
+        poId,
+        poCode,
+      };
+    });
+
     return {
-      data,
+      data: enriched,
       total,
       page,
       pageSize,

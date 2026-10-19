@@ -4,7 +4,8 @@ import * as React from 'react';
 import { PurchaseOrderStatus } from '@xfarm/shared';
 import { Button } from '@xfarm/ui';
 import { CheckCircle2, PackageCheck, XCircle } from 'lucide-react';
-import { canCancelPO, canOrderPO, canReceivePO } from './constants';
+import { canCancelPO, canOrderPO, canReceivePO, canPayPO } from './constants';
+import { DollarSign } from 'lucide-react';
 
 interface POActionsProps {
   status: PurchaseOrderStatus;
@@ -12,15 +13,30 @@ interface POActionsProps {
   onOrder: () => void;
   onCancel: () => void;
   onReceive: () => void;
+  onPay?: () => void;
 }
 
-export function POActions({ status, role, onOrder, onCancel, onReceive }: POActionsProps) {
+export function POActions({ status, role, onOrder, onCancel, onReceive, onPay }: POActionsProps) {
   const allowOrder = canOrderPO(role);
   const allowCancel = canCancelPO(role);
   const allowReceive = canReceivePO(role);
+  const allowPay = canPayPO(role);
+
+  const payButton =
+    allowPay && status !== PurchaseOrderStatus.CANCELLED && onPay ? (
+      <Button
+        type="button"
+        variant="outline"
+        onClick={onPay}
+        className="border-emerald-600 text-emerald-700 hover:bg-emerald-50"
+      >
+        <DollarSign className="mr-1.5 h-4 w-4" />
+        Trả tiền
+      </Button>
+    ) : null;
 
   if (status === PurchaseOrderStatus.DRAFT) {
-    if (!allowCancel && !allowOrder) return null;
+    if (!allowCancel && !allowOrder && !payButton) return null;
     return (
       <div className="flex items-center gap-2">
         {allowCancel && (
@@ -35,12 +51,13 @@ export function POActions({ status, role, onOrder, onCancel, onReceive }: POActi
             Đặt hàng
           </Button>
         )}
+        {payButton}
       </div>
     );
   }
 
   if (status === PurchaseOrderStatus.ORDERED) {
-    if (!allowCancel && !allowReceive) return null;
+    if (!allowCancel && !allowReceive && !payButton) return null;
     return (
       <div className="flex items-center gap-2">
         {allowCancel && (
@@ -55,12 +72,13 @@ export function POActions({ status, role, onOrder, onCancel, onReceive }: POActi
             Nhận hàng
           </Button>
         )}
+        {payButton}
       </div>
     );
   }
 
   if (status === PurchaseOrderStatus.PARTIAL) {
-    if (!allowReceive) return null;
+    if (!allowReceive && !payButton) return null;
     return (
       <div className="flex items-center gap-2">
         {allowReceive && (
@@ -69,8 +87,13 @@ export function POActions({ status, role, onOrder, onCancel, onReceive }: POActi
             Nhận hàng
           </Button>
         )}
+        {payButton}
       </div>
     );
+  }
+
+  if (status === PurchaseOrderStatus.RECEIVED && payButton) {
+    return <div className="flex items-center gap-2">{payButton}</div>;
   }
 
   return null;
