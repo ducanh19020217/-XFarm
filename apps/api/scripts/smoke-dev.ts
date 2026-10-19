@@ -79,7 +79,15 @@ async function main() {
       .join('; ');
     if (!cookieHeader) throw new Error('Login did not return authentication cookies');
 
-    const routes = [
+    interface RouteDefinition {
+      path: string;
+      method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+      body?: unknown;
+    }
+
+    type RouteItem = string | RouteDefinition;
+
+    const routes: RouteItem[] = [
       '/users',
       '/areas',
       '/cycles',
@@ -109,21 +117,34 @@ async function main() {
       '/tasks',
       '/attendance',
       '/payrolls',
-      '/sync/batch',
+      { path: '/sync/batch', method: 'POST', body: { items: [] } },
     ];
 
-    for (const route of routes) {
-      const response = await request(`${baseUrl}${route}`, {
-        headers: { cookie: cookieHeader },
+    for (const item of routes) {
+      const routeConfig: RouteDefinition = typeof item === 'string' ? { path: item } : item;
+      const method = routeConfig.method ?? 'GET';
+      const path = routeConfig.path;
+      const headers: Record<string, string> = { cookie: cookieHeader };
+      let body: string | undefined;
+
+      if (routeConfig.body !== undefined) {
+        headers['content-type'] = 'application/json';
+        body = JSON.stringify(routeConfig.body);
+      }
+
+      const response = await request(`${baseUrl}${path}`, {
+        method,
+        headers,
+        body,
       });
-      if (response.status === 404 && route.startsWith('/calendar')) {
-        console.log(`SKIP ${route} (404: route chưa có)`);
+      if (response.status === 404 && path.startsWith('/calendar')) {
+        console.log(`SKIP ${path} (404: route chưa có)`);
         continue;
       }
-      if (response.status === 500) {
-        throw new Error(`${route} returned 500: ${await response.text()}`);
+      if (response.status === 404 || response.status >= 500) {
+        throw new Error(`${method} ${path} returned ${response.status}: ${await response.text()}`);
       }
-      console.log(`PASS ${route} (${response.status})`);
+      console.log(`PASS ${method !== 'GET' ? `${method} ` : ''}${path} (${response.status})`);
     }
   } finally {
     stopServer(server);
