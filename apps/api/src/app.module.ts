@@ -21,6 +21,7 @@ import { HarvestLotsModule } from './modules/harvest-lots/harvest-lots.module';
 import { CmsModule } from './modules/cms/cms.module';
 import { PublicTraceModule } from './modules/public-trace/public-trace.module';
 import { PurchaseOrdersModule } from './modules/purchase-orders/purchase-orders.module';
+import { ToursModule } from './modules/tours/tours.module';
 import { SequenceModule } from './common/sequence/sequence.module';
 
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
@@ -55,6 +56,7 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
     CmsModule,
     PublicTraceModule,
     PurchaseOrdersModule,
+    ToursModule,
   ],
   providers: [
     {
