@@ -18,6 +18,7 @@ interface AlertRulesDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   sensor: SensorItem | null;
+  canManage?: boolean;
   onRulesChanged?: () => void;
 }
 
@@ -25,6 +26,7 @@ export function AlertRulesDialog({
   open,
   onOpenChange,
   sensor,
+  canManage = false,
   onRulesChanged,
 }: AlertRulesDialogProps) {
   const [rules, setRules] = React.useState<AlertRuleItem[]>([]);
@@ -79,7 +81,7 @@ export function AlertRulesDialog({
 
   const handleSaveRule = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!sensor?.id) return;
+    if (!canManage || !sensor?.id) return;
 
     if (!threshold.trim() || Number.isNaN(Number(threshold))) {
       setFormError('Vui lòng nhập giá trị ngưỡng hợp lệ');
@@ -119,6 +121,7 @@ export function AlertRulesDialog({
   };
 
   const handleToggleActive = async (rule: AlertRuleItem) => {
+    if (!canManage) return;
     try {
       await updateAlertRule(rule.id, { isActive: !rule.isActive });
       await fetchRules();
@@ -129,6 +132,7 @@ export function AlertRulesDialog({
   };
 
   const handleDeleteRule = async (ruleId: string) => {
+    if (!canManage) return;
     try {
       await deleteAlertRule(ruleId);
       await fetchRules();
@@ -145,116 +149,126 @@ export function AlertRulesDialog({
     <FormDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={`Cấu hình Ngưỡng Cảnh Báo – ${sensor?.name || ''}`}
-      description={`Cảm biến ${sensor?.code || ''} (${sensor?.unit || ''}). Hệ thống sẽ tạo thông báo chuông khi giá trị đo vượt ngưỡng.`}
+      title={
+        canManage
+          ? `Cấu hình Ngưỡng Cảnh Báo – ${sensor?.name || ''}`
+          : `Ngưỡng Cảnh Báo – ${sensor?.name || ''}`
+      }
+      description={
+        canManage
+          ? `Cảm biến ${sensor?.code || ''} (${sensor?.unit || ''}). Hệ thống sẽ tạo thông báo chuông khi giá trị đo vượt ngưỡng.`
+          : `Cảm biến ${sensor?.code || ''} (${sensor?.unit || ''}). Danh sách ngưỡng cảnh báo đã thiết lập (chỉ xem).`
+      }
     >
       <div className="space-y-4 py-1" data-testid="alert-rules-dialog-content">
         {/* Form add / edit */}
-        <form
-          onSubmit={handleSaveRule}
-          className="rounded-lg border border-slate-200 bg-slate-50 p-3.5 dark:border-slate-800 dark:bg-slate-900/60 space-y-3"
-          data-testid="alert-rule-form"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-              <Bell className="h-3.5 w-3.5 text-emerald-600" />
-              {isEditingRule ? 'Chỉnh sửa ngưỡng cảnh báo' : 'Thêm ngưỡng cảnh báo mới'}
-            </span>
-            {isEditingRule && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={resetForm}
-                className="h-6 text-[11px] text-slate-500 hover:text-slate-800"
-              >
-                <X className="h-3 w-3 mr-1" />
-                Hủy sửa
-              </Button>
-            )}
-          </div>
-
-          {formError && <p className="text-xs text-red-500">{formError}</p>}
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-            <div className="space-y-1">
-              <Label htmlFor="rule-op" className="text-xs">
-                Điều kiện
-              </Label>
-              <select
-                id="rule-op"
-                value={op}
-                onChange={(e) => setOp(e.target.value as AlertOp)}
-                className={`w-full ${selectClass}`}
-              >
-                <option value={AlertOp.GT}>{ALERT_OP_LABELS[AlertOp.GT]}</option>
-                <option value={AlertOp.LT}>{ALERT_OP_LABELS[AlertOp.LT]}</option>
-              </select>
-            </div>
-
-            <div className="space-y-1">
-              <Label htmlFor="rule-threshold" className="text-xs">
-                Ngưỡng ({sensor?.unit || 'giá trị'})
-              </Label>
-              <Input
-                id="rule-threshold"
-                type="number"
-                step="any"
-                placeholder="Ví dụ: 35"
-                value={threshold}
-                onChange={(e) => setThreshold(e.target.value)}
-                className="h-9 text-xs"
-              />
-            </div>
-
-            <div className="space-y-1">
-              <Label htmlFor="rule-cooldown" className="text-xs">
-                Chờ lặp lại (phút)
-              </Label>
-              <Input
-                id="rule-cooldown"
-                type="number"
-                min="1"
-                placeholder="30"
-                value={cooldownMinutes}
-                onChange={(e) => setCooldownMinutes(e.target.value)}
-                className="h-9 text-xs"
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between pt-1">
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="rule-is-active"
-                checked={isActive}
-                onChange={(e) => setIsActive(e.target.checked)}
-                className="h-3.5 w-3.5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
-              />
-              <Label htmlFor="rule-is-active" className="cursor-pointer text-xs">
-                Kích hoạt ngưỡng này
-              </Label>
-            </div>
-
-            <Button
-              type="submit"
-              size="sm"
-              disabled={isSubmitting}
-              data-testid="submit-alert-rule-btn"
-              className="h-8 text-xs"
-            >
-              {isSubmitting ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" />
-              ) : isEditingRule ? (
-                <Check className="h-3.5 w-3.5 mr-1" />
-              ) : (
-                <Plus className="h-3.5 w-3.5 mr-1" />
+        {canManage && (
+          <form
+            onSubmit={handleSaveRule}
+            className="rounded-lg border border-slate-200 bg-slate-50 p-3.5 dark:border-slate-800 dark:bg-slate-900/60 space-y-3"
+            data-testid="alert-rule-form"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                <Bell className="h-3.5 w-3.5 text-emerald-600" />
+                {isEditingRule ? 'Chỉnh sửa ngưỡng cảnh báo' : 'Thêm ngưỡng cảnh báo mới'}
+              </span>
+              {isEditingRule && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={resetForm}
+                  className="h-6 text-[11px] text-slate-500 hover:text-slate-800"
+                >
+                  <X className="h-3 w-3 mr-1" />
+                  Hủy sửa
+                </Button>
               )}
-              {isEditingRule ? 'Cập nhật' : 'Thêm ngưỡng'}
-            </Button>
-          </div>
-        </form>
+            </div>
+
+            {formError && <p className="text-xs text-red-500">{formError}</p>}
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              <div className="space-y-1">
+                <Label htmlFor="rule-op" className="text-xs">
+                  Điều kiện
+                </Label>
+                <select
+                  id="rule-op"
+                  value={op}
+                  onChange={(e) => setOp(e.target.value as AlertOp)}
+                  className={`w-full ${selectClass}`}
+                >
+                  <option value={AlertOp.GT}>{ALERT_OP_LABELS[AlertOp.GT]}</option>
+                  <option value={AlertOp.LT}>{ALERT_OP_LABELS[AlertOp.LT]}</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <Label htmlFor="rule-threshold" className="text-xs">
+                  Ngưỡng ({sensor?.unit || 'giá trị'})
+                </Label>
+                <Input
+                  id="rule-threshold"
+                  type="number"
+                  step="any"
+                  placeholder="Ví dụ: 35"
+                  value={threshold}
+                  onChange={(e) => setThreshold(e.target.value)}
+                  className="h-9 text-xs"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <Label htmlFor="rule-cooldown" className="text-xs">
+                  Chờ lặp lại (phút)
+                </Label>
+                <Input
+                  id="rule-cooldown"
+                  type="number"
+                  min="1"
+                  placeholder="30"
+                  value={cooldownMinutes}
+                  onChange={(e) => setCooldownMinutes(e.target.value)}
+                  className="h-9 text-xs"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between pt-1">
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="rule-is-active"
+                  checked={isActive}
+                  onChange={(e) => setIsActive(e.target.checked)}
+                  className="h-3.5 w-3.5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                />
+                <Label htmlFor="rule-is-active" className="cursor-pointer text-xs">
+                  Kích hoạt ngưỡng này
+                </Label>
+              </div>
+
+              <Button
+                type="submit"
+                size="sm"
+                disabled={isSubmitting}
+                data-testid="submit-alert-rule-btn"
+                className="h-8 text-xs"
+              >
+                {isSubmitting ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" />
+                ) : isEditingRule ? (
+                  <Check className="h-3.5 w-3.5 mr-1" />
+                ) : (
+                  <Plus className="h-3.5 w-3.5 mr-1" />
+                )}
+                {isEditingRule ? 'Cập nhật' : 'Thêm ngưỡng'}
+              </Button>
+            </div>
+          </form>
+        )}
 
         {/* Existing rules list */}
         <div className="space-y-2">
@@ -306,44 +320,49 @@ export function AlertRulesDialog({
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-1">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleToggleActive(rule)}
-                        className={`h-7 w-7 p-0 ${
-                          rule.isActive
-                            ? 'text-emerald-600 hover:text-red-600'
-                            : 'text-slate-400 hover:text-emerald-600'
-                        }`}
-                        title={rule.isActive ? 'Tắt ngưỡng' : 'Bật ngưỡng'}
-                      >
-                        <Power className="h-3.5 w-3.5" />
-                      </Button>
+                    {canManage && (
+                      <div className="flex items-center gap-1">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleToggleActive(rule)}
+                          className={`h-7 w-7 p-0 ${
+                            rule.isActive
+                              ? 'text-emerald-600 hover:text-red-600'
+                              : 'text-slate-400 hover:text-emerald-600'
+                          }`}
+                          title={rule.isActive ? 'Tắt ngưỡng' : 'Bật ngưỡng'}
+                          data-testid={`toggle-rule-btn-${rule.id}`}
+                        >
+                          <Power className="h-3.5 w-3.5" />
+                        </Button>
 
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleStartEdit(rule)}
-                        className="h-7 w-7 p-0 text-slate-500 hover:text-emerald-600"
-                        title="Chỉnh sửa"
-                      >
-                        <Edit2 className="h-3.5 w-3.5" />
-                      </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleStartEdit(rule)}
+                          className="h-7 w-7 p-0 text-slate-500 hover:text-emerald-600"
+                          title="Chỉnh sửa"
+                          data-testid={`edit-rule-btn-${rule.id}`}
+                        >
+                          <Edit2 className="h-3.5 w-3.5" />
+                        </Button>
 
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteRule(rule.id)}
-                        className="h-7 w-7 p-0 text-red-500 hover:text-red-700"
-                        title="Xóa ngưỡng"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteRule(rule.id)}
+                          className="h-7 w-7 p-0 text-red-500 hover:text-red-700"
+                          title="Xóa ngưỡng"
+                          data-testid={`delete-rule-btn-${rule.id}`}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 );
               })}

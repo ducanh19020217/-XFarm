@@ -340,12 +340,14 @@ export default function SensorsPage() {
                 size="sm"
                 onClick={() => handleOpenRules(row.original)}
                 className="h-7 text-xs border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-800 dark:text-amber-300"
-                title="Xem và chỉnh sửa các ngưỡng cảnh báo"
+                title={
+                  canManage ? 'Xem và chỉnh sửa các ngưỡng cảnh báo' : 'Xem các ngưỡng cảnh báo'
+                }
               >
                 <Bell className="h-3 w-3 mr-1 fill-amber-500 text-amber-600" />
                 {rules.length} ngưỡng
               </Button>
-            ) : (
+            ) : canManage ? (
               <Button
                 variant="ghost"
                 size="sm"
@@ -356,6 +358,8 @@ export default function SensorsPage() {
                 <Bell className="h-3 w-3 mr-1" />
                 Thêm ngưỡng
               </Button>
+            ) : (
+              <span className="text-xs text-slate-400">Chưa có ngưỡng</span>
             )}
           </div>
         );
@@ -553,6 +557,7 @@ export default function SensorsPage() {
         open={rulesDialogOpen}
         onOpenChange={setRulesDialogOpen}
         sensor={rulesSensor}
+        canManage={canManage}
         onRulesChanged={() => void fetchSensors()}
       />
     </div>

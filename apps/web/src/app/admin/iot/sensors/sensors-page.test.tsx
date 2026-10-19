@@ -226,4 +226,31 @@ describe('SensorsPage', () => {
       expect(screen.getByTestId('alert-rule-form')).toBeInTheDocument();
     });
   });
+
+  it('renders read-only view for non-manager (WORKER): hides management buttons and alert rule form', async () => {
+    renderComponent('WORKER');
+
+    await waitFor(() => {
+      expect(screen.getByText('Cảm biến nhiệt độ hồ cá')).toBeInTheDocument();
+    });
+
+    // Cannot add sensor, edit sensor, or rotate key
+    expect(screen.queryByTestId('create-sensor-btn')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('rotate-key-btn-sensor-1')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('edit-sensor-btn-sensor-1')).not.toBeInTheDocument();
+
+    // Sensor 2 has no rules -> shows 'Chưa có ngưỡng' text instead of 'Thêm ngưỡng' button
+    expect(screen.getByText('Chưa có ngưỡng')).toBeInTheDocument();
+    expect(screen.queryByText('Thêm ngưỡng')).not.toBeInTheDocument();
+
+    // Sensor 1 has 1 rule -> can click to view read-only
+    fireEvent.click(screen.getByText(/1 ngưỡng/));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('alert-rules-dialog-content')).toBeInTheDocument();
+      // Form to add/edit rules MUST NOT be present
+      expect(screen.queryByTestId('alert-rule-form')).not.toBeInTheDocument();
+      expect(screen.getByText(/chỉ xem/i)).toBeInTheDocument();
+    });
+  });
 });
