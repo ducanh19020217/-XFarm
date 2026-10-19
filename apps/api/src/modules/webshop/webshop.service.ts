@@ -88,12 +88,7 @@ export class WebshopService {
             type: CustomerType.RETAIL,
           },
         }));
-      if (customer) {
-        await tx.customer.update({
-          where: { id: customer.id },
-          data: { name: input.fullName, address: input.address },
-        });
-      }
+      // Khách vãng lai không được sửa hồ sơ khách cũ theo SĐT; địa chỉ giao lưu trên đơn.
 
       let subtotal = new Prisma.Decimal(0);
       const lines = [...requestedByProduct.entries()].map(([productId, quantity]) => {
