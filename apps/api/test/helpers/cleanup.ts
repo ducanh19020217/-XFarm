@@ -9,6 +9,12 @@ type DatabaseClient = PrismaClient;
 export async function cleanupDatabase(client: DatabaseClient = defaultPrisma): Promise<void> {
   await client.$transaction(
     async (tx) => {
+      await tx.sensorReading.deleteMany();
+      await tx.alertRule.deleteMany();
+      await tx.sensor.deleteMany();
+      await tx.maintenanceLog.deleteMany();
+      await tx.maintenanceSchedule.deleteMany();
+      await tx.equipment.deleteMany();
       await tx.product.deleteMany();
       await tx.harvestLot.deleteMany();
       await tx.activityMaterial.deleteMany();
@@ -71,6 +77,12 @@ export async function cleanupInventoryData(
 
 export async function cleanupProductionData(client: DatabaseClient = defaultPrisma): Promise<void> {
   await client.$transaction(async (tx) => {
+    await tx.sensorReading.deleteMany();
+    await tx.alertRule.deleteMany();
+    await tx.sensor.deleteMany();
+    await tx.maintenanceLog.deleteMany();
+    await tx.maintenanceSchedule.deleteMany();
+    await tx.equipment.deleteMany();
     await tx.harvestLot.deleteMany();
     await tx.activityMaterial.deleteMany();
     await tx.stockMove.deleteMany();
