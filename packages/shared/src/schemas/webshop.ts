@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { PaymentMethod } from '../types';
+import { optionalString } from './helpers';
 
 const vietnamesePhoneSchema = z
   .string()
@@ -10,6 +11,7 @@ export const webshopCheckoutSchema = z.object({
   fullName: z.string().trim().min(1, 'Họ tên không được để trống'),
   phone: vietnamesePhoneSchema,
   address: z.string().trim().min(1, 'Địa chỉ không được để trống'),
+  notes: optionalString(),
   paymentMethod: z.enum([PaymentMethod.COD, PaymentMethod.BANK_TRANSFER]),
   items: z
     .array(
