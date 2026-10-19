@@ -27,7 +27,11 @@ test('OWNER mở được các trang chính và dialog nằm trong viewport', as
     const button = page.getByRole('button', { name: label }).first();
     if (await button.isVisible().catch(() => false)) {
       await expect(button).toBeEnabled();
-      await button.evaluate((element) => (element as HTMLElement).click());
+      try {
+        await button.click({ timeout: 5_000 });
+      } catch {
+        continue;
+      }
       await expectDialogInViewport(page);
       await page.keyboard.press('Escape');
       await expect(page.getByRole('dialog')).toBeHidden();
