@@ -5,7 +5,6 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
 import {
   ConfirmSalesOrderDto,
-  CreatePaymentDto,
   CreateSalesOrderDto,
   QuerySalesOrderDto,
   TransitionSalesOrderDto,
@@ -65,14 +64,5 @@ export class SalesOrdersController {
   @Roles(Role.OWNER, Role.MANAGER, Role.SALES)
   cancel(@Param('id') id: string) {
     return this.orders.cancel(id).then((data) => ({ data }));
-  }
-  @Post(':id/payments')
-  @Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES)
-  payment(
-    @Param('id') id: string,
-    @Body() dto: CreatePaymentDto,
-    @CurrentUser('id') userId: string,
-  ) {
-    return this.orders.addPayment({ ...dto, orderId: id }, userId).then((data) => ({ data }));
   }
 }

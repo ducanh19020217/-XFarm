@@ -10,7 +10,6 @@ import { SequenceService } from '../../common/sequence/sequence.service';
 import { InventoryService } from '../inventory/inventory.service';
 import {
   ConfirmSalesOrderDto,
-  CreatePaymentDto,
   CreateSalesOrderDto,
   QuerySalesOrderDto,
   TransitionSalesOrderDto,
@@ -329,40 +328,6 @@ export class SalesOrdersService {
           ? 'Đơn đã có thanh toán; vui lòng hoàn tiền thủ công ở phân hệ tài chính'
           : undefined,
       };
-    });
-  }
-
-  async addPayment(dto: CreatePaymentDto, userId: string) {
-    return prisma.$transaction(async (tx) => {
-      const order = await tx.salesOrder.findUnique({
-        where: { id: dto.orderId },
-        include: { payments: true },
-      });
-      if (!order) throw new NotFoundException('Không tìm thấy đơn bán');
-      if (order.status === 'CANCELLED')
-        throw new UnprocessableEntityException('Không thể ghi thu cho đơn đã hủy');
-      const paid = order.payments.reduce(
-        (sum, payment) => sum.plus(payment.amount),
-        new Prisma.Decimal(0),
-      );
-      const amount = new Prisma.Decimal(dto.amount);
-      if (paid.plus(amount).greaterThan(order.total))
-        throw new UnprocessableEntityException('Tổng tiền thu không được lớn hơn giá trị đơn hàng');
-      const payment = await tx.payment.create({
-        data: {
-          code: await this.sequence.nextInTransaction(tx, 'TX'),
-          orderId: dto.orderId,
-          amount,
-          method: dto.method,
-          paidAt: dto.paidAt,
-          transactionId: dto.transactionId,
-          notes: dto.notes,
-          createdById: userId,
-        },
-      });
-      const nextStatus = paid.plus(amount).equals(order.total) ? 'PAID' : 'PARTIAL';
-      await tx.salesOrder.update({ where: { id: order.id }, data: { paymentStatus: nextStatus } });
-      return payment;
     });
   }
 
