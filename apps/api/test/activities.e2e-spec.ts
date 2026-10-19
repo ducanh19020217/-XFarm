@@ -1,4 +1,3 @@
-import { execSync } from 'child_process';
 import * as crypto from 'crypto';
 import path from 'path';
 import * as dotenv from 'dotenv';
@@ -15,8 +14,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import cookieParser from 'cookie-parser';
-import { prisma } from '@xfarm/db';
+import { prisma, Prisma } from '@xfarm/db';
 import { AppModule } from '../src/app.module';
+import { cleanupDatabase } from './helpers/cleanup';
 
 describe('Activities API E2E', () => {
   let app: INestApplication;
@@ -31,6 +31,9 @@ describe('Activities API E2E', () => {
   let cropCycleId: string;
   let closedCycleId: string;
   let mediaId: string;
+  let fertilizerItemId: string;
+  let fertilizerWarehouseId: string;
+  let produceItemId: string;
 
   async function login(email: string) {
     const response = await request(app.getHttpServer()).post('/api/v1/auth/login').send({
@@ -43,20 +46,7 @@ describe('Activities API E2E', () => {
   }
 
   beforeAll(async () => {
-    execSync(
-      `DATABASE_URL="${testDbUrl}" pnpm --filter @xfarm/db exec prisma db push --skip-generate --accept-data-loss`,
-      { stdio: 'pipe' },
-    );
-    await prisma.activity.deleteMany();
-    await prisma.animalEvent.deleteMany();
-    await prisma.animal.deleteMany();
-    await prisma.animalGroup.deleteMany();
-    await prisma.cycle.deleteMany();
-    await prisma.area.deleteMany();
-    await prisma.auditLog.deleteMany();
-    await prisma.refreshToken.deleteMany();
-    await prisma.media.deleteMany();
-    await prisma.user.deleteMany();
+    await cleanupDatabase(prisma);
 
     const passwordHash = await import('argon2').then((argon2) => argon2.hash('Admin@123'));
     const owner = await prisma.user.create({
@@ -98,6 +88,47 @@ describe('Activities API E2E', () => {
       }),
     ]);
     [cropAreaId, livestockAreaId, aquaAreaId] = areas.map((area) => area.id);
+
+    const fertilizer = await prisma.item.create({
+      data: {
+        sku: 'ACT-FERTILIZER',
+        name: 'Phân hữu cơ',
+        category: 'FERTILIZER',
+        unit: 'kg',
+      },
+    });
+    const fertilizerWarehouse = await prisma.warehouse.create({
+      data: { code: 'ACT-WAREHOUSE', name: 'Kho khu trồng', areaId: cropAreaId },
+    });
+    const fertilizerLot = await prisma.stockLot.create({
+      data: {
+        itemId: fertilizer.id,
+        lotCode: 'ACT-FERT-LOT',
+        warehouseId: fertilizerWarehouse.id,
+        unitCost: 12000,
+      },
+    });
+    await prisma.stockMove.create({
+      data: {
+        type: 'IN',
+        itemId: fertilizer.id,
+        stockLotId: fertilizerLot.id,
+        toWarehouseId: fertilizerWarehouse.id,
+        quantity: 10,
+        unitCost: 12000,
+      },
+    });
+    fertilizerItemId = fertilizer.id;
+    fertilizerWarehouseId = fertilizerWarehouse.id;
+    const produce = await prisma.item.create({
+      data: {
+        sku: 'ACT-PRODUCE',
+        name: 'Rau cải thu hoạch',
+        category: 'PRODUCE',
+        unit: 'kg',
+      },
+    });
+    produceItemId = produce.id;
 
     const startDate = new Date('2026-01-01T00:00:00.000Z');
     const cycles = await prisma.$transaction([
@@ -315,5 +346,175 @@ describe('Activities API E2E', () => {
       .set('Cookie', salesCookies)
       .send({ cycleId: cropCycleId, areaId: cropAreaId, type: 'CLEANING' });
     expect(response.status).toBe(403);
+  });
+
+  it('tự xuất vật tư FIFO trong transaction, đổi vật tư thì đảo kho và xóa thì hoàn kho', async () => {
+    const created = await request(app.getHttpServer())
+      .post('/api/v1/activities')
+      .set('Cookie', workerCookies)
+      .send({
+        cycleId: cropCycleId,
+        areaId: cropAreaId,
+        type: 'FERTILIZING',
+        materials: [{ itemId: fertilizerItemId, quantity: 3, warehouseId: fertilizerWarehouseId }],
+      });
+    expect(created.status).toBe(201);
+    expect(created.body.data.materials).toEqual([
+      expect.objectContaining({
+        quantity: '3',
+        unitCost: '12000',
+        item: { id: fertilizerItemId, name: 'Phân hữu cơ', unit: 'kg' },
+      }),
+    ]);
+    expect(
+      await prisma.stockMove.count({ where: { refType: 'ACTIVITY', refId: created.body.data.id } }),
+    ).toBe(1);
+    const createdBalance = await prisma.$queryRaw<[{ quantity: string }]>(Prisma.sql`
+        SELECT quantity FROM stock_balances
+        WHERE "itemId" = ${fertilizerItemId} AND "warehouseId" = ${fertilizerWarehouseId}`);
+    expect(createdBalance[0]?.quantity.toString()).toBe('7');
+
+    const updated = await request(app.getHttpServer())
+      .patch(`/api/v1/activities/${created.body.data.id}`)
+      .set('Cookie', ownerCookies)
+      .send({ materials: [{ itemId: fertilizerItemId, quantity: 2 }] });
+    expect(updated.status).toBe(200);
+    expect(updated.body.data.materials[0].quantity).toBe('2');
+    const updatedBalance = await prisma.$queryRaw<[{ quantity: string }]>(Prisma.sql`
+        SELECT quantity FROM stock_balances
+        WHERE "itemId" = ${fertilizerItemId} AND "warehouseId" = ${fertilizerWarehouseId}`);
+    expect(updatedBalance[0]?.quantity.toString()).toBe('8');
+
+    const activityCountBeforeInsufficient = await prisma.activity.count();
+    const insufficient = await request(app.getHttpServer())
+      .post('/api/v1/activities')
+      .set('Cookie', ownerCookies)
+      .send({
+        cycleId: cropCycleId,
+        areaId: cropAreaId,
+        type: 'FERTILIZING',
+        materials: [{ itemId: fertilizerItemId, quantity: 20 }],
+      });
+    expect(insufficient.status).toBe(422);
+    expect(await prisma.activity.count()).toBe(activityCountBeforeInsufficient);
+
+    const removed = await request(app.getHttpServer())
+      .delete(`/api/v1/activities/${created.body.data.id}`)
+      .set('Cookie', ownerCookies);
+    expect(removed.status).toBe(200);
+    const removedBalance = await prisma.$queryRaw<[{ quantity: string }]>(Prisma.sql`
+        SELECT quantity FROM stock_balances
+        WHERE "itemId" = ${fertilizerItemId} AND "warehouseId" = ${fertilizerWarehouseId}`);
+    expect(removedBalance[0]?.quantity.toString()).toBe('10');
+  });
+
+  it('HARVEST tạo lô, nhập kho, hoàn kho khi xóa và chặn lô đã xuất', async () => {
+    const harvested = await request(app.getHttpServer())
+      .post('/api/v1/activities')
+      .set('Cookie', ownerCookies)
+      .send({
+        cycleId: cropCycleId,
+        areaId: cropAreaId,
+        type: 'HARVEST',
+        quantity: 50,
+        data: {
+          itemId: produceItemId,
+          quantity: 50,
+          unit: 'kg',
+          warehouseId: fertilizerWarehouseId,
+        },
+      });
+    expect(harvested.status).toBe(201);
+    const harvestLot = await prisma.harvestLot.findUniqueOrThrow({
+      where: { activityId: harvested.body.data.id },
+    });
+    expect(harvestLot.code).toMatch(/^HL-2026-\d{4}$/);
+    expect(harvestLot.traceCode).toMatch(/^[A-HJ-NP-Z2-9]{10}$/);
+    const balance = await prisma.$queryRaw<[{ quantity: string }]>(Prisma.sql`
+      SELECT quantity FROM stock_balances
+      WHERE "itemId" = ${produceItemId} AND "warehouseId" = ${fertilizerWarehouseId}`);
+    expect(balance[0]?.quantity.toString()).toBe('50');
+
+    const listed = await request(app.getHttpServer())
+      .get(`/api/v1/harvest-lots?search=${harvestLot.traceCode}`)
+      .set('Cookie', ownerCookies);
+    expect(listed.status).toBe(200);
+    expect(listed.body.total).toBe(1);
+
+    const removed = await request(app.getHttpServer())
+      .delete(`/api/v1/activities/${harvested.body.data.id}`)
+      .set('Cookie', ownerCookies);
+    expect(removed.status).toBe(200);
+    expect(await prisma.harvestLot.findUnique({ where: { id: harvestLot.id } })).toBeNull();
+
+    const exported = await request(app.getHttpServer())
+      .post('/api/v1/activities')
+      .set('Cookie', ownerCookies)
+      .send({
+        cycleId: cropCycleId,
+        areaId: cropAreaId,
+        type: 'HARVEST',
+        data: {
+          itemId: produceItemId,
+          quantity: 50,
+          unit: 'kg',
+          warehouseId: fertilizerWarehouseId,
+        },
+      });
+    const exportedLot = await prisma.harvestLot.findUniqueOrThrow({
+      where: { activityId: exported.body.data.id },
+    });
+    const stockLot = await prisma.stockLot.findUniqueOrThrow({
+      where: { harvestLotId: exportedLot.id },
+    });
+    await prisma.stockMove.create({
+      data: {
+        type: 'OUT',
+        itemId: produceItemId,
+        stockLotId: stockLot.id,
+        fromWarehouseId: fertilizerWarehouseId,
+        quantity: 1,
+        unitCost: 0,
+        refType: 'TEST',
+        refId: 'TEST-EXPORT',
+      },
+    });
+    const blocked = await request(app.getHttpServer())
+      .delete(`/api/v1/activities/${exported.body.data.id}`)
+      .set('Cookie', ownerCookies);
+    expect(blocked.status).toBe(422);
+  });
+
+  it('HARVEST chặn mùa vụ đóng và item không phải nông sản', async () => {
+    const closed = await request(app.getHttpServer())
+      .post('/api/v1/activities')
+      .set('Cookie', ownerCookies)
+      .send({
+        cycleId: closedCycleId,
+        areaId: cropAreaId,
+        type: 'HARVEST',
+        data: {
+          itemId: produceItemId,
+          quantity: 1,
+          unit: 'kg',
+          warehouseId: fertilizerWarehouseId,
+        },
+      });
+    expect(closed.status).toBe(422);
+    const invalidItem = await request(app.getHttpServer())
+      .post('/api/v1/activities')
+      .set('Cookie', ownerCookies)
+      .send({
+        cycleId: cropCycleId,
+        areaId: cropAreaId,
+        type: 'HARVEST',
+        data: {
+          itemId: fertilizerItemId,
+          quantity: 1,
+          unit: 'kg',
+          warehouseId: fertilizerWarehouseId,
+        },
+      });
+    expect(invalidItem.status).toBe(422);
   });
 });

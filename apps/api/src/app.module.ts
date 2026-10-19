@@ -11,6 +11,16 @@ import { AreasModule } from './modules/areas/areas.module';
 import { ActivitiesModule } from './modules/activities/activities.module';
 import { AnimalsModule } from './modules/animals/animals.module';
 import { CalendarModule } from './modules/calendar/calendar.module';
+import { AlertsModule } from './modules/alerts/alerts.module';
+import { ItemsModule } from './modules/items/items.module';
+import { WarehousesModule } from './modules/warehouses/warehouses.module';
+import { SuppliersModule } from './modules/suppliers/suppliers.module';
+import { InventoryModule } from './modules/inventory/inventory.module';
+import { StockModule } from './modules/stock/stock.module';
+import { HarvestLotsModule } from './modules/harvest-lots/harvest-lots.module';
+import { CmsModule } from './modules/cms/cms.module';
+import { PublicTraceModule } from './modules/public-trace/public-trace.module';
+import { PurchaseOrdersModule } from './modules/purchase-orders/purchase-orders.module';
 import { SequenceModule } from './common/sequence/sequence.module';
 
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
@@ -35,6 +45,16 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
     ActivitiesModule,
     AnimalsModule,
     CalendarModule,
+    AlertsModule,
+    ItemsModule,
+    WarehousesModule,
+    SuppliersModule,
+    InventoryModule,
+    StockModule,
+    HarvestLotsModule,
+    CmsModule,
+    PublicTraceModule,
+    PurchaseOrdersModule,
   ],
   providers: [
     {

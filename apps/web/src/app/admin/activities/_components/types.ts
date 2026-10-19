@@ -26,6 +26,27 @@ export interface ActivityMedia {
   alt?: string | null;
 }
 
+export interface ActivityMaterialItem {
+  id?: string;
+  itemId: string;
+  itemName?: string;
+  item?: { id: string; name: string; sku?: string; unit?: string; category?: string };
+  stockLotId?: string | null;
+  quantity: number | string;
+  unit?: string;
+  unitCost?: number | string;
+}
+
+export interface AvailableItem {
+  id: string;
+  sku?: string;
+  name: string;
+  category: string;
+  unit: string;
+  currentStock: number;
+  warehouseId?: string;
+}
+
 export interface ActivityRecord {
   id: string;
   type: ActivityType;
@@ -36,6 +57,7 @@ export interface ActivityRecord {
   cycle?: ActivityCycle | null;
   performedBy?: { id: string; fullName: string; email: string } | null;
   media?: ActivityMedia[];
+  materials?: ActivityMaterialItem[];
 }
 
 export interface ActivityListResponse {

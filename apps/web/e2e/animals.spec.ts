@@ -47,7 +47,8 @@ test('tạo cá thể, ghi WEIGHING và chặn sự kiện sau khi chết', asyn
   await page.getByRole('button', { name: 'Ghi sự kiện', exact: true }).click();
   await page.getByLabel('Loại sự kiện').click();
   await page.getByRole('option', { name: /cân trọng lượng/i }).click();
-  await page.getByLabel(/trọng lượng/i).fill('12.5');
+  await expect(page.getByTestId('fields-weighing')).toBeVisible();
+  await page.locator('#weight-kg').fill('12.5');
   await page.getByRole('button', { name: /lưu sự kiện|ghi sự kiện/i }).click();
   await expect(page.getByText(/12,5 kg|12.5 kg/i)).toBeVisible();
 

@@ -2,12 +2,106 @@
 
 import * as React from 'react';
 import { ActivityType, activityDataSchemas, parseActivityData } from '@xfarm/shared';
-import { Camera, Loader2, Save, X } from 'lucide-react';
+import { Camera, Loader2, Plus, Save, Trash2, X } from 'lucide-react';
 import { Button, Input, Label } from '@xfarm/ui';
 import { ApiError, apiFetch } from '@/lib/api';
 import { activityFieldLabels, activityTypeLabels } from './constants';
 import { uploadMediaFiles } from './upload-media';
-import type { ActivityArea, ActivityCycle } from './types';
+import type { ActivityArea, ActivityCycle, AvailableItem } from './types';
+
+export const ACTIVITY_CATEGORY_SUGGESTIONS: Partial<Record<ActivityType, string>> = {
+  [ActivityType.FERTILIZING]: 'FERTILIZER',
+  [ActivityType.SPRAYING]: 'PESTICIDE',
+  [ActivityType.FEEDING]: 'FEED',
+};
+
+export async function fetchAvailableItems(): Promise<AvailableItem[]> {
+  try {
+    type Balance = {
+      itemId: string;
+      itemSku?: string;
+      itemName?: string;
+      category?: string;
+      unit?: string;
+      quantity?: number;
+      warehouseId?: string;
+    };
+    const rawBalances: Balance[] = [];
+    for (let page = 1; ; page += 1) {
+      const res = await apiFetch<{ data: Balance[]; total?: number } | Balance[]>(
+        `/stock/balances?page=${page}&pageSize=100`,
+      );
+      const pageBalances = Array.isArray(res) ? res : res?.data || [];
+      rawBalances.push(...pageBalances);
+      const total = Array.isArray(res) ? rawBalances.length : (res.total ?? rawBalances.length);
+      if (pageBalances.length < 100 || rawBalances.length >= total) break;
+    }
+    if (rawBalances.length > 0) {
+      const itemMap = new Map<string, AvailableItem>();
+      for (const b of rawBalances) {
+        const existing = itemMap.get(b.itemId);
+        const qty = Number(b.quantity) || 0;
+        if (existing) {
+          existing.currentStock += qty;
+        } else {
+          itemMap.set(b.itemId, {
+            id: b.itemId,
+            sku: b.itemSku,
+            name: b.itemName || 'Vật tư',
+            category: b.category || 'OTHER',
+            unit: b.unit || '',
+            currentStock: qty,
+            warehouseId: b.warehouseId,
+          });
+        }
+      }
+      return Array.from(itemMap.values());
+    }
+  } catch {
+    // fallback to /items if stock balances endpoint is not available
+  }
+
+  try {
+    const res = await apiFetch<
+      | {
+          data: Array<{
+            id: string;
+            sku?: string;
+            name: string;
+            category?: string;
+            unit: string;
+            currentStock?: number;
+          }>;
+        }
+      | Array<{
+          id: string;
+          sku?: string;
+          name: string;
+          category?: string;
+          unit: string;
+          currentStock?: number;
+        }>
+    >('/items?pageSize=100&isActive=true');
+    const rawItems = Array.isArray(res) ? res : res?.data || [];
+    return rawItems.map((item) => ({
+      id: item.id,
+      sku: item.sku,
+      name: item.name,
+      category: item.category || 'OTHER',
+      unit: item.unit,
+      currentStock: Number(item.currentStock ?? 0),
+    }));
+  } catch {
+    return [];
+  }
+}
+
+export interface FormMaterialRow {
+  id?: string;
+  itemId: string;
+  quantity: string;
+  warehouseId?: string;
+}
 
 function fieldsForType(type: ActivityType) {
   const schema = activityDataSchemas[type];
@@ -15,11 +109,22 @@ function fieldsForType(type: ActivityType) {
   return Object.keys(schema.shape as Record<string, unknown>);
 }
 
+export const HARVEST_PRODUCE_CATEGORIES = new Set(['PRODUCE', 'LIVESTOCK_PRODUCT', 'AQUA_PRODUCT']);
+
+export interface WarehouseOption {
+  id: string;
+  code: string;
+  name: string;
+  isActive?: boolean;
+}
+
 export interface ActivityFormProps {
   areas: ActivityArea[];
   cycles: ActivityCycle[];
   initialCycleId?: string;
-  onSaved: () => Promise<void> | void;
+  availableItems?: AvailableItem[];
+  warehouses?: WarehouseOption[];
+  onSaved: (result?: any) => Promise<void> | void;
   onCancel?: () => void;
 }
 
@@ -27,6 +132,8 @@ export function ActivityForm({
   areas,
   cycles,
   initialCycleId,
+  availableItems: propAvailableItems,
+  warehouses: propWarehouses,
   onSaved,
   onCancel,
 }: ActivityFormProps) {
@@ -34,17 +141,97 @@ export function ActivityForm({
   const [cycleId, setCycleId] = React.useState(initialCycleId ?? '');
   const [areaId, setAreaId] = React.useState('');
   const [performedAt, setPerformedAt] = React.useState(() => new Date().toISOString().slice(0, 16));
-  const [data, setData] = React.useState<Record<string, string>>({});
+  const [data, setData] = React.useState<Record<string, any>>({});
+  const [materials, setMaterials] = React.useState<FormMaterialRow[]>([]);
+  const [fetchedItems, setFetchedItems] = React.useState<AvailableItem[]>([]);
+  const [catalogItems, setCatalogItems] = React.useState<AvailableItem[]>([]);
+  const [fetchedWarehouses, setFetchedWarehouses] = React.useState<WarehouseOption[]>([]);
   const [notes, setNotes] = React.useState('');
   const [files, setFiles] = React.useState<File[]>([]);
   const [saving, setSaving] = React.useState(false);
   const [uploadMessage, setUploadMessage] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
 
+  const itemsList = propAvailableItems ?? fetchedItems;
+  const activeWarehouses = propWarehouses ?? fetchedWarehouses;
+
+  const produceItems = React.useMemo(() => {
+    const source = propAvailableItems ?? (catalogItems.length > 0 ? catalogItems : fetchedItems);
+    return source.filter((item) => HARVEST_PRODUCE_CATEGORIES.has(item.category));
+  }, [propAvailableItems, catalogItems, fetchedItems]);
+
+  React.useEffect(() => {
+    if (type !== ActivityType.HARVEST) return;
+    let active = true;
+    if (!propWarehouses && fetchedWarehouses.length === 0) {
+      apiFetch<{ data: WarehouseOption[] } | WarehouseOption[]>('/warehouses?page=1&pageSize=100')
+        .then((res) => {
+          if (!active) return;
+          const raw = Array.isArray(res) ? res : res?.data || [];
+          setFetchedWarehouses(raw.filter((w) => w.isActive !== false));
+        })
+        .catch(() => undefined);
+    }
+    if (!propAvailableItems && catalogItems.length === 0) {
+      apiFetch<{ data: AvailableItem[] } | AvailableItem[]>('/items?pageSize=100&isActive=true')
+        .then((res) => {
+          if (!active) return;
+          const raw = Array.isArray(res) ? res : res?.data || [];
+          setCatalogItems(raw);
+        })
+        .catch(() => undefined);
+    }
+    return () => {
+      active = false;
+    };
+  }, [type, propAvailableItems, propWarehouses, fetchedWarehouses.length, catalogItems.length]);
+
+  React.useEffect(() => {
+    if (propAvailableItems) return;
+    let active = true;
+    fetchAvailableItems()
+      .then((items) => {
+        if (active) setFetchedItems(items);
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, [propAvailableItems]);
+
   React.useEffect(() => {
     const selectedCycle = cycles.find((cycle) => cycle.id === cycleId);
     if (selectedCycle) setAreaId(selectedCycle.areaId);
   }, [cycleId, cycles]);
+
+  const applySuggestion = React.useCallback((targetType: ActivityType, items: AvailableItem[]) => {
+    const targetCategory = ACTIVITY_CATEGORY_SUGGESTIONS[targetType];
+    if (!targetCategory) return;
+    const inStock = items.filter(
+      (item) => item.category === targetCategory && item.currentStock > 0,
+    );
+    const candidate = inStock[0] || items.find((item) => item.category === targetCategory);
+    if (candidate) {
+      setMaterials([
+        {
+          itemId: candidate.id,
+          quantity: '',
+          warehouseId: candidate.warehouseId,
+        },
+      ]);
+    } else {
+      setMaterials([{ itemId: '', quantity: '' }]);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    if (itemsList.length > 0 && materials.length === 0) {
+      const targetCategory = ACTIVITY_CATEGORY_SUGGESTIONS[type];
+      if (targetCategory) {
+        applySuggestion(type, itemsList);
+      }
+    }
+  }, [applySuggestion, itemsList, materials.length, type]);
 
   const fields = fieldsForType(type);
   const activeAreas = areas.filter((area) => area.isActive !== false);
@@ -55,6 +242,40 @@ export function ActivityForm({
   const changeType = (nextType: ActivityType) => {
     setType(nextType);
     setData({});
+    if (nextType !== ActivityType.HARVEST) {
+      applySuggestion(nextType, itemsList);
+    } else {
+      setMaterials([]);
+    }
+  };
+
+  const addMaterialRow = () => {
+    setMaterials((current) => [...current, { itemId: '', quantity: '' }]);
+  };
+
+  const removeMaterialRow = (index: number) => {
+    setMaterials((current) => current.filter((_, idx) => idx !== index));
+  };
+
+  const updateMaterialItem = (index: number, itemId: string) => {
+    const selected = itemsList.find((item) => item.id === itemId);
+    setMaterials((current) =>
+      current.map((row, idx) =>
+        idx === index
+          ? {
+              ...row,
+              itemId,
+              warehouseId: selected?.warehouseId ?? row.warehouseId,
+            }
+          : row,
+      ),
+    );
+  };
+
+  const updateMaterialQuantity = (index: number, quantity: string) => {
+    setMaterials((current) =>
+      current.map((row, idx) => (idx === index ? { ...row, quantity } : row)),
+    );
   };
 
   const submit = async (event: React.FormEvent) => {
@@ -63,7 +284,6 @@ export function ActivityForm({
     setError(null);
     setUploadMessage(null);
     try {
-      const parsedData = parseActivityData(type, data);
       let mediaIds: string[] = [];
       if (files.length) {
         try {
@@ -74,19 +294,47 @@ export function ActivityForm({
           );
         }
       }
-      await apiFetch('/activities', {
+      let parsedData: unknown;
+      let payloadMaterials: Array<{ itemId: string; quantity: number; warehouseId?: string }> = [];
+
+      if (type === ActivityType.HARVEST) {
+        const harvestPayload = {
+          itemId: data.itemId || '',
+          quantity: Number(data.quantity || 0),
+          unit: data.unit || '',
+          warehouseId: data.warehouseId || '',
+          qualityGrade: data.qualityGrade?.trim() || undefined,
+          certification: data.certification?.trim() || undefined,
+          isPublic: Boolean(data.isPublic),
+        };
+        parsedData = parseActivityData(type, harvestPayload);
+      } else {
+        parsedData = parseActivityData(type, data);
+        payloadMaterials = materials
+          .filter((row) => row.itemId.trim() !== '' && Number(row.quantity) > 0)
+          .map((row) => ({
+            itemId: row.itemId,
+            quantity: Number(row.quantity),
+            ...(row.warehouseId ? { warehouseId: row.warehouseId } : {}),
+          }));
+      }
+
+      const res = await apiFetch<{ data: any }>('/activities', {
         method: 'POST',
         body: JSON.stringify({
           type,
           cycleId: cycleId || null,
           areaId,
           performedAt: new Date(performedAt).toISOString(),
+          quantity: data.quantity ? Number(data.quantity) : null,
+          unit: data.unit || null,
           data: parsedData,
           notes: notes || null,
           mediaIds,
+          ...(payloadMaterials.length > 0 ? { materials: payloadMaterials } : {}),
         }),
       });
-      await onSaved();
+      await onSaved({ ...(res?.data || {}), type });
     } catch (nextError) {
       if (nextError instanceof ApiError) setError(nextError.message);
       else if (nextError instanceof Error) setError(nextError.message);
@@ -99,9 +347,12 @@ export function ActivityForm({
   return (
     <form onSubmit={submit} className="space-y-4">
       {error && (
-        <p role="alert" className="rounded-md bg-red-50 p-3 text-sm text-red-700">
+        <div
+          role="alert"
+          className="rounded-md border border-red-200 bg-red-50 p-3 text-sm font-medium text-red-700"
+        >
           {error}
-        </p>
+        </div>
       )}
       {uploadMessage && (
         <p role="status" className="rounded-md bg-amber-50 p-3 text-sm text-amber-800">
@@ -168,32 +419,263 @@ export function ActivityForm({
           />
         </div>
       </div>
-      {fields.length > 0 && (
-        <fieldset className="rounded-md border border-slate-200 p-4">
-          <legend className="px-1 text-sm font-medium">
-            Chỉ số {activityTypeLabels[type].toLowerCase()}
+      {type === ActivityType.HARVEST ? (
+        <fieldset className="space-y-4 rounded-md border border-emerald-200 bg-emerald-50/40 p-4">
+          <legend className="px-1 text-sm font-semibold text-emerald-800">
+            Thông tin thu hoạch &amp; Nhập kho
           </legend>
           <div className="grid gap-4 sm:grid-cols-2">
-            {fields.map((field) => {
-              const text = field === 'cause' || field === 'product' || field === 'dosage';
-              return (
-                <div key={field} className="space-y-1">
-                  <Label htmlFor={`activity-data-${field}`}>{activityFieldLabels[field]}</Label>
-                  <Input
-                    id={`activity-data-${field}`}
-                    type={text ? 'text' : 'number'}
-                    step="any"
-                    value={data[field] ?? ''}
-                    onChange={(event) =>
-                      setData((current) => ({ ...current, [field]: event.target.value }))
-                    }
-                  />
-                </div>
-              );
-            })}
+            <div className="space-y-1">
+              <Label htmlFor="harvest-item">Sản phẩm thu hoạch *</Label>
+              <select
+                id="harvest-item"
+                aria-label="Sản phẩm thu hoạch"
+                required
+                value={data.itemId ?? ''}
+                onChange={(event) => {
+                  const chosenId = event.target.value;
+                  const chosenItem = produceItems.find((p) => p.id === chosenId);
+                  setData((current) => ({
+                    ...current,
+                    itemId: chosenId,
+                    unit: current.unit || chosenItem?.unit || '',
+                  }));
+                }}
+                className="flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm"
+              >
+                <option value="">-- Chọn nông sản --</option>
+                {produceItems.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name} ({item.unit})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="harvest-warehouse">Kho nhập *</Label>
+              <select
+                id="harvest-warehouse"
+                aria-label="Kho nhập"
+                required
+                value={data.warehouseId ?? ''}
+                onChange={(event) =>
+                  setData((current) => ({ ...current, warehouseId: event.target.value }))
+                }
+                className="flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm"
+              >
+                <option value="">-- Chọn kho nhập --</option>
+                {activeWarehouses.map((wh) => (
+                  <option key={wh.id} value={wh.id}>
+                    {wh.code} - {wh.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="harvest-quantity">Số lượng thu hoạch *</Label>
+              <Input
+                id="harvest-quantity"
+                aria-label="Số lượng thu hoạch"
+                type="number"
+                step="any"
+                min="0.001"
+                required
+                placeholder="Nhập số lượng"
+                value={data.quantity ?? ''}
+                onChange={(event) =>
+                  setData((current) => ({ ...current, quantity: event.target.value }))
+                }
+              />
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="harvest-unit">Đơn vị tính *</Label>
+              <Input
+                id="harvest-unit"
+                aria-label="Đơn vị tính"
+                type="text"
+                required
+                placeholder="kg, bó, nải..."
+                value={data.unit ?? ''}
+                onChange={(event) =>
+                  setData((current) => ({ ...current, unit: event.target.value }))
+                }
+              />
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="harvest-quality-grade">Phân loại chất lượng</Label>
+              <Input
+                id="harvest-quality-grade"
+                aria-label="Phân loại chất lượng"
+                type="text"
+                placeholder="Loại 1, Hạng A, Xuất khẩu..."
+                value={data.qualityGrade ?? ''}
+                onChange={(event) =>
+                  setData((current) => ({ ...current, qualityGrade: event.target.value }))
+                }
+              />
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="harvest-certification">Chứng nhận</Label>
+              <Input
+                id="harvest-certification"
+                aria-label="Chứng nhận"
+                type="text"
+                placeholder="VietGAP, GlobalGAP, Hữu cơ..."
+                value={data.certification ?? ''}
+                onChange={(event) =>
+                  setData((current) => ({ ...current, certification: event.target.value }))
+                }
+              />
+            </div>
+          </div>
+
+          <div className="pt-1">
+            <label
+              htmlFor="harvest-is-public"
+              className="flex cursor-pointer items-center gap-2 text-sm font-medium text-slate-700"
+            >
+              <input
+                id="harvest-is-public"
+                aria-label="Công khai truy xuất"
+                type="checkbox"
+                checked={Boolean(data.isPublic)}
+                onChange={(event) =>
+                  setData((current) => ({ ...current, isPublic: event.target.checked }))
+                }
+                className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+              />
+              <span>Công khai truy xuất</span>
+            </label>
           </div>
         </fieldset>
+      ) : (
+        fields.length > 0 && (
+          <fieldset className="rounded-md border border-slate-200 p-4">
+            <legend className="px-1 text-sm font-medium">
+              Chỉ số {activityTypeLabels[type].toLowerCase()}
+            </legend>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {fields.map((field) => {
+                const text = field === 'cause' || field === 'product' || field === 'dosage';
+                return (
+                  <div key={field} className="space-y-1">
+                    <Label htmlFor={`activity-data-${field}`}>{activityFieldLabels[field]}</Label>
+                    <Input
+                      id={`activity-data-${field}`}
+                      type={text ? 'text' : 'number'}
+                      step="any"
+                      value={data[field] ?? ''}
+                      onChange={(event) =>
+                        setData((current) => ({ ...current, [field]: event.target.value }))
+                      }
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </fieldset>
+        )
       )}
+
+      {type !== ActivityType.HARVEST && (
+        <fieldset className="space-y-3 rounded-md border border-slate-200 p-4">
+          <div className="flex items-center justify-between">
+            <legend className="px-1 text-sm font-medium">Vật tư sử dụng</legend>
+            <Button type="button" variant="outline" size="sm" onClick={addMaterialRow}>
+              <Plus className="mr-1 h-3.5 w-3.5" />
+              Thêm vật tư
+            </Button>
+          </div>
+          {materials.length === 0 ? (
+            <p className="text-sm text-slate-500">Chưa có vật tư nào được chọn.</p>
+          ) : (
+            <div className="space-y-3">
+              {materials.map((row, index) => {
+                const selectedItem = itemsList.find((i) => i.id === row.itemId);
+                const inStockItems = itemsList.filter((item) => item.currentStock > 0);
+                const itemOptions = inStockItems.some((i) => i.id === row.itemId)
+                  ? inStockItems
+                  : [
+                      ...inStockItems,
+                      ...(row.itemId ? itemsList.filter((i) => i.id === row.itemId) : []),
+                    ];
+
+                return (
+                  <div
+                    key={index}
+                    className="grid grid-cols-1 items-end gap-3 rounded-md bg-slate-50 p-3 sm:grid-cols-12"
+                  >
+                    <div className="space-y-1 sm:col-span-5">
+                      <Label htmlFor={`material-item-${index}`}>Vật tư</Label>
+                      <select
+                        id={`material-item-${index}`}
+                        aria-label="Chọn vật tư"
+                        value={row.itemId}
+                        onChange={(event) => updateMaterialItem(index, event.target.value)}
+                        className="flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm"
+                      >
+                        <option value="">-- Chọn vật tư còn tồn --</option>
+                        {itemOptions.map((item) => (
+                          <option key={item.id} value={item.id}>
+                            {item.name} (Tồn: {item.currentStock} {item.unit})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="space-y-1 sm:col-span-3">
+                      <Label htmlFor={`material-quantity-${index}`}>Số lượng</Label>
+                      <Input
+                        id={`material-quantity-${index}`}
+                        aria-label="Số lượng vật tư"
+                        type="number"
+                        step="any"
+                        min="0.001"
+                        placeholder="Số lượng"
+                        value={row.quantity}
+                        onChange={(event) => updateMaterialQuantity(index, event.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-1 sm:col-span-3">
+                      <span className="block text-xs font-medium text-slate-500">
+                        Tồn &amp; Đơn vị
+                      </span>
+                      <div className="flex h-10 items-center rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-700">
+                        {selectedItem ? (
+                          <span>
+                            Tồn:{' '}
+                            <strong className="font-semibold">{selectedItem.currentStock}</strong>{' '}
+                            {selectedItem.unit}
+                          </span>
+                        ) : (
+                          <span className="text-slate-400">—</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex justify-end sm:col-span-1">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        aria-label={`Xóa vật tư dòng ${index + 1}`}
+                        onClick={() => removeMaterialRow(index)}
+                        className="text-red-600 hover:bg-red-50 hover:text-red-700"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </fieldset>
+      )}
+
       <div className="space-y-1">
         <Label htmlFor="activity-notes">Ghi chú</Label>
         <textarea

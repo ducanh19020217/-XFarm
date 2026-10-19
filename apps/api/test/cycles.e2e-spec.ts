@@ -9,12 +9,12 @@ const testDbUrl =
 process.env.DATABASE_URL = testDbUrl;
 process.env.NODE_ENV = 'test';
 
-import { execSync } from 'child_process';
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import cookieParser from 'cookie-parser';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
+import { cleanupDatabase } from './helpers/cleanup';
 
 describe('Cycles API E2E', () => {
   let app: INestApplication;
@@ -37,23 +37,9 @@ describe('Cycles API E2E', () => {
   }
 
   beforeAll(async () => {
-    execSync(
-      `DATABASE_URL="${testDbUrl}" pnpm --filter @xfarm/db exec prisma db push --skip-generate --accept-data-loss`,
-      { stdio: 'pipe' },
-    );
     const { prisma } = await import('@xfarm/db');
     const argon2 = await import('argon2');
-    await prisma.auditLog.deleteMany();
-    await prisma.animalEvent.deleteMany();
-    await prisma.animal.deleteMany();
-    await prisma.animalGroup.deleteMany();
-    await prisma.activity.deleteMany();
-    await prisma.cycle.deleteMany();
-    await prisma.area.deleteMany();
-    await prisma.refreshToken.deleteMany({
-      where: { user: { email: { in: users.map(([email]) => email) } } },
-    });
-    await prisma.user.deleteMany({ where: { email: { in: users.map(([email]) => email) } } });
+    await cleanupDatabase(prisma);
 
     const passwordHash = await argon2.hash('Admin@123');
     for (const user of users) {

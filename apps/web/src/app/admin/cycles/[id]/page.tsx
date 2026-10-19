@@ -2,7 +2,8 @@
 
 import * as React from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { CycleStatus } from '@xfarm/shared';
+import Link from 'next/link';
+import { ActivityType, CycleStatus } from '@xfarm/shared';
 import { ArrowLeft, Loader2, Plus } from 'lucide-react';
 import { Button, ConfirmDialog, FormDialog, PageHeader, Toast, useToast } from '@xfarm/ui';
 import { apiFetch, ApiError } from '@/lib/api';
@@ -21,7 +22,7 @@ export default function CycleDetailPage() {
   const router = useRouter();
   const user = useAdminUser();
   const canManage = user?.role === 'OWNER' || user?.role === 'MANAGER';
-  const { message, showToast, closeToast } = useToast();
+  const { message, variant, showToast, closeToast } = useToast();
   const [cycle, setCycle] = React.useState<CycleDetail | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [selected, setSelected] = React.useState<CycleStatus | null>(null);
@@ -91,7 +92,7 @@ export default function CycleDetailPage() {
 
   return (
     <div className="space-y-6">
-      <Toast message={message} onClose={closeToast} />
+      <Toast message={message} onClose={closeToast} variant={variant} />
       <Button variant="outline" onClick={() => router.push('/admin/cycles')}>
         <ArrowLeft className="mr-2 h-4 w-4" />
         Danh sách mùa vụ
@@ -138,9 +139,30 @@ export default function CycleDetailPage() {
           areas={areas}
           cycles={[cycle]}
           initialCycleId={cycle.id}
-          onSaved={async () => {
+          onSaved={async (created) => {
             setActivityOpen(false);
             await load();
+            if (
+              created?.type === ActivityType.HARVEST ||
+              created?.harvestLot ||
+              created?.harvestLotId
+            ) {
+              const lotId = created?.harvestLot?.id ?? created?.harvestLotId;
+              showToast(
+                <span>
+                  Đã ghi nhật ký thu hoạch thành công.{' '}
+                  <Link
+                    href={lotId ? `/admin/harvest-lots/${lotId}` : '/admin/harvest-lots'}
+                    className="font-bold underline underline-offset-2 ml-1"
+                  >
+                    {lotId ? 'Xem lô thu hoạch vừa tạo' : 'Xem danh sách lô thu hoạch'}
+                  </Link>
+                </span>,
+                'success',
+              );
+            } else {
+              showToast('Lưu nhật ký thành công', 'success');
+            }
           }}
           onCancel={() => setActivityOpen(false)}
         />

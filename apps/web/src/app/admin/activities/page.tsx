@@ -1,14 +1,17 @@
 'use client';
 
 import * as React from 'react';
+import Link from 'next/link';
 import { Plus } from 'lucide-react';
+import { ActivityType } from '@xfarm/shared';
 import { DataTable, FormDialog, PageHeader, Toast, useToast, Button } from '@xfarm/ui';
 import { apiFetch, ApiError, isAbortError } from '@/lib/api';
 import { useAdminUser } from '../admin-user-context';
 import { ActivityForm } from './_components/activity-form';
 import { canCreateActivity } from './_components/constants';
-import { activityColumns } from './_components/activity-columns';
+import { getActivityColumns } from './_components/activity-columns';
 import { ActivityFilters } from './_components/activity-filters';
+import { ActivityDetailDialog } from './_components/activity-detail-dialog';
 import type {
   ActivityArea,
   ActivityCycle,
@@ -17,7 +20,7 @@ import type {
 } from './_components/types';
 
 export default function ActivitiesPage() {
-  const { message, showToast, closeToast } = useToast();
+  const { message, variant, showToast, closeToast } = useToast();
   const user = useAdminUser();
   const [activities, setActivities] = React.useState<ActivityRecord[]>([]);
   const [areas, setAreas] = React.useState<ActivityArea[]>([]);
@@ -31,7 +34,16 @@ export default function ActivitiesPage() {
   const [to, setTo] = React.useState('');
   const [loading, setLoading] = React.useState(true);
   const [formOpen, setFormOpen] = React.useState(false);
+  const [selectedActivity, setSelectedActivity] = React.useState<ActivityRecord | null>(null);
+  const [detailOpen, setDetailOpen] = React.useState(false);
   const pageSize = 10;
+
+  const handleViewDetail = React.useCallback((activity: ActivityRecord) => {
+    setSelectedActivity(activity);
+    setDetailOpen(true);
+  }, []);
+
+  const columns = React.useMemo(() => getActivityColumns(handleViewDetail), [handleViewDetail]);
   const loadOptions = React.useCallback(
     async (signal?: AbortSignal) => {
       try {
@@ -91,7 +103,7 @@ export default function ActivitiesPage() {
   };
   return (
     <div className="space-y-6">
-      <Toast message={message} onClose={closeToast} />
+      <Toast message={message} onClose={closeToast} variant={variant} />
       <PageHeader
         title="Nhật ký sản xuất"
         description="Ghi chép hoạt động canh tác, chăn nuôi và thủy sản"
@@ -114,7 +126,7 @@ export default function ActivitiesPage() {
         onChange={updateFilter}
       />
       <DataTable
-        columns={activityColumns}
+        columns={columns}
         data={activities}
         total={total}
         page={page}
@@ -127,18 +139,44 @@ export default function ActivitiesPage() {
         onOpenChange={setFormOpen}
         title="Ghi nhật ký sản xuất"
         description="Chọn loại nhật ký để hiển thị đúng các chỉ số cần ghi"
-        className="max-w-3xl"
+        className="max-w-3xl max-h-[90vh] overflow-y-auto"
       >
         <ActivityForm
           areas={areas}
           cycles={cycles}
-          onSaved={async () => {
+          onSaved={async (created) => {
             setFormOpen(false);
             await loadActivities();
+            if (
+              created?.type === ActivityType.HARVEST ||
+              created?.harvestLot ||
+              created?.harvestLotId
+            ) {
+              const lotId = created?.harvestLot?.id ?? created?.harvestLotId;
+              showToast(
+                <span>
+                  Đã ghi nhật ký thu hoạch thành công.{' '}
+                  <Link
+                    href={lotId ? `/admin/harvest-lots/${lotId}` : '/admin/harvest-lots'}
+                    className="font-bold underline underline-offset-2 ml-1"
+                  >
+                    {lotId ? 'Xem lô thu hoạch vừa tạo' : 'Xem danh sách lô thu hoạch'}
+                  </Link>
+                </span>,
+                'success',
+              );
+            } else {
+              showToast('Lưu nhật ký thành công', 'success');
+            }
           }}
           onCancel={() => setFormOpen(false)}
         />
       </FormDialog>
+      <ActivityDetailDialog
+        activity={selectedActivity}
+        open={detailOpen}
+        onOpenChange={setDetailOpen}
+      />
     </div>
   );
 }

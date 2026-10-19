@@ -32,3 +32,20 @@ export const optionalNumber = (schema = z.number()) =>
 
 export const optionalDate = () =>
   z.preprocess(emptyToUndefined, z.coerce.date().nullable().optional());
+
+export const optionalBoolean = () =>
+  z.preprocess((value) => {
+    if (value === 'true' || value === true) return true;
+    if (value === 'false' || value === false) return false;
+    return emptyToUndefined(value);
+  }, z.boolean().optional());
+
+export const slugify = (value: string) =>
+  value
+    .trim()
+    .toLowerCase()
+    .replace(/đ/g, 'd')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');

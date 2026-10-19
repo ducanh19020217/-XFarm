@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import Link from 'next/link';
 import { ColumnDef } from '@tanstack/react-table';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -187,12 +186,12 @@ export function AnimalsTab({ userRole, groups }: AnimalsTabProps) {
         accessorKey: 'tag',
         header: 'Mã tai / Thẻ',
         cell: ({ row }) => (
-          <Link
+          <a
             href={`/admin/animals/${row.original.id}`}
             className="font-semibold text-emerald-700 hover:text-emerald-800 hover:underline dark:text-emerald-400"
           >
             {row.original.tag}
-          </Link>
+          </a>
         ),
       },
       {
@@ -230,7 +229,7 @@ export function AnimalsTab({ userRole, groups }: AnimalsTabProps) {
         id: 'actions',
         header: 'Thao tác',
         cell: ({ row }) => (
-          <Link href={`/admin/animals/${row.original.id}`}>
+          <a href={`/admin/animals/${row.original.id}`}>
             <Button
               variant="ghost"
               size="sm"
@@ -238,7 +237,7 @@ export function AnimalsTab({ userRole, groups }: AnimalsTabProps) {
             >
               <Eye className="h-4 w-4 mr-1" /> Chi tiết
             </Button>
-          </Link>
+          </a>
         ),
       },
     ];

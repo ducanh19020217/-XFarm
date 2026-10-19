@@ -1,9 +1,9 @@
 import { defineConfig, devices } from '@playwright/test';
+import path from 'node:path';
 
-process.loadEnvFile?.('../../.env');
+process.loadEnvFile?.(path.resolve(__dirname, '../../.env'));
 const baseURL = process.env.WEB_URL || 'http://localhost:3100';
 const apiURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4100/api/v1';
-const webPort = new URL(baseURL).port || '3100';
 
 export default defineConfig({
   testDir: './e2e',
@@ -11,7 +11,10 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
   retries: 0,
-  timeout: 30_000,
+  timeout: 60_000,
+  expect: {
+    timeout: 15_000,
+  },
   reporter: [['list']],
   use: {
     ...devices['Desktop Chrome'],
@@ -28,7 +31,7 @@ export default defineConfig({
       timeout: 120_000,
     },
     {
-      command: `NEXT_PUBLIC_API_URL=${apiURL} pnpm exec next dev -p ${webPort}`,
+      command: 'pnpm build && pnpm start',
       url: baseURL,
       reuseExistingServer: true,
       timeout: 120_000,

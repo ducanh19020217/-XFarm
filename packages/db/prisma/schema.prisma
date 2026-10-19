@@ -81,6 +81,45 @@ enum AnimalEventType {
   SALE
 }
 
+enum ItemCategory {
+  SEED
+  FERTILIZER
+  PESTICIDE
+  FEED
+  VETERINARY
+  TOOL
+  PACKAGING
+  PRODUCE
+  LIVESTOCK_PRODUCT
+  AQUA_PRODUCT
+  OTHER
+}
+
+enum StockMoveType {
+  IN
+  OUT
+  TRANSFER
+  ADJUST
+}
+
+enum StockMoveDirection {
+  IN
+  OUT
+}
+
+enum PurchaseOrderStatus {
+  DRAFT
+  ORDERED
+  PARTIAL
+  RECEIVED
+  CANCELLED
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+}
+
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -93,16 +132,23 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  refreshTokens       RefreshToken[]
-  auditLogs           AuditLog[]
-  media               Media[]
-  areasCreated        Area[]        @relation("AreasCreated")
-  cyclesCreated       Cycle[]       @relation("CyclesCreated")
-  activitiesCreated   Activity[]    @relation("ActivitiesCreated")
-  activitiesPerformed Activity[]    @relation("ActivitiesPerformed")
-  animalGroupsCreated AnimalGroup[] @relation("AnimalGroupsCreated")
-  animalsCreated      Animal[]      @relation("AnimalsCreated")
-  animalEventsCreated AnimalEvent[] @relation("AnimalEventsCreated")
+  refreshTokens            RefreshToken[]
+  auditLogs                AuditLog[]
+  media                    Media[]
+  areasCreated             Area[]             @relation("AreasCreated")
+  cyclesCreated            Cycle[]            @relation("CyclesCreated")
+  activitiesCreated        Activity[]         @relation("ActivitiesCreated")
+  activitiesPerformed      Activity[]         @relation("ActivitiesPerformed")
+  animalGroupsCreated      AnimalGroup[]      @relation("AnimalGroupsCreated")
+  animalsCreated           Animal[]           @relation("AnimalsCreated")
+  animalEventsCreated      AnimalEvent[]      @relation("AnimalEventsCreated")
+  activityMaterialsCreated ActivityMaterial[] @relation("ActivityMaterialsCreated")
+  suppliersCreated         Supplier[]         @relation("SuppliersCreated")
+  purchaseOrdersCreated    PurchaseOrder[]    @relation("PurchaseOrdersCreated")
+  harvestLotsCreated       HarvestLot[]       @relation("HarvestLotsCreated")
+  productsCreated          Product[]          @relation("ProductsCreated")
+  postsCreated             Post[]             @relation("PostsCreated")
+  pagesCreated             Page[]             @relation("PagesCreated")
 
   @@map("users")
 }
@@ -165,18 +211,18 @@ model AuditLog {
 }
 
 model Area {
-  id          String    @id @default(cuid())
-  code        String    @unique
+  id          String   @id @default(cuid())
+  code        String   @unique
   name        String
   type        AreaType
   parentId    String?
-  areaM2      Decimal?  @db.Decimal(18, 3)
+  areaM2      Decimal? @db.Decimal(18, 3)
   geojson     Json?
   description String?
-  isActive    Boolean   @default(true)
+  isActive    Boolean  @default(true)
   createdById String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   parent       Area?         @relation("AreaHierarchy", fields: [parentId], references: [id])
   children     Area[]        @relation("AreaHierarchy")
@@ -184,6 +230,7 @@ model Area {
   cycles       Cycle[]
   activities   Activity[]
   animalGroups AnimalGroup[]
+  warehouses   Warehouse[]
 
   @@index([parentId])
   @@index([type])
@@ -213,6 +260,7 @@ model Cycle {
   area         Area          @relation(fields: [areaId], references: [id])
   createdBy    User?         @relation("CyclesCreated", fields: [createdById], references: [id])
   activities   Activity[]
+  harvestLots  HarvestLot[]
   animalGroups AnimalGroup[]
 
   @@index([areaId, status])
@@ -236,10 +284,12 @@ model Activity {
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 
-  cycle       Cycle? @relation(fields: [cycleId], references: [id], onDelete: SetNull)
-  area        Area   @relation(fields: [areaId], references: [id])
-  performedBy User?  @relation("ActivitiesPerformed", fields: [performedById], references: [id])
-  createdBy   User?  @relation("ActivitiesCreated", fields: [createdById], references: [id])
+  cycle       Cycle?             @relation(fields: [cycleId], references: [id], onDelete: SetNull)
+  area        Area               @relation(fields: [areaId], references: [id])
+  performedBy User?              @relation("ActivitiesPerformed", fields: [performedById], references: [id])
+  createdBy   User?              @relation("ActivitiesCreated", fields: [createdById], references: [id])
+  materials   ActivityMaterial[]
+  harvestLot  HarvestLot?
 
   @@index([cycleId, performedAt])
   @@index([areaId, performedAt])
@@ -314,4 +364,287 @@ model AnimalEvent {
   @@index([animalId, date])
   @@index([type])
   @@map("animal_events")
+}
+
+model Item {
+  id         String       @id @default(cuid())
+  sku        String       @unique
+  name       String
+  category   ItemCategory
+  unit       String
+  minStock   Decimal?     @db.Decimal(18, 3)
+  isSellable Boolean      @default(false)
+  isActive   Boolean      @default(true)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  stockLots          StockLot[]
+  stockMoves         StockMove[]
+  activityMaterials  ActivityMaterial[]
+  purchaseOrderLines PurchaseOrderLine[]
+  harvestLots        HarvestLot[]
+  products           Product[]
+
+  @@index([category, isActive])
+  @@map("items")
+}
+
+model Warehouse {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  name      String
+  areaId    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  area        Area?        @relation(fields: [areaId], references: [id])
+  stockLots   StockLot[]
+  harvestLots HarvestLot[]
+  movesFrom   StockMove[]  @relation("StockMovesFrom")
+  movesTo     StockMove[]  @relation("StockMovesTo")
+
+  @@index([areaId])
+  @@map("warehouses")
+}
+
+model StockLot {
+  id           String    @id @default(cuid())
+  itemId       String
+  lotCode      String
+  expiryDate   DateTime?
+  harvestLotId String?   @unique
+  warehouseId  String?
+  unitCost     Decimal   @db.Decimal(18, 2)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  item              Item               @relation(fields: [itemId], references: [id])
+  warehouse         Warehouse?         @relation(fields: [warehouseId], references: [id])
+  stockMoves        StockMove[]
+  activityMaterials ActivityMaterial[]
+  harvestLot        HarvestLot?        @relation(fields: [harvestLotId], references: [id])
+
+  @@unique([itemId, lotCode])
+  @@index([itemId, expiryDate])
+  @@index([warehouseId])
+  @@map("stock_lots")
+}
+
+model HarvestLot {
+  id            String   @id @default(cuid())
+  code          String   @unique
+  traceCode     String   @unique
+  cycleId       String
+  activityId    String   @unique
+  itemId        String
+  quantity      Decimal  @db.Decimal(18, 3)
+  unit          String
+  harvestedAt   DateTime
+  warehouseId   String
+  qualityGrade  String?
+  certification String?
+  isPublic      Boolean  @default(false)
+  createdById   String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  cycle     Cycle     @relation(fields: [cycleId], references: [id])
+  activity  Activity  @relation(fields: [activityId], references: [id])
+  item      Item      @relation(fields: [itemId], references: [id])
+  warehouse Warehouse @relation(fields: [warehouseId], references: [id])
+  createdBy User?     @relation("HarvestLotsCreated", fields: [createdById], references: [id])
+  stockLot  StockLot?
+
+  @@index([cycleId, harvestedAt])
+  @@index([itemId])
+  @@index([warehouseId])
+  @@index([isPublic, harvestedAt])
+  @@map("harvest_lots")
+}
+
+model StockMove {
+  id              String              @id @default(cuid())
+  type            StockMoveType
+  itemId          String
+  stockLotId      String?
+  fromWarehouseId String?
+  toWarehouseId   String?
+  quantity        Decimal             @db.Decimal(18, 3)
+  unitCost        Decimal             @db.Decimal(18, 2)
+  direction       StockMoveDirection?
+  refType         String?
+  refId           String?
+  movedAt         DateTime            @default(now())
+  notes           String?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  item          Item       @relation(fields: [itemId], references: [id])
+  stockLot      StockLot?  @relation(fields: [stockLotId], references: [id])
+  fromWarehouse Warehouse? @relation("StockMovesFrom", fields: [fromWarehouseId], references: [id])
+  toWarehouse   Warehouse? @relation("StockMovesTo", fields: [toWarehouseId], references: [id])
+
+  @@index([itemId, stockLotId])
+  @@index([refType, refId])
+  @@index([fromWarehouseId])
+  @@index([toWarehouseId])
+  @@map("stock_moves")
+}
+
+model ActivityMaterial {
+  id          String   @id @default(cuid())
+  activityId  String
+  itemId      String
+  stockLotId  String?
+  quantity    Decimal  @db.Decimal(18, 3)
+  unitCost    Decimal  @db.Decimal(18, 2)
+  createdById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  activity  Activity  @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  item      Item      @relation(fields: [itemId], references: [id])
+  stockLot  StockLot? @relation(fields: [stockLotId], references: [id])
+  createdBy User?     @relation("ActivityMaterialsCreated", fields: [createdById], references: [id])
+
+  @@index([activityId])
+  @@index([itemId])
+  @@map("activity_materials")
+}
+
+model Supplier {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  name        String
+  phone       String?
+  address     String?
+  taxCode     String?
+  createdById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  createdBy      User?           @relation("SuppliersCreated", fields: [createdById], references: [id])
+  purchaseOrders PurchaseOrder[]
+
+  @@map("suppliers")
+}
+
+model PurchaseOrder {
+  id          String              @id @default(cuid())
+  code        String              @unique
+  supplierId  String
+  status      PurchaseOrderStatus @default(DRAFT)
+  orderDate   DateTime            @default(now())
+  total       Decimal             @db.Decimal(18, 2)
+  createdById String?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  supplier  Supplier            @relation(fields: [supplierId], references: [id])
+  createdBy User?               @relation("PurchaseOrdersCreated", fields: [createdById], references: [id])
+  lines     PurchaseOrderLine[]
+
+  @@index([supplierId, status])
+  @@map("purchase_orders")
+}
+
+model PurchaseOrderLine {
+  id          String   @id @default(cuid())
+  poId        String
+  itemId      String
+  quantity    Decimal  @db.Decimal(18, 3)
+  unitPrice   Decimal  @db.Decimal(18, 2)
+  receivedQty Decimal  @default(0) @db.Decimal(18, 3)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  purchaseOrder PurchaseOrder @relation(fields: [poId], references: [id], onDelete: Cascade)
+  item          Item          @relation(fields: [itemId], references: [id])
+
+  @@index([poId])
+  @@index([itemId])
+  @@map("purchase_order_lines")
+}
+
+model Alert {
+  id        String    @id @default(cuid())
+  ruleId    String?
+  type      String
+  message   String
+  refType   String?
+  refId     String?
+  dedupeKey String?   @unique
+  createdAt DateTime  @default(now())
+  readAt    DateTime?
+
+  @@index([ruleId])
+  @@index([refType, refId])
+  @@index([readAt])
+  @@map("alerts")
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  itemId      String
+  description String
+  price       Decimal  @db.Decimal(18, 2)
+  unit        String
+  mediaIds    String[] @default([])
+  isPublished Boolean  @default(false)
+  sortOrder   Int      @default(0)
+  createdById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  item      Item  @relation(fields: [itemId], references: [id])
+  createdBy User? @relation("ProductsCreated", fields: [createdById], references: [id])
+
+  @@index([isPublished, sortOrder])
+  @@index([itemId])
+  @@map("products")
+}
+
+model Post {
+  id           String     @id @default(cuid())
+  slug         String     @unique
+  title        String
+  excerpt      String
+  content      String
+  coverMediaId String?
+  publishedAt  DateTime?
+  status       PostStatus @default(DRAFT)
+  createdById  String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  createdBy User? @relation("PostsCreated", fields: [createdById], references: [id])
+
+  @@index([status, publishedAt])
+  @@map("posts")
+}
+
+model Page {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  content     String
+  createdById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  createdBy User? @relation("PagesCreated", fields: [createdById], references: [id])
+
+  @@map("pages")
+}
+
+model SiteSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("site_settings")
 }

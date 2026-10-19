@@ -19,6 +19,7 @@ import cookieParser from 'cookie-parser';
 import * as argon2 from 'argon2';
 import { prisma, AreaType, CycleKind, CycleStatus } from '@xfarm/db';
 import { AppModule } from '../src/app.module';
+import { cleanupProductionData } from './helpers/cleanup';
 
 describe('Areas E2E Tests (/api/v1/areas)', () => {
   let app: INestApplication;
@@ -88,15 +89,7 @@ describe('Areas E2E Tests (/api/v1/areas)', () => {
   });
 
   beforeEach(async () => {
-    // Clean related tables
-    await prisma.animalEvent.deleteMany();
-    await prisma.animal.deleteMany();
-    await prisma.animalGroup.deleteMany();
-    await prisma.activity.deleteMany();
-    await prisma.cycle.deleteMany();
-    await prisma.area.updateMany({ data: { parentId: null } });
-    await prisma.area.deleteMany();
-    await prisma.sequence.deleteMany({ where: { key: 'AR' } });
+    await cleanupProductionData(prisma);
   });
 
   describe('RBAC permissions', () => {

@@ -72,6 +72,60 @@ export enum AnimalEventType {
   SALE = 'SALE',
 }
 
+export enum ItemCategory {
+  SEED = 'SEED',
+  FERTILIZER = 'FERTILIZER',
+  PESTICIDE = 'PESTICIDE',
+  FEED = 'FEED',
+  VETERINARY = 'VETERINARY',
+  TOOL = 'TOOL',
+  PACKAGING = 'PACKAGING',
+  PRODUCE = 'PRODUCE',
+  LIVESTOCK_PRODUCT = 'LIVESTOCK_PRODUCT',
+  AQUA_PRODUCT = 'AQUA_PRODUCT',
+  OTHER = 'OTHER',
+}
+
+export const ITEM_CATEGORY_LABELS: Record<ItemCategory, string> = {
+  [ItemCategory.SEED]: 'Hạt giống / Cây giống',
+  [ItemCategory.FERTILIZER]: 'Phân bón',
+  [ItemCategory.PESTICIDE]: 'Thuốc BVTV',
+  [ItemCategory.FEED]: 'Thức ăn chăn nuôi',
+  [ItemCategory.VETERINARY]: 'Thuốc thú y / Thủy sản',
+  [ItemCategory.TOOL]: 'Công cụ / Dụng cụ',
+  [ItemCategory.PACKAGING]: 'Bao bì / Đóng gói',
+  [ItemCategory.PRODUCE]: 'Nông sản',
+  [ItemCategory.LIVESTOCK_PRODUCT]: 'Sản phẩm chăn nuôi',
+  [ItemCategory.AQUA_PRODUCT]: 'Sản phẩm thủy sản',
+  [ItemCategory.OTHER]: 'Khác',
+};
+
+export enum StockMoveType {
+  IN = 'IN',
+  OUT = 'OUT',
+  TRANSFER = 'TRANSFER',
+  ADJUST = 'ADJUST',
+}
+
+export enum StockMoveDirection {
+  IN = 'IN',
+  OUT = 'OUT',
+}
+
+export enum PurchaseOrderStatus {
+  DRAFT = 'DRAFT',
+  ORDERED = 'ORDERED',
+  PARTIAL = 'PARTIAL',
+  RECEIVED = 'RECEIVED',
+  CANCELLED = 'CANCELLED',
+}
+
+export enum AlertType {
+  LOW_STOCK = 'LOW_STOCK',
+  LOT_EXPIRING = 'LOT_EXPIRING',
+  LOT_EXPIRED = 'LOT_EXPIRED',
+}
+
 export interface Paginated<T> {
   data: T[];
   total: number;

@@ -21,9 +21,11 @@ import {
   LogOut,
   Menu,
   X,
+  Bell,
 } from 'lucide-react';
 import { Button, StatusBadge, Badge } from '@xfarm/ui';
 import { apiFetch, isAbortError } from '@/lib/api';
+import { NotificationBell } from '@/components/alerts/notification-bell';
 import { AdminUserProvider, type AdminUser } from './admin-user-context';
 
 type UserProfile = AdminUser;
@@ -78,18 +80,19 @@ const navItems: NavItem[] = [
     icon: Calendar,
     isReady: true,
   },
-  {
-    title: 'Kho & Mua hàng',
-    href: '/admin/inventory',
-    icon: Boxes,
-    isReady: false,
-  },
+  { title: 'Kho', href: '/admin/inventory', icon: Boxes, isReady: true },
+  { title: 'Mua hàng', href: '/admin/purchase-orders', icon: ShoppingCart, isReady: true },
+  { title: 'Cảnh báo', href: '/admin/alerts', icon: Bell, isReady: true },
   {
     title: 'Thu hoạch & Truy xuất',
-    href: '/admin/harvest',
+    href: '/admin/harvest-lots',
     icon: QrCode,
-    isReady: false,
+    isReady: true,
   },
+  { title: 'Website · Sản phẩm', href: '/admin/cms/products', icon: Compass, isReady: true },
+  { title: 'Website · Bài viết', href: '/admin/cms/posts', icon: ClipboardList, isReady: true },
+  { title: 'Website · Trang', href: '/admin/cms/pages', icon: ClipboardList, isReady: true },
+  { title: 'Website · Cài đặt', href: '/admin/cms/settings', icon: ClipboardList, isReady: true },
   {
     title: 'Bán hàng & CRM',
     href: '/admin/sales',
@@ -235,13 +238,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <AdminUserProvider user={user}>
       <div className="flex min-h-screen bg-slate-50 dark:bg-slate-900">
         {/* Desktop Sidebar */}
-        <aside className="hidden w-64 border-r border-slate-200 bg-white md:block dark:border-slate-800 dark:bg-slate-950">
+        <aside className="hidden w-64 border-r border-slate-200 bg-white md:block dark:border-slate-800 dark:bg-slate-950 print:hidden">
           <SidebarContent />
         </aside>
 
         {/* Mobile Drawer */}
         {mobileMenuOpen && (
-          <div className="fixed inset-0 z-50 flex md:hidden">
+          <div className="fixed inset-0 z-50 flex md:hidden print:hidden">
             <div
               className="fixed inset-0 bg-black/50 backdrop-blur-sm"
               onClick={() => setMobileMenuOpen(false)}
@@ -259,9 +262,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         )}
 
         {/* Main Content Area */}
-        <div className="flex flex-1 flex-col overflow-hidden">
+        <div className="flex flex-1 flex-col overflow-hidden print:overflow-visible">
           {/* Top Header */}
-          <header className="flex h-16 items-center justify-between border-b border-slate-200 bg-white px-4 md:px-6 dark:border-slate-800 dark:bg-slate-950">
+          <header className="flex h-16 items-center justify-between border-b border-slate-200 bg-white px-4 md:px-6 dark:border-slate-800 dark:bg-slate-950 print:hidden">
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setMobileMenuOpen(true)}
@@ -272,6 +275,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
 
             <div className="flex items-center gap-3">
+              <NotificationBell />
               {user && (
                 <div className="hidden sm:flex sm:items-center sm:gap-2 text-sm text-slate-600 dark:text-slate-400">
                   <span>
@@ -294,8 +298,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </header>
 
           {/* Page Content */}
-          <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
-            <div className="mx-auto max-w-7xl">{children}</div>
+          <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 print:p-0 print:overflow-visible">
+            <div className="mx-auto max-w-7xl print:max-w-none">{children}</div>
           </main>
         </div>
       </div>
