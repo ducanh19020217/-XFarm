@@ -176,4 +176,3 @@ export async function runMaintenanceCheck(): Promise<unknown> {
   notifyAlertsUpdated();
   return res;
 }
-

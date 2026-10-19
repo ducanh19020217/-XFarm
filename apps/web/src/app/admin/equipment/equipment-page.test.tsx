@@ -8,9 +8,7 @@ import * as apiModule from '@/lib/api';
 import { EquipmentStatus } from '@xfarm/shared';
 
 vi.mock('@/lib/equipment-api', async () => {
-  const actual = await vi.importActual<typeof import('@/lib/equipment-api')>(
-    '@/lib/equipment-api',
-  );
+  const actual = await vi.importActual<typeof import('@/lib/equipment-api')>('@/lib/equipment-api');
   return {
     ...actual,
     getEquipmentList: vi.fn(),

@@ -15,9 +15,7 @@ vi.mock('next/navigation', () => ({
 }));
 
 vi.mock('@/lib/equipment-api', async () => {
-  const actual = await vi.importActual<typeof import('@/lib/equipment-api')>(
-    '@/lib/equipment-api',
-  );
+  const actual = await vi.importActual<typeof import('@/lib/equipment-api')>('@/lib/equipment-api');
   return {
     ...actual,
     getEquipmentDetail: vi.fn(),
@@ -106,9 +104,7 @@ describe('EquipmentDetailPage Component', () => {
     );
 
     await waitFor(() => {
-      expect(
-        screen.getByRole('heading', { name: 'Máy cày Kubota L5018' }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Máy cày Kubota L5018' })).toBeInTheDocument();
     });
 
     // Code and details
@@ -150,9 +146,7 @@ describe('EquipmentDetailPage Component', () => {
     );
 
     await waitFor(() => {
-      expect(
-        screen.getByRole('heading', { name: 'Máy cày Kubota L5018' }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Máy cày Kubota L5018' })).toBeInTheDocument();
     });
 
     // Click "Thêm lịch bảo trì"
@@ -203,9 +197,7 @@ describe('EquipmentDetailPage Component', () => {
     );
 
     await waitFor(() => {
-      expect(
-        screen.getByRole('heading', { name: 'Máy cày Kubota L5018' }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Máy cày Kubota L5018' })).toBeInTheDocument();
     });
 
     // Worker can click "Ghi nhận bảo trì"

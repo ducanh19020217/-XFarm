@@ -3,7 +3,16 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { ColumnDef } from '@tanstack/react-table';
-import { Check, CheckCheck, ExternalLink, Loader2, Package, Play, RefreshCw, Wrench } from 'lucide-react';
+import {
+  Check,
+  CheckCheck,
+  ExternalLink,
+  Loader2,
+  Package,
+  Play,
+  RefreshCw,
+  Wrench,
+} from 'lucide-react';
 import { Badge, Button, DataTable, Label, PageHeader, Toast, useToast } from '@xfarm/ui';
 import {
   type AlertItem,
@@ -178,11 +187,7 @@ export default function AlertsPage() {
             href={inv.href}
             className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-600 hover:text-emerald-700 hover:underline"
           >
-            {isEquipment ? (
-              <Wrench className="h-3.5 w-3.5" />
-            ) : (
-              <Package className="h-3.5 w-3.5" />
-            )}
+            {isEquipment ? <Wrench className="h-3.5 w-3.5" /> : <Package className="h-3.5 w-3.5" />}
             <span>{inv.label}</span>
             <ExternalLink className="h-3 w-3 opacity-60" />
           </Link>

@@ -241,10 +241,7 @@ export async function getEquipmentList(
   };
 }
 
-export async function getEquipmentDetail(
-  id: string,
-  signal?: AbortSignal,
-): Promise<EquipmentItem> {
+export async function getEquipmentDetail(id: string, signal?: AbortSignal): Promise<EquipmentItem> {
   const res = await apiFetch<{ data: EquipmentItem }>(`/equipment/${id}`, { signal });
   return res.data;
 }

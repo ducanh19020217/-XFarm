@@ -263,7 +263,9 @@ export default function EquipmentDetailPage() {
               <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Lịch bảo trì</p>
               <p className="text-xl font-bold text-slate-900 dark:text-slate-100">
                 {activeSchedulesCount}{' '}
-                <span className="text-xs font-normal text-slate-400">/ {schedules.length} lịch</span>
+                <span className="text-xs font-normal text-slate-400">
+                  / {schedules.length} lịch
+                </span>
               </p>
             </div>
           </div>
@@ -394,7 +396,10 @@ export default function EquipmentDetailPage() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-slate-700 dark:text-slate-300">
+            <table
+              data-testid="schedules-table"
+              className="w-full text-left text-sm text-slate-700 dark:text-slate-300"
+            >
               <thead className="border-b border-slate-200 bg-slate-50/50 text-xs text-slate-500 dark:border-slate-800 dark:bg-slate-800/50">
                 <tr>
                   <th className="py-2.5 px-3">Tên lịch</th>
@@ -421,10 +426,7 @@ export default function EquipmentDetailPage() {
                         {s.name}
                       </td>
                       <td className="py-2.5 px-3">{s.intervalDays} ngày</td>
-                      <td
-                        data-testid={`schedule-due-${s.id}`}
-                        className="py-2.5 px-3 font-medium"
-                      >
+                      <td data-testid={`schedule-due-${s.id}`} className="py-2.5 px-3 font-medium">
                         {formatVNDate(s.nextDueDate)}
                       </td>
                       <td className="py-2.5 px-3">
@@ -444,9 +446,7 @@ export default function EquipmentDetailPage() {
                         {!isOverdue && !isDueSoon && s.isActive && (
                           <span className="text-xs text-slate-500">Còn {diffDays} ngày</span>
                         )}
-                        {!s.isActive && (
-                          <span className="text-xs text-slate-400">Đã tắt lịch</span>
-                        )}
+                        {!s.isActive && <span className="text-xs text-slate-400">Đã tắt lịch</span>}
                       </td>
                       <td className="py-2.5 px-3">
                         {s.isActive ? (
@@ -521,7 +521,10 @@ export default function EquipmentDetailPage() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-slate-700 dark:text-slate-300">
+            <table
+              data-testid="logs-table"
+              className="w-full text-left text-sm text-slate-700 dark:text-slate-300"
+            >
               <thead className="border-b border-slate-200 bg-slate-50/50 text-xs text-slate-500 dark:border-slate-800 dark:bg-slate-800/50">
                 <tr>
                   <th className="py-2.5 px-3">Ngày</th>

@@ -228,6 +228,48 @@ describe('equipment-api', () => {
       expect(res.id).toBe('sch-1');
     });
 
+    it('updateEquipment sends PATCH /equipment/:id', async () => {
+      vi.mocked(apiModule.apiFetch).mockResolvedValueOnce({
+        data: { id: 'eq-1', name: 'Máy cày mới' },
+      });
+
+      const res = await updateEquipment('eq-1', { name: 'Máy cày mới' });
+      expect(apiModule.apiFetch).toHaveBeenCalledWith('/equipment/eq-1', {
+        method: 'PATCH',
+        body: JSON.stringify({ name: 'Máy cày mới' }),
+      });
+      expect(res.name).toBe('Máy cày mới');
+    });
+
+    it('deleteEquipment sends DELETE /equipment/:id', async () => {
+      vi.mocked(apiModule.apiFetch).mockResolvedValueOnce({ success: true });
+      await deleteEquipment('eq-1');
+      expect(apiModule.apiFetch).toHaveBeenCalledWith('/equipment/eq-1', {
+        method: 'DELETE',
+      });
+    });
+
+    it('updateEquipmentSchedule sends PATCH /maintenance-schedules/:id', async () => {
+      vi.mocked(apiModule.apiFetch).mockResolvedValueOnce({
+        data: { id: 'sch-1', intervalDays: 45 },
+      });
+
+      const res = await updateEquipmentSchedule('sch-1', { intervalDays: 45 });
+      expect(apiModule.apiFetch).toHaveBeenCalledWith('/maintenance-schedules/sch-1', {
+        method: 'PATCH',
+        body: JSON.stringify({ intervalDays: 45 }),
+      });
+      expect(res.intervalDays).toBe(45);
+    });
+
+    it('deleteEquipmentSchedule sends DELETE /maintenance-schedules/:id', async () => {
+      vi.mocked(apiModule.apiFetch).mockResolvedValueOnce({ success: true });
+      await deleteEquipmentSchedule('sch-1');
+      expect(apiModule.apiFetch).toHaveBeenCalledWith('/maintenance-schedules/sch-1', {
+        method: 'DELETE',
+      });
+    });
+
     it('createEquipmentLog sends POST /equipment/:id/maintenance-logs', async () => {
       vi.mocked(apiModule.apiFetch).mockResolvedValueOnce({
         data: { id: 'log-1', cost: 150000 },

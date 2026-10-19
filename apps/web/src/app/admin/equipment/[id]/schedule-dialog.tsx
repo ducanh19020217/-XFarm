@@ -11,12 +11,7 @@ interface ScheduleDialogProps {
   onSubmit: (data: CreateSchedulePayload) => Promise<void>;
 }
 
-export function ScheduleDialog({
-  open,
-  onOpenChange,
-  schedule,
-  onSubmit,
-}: ScheduleDialogProps) {
+export function ScheduleDialog({ open, onOpenChange, schedule, onSubmit }: ScheduleDialogProps) {
   const isEdit = Boolean(schedule);
 
   const [name, setName] = React.useState('');
@@ -36,9 +31,7 @@ export function ScheduleDialog({
         setName(schedule.name || '');
         setIntervalDays(schedule.intervalDays || 30);
         setNextDueDate(
-          schedule.nextDueDate
-            ? new Date(schedule.nextDueDate).toISOString().slice(0, 10)
-            : '',
+          schedule.nextDueDate ? new Date(schedule.nextDueDate).toISOString().slice(0, 10) : '',
         );
         setIsActive(schedule.isActive ?? true);
       } else {
@@ -139,9 +132,7 @@ export function ScheduleDialog({
               }}
               disabled={isSubmitting}
             />
-            {errors.intervalDays && (
-              <p className="text-xs text-red-600">{errors.intervalDays}</p>
-            )}
+            {errors.intervalDays && <p className="text-xs text-red-600">{errors.intervalDays}</p>}
           </div>
 
           <div className="space-y-1">
@@ -156,9 +147,7 @@ export function ScheduleDialog({
               }}
               disabled={isSubmitting}
             />
-            {errors.nextDueDate && (
-              <p className="text-xs text-red-600">{errors.nextDueDate}</p>
-            )}
+            {errors.nextDueDate && <p className="text-xs text-red-600">{errors.nextDueDate}</p>}
           </div>
         </div>
 

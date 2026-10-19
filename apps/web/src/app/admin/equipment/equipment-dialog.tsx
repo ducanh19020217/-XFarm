@@ -56,9 +56,7 @@ export function EquipmentDialog({
         setType(equipment.type || '');
         setAreaId(equipment.areaId || '');
         setPurchaseDate(
-          equipment.purchaseDate
-            ? new Date(equipment.purchaseDate).toISOString().slice(0, 10)
-            : '',
+          equipment.purchaseDate ? new Date(equipment.purchaseDate).toISOString().slice(0, 10) : '',
         );
         setValue(
           equipment.value !== null && equipment.value !== undefined
