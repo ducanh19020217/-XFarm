@@ -1,0 +1,136 @@
+name: xfarm-prod
+
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - xfarm_prod_pgdata:/var/lib/postgresql/data
+    networks: [xfarm]
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ['redis-server', '--appendonly', 'yes']
+    volumes:
+      - xfarm_prod_redisdata:/data
+    networks: [xfarm]
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  minio:
+    image: rustfs/rustfs@sha256:1803faef57627e2d9c2e7d89d655d712ddded5389040054987163043fecb6a3c
+    restart: unless-stopped
+    environment:
+      RUSTFS_ACCESS_KEY: ${MINIO_ROOT_USER}
+      RUSTFS_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      RUSTFS_CONSOLE_ENABLE: 'true'
+      RUSTFS_CONSOLE_ADDRESS: ':9001'
+      RUSTFS_ADDRESS: ':9000'
+    volumes:
+      - xfarm_prod_miniodata:/data
+    networks: [xfarm]
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -sf http://localhost:9000/minio/health/live || exit 1']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  storage-init:
+    image: amazon/aws-cli
+    restart: 'no'
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      AWS_ACCESS_KEY_ID: ${MINIO_ROOT_USER}
+      AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD}
+      AWS_DEFAULT_REGION: us-east-1
+    networks: [xfarm]
+    entrypoint: ['/bin/sh', '-ec']
+    command:
+      - >-
+        aws --endpoint-url http://minio:9000 s3 mb s3://${MINIO_BUCKET} || true;
+        aws --endpoint-url http://minio:9000 s3api put-bucket-policy
+        --bucket ${MINIO_BUCKET}
+        --policy '{"Version":"2012-10-17","Statement":[{"Sid":"PublicRead","Effect":"Allow","Principal":"*","Action":["s3:GetObject"],"Resource":["arn:aws:s3:::${MINIO_BUCKET}/*"]}]}'
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    env_file: ${PRODUCTION_ENV_FILE:-.env.production}
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL}
+      MINIO_ENDPOINT: minio
+      MINIO_PORT: 9000
+      API_PORT: 4100
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      storage-init:
+        condition: service_completed_successfully
+    networks: [xfarm]
+    ports:
+      - '127.0.0.1:${API_PORT:-4100}:4100'
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:4100/api/v1/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
+        WEB_URL: ${WEB_URL}
+    restart: unless-stopped
+    env_file: ${PRODUCTION_ENV_FILE:-.env.production}
+    environment:
+      WEB_URL: ${WEB_URL}
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+    depends_on:
+      api:
+        condition: service_healthy
+    networks: [xfarm]
+    ports:
+      - '${WEB_PORT:-3100}:3100'
+
+networks:
+  xfarm:
+    name: xfarm_prod_network
+
+volumes:
+  xfarm_prod_pgdata:
+  xfarm_prod_redisdata:
+  xfarm_prod_miniodata:
