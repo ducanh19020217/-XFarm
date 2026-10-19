@@ -80,7 +80,12 @@ export const batchCreateTourSlotsSchema = z
       )
       .min(1, 'Phải chọn ít nhất một thứ trong tuần'),
     times: z
-      .array(z.string().trim().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Giờ không hợp lệ (HH:mm)'))
+      .array(
+        z
+          .string()
+          .trim()
+          .regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Giờ không hợp lệ (HH:mm)'),
+      )
       .min(1, 'Phải có ít nhất một khung giờ'),
     capacity: z.coerce.number().int().positive('Sức chứa phải lớn hơn 0').optional(),
   })

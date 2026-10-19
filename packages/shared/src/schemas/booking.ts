@@ -1,11 +1,6 @@
 import { z } from 'zod';
 import { BookingStatus, PaymentMethod, PaymentStatus } from '../types';
-import {
-  emptyToUndefined,
-  optionalDate,
-  optionalString,
-  vietnamesePhoneSchema,
-} from './helpers';
+import { emptyToUndefined, optionalDate, optionalString, vietnamesePhoneSchema } from './helpers';
 import { paginationSchema } from './pagination';
 
 export const bookingStatusSchema = z.nativeEnum(BookingStatus);
