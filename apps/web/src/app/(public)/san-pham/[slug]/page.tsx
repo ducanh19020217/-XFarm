@@ -7,6 +7,7 @@ import { getPublicProductBySlug, formatCurrency } from '@/lib/public-api';
 import { getSiteUrl } from '@/lib/site-url';
 import { sanitizeHtml } from '@/lib/sanitize';
 import { OrderButton } from '../../_components/order-button';
+import { AddToCartButton } from '../../_components/add-to-cart-button';
 
 interface ProductDetailPageProps {
   params: Promise<{ slug: string }>;
@@ -199,9 +200,17 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
               </div>
             </div>
 
-            {/* Order Action Button with Tooltip */}
-            <div className="pt-6 border-t border-slate-100">
-              <OrderButton />
+            {/* Order Action Buttons */}
+            <div className="pt-6 border-t border-slate-100 space-y-4">
+              <AddToCartButton
+                productId={product.id}
+                productName={product.name}
+                inStock={inStock}
+                variant="detail"
+              />
+              <div className="pt-1">
+                <OrderButton />
+              </div>
             </div>
           </div>
         </div>
