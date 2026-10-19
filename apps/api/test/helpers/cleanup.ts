@@ -9,6 +9,13 @@ type DatabaseClient = PrismaClient;
 export async function cleanupDatabase(client: DatabaseClient = defaultPrisma): Promise<void> {
   await client.$transaction(
     async (tx) => {
+      await tx.payment.deleteMany();
+      await tx.salesOrderLine.deleteMany();
+      await tx.salesOrder.deleteMany();
+      await tx.customer.deleteMany();
+      await tx.transaction.deleteMany();
+      await tx.financeCategory.updateMany({ data: { parentId: null } });
+      await tx.financeCategory.deleteMany();
       await tx.product.deleteMany();
       await tx.harvestLot.deleteMany();
       await tx.activityMaterial.deleteMany();
@@ -60,6 +67,7 @@ export async function cleanupInventoryData(
       });
     }
     if (itemFilter) {
+      await tx.salesOrderLine.deleteMany({ where: itemFilter });
       await tx.stockLot.deleteMany({ where: itemFilter });
       await tx.item.deleteMany({ where: { id: { in: itemIds } } });
     }
