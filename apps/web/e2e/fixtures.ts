@@ -22,6 +22,7 @@ export async function loginAs(page: Page, role: Role = 'OWNER') {
     cookies?: Parameters<Page['context']['addCookies']>[0];
   };
   await page.context().clearCookies();
+  await page.evaluate(() => localStorage.clear());
   await page.context().addCookies(state.cookies || []);
   await page.goto('/admin');
   await page.waitForURL('**/admin');

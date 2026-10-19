@@ -963,6 +963,13 @@ async function main() {
       create: { ...customer, isActive: true },
     });
   }
+  const highestCustomer = await prisma.customer.findFirst({
+    where: { code: { startsWith: 'CU-' } },
+    orderBy: { code: 'desc' },
+    select: { code: true },
+  });
+  const highestCustomerNumber = Number(highestCustomer?.code.match(/^CU-(\d+)$/)?.[1] ?? 0);
+  await ensureSequence('CU', 0, highestCustomerNumber);
   await prisma.siteSetting.upsert({
     where: { key: 'bank.vietqr' },
     update: { value: { bank: 'VCB', accountNumber: '0123456789', accountName: 'XFARM' } },
