@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 env:
-  CI: "true"
+  CI: 'true'
   NODE_ENV: test
   DATABASE_URL: postgresql://xfarm:xfarm_secret@localhost:5432/xfarm_test?schema=public
   DATABASE_URL_TEST: postgresql://xfarm:xfarm_secret@localhost:5432/xfarm_test?schema=public
@@ -24,7 +24,7 @@ env:
   MINIO_ACCESS_KEY: xfarm_minio
   MINIO_SECRET_KEY: xfarm_minio_secret
   MINIO_BUCKET: xfarm-media
-  MINIO_USE_SSL: "false"
+  MINIO_USE_SSL: 'false'
 
 jobs:
   test:
