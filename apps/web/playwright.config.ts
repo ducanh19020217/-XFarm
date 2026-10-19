@@ -28,13 +28,13 @@ export default defineConfig({
       command: `cd ../.. && pnpm --filter @xfarm/api exec tsx dist/src/main.js`,
       url: `${apiURL}/auth/me`,
       reuseExistingServer: true,
-      timeout: 120_000,
+      timeout: 240_000,
     },
     {
       command: 'pnpm build && pnpm start',
       url: baseURL,
       reuseExistingServer: true,
-      timeout: 120_000,
+      timeout: 240_000,
     },
   ],
 });
