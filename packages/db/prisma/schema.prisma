@@ -171,6 +171,7 @@ model User {
   payrollsApproved         Payroll[]          @relation("PayrollApproved")
   pagesCreated             Page[]             @relation("PagesCreated")
 
+  @@index([employeeId])
   @@map("users")
 }
 
