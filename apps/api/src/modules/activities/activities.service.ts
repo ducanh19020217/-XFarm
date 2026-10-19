@@ -280,14 +280,29 @@ export class ActivitiesService {
     }
   }
 
-  async create(dto: CreateActivityDto, userId: string, role: string) {
+  async create(
+    dto: CreateActivityDto,
+    userId: string,
+    role: string,
+    tx?: Prisma.TransactionClient,
+  ) {
+    if (dto.clientId) {
+      const existing = await (tx ?? prisma).activity.findUnique({
+        where: { clientId: dto.clientId },
+        include: this.activityInclude,
+      });
+      if (existing) {
+        return (await this.withMedia([existing]))[0];
+      }
+    }
+
     const data = parseActivityData(dto.type, dto.data);
     await this.mediaForIds(dto.mediaIds);
     await this.validateContext(dto.areaId, dto.cycleId, dto.type);
     const performedById = await this.resolvePerformedById(dto.performedById, userId, role);
 
-    const activity = await prisma.$transaction(async (tx) => {
-      const created = await tx.activity.create({
+    const runInTx = async (trx: Prisma.TransactionClient) => {
+      const created = await trx.activity.create({
         data: {
           cycleId: dto.cycleId ?? null,
           areaId: dto.areaId,
@@ -299,11 +314,12 @@ export class ActivitiesService {
           data: data as Prisma.InputJsonValue,
           notes: dto.notes ?? null,
           mediaIds: dto.mediaIds,
+          clientId: dto.clientId ?? null,
           createdById: userId,
         },
       });
       await this.issueMaterials(
-        tx,
+        trx,
         created.id,
         created.areaId,
         dto.materials,
@@ -311,13 +327,15 @@ export class ActivitiesService {
         created.performedAt,
       );
       if (dto.type === ActivityType.HARVEST) {
-        await this.createHarvest(tx, created, data, userId);
+        await this.createHarvest(trx, created, data, userId);
       }
-      return tx.activity.findUniqueOrThrow({
+      return trx.activity.findUniqueOrThrow({
         where: { id: created.id },
         include: this.activityInclude,
       });
-    });
+    };
+
+    const activity = tx ? await runInTx(tx) : await prisma.$transaction(runInTx);
     return (await this.withMedia([activity]))[0];
   }
 

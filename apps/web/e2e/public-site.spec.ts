@@ -100,7 +100,9 @@ test.describe('Website Quảng Bá Public (không cần đăng nhập)', () => {
     // 2. Mở bài viết published đầu tiên
     const readMoreLink = page.getByRole('link', { name: /đọc (tiếp|bài viết)/i }).first();
     await expect(readMoreLink).toBeVisible();
-    await readMoreLink.click();
+    const articleHref = await readMoreLink.getAttribute('href');
+    expect(articleHref).toMatch(/\/blog\/[^/]+/);
+    await page.goto(articleHref!, { waitUntil: 'domcontentloaded' });
 
     // 3. Trang chi tiết bài viết
     await page.waitForURL('**/blog/*');

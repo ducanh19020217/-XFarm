@@ -227,3 +227,14 @@ pnpm --filter @xfarm/web lighthouse
 
 ### 4. Điểm còn lại
 - Chưa thêm cửa hàng online, thanh toán, tour/booking; đây là phạm vi các giai đoạn sau theo kế hoạch.
+
+## Tích hợp GĐ 6 vào main – ĐÃ HỢP NHẤT
+
+### 1. Việc đã làm
+- Hợp nhất đầy đủ các module Nhân sự, Giao việc, Chấm công, Tính lương, đồng bộ offline và PWA của GĐ 6 với các module Thu hoạch, CMS, truy xuất và website công khai của GĐ 3.
+- Hợp nhất schema Prisma, seed idempotent và migration phát hành của GĐ 3 + GĐ 6; giữ nguyên các migration cũ.
+- Hợp nhất route smoke, export shared, Playwright config/dependencies và form Activity (HARVEST + giờ local).
+- Loại bỏ các `test.fixme` do chờ merge API; các spec UI chạy luồng thật sau khi backend đã đăng ký module.
+
+### 2. Điểm còn lại
+- Nghiệm thu đầy đủ sau merge được ghi ở marker `.agenthub/DONE`; nếu môi trường hoặc dịch vụ ngoài repo làm lệnh thất bại, ghi rõ lệnh và nguyên nhân tại đó.

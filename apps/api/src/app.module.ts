@@ -21,6 +21,11 @@ import { HarvestLotsModule } from './modules/harvest-lots/harvest-lots.module';
 import { CmsModule } from './modules/cms/cms.module';
 import { PublicTraceModule } from './modules/public-trace/public-trace.module';
 import { PurchaseOrdersModule } from './modules/purchase-orders/purchase-orders.module';
+import { EmployeesModule } from './modules/employees/employees.module';
+import { TasksModule } from './modules/tasks/tasks.module';
+import { AttendanceModule } from './modules/attendance/attendance.module';
+import { PayrollsModule } from './modules/payrolls/payrolls.module';
+import { SyncModule } from './modules/sync/sync.module';
 import { SequenceModule } from './common/sequence/sequence.module';
 
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
@@ -55,6 +60,11 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
     CmsModule,
     PublicTraceModule,
     PurchaseOrdersModule,
+    EmployeesModule,
+    TasksModule,
+    AttendanceModule,
+    PayrollsModule,
+    SyncModule,
   ],
   providers: [
     {

@@ -1,8 +1,16 @@
+import withSerwistInit from '@serwist/next';
 import type { NextConfig } from 'next';
 import { loadEnvConfig } from '@next/env';
 import path from 'node:path';
 
 loadEnvConfig(path.resolve(__dirname, '../..'));
+
+const withSerwist = withSerwistInit({
+  swSrc: 'src/sw.ts',
+  swDest: 'public/sw.js',
+  disable: false,
+  reloadOnOnline: true,
+});
 
 const nextConfig: NextConfig = {
   transpilePackages: ['@xfarm/ui', '@xfarm/shared'],
@@ -28,4 +36,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSerwist(nextConfig);

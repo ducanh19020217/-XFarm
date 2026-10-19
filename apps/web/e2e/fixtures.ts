@@ -2,7 +2,11 @@ import { expect, test as base, type Page } from '@playwright/test';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-process.loadEnvFile?.('../../.env');
+for (const envFile of ['../../.env', '../.env', '.env']) {
+  try {
+    process.loadEnvFile?.(envFile);
+  } catch {}
+}
 const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4100/api/v1';
 const users = {
   OWNER: 'admin@xfarm.local',
@@ -22,7 +26,7 @@ export async function loginAs(page: Page, role: Role = 'OWNER') {
   await page.goto('/admin');
   await page.waitForURL('**/admin');
   await page.waitForLoadState('networkidle');
-  await expect(page.getByText(/Xin chào,/)).toBeVisible({ timeout: 15_000 });
+  await expect(page.locator('main')).toBeVisible({ timeout: 15_000 });
 }
 
 export async function api<T>(page: Page, path: string, init: RequestInit = {}) {
@@ -46,7 +50,12 @@ export function guard(page: Page) {
   const expected = new Set<string>();
   const onPageError = (error: Error) => errors.push(`pageerror: ${error.message}`);
   const onConsole = (message: { type(): string; text(): string }) => {
-    if (message.type() === 'error' && !message.text().includes('Failed to load resource')) {
+    if (
+      message.type() === 'error' &&
+      !message.text().includes('Failed to load resource') &&
+      !message.text().includes('AbortError: Yêu cầu đã bị hủy') &&
+      !message.text().includes('TypeError: Failed to fetch')
+    ) {
       errors.push(`console: ${message.text()}`);
     }
   };

@@ -105,6 +105,11 @@ async function main() {
       '/public/site-settings',
       '/public/trace/DEMO000001',
       '/purchase-orders',
+      '/employees',
+      '/tasks',
+      '/attendance',
+      '/payrolls',
+      '/sync/batch',
     ];
 
     for (const route of routes) {
