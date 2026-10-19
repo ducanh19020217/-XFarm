@@ -501,6 +501,17 @@ describe('Finance E2E Tests (Categories, Transactions, Payments, PO Pay, Receiva
       expect(res.status).toBe(422);
     });
 
+    it('finds automated income transactions by sales order code', async () => {
+      const res = await request(app.getHttpServer())
+        .get('/api/v1/transactions?search=SO-TEST-PAY-01')
+        .set('Cookie', accountantCookies);
+      expect(res.status).toBe(200);
+      expect(res.body.data.length).toBeGreaterThanOrEqual(2);
+      for (const tx of res.body.data) {
+        expect(tx.refType).toBe('Payment');
+      }
+    });
+
     it('lists payments via GET /payments', async () => {
       const res = await request(app.getHttpServer())
         .get(`/api/v1/payments?orderId=${orderId}`)

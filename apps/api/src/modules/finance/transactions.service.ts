@@ -46,9 +46,24 @@ export class TransactionsService {
     }
 
     if (query.search) {
+      // Cho phép tìm giao dịch tự động theo mã đơn bán (qua Payment) hoặc mã PO
+      const [payments, purchaseOrders] = await Promise.all([
+        prisma.payment.findMany({
+          where: { order: { code: { contains: query.search, mode: 'insensitive' } } },
+          select: { id: true },
+          take: 200,
+        }),
+        prisma.purchaseOrder.findMany({
+          where: { code: { contains: query.search, mode: 'insensitive' } },
+          select: { id: true },
+          take: 200,
+        }),
+      ]);
       where.OR = [
         { code: { contains: query.search, mode: 'insensitive' } },
         { notes: { contains: query.search, mode: 'insensitive' } },
+        { refType: 'Payment', refId: { in: payments.map((p) => p.id) } },
+        { refType: 'PurchaseOrder', refId: { in: purchaseOrders.map((po) => po.id) } },
       ];
     }
 
