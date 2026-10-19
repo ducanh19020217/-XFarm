@@ -8,6 +8,12 @@ import {
   ItemCategory,
   StockMoveType,
   PostStatus,
+  CustomerType,
+  SalesChannel,
+  SalesOrderStatus,
+  PaymentStatus,
+  PaymentMethod,
+  TransactionType,
 } from '@prisma/client';
 import * as argon2 from 'argon2';
 import { Prisma } from '@prisma/client';
@@ -850,6 +856,219 @@ async function main() {
   for (const [key, value] of Object.entries(settings)) {
     await prisma.siteSetting.upsert({ where: { key }, update: { value }, create: { key, value } });
   }
+
+  // 7. Seed sales and finance master/sample data.
+  const financeCategories = [
+    { name: 'Bán hàng', type: TransactionType.INCOME, systemKey: 'SALES' },
+    { name: 'Tour', type: TransactionType.INCOME, systemKey: 'TOUR' },
+    { name: 'Thu khác', type: TransactionType.INCOME, systemKey: 'OTHER_INCOME' },
+    { name: 'Mua vật tư', type: TransactionType.EXPENSE, systemKey: 'PURCHASE' },
+    { name: 'Lương', type: TransactionType.EXPENSE, systemKey: 'PAYROLL' },
+    { name: 'Điện nước', type: TransactionType.EXPENSE, systemKey: 'UTILITIES' },
+    { name: 'Thuê đất', type: TransactionType.EXPENSE, systemKey: 'LAND_RENT' },
+    { name: 'Chi khác', type: TransactionType.EXPENSE, systemKey: 'OTHER_EXPENSE' },
+  ] as const;
+  const categoryIds = new Map<string, string>();
+  for (const category of financeCategories) {
+    const saved = await prisma.financeCategory.upsert({
+      where: { systemKey: category.systemKey },
+      update: { name: category.name, type: category.type, isActive: true },
+      create: { ...category, isActive: true },
+      select: { id: true },
+    });
+    categoryIds.set(category.systemKey, saved.id);
+  }
+
+  const customers = [
+    { code: 'CU-0001', name: 'Nguyễn Minh Anh', phone: '0909000001', type: CustomerType.RETAIL },
+    { code: 'CU-0002', name: 'Trần Thu Hà', phone: '0909000002', type: CustomerType.RETAIL },
+    {
+      code: 'CU-0003',
+      name: 'Cửa hàng Nông sản Sạch Hà Nội',
+      phone: '0909000003',
+      type: CustomerType.WHOLESALE,
+    },
+    {
+      code: 'CU-0004',
+      name: 'Đại lý Xanh Miền Bắc',
+      phone: '0909000004',
+      type: CustomerType.AGENT,
+    },
+  ] as const;
+  const customerIds = new Map<string, string>();
+  for (const customer of customers) {
+    const saved = await prisma.customer.upsert({
+      where: { code: customer.code },
+      update: { ...customer, isActive: true },
+      create: { ...customer, isActive: true },
+      select: { id: true },
+    });
+    customerIds.set(customer.code, saved.id);
+  }
+
+  const rauProduct = await prisma.product.findUniqueOrThrow({ where: { slug: 'rau-cai-ngot' } });
+  const eggProduct = await prisma.product.findUniqueOrThrow({ where: { slug: 'trung-ga-tuoi' } });
+  const salesCategoryId = categoryIds.get('SALES');
+  const purchaseCategoryId = categoryIds.get('PURCHASE');
+  const payrollCategoryId = categoryIds.get('PAYROLL');
+  if (!salesCategoryId || !purchaseCategoryId || !payrollCategoryId) {
+    throw new Error('Finance categories were not seeded');
+  }
+
+  const pendingOrder = await prisma.salesOrder.upsert({
+    where: { code: 'SO-2026-0001' },
+    update: {
+      customerId: customerIds.get('CU-0001')!,
+      channel: SalesChannel.WEBSHOP,
+      status: SalesOrderStatus.PENDING,
+      paymentStatus: PaymentStatus.UNPAID,
+      paymentMethod: PaymentMethod.COD,
+      shippingAddress: '12 Phố Huế, Hà Nội',
+      subtotal: 70000,
+      discount: 0,
+      shippingFee: 15000,
+      total: 85000,
+      notes: 'Đơn webshop mẫu',
+    },
+    create: {
+      code: 'SO-2026-0001',
+      customerId: customerIds.get('CU-0001')!,
+      channel: SalesChannel.WEBSHOP,
+      status: SalesOrderStatus.PENDING,
+      paymentStatus: PaymentStatus.UNPAID,
+      paymentMethod: PaymentMethod.COD,
+      shippingAddress: '12 Phố Huế, Hà Nội',
+      subtotal: 70000,
+      discount: 0,
+      shippingFee: 15000,
+      total: 85000,
+      notes: 'Đơn webshop mẫu',
+    },
+    select: { id: true },
+  });
+  const completedOrder = await prisma.salesOrder.upsert({
+    where: { code: 'SO-2026-0002' },
+    update: {
+      customerId: customerIds.get('CU-0003')!,
+      channel: SalesChannel.ADMIN,
+      status: SalesOrderStatus.COMPLETED,
+      paymentStatus: PaymentStatus.PAID,
+      paymentMethod: PaymentMethod.BANK_TRANSFER,
+      shippingAddress: '25 Nguyễn Trãi, Hà Nội',
+      subtotal: 450000,
+      discount: 0,
+      shippingFee: 0,
+      total: 450000,
+      confirmedAt: new Date('2026-10-17T08:00:00Z'),
+    },
+    create: {
+      code: 'SO-2026-0002',
+      customerId: customerIds.get('CU-0003')!,
+      channel: SalesChannel.ADMIN,
+      status: SalesOrderStatus.COMPLETED,
+      paymentStatus: PaymentStatus.PAID,
+      paymentMethod: PaymentMethod.BANK_TRANSFER,
+      shippingAddress: '25 Nguyễn Trãi, Hà Nội',
+      subtotal: 450000,
+      discount: 0,
+      shippingFee: 0,
+      total: 450000,
+      confirmedAt: new Date('2026-10-17T08:00:00Z'),
+    },
+    select: { id: true },
+  });
+
+  const orderLines = [
+    {
+      id: 'seed-order-line-2026-0001',
+      orderId: pendingOrder.id,
+      productId: rauProduct.id,
+      itemId: harvestItem.id,
+      quantity: new Prisma.Decimal(2),
+      unitPrice: new Prisma.Decimal(35000),
+    },
+    {
+      id: 'seed-order-line-2026-0002',
+      orderId: completedOrder.id,
+      productId: eggProduct.id,
+      itemId: items.get('EGG-CHICKEN')!.id,
+      quantity: new Prisma.Decimal(100),
+      unitPrice: new Prisma.Decimal(4500),
+    },
+  ];
+  for (const line of orderLines) {
+    await prisma.salesOrderLine.upsert({ where: { id: line.id }, update: line, create: line });
+  }
+
+  await prisma.payment.upsert({
+    where: { code: 'PM-2026-0001' },
+    update: {
+      orderId: completedOrder.id,
+      amount: 450000,
+      method: PaymentMethod.BANK_TRANSFER,
+      paidAt: new Date('2026-10-17T08:30:00Z'),
+      transactionId: 'DEMO-BANK-2026-0001',
+      notes: 'Thanh toán đơn mẫu',
+    },
+    create: {
+      code: 'PM-2026-0001',
+      orderId: completedOrder.id,
+      amount: 450000,
+      method: PaymentMethod.BANK_TRANSFER,
+      paidAt: new Date('2026-10-17T08:30:00Z'),
+      transactionId: 'DEMO-BANK-2026-0001',
+      notes: 'Thanh toán đơn mẫu',
+    },
+  });
+
+  const transactions = [
+    {
+      code: 'TX-2026-0001',
+      type: TransactionType.INCOME,
+      categoryId: salesCategoryId,
+      amount: new Prisma.Decimal(450000),
+      date: new Date('2026-10-17T08:30:00Z'),
+      refType: 'SALES_ORDER',
+      refId: completedOrder.id,
+      method: PaymentMethod.BANK_TRANSFER,
+      notes: 'Doanh thu đơn SO-2026-0002',
+    },
+    {
+      code: 'TX-2026-0002',
+      type: TransactionType.EXPENSE,
+      categoryId: purchaseCategoryId,
+      amount: new Prisma.Decimal(120000),
+      date: new Date('2026-10-16T09:00:00Z'),
+      cycleId: cycleCrop.id,
+      refType: 'SEED',
+      refId: 'PURCHASE-DEMO-2026',
+      method: PaymentMethod.CASH,
+      notes: 'Chi vật tư cho vụ rau mẫu',
+    },
+    {
+      code: 'TX-2026-0003',
+      type: TransactionType.EXPENSE,
+      categoryId: payrollCategoryId,
+      amount: new Prisma.Decimal(300000),
+      date: new Date('2026-10-18T09:00:00Z'),
+      cycleId: cycleCrop.id,
+      refType: 'PAYROLL',
+      refId: 'PAYROLL-DEMO-2026',
+      method: PaymentMethod.CASH,
+      notes: 'Chi công chăm sóc vụ rau mẫu',
+    },
+  ] as const;
+  for (const transaction of transactions) {
+    await prisma.transaction.upsert({
+      where: { code: transaction.code },
+      update: transaction,
+      create: transaction,
+    });
+  }
+  await ensureSequence('CU', 0, 4);
+  await ensureSequence('SO', currentYear, 2);
+  await ensureSequence('PM', currentYear, 1);
+  await ensureSequence('TX', currentYear, 3);
 
   console.log('Seed completed successfully!');
 }
