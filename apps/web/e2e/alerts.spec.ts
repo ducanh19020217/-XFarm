@@ -42,9 +42,9 @@ test.describe('Alerts & Notification Bell', () => {
     // 5. Mở dropdown và kiểm tra cảnh báo gần đây
     await page.getByTestId('alerts-bell-button').click();
     const dropdown = page.getByTestId('alerts-dropdown');
-    await expect(dropdown).toBeVisible();
     const markReadBtn = dropdown.getByRole('button', { name: /đánh dấu đã đọc/i }).first();
     await expect(markReadBtn).toBeVisible();
+    const buttonsBefore = await dropdown.getByRole('button', { name: /đánh dấu đã đọc/i }).count();
     const markReadResponse = page.waitForResponse(
       (response) =>
         response.url().includes('/api/v1/alerts/') && response.request().method() === 'PATCH',
@@ -52,8 +52,10 @@ test.describe('Alerts & Notification Bell', () => {
     await markReadBtn.click();
     await expect((await markReadResponse).ok()).toBeTruthy();
 
-    // 6. Cảnh báo vừa đọc không còn nút "Đánh dấu đã đọc" trong dropdown.
-    await expect(dropdown.getByRole('button', { name: /đánh dấu đã đọc/i })).toHaveCount(0);
+    // 6. Số lượng nút "Đánh dấu đã đọc" trong dropdown giảm đi 1
+    await expect(dropdown.getByRole('button', { name: /đánh dấu đã đọc/i })).toHaveCount(
+      buttonsBefore - 1,
+    );
 
     // 7. Dropdown có link "Xem tất cả"
     await expect(dropdown.getByRole('link', { name: 'Xem tất cả', exact: true })).toBeVisible();

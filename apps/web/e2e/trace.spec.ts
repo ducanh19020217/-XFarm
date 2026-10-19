@@ -19,9 +19,6 @@ test.describe('Public Traceability (/trace/[code])', () => {
     page,
     errors,
   }) => {
-    const isReady = await checkApiTraceReady('DEMO000001');
-    test.fixme(!isReady, 'Chờ module public-trace từ task p3-api-trace được merge vào nhánh');
-
     // Truy cập trực tiếp không cần đăng nhập
     await page.goto('/trace/DEMO000001');
 

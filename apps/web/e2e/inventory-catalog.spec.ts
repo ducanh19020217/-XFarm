@@ -29,7 +29,7 @@ test('tạo item, sửa minStock, thấy trong danh sách', async ({ page, error
   await page.getByRole('button', { name: 'Lưu thay đổi' }).click();
 
   // 5. Kiểm tra thấy định mức tồn mới trong danh sách
-  await expect(row.getByText(/25/)).toBeVisible();
+  await expect(row.getByText(/25\s*kg/)).toBeVisible();
 
   errors.assertClean();
 });
