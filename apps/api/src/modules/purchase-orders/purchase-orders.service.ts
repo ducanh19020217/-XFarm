@@ -136,10 +136,7 @@ export class PurchaseOrdersService {
       },
       select: { amount: true },
     });
-    const paidAmount = transactions.reduce(
-      (sum, t) => sum.plus(t.amount),
-      new Prisma.Decimal(0),
-    );
+    const paidAmount = transactions.reduce((sum, t) => sum.plus(t.amount), new Prisma.Decimal(0));
 
     return {
       ...po,
@@ -560,10 +557,7 @@ export class PurchaseOrdersService {
         select: { amount: true },
       });
 
-      const currentPaid = existingTxs.reduce(
-        (sum, t) => sum.plus(t.amount),
-        new Prisma.Decimal(0),
-      );
+      const currentPaid = existingTxs.reduce((sum, t) => sum.plus(t.amount), new Prisma.Decimal(0));
 
       let payAmount: Prisma.Decimal;
       if (dto.amount !== undefined && dto.amount !== null) {

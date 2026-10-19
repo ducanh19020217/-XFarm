@@ -105,6 +105,11 @@ async function main() {
       '/public/site-settings',
       '/public/trace/DEMO000001',
       '/purchase-orders',
+      '/finance-categories',
+      '/finance-categories/tree',
+      '/transactions',
+      '/payments',
+      '/finance/receivables',
     ];
 
     for (const route of routes) {
