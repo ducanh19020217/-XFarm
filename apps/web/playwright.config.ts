@@ -25,7 +25,7 @@ export default defineConfig({
   },
   webServer: [
     {
-      command: `cd ../.. && pnpm --filter @xfarm/api exec tsx dist/src/main.js`,
+      command: `cd ../.. && pnpm --filter @xfarm/api build && pnpm --filter @xfarm/api exec tsx dist/src/main.js`,
       url: `${apiURL}/auth/me`,
       reuseExistingServer: true,
       timeout: 120_000,
