@@ -2,8 +2,12 @@ import { expect, test as base, type Page } from '@playwright/test';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-process.loadEnvFile?.('../../.env');
-const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4100/api/v1';
+process.loadEnvFile?.(path.resolve(__dirname, '../../../.env'));
+const apiBase =
+  process.env.NEXT_PUBLIC_API_URL ||
+  (process.env.API_PORT
+    ? `http://localhost:${process.env.API_PORT}/api/v1`
+    : 'http://localhost:4100/api/v1');
 const users = {
   OWNER: 'admin@xfarm.local',
   MANAGER: 'manager@xfarm.local',

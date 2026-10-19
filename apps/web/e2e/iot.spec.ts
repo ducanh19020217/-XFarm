@@ -1,4 +1,11 @@
+import path from 'node:path';
 import { api, expect, expectDialogInViewport, loginAs, test } from './fixtures';
+
+process.loadEnvFile?.(path.resolve(__dirname, '../../../.env'));
+
+const slotApiUrl =
+  process.env.NEXT_PUBLIC_API_URL ||
+  (process.env.API_PORT ? `http://localhost:${process.env.API_PORT}/api/v1` : '');
 
 test.describe('IoT Sensors & Charts Flow', () => {
   test('tạo sensor → copy key từ dialog → gửi reading vượt ngưỡng qua POST /api/v1/iot/readings → chuông hiện thông báo trong ≤ 30s → mở biểu đồ thấy series', async ({
@@ -84,9 +91,13 @@ test.describe('IoT Sensors & Charts Flow', () => {
     });
 
     if (!readingRes.ok()) {
-      // Fallback nếu baseURL của request khác API port
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4100/api/v1';
-      readingRes = await request.post(`${apiUrl}/iot/readings`, {
+      // Fallback nếu baseURL của request khác API port: dùng đúng cấu hình slot, TUYỆT ĐỐI không dùng port mặc định
+      if (!slotApiUrl) {
+        throw new Error(
+          'Thiếu cấu hình slot API (NEXT_PUBLIC_API_URL hoặc API_PORT). Không thể gửi reading tới API!',
+        );
+      }
+      readingRes = await request.post(`${slotApiUrl}/iot/readings`, {
         headers: {
           'Content-Type': 'application/json',
           'X-Sensor-Key': apiKey,
@@ -94,7 +105,7 @@ test.describe('IoT Sensors & Charts Flow', () => {
         data: postPayload,
       });
     }
-    expect(readingRes.ok()).toBeTruthy();
+    expect(readingRes.ok(), `Gửi reading thất bại với status ${readingRes.status()}`).toBeTruthy();
 
     // 6. Chuông hiện thông báo trong ≤ 30 giây (đúng tiêu chí PLAN GĐ 7)
     const badge = page.getByTestId('alerts-unread-badge');
