@@ -17,6 +17,16 @@ export class BookingsService {
       total: booking.total,
       startAt: booking.slot.startAt,
       tourName: booking.slot.tour.name,
+      tourSlug: booking.slot.tour.slug,
+      status: booking.status,
+      paymentStatus: booking.paymentStatus,
+      paymentMethod: booking.paymentMethod,
+      customerName: booking.customerName,
+      phone: booking.phone,
+      email: booking.email,
+      adults: booking.adults,
+      children: booking.children,
+      createdAt: booking.createdAt,
       ...(bankTransfer ? { bankTransfer } : {}),
     };
   }
@@ -74,10 +84,16 @@ export class BookingsService {
     });
     const setting = await prisma.siteSetting.findUnique({ where: { key: 'bank.vietqr' } });
     const bank = setting?.value as Record<string, string> | undefined;
-    const bankTransfer =
-      bank?.bankId || bank?.accountNo
-        ? { ...bank, amount: result.total.toString(), addInfo: result.code }
-        : undefined;
+    const bankId = bank?.bankId || bank?.bank || 'VCB';
+    const accountNo = bank?.accountNo || bank?.accountNumber || '0123456789';
+    const accountName = bank?.accountName || 'XFARM';
+    const bankTransfer = {
+      bankId,
+      accountNo,
+      accountName,
+      amount: result.total.toString(),
+      addInfo: result.code,
+    };
     void this.email.send(
       result.email,
       `Xác nhận đặt chỗ ${result.code}`,
@@ -96,7 +112,40 @@ export class BookingsService {
       include: { slot: { include: { tour: true } } },
     });
     if (!booking) throw new NotFoundException('Không tìm thấy đặt chỗ');
-    return this.view(booking);
+    const setting = await prisma.siteSetting.findUnique({ where: { key: 'bank.vietqr' } });
+    const bank = setting?.value as Record<string, string> | undefined;
+    const bankId = bank?.bankId || bank?.bank || 'VCB';
+    const accountNo = bank?.accountNo || bank?.accountNumber || '0123456789';
+    const accountName = bank?.accountName || 'XFARM';
+    const bankTransfer = {
+      bankId,
+      accountNo,
+      accountName,
+      amount: booking.total.toString(),
+      addInfo: booking.code,
+    };
+    return this.view(booking, bankTransfer);
+  }
+
+  async findByCode(code: string) {
+    const booking = await prisma.booking.findUnique({
+      where: { code },
+      include: { slot: { include: { tour: true } } },
+    });
+    if (!booking) throw new NotFoundException('Không tìm thấy đặt chỗ');
+    const setting = await prisma.siteSetting.findUnique({ where: { key: 'bank.vietqr' } });
+    const bank = setting?.value as Record<string, string> | undefined;
+    const bankId = bank?.bankId || bank?.bank || 'VCB';
+    const accountNo = bank?.accountNo || bank?.accountNumber || '0123456789';
+    const accountName = bank?.accountName || 'XFARM';
+    const bankTransfer = {
+      bankId,
+      accountNo,
+      accountName,
+      amount: booking.total.toString(),
+      addInfo: booking.code,
+    };
+    return this.view(booking, bankTransfer);
   }
 
   async findAll(query: QueryBookingInput) {

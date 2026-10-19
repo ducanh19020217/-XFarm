@@ -20,6 +20,9 @@ export class BookingsController {
   @Public() @Get('public/bookings/lookup') lookup(@Query() dto: LookupBookingDto) {
     return this.service.lookup(dto.code, dto.phone);
   }
+  @Public() @Get('public/bookings/:code') getByCode(@Param('code') code: string) {
+    return this.service.findByCode(code);
+  }
   @Get('bookings')
   @Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES)
   findAll(@Query() q: QueryBookingDto) {
