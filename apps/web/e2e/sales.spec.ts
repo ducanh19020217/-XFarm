@@ -72,6 +72,7 @@ test('quy trình bán hàng admin: tạo khách -> tạo đơn 2 dòng -> xác n
 
   // Đọc tồn kho ban đầu của lô hàng trên giao diện /admin/inventory
   await page.goto('/admin/inventory', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator(`#filter-warehouse option[value="${finishedWarehouse!.id}"]`)).toBeAttached();
   await page.locator('#filter-warehouse').selectOption(finishedWarehouse!.id);
   await page.getByPlaceholder(/tìm kiếm theo mã sku hoặc tên vật tư/i).fill(prod2ItemName);
   const rowProd2Initial = page.locator('tbody tr').filter({ hasText: prod2ItemName }).first();
