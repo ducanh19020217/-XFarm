@@ -111,6 +111,7 @@ export class WebshopService {
           paymentStatus: 'UNPAID',
           paymentMethod: input.paymentMethod,
           shippingAddress: input.address,
+          notes: input.notes ?? null,
           subtotal,
           discount: new Prisma.Decimal(0),
           shippingFee: new Prisma.Decimal(0),
