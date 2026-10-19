@@ -21,10 +21,12 @@ export class CustomersController {
     return this.customers.findById(id).then((data) => ({ data }));
   }
   @Post()
+  @Roles(Role.OWNER, Role.MANAGER, Role.SALES)
   create(@Body() dto: CreateCustomerDto, @CurrentUser('id') userId: string) {
     return this.customers.create(dto, userId).then((data) => ({ data }));
   }
   @Patch(':id')
+  @Roles(Role.OWNER, Role.MANAGER, Role.SALES)
   update(@Param('id') id: string, @Body() dto: UpdateCustomerDto) {
     return this.customers.update(id, dto).then((data) => ({ data }));
   }
