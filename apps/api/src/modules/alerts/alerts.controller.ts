@@ -7,6 +7,7 @@ import { AlertsService } from './alerts.service';
 
 @ApiTags('alerts')
 @Controller('alerts')
+@Roles(Role.OWNER, Role.MANAGER)
 export class AlertsController {
   constructor(private readonly alertsService: AlertsService) {}
 

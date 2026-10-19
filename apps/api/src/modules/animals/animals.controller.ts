@@ -14,10 +14,12 @@ import { AnimalsService } from './animals.service';
 
 @ApiTags('animals')
 @Controller('animals')
+@Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES, Role.WORKER)
 export class AnimalsController {
   constructor(private readonly animalsService: AnimalsService) {}
 
   @Get()
+  @Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES, Role.WORKER)
   @ApiOperation({ summary: 'Danh sách cá thể vật nuôi (phân trang & lọc)' })
   @ApiResponse({ status: 200, description: 'Lấy danh sách thành công' })
   async findAll(@Query() query: QueryAnimalDto) {
@@ -25,6 +27,7 @@ export class AnimalsController {
   }
 
   @Get(':id')
+  @Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES, Role.WORKER)
   @ApiOperation({ summary: 'Chi tiết vật nuôi kèm mẹ, con và sự kiện' })
   @ApiResponse({ status: 200, description: 'Lấy chi tiết thành công' })
   @ApiResponse({ status: 404, description: 'Không tìm thấy vật nuôi' })
@@ -55,6 +58,7 @@ export class AnimalsController {
   }
 
   @Get(':id/events')
+  @Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES, Role.WORKER)
   @ApiOperation({ summary: 'Lịch sử sự kiện của vật nuôi' })
   @ApiResponse({ status: 200, description: 'Lấy danh sách sự kiện thành công' })
   @ApiResponse({ status: 404, description: 'Không tìm thấy vật nuôi' })

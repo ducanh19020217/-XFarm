@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, UnprocessableEntityException } from '@ne
 import { prisma, Prisma } from '@xfarm/db';
 import { SequenceService } from '../../common/sequence/sequence.service';
 import { InventoryService } from '../inventory/inventory.service';
+import { Role } from '@xfarm/shared';
 import {
   CreateCountDto,
   CreateIssueDto,
@@ -20,7 +21,7 @@ export class StockService {
     private readonly sequence: SequenceService,
   ) {}
 
-  async balances(query: StockBalanceQueryDto) {
+  async balances(query: StockBalanceQueryDto, role?: Role) {
     const conditions = [Prisma.sql`1 = 1`];
     if (query.warehouseId) conditions.push(Prisma.sql`b."warehouseId" = ${query.warehouseId}`);
     if (query.itemId) conditions.push(Prisma.sql`b."itemId" = ${query.itemId}`);
@@ -53,7 +54,12 @@ export class StockService {
         WHERE ${where}`),
     ]);
     return {
-      data,
+      data:
+        role === Role.WORKER
+          ? data.map(
+              ({ unitCost: _unitCost, totalCost: _totalCost, ...availability }) => availability,
+            )
+          : data,
       total: Number(count[0]?.count ?? 0),
       page: query.page,
       pageSize: query.pageSize,

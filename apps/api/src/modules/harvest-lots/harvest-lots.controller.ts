@@ -7,7 +7,7 @@ import { QueryHarvestLotDto, UpdateHarvestLotDto } from './harvest-lots.dto';
 
 @ApiTags('harvest-lots')
 @Controller('harvest-lots')
-@Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES, Role.WORKER)
+@Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES)
 export class HarvestLotsController {
   constructor(private readonly service: HarvestLotsService) {}
 

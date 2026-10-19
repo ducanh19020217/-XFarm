@@ -12,7 +12,7 @@ export class ProductsController {
   constructor(@Inject(CmsService) private readonly cmsService: CmsService) {}
 
   @Get()
-  @Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES, Role.WORKER)
+  @Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES)
   @ApiOperation({ summary: 'Danh sách sản phẩm CMS (phân trang, lọc, tìm kiếm)' })
   @ApiResponse({ status: 200, description: 'Lấy danh sách thành công' })
   async findAll(@Query() query: QueryProductDto) {
@@ -20,7 +20,7 @@ export class ProductsController {
   }
 
   @Get(':id')
-  @Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES, Role.WORKER)
+  @Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES)
   @ApiOperation({ summary: 'Chi tiết sản phẩm' })
   @ApiResponse({ status: 200, description: 'Lấy chi tiết thành công' })
   @ApiResponse({ status: 404, description: 'Không tìm thấy sản phẩm' })

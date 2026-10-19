@@ -8,15 +8,18 @@ import { CyclesService } from './cycles.service';
 
 @ApiTags('cycles')
 @Controller('cycles')
+@Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES, Role.WORKER)
 export class CyclesController {
   constructor(private readonly cyclesService: CyclesService) {}
 
   @Get()
+  @Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES, Role.WORKER)
   findAll(@Query() query: QueryCycleDto) {
     return this.cyclesService.findAll(query);
   }
 
   @Get(':id')
+  @Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES, Role.WORKER)
   async findById(@Param('id') id: string) {
     return { data: await this.cyclesService.findById(id) };
   }

@@ -45,6 +45,7 @@ export class ActivitiesController {
   }
 
   @Delete('activities/:id')
+  @Roles(Role.OWNER, Role.MANAGER)
   remove(@Param('id') id: string, @CurrentUser('role') role: string) {
     return this.activitiesService.remove(id, role);
   }

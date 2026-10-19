@@ -3,9 +3,12 @@ import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { MediaService } from './media.service';
 import { PresignMediaDto, CreateMediaDto } from './media.dto';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { Role } from '@xfarm/shared';
+import { Roles } from '../../common/decorators/roles.decorator';
 
 @ApiTags('media')
 @Controller('media')
+@Roles(Role.OWNER, Role.MANAGER, Role.WORKER)
 export class MediaController {
   constructor(@Inject(MediaService) private mediaService: MediaService) {}
 
