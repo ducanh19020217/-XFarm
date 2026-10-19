@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { ChevronDown, ChevronRight, Folder, FolderOpen, MapPin } from 'lucide-react';
-import { AreaTreeItem, AREA_TYPE_LABELS, AREA_TYPE_COLORS } from '@/lib/area-constants';
+import { AreaTreeItem, AREA_TYPE_COLORS } from '@/lib/area-constants';
 
 interface AreaTreeSelectorProps {
   treeData: AreaTreeItem[];

@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { ColumnDef } from '@tanstack/react-table';
 import {
   Bell,
-  Cpu,
   Edit2,
   KeyRound,
   LineChart,

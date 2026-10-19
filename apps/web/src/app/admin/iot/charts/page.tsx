@@ -18,7 +18,6 @@ import { apiFetch, isAbortError } from '@/lib/api';
 import {
   type SensorItem,
   getSensors,
-  SensorType,
   SENSOR_TYPE_LABELS,
 } from '@/lib/iot-api';
 import { type AreaTreeItem } from '@/lib/area-constants';

@@ -156,9 +156,6 @@ export function AlertRulesDialog({
       onOpenChange={onOpenChange}
       title={`Cấu hình Ngưỡng Cảnh Báo – ${sensor?.name || ''}`}
       description={`Cảm biến ${sensor?.code || ''} (${sensor?.unit || ''}). Hệ thống sẽ tạo thông báo chuông khi giá trị đo vượt ngưỡng.`}
-      confirmText="Đóng"
-      cancelText=""
-      onSubmit={() => onOpenChange(false)}
     >
       <div className="space-y-4 py-1" data-testid="alert-rules-dialog-content">
         {/* Form add / edit */}

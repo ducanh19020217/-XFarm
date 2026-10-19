@@ -57,9 +57,6 @@ export function ApiKeyDialog({
           ? `Khóa xác thực cho cảm biến ${sensorName} (${sensorCode || ''})`
           : 'Khóa xác thực gửi dữ liệu đọc từ thiết bị cảm biến IoT'
       }
-      confirmText="Đã lưu khóa & Đóng"
-      cancelText=""
-      onSubmit={() => onOpenChange(false)}
     >
       <div className="space-y-4 py-1" data-testid="api-key-dialog-content">
         {/* Warning banner */}
