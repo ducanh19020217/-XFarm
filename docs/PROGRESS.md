@@ -227,3 +227,40 @@ pnpm --filter @xfarm/web lighthouse
 
 ### 4. Điểm còn lại
 - Chưa thêm cửa hàng online, thanh toán, tour/booking; đây là phạm vi các giai đoạn sau theo kế hoạch.
+
+---
+
+## Giai đoạn 7 – Thiết bị / IoT & Dashboard (phase-7-iot) – NGHIỆM THU
+
+### 1. Việc đã hoàn tất
+- **Quản lý Thiết bị & Bảo trì (`Equipment`, `MaintenanceSchedule`, `MaintenanceLog`)**:
+  - CRUD thiết bị nông nghiệp kèm phân loại, khu/lô quản lý, trạng thái hoạt động.
+  - Quản lý lịch bảo trì định kỳ (`intervalDays ≥ 1`) và tính toán tự động ngày đến hạn tiếp theo (`nextDueDate = maintenanceDate + intervalDays`).
+  - Ghi nhận nhật ký bảo trì theo từng lần bảo dưỡng, tính tổng chi phí bảo trì trên từng thiết bị.
+  - Job/Endpoint quét lịch bảo trì đến hạn (`POST /api/v1/alerts/run-maintenance-check`): tự động sinh cảnh báo loại `MAINTENANCE_DUE` trên chuông thông báo khi thiết bị đến hạn bảo trì trong vòng ≤ 3 ngày, kèm link chuyển hướng trực tiếp đến trang chi tiết thiết bị.
+- **Quản lý Cảm biến IoT & Ngưỡng Cảnh báo (`Sensor`, `AlertRule`, `SensorReading`)**:
+  - CRUD cảm biến gắn liền với từng khu/lô, tự sinh API key ngẫu nhiên an toàn bảo mật bằng băm SHA-256 (API key chỉ hiển thị duy nhất 1 lần khi tạo mới hoặc xoay key).
+  - API nạp dữ liệu cảm biến `POST /api/v1/iot/readings`: xác thực header `X-Sensor-Key` bằng constant-time comparison, rate limiting 60 request/phút, nhận theo lô (batch), cập nhật `lastSeenAt`.
+  - Cơ chế quét quy tắc cảnh báo `AlertRule` (toán tử `>`, `<`) với thời gian cooldown: tự động tạo cảnh báo `SENSOR_THRESHOLD` trên chuông thông báo trong ≤ 30 giây khi dữ liệu đo vượt ngưỡng cho phép.
+  - Biểu đồ dữ liệu chuỗi thời gian (Timeseries) hỗ trợ gom nhóm theo giờ/ngày (`/admin/iot/charts`), liên kết trực tiếp từ thông báo trên chuông.
+- **Kiểm thử nghiệm thu tự động (E2E Playwright)**:
+  - Bổ sung `apps/web/e2e/phase7-acceptance.spec.ts`:
+    - Kịch bản (a): Tạo cảm biến + AlertRule → Gửi reading vượt ngưỡng qua `POST /api/v1/iot/readings` (header `X-Sensor-Key`) → Chuông hiện Alert `SENSOR_THRESHOLD` ≤ 30s → Điều hướng xem biểu đồ cảm biến.
+    - Kịch bản (b): Thiết bị có lịch đến hạn bảo trì → Chạy kiểm tra bảo trì → Chuông hiện Alert `MAINTENANCE_DUE` → Điều hướng xem chi tiết thiết bị.
+  - Các kịch bản `e2e/phase7-acceptance.spec.ts`, `e2e/iot.spec.ts`, `e2e/equipment.spec.ts` đều dùng dữ liệu độc lập với `Date.now()`, chạy lặp lại và vượt qua 2 lần liên tiếp (PASS 5/5 tests).
+
+### 2. Cách chạy thử
+```bash
+source ~/.nvm/nvm.sh && nvm use 22
+pnpm --filter @xfarm/api build
+pnpm --filter @xfarm/web exec playwright test e2e/phase7-acceptance.spec.ts e2e/iot.spec.ts e2e/equipment.spec.ts
+```
+
+### 3. Nghiệm thu
+- `e2e/phase7-acceptance.spec.ts`: Đạt 2/2 tests.
+- `e2e/iot.spec.ts`: Đạt 1/1 test.
+- `e2e/equipment.spec.ts`: Đạt 2/2 tests.
+- Chạy 2 lần liên tiếp toàn bộ bộ test GĐ 7 đều đạt 5/5 tests PASS.
+- Gửi reading vượt ngưỡng thì chuông thông báo hiển thị Alert SENSOR_THRESHOLD trong ≤ 30 giây.
+- Thiết bị đến hạn bảo trì kích hoạt cảnh báo MAINTENANCE_DUE trên chuông và điều hướng chính xác.
+
