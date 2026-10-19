@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { Button, FormDialog, Input, Label } from '@xfarm/ui';
+import { ApiError } from '@/lib/api';
 import {
   type SensorItem,
   type CreateSensorPayload,
@@ -81,6 +82,13 @@ export function SensorDialog({ open, onOpenChange, sensor, areas, onSubmit }: Se
     }
   }, [open, sensor]);
 
+  // Synchronize initial areaId when areas load asynchronously
+  React.useEffect(() => {
+    if (open && !isEditing && !areaId && areas.length > 0) {
+      setAreaId(areas[0].id);
+    }
+  }, [open, isEditing, areaId, areas]);
+
   const handleTypeChange = (newType: SensorType) => {
     setType(newType);
     // Automatically set default unit if user hasn't typed a custom one or it was default
@@ -135,7 +143,41 @@ export function SensorDialog({ open, onOpenChange, sensor, areas, onSubmit }: Se
       onOpenChange(false);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Có lỗi xảy ra khi lưu';
-      setErrors((prev) => ({ ...prev, submit: msg }));
+      const newErrors: Record<string, string> = { submit: msg };
+      const errorObj =
+        err instanceof ApiError
+          ? err
+          : err && typeof err === 'object'
+            ? (err as { statusCode?: number; message?: string; errors?: unknown })
+            : null;
+
+      const statusCode = errorObj?.statusCode;
+      const lowerMsg = (msg || '').toLowerCase();
+
+      if (statusCode === 409 || lowerMsg.includes('mã')) {
+        newErrors.code = msg;
+      } else if (statusCode === 422 || lowerMsg.includes('khu/lô') || lowerMsg.includes('area')) {
+        newErrors.areaId = msg;
+      } else if (lowerMsg.includes('tên') || lowerMsg.includes('name')) {
+        newErrors.name = msg;
+      } else if (lowerMsg.includes('đơn vị') || lowerMsg.includes('unit')) {
+        newErrors.unit = msg;
+      }
+
+      if (Array.isArray(errorObj?.errors)) {
+        for (const item of errorObj.errors) {
+          if (typeof item === 'object' && item !== null) {
+            const field =
+              (item as { field?: string }).field || (item as { path?: string[] }).path?.join('.');
+            const itemMsg = (item as { message?: string }).message;
+            if (field && itemMsg) {
+              newErrors[field] = itemMsg;
+            }
+          }
+        }
+      }
+
+      setErrors(newErrors);
     } finally {
       setIsSubmitting(false);
     }
@@ -162,7 +204,11 @@ export function SensorDialog({ open, onOpenChange, sensor, areas, onSubmit }: Se
     >
       <form onSubmit={handleFormSubmit} className="space-y-4 py-1" data-testid="sensor-form">
         {errors.submit && (
-          <div className="rounded-md bg-red-50 p-2.5 text-xs text-red-600 dark:bg-red-950/40 dark:text-red-400">
+          <div
+            role="alert"
+            data-testid="sensor-form-error"
+            className="rounded-md border border-red-200 bg-red-50 p-2.5 text-xs text-red-600 dark:border-red-900 dark:bg-red-950/40 dark:text-red-400"
+          >
             {errors.submit}
           </div>
         )}
@@ -175,12 +221,21 @@ export function SensorDialog({ open, onOpenChange, sensor, areas, onSubmit }: Se
               id="sensor-code"
               placeholder={isEditing ? sensor?.code : 'Tự động sinh (SN-0001)'}
               value={code}
-              onChange={(e) => setCode(e.target.value)}
+              onChange={(e) => {
+                setCode(e.target.value);
+                if (errors.code) setErrors((prev) => ({ ...prev, code: '' }));
+              }}
               disabled={isEditing}
             />
-            <p className="text-[11px] text-slate-400">
-              {isEditing ? 'Không thể đổi mã cảm biến' : 'Để trống để hệ thống tự cấp mã'}
-            </p>
+            {errors.code ? (
+              <p className="text-[11px] text-red-500" data-testid="sensor-code-error">
+                {errors.code}
+              </p>
+            ) : (
+              <p className="text-[11px] text-slate-400">
+                {isEditing ? 'Không thể đổi mã cảm biến' : 'Để trống để hệ thống tự cấp mã'}
+              </p>
+            )}
           </div>
 
           {/* Tên cảm biến */}
@@ -197,7 +252,11 @@ export function SensorDialog({ open, onOpenChange, sensor, areas, onSubmit }: Se
                 if (errors.name) setErrors((prev) => ({ ...prev, name: '' }));
               }}
             />
-            {errors.name && <p className="text-[11px] text-red-500">{errors.name}</p>}
+            {errors.name && (
+              <p className="text-[11px] text-red-500" data-testid="sensor-name-error">
+                {errors.name}
+              </p>
+            )}
           </div>
         </div>
 
@@ -210,7 +269,10 @@ export function SensorDialog({ open, onOpenChange, sensor, areas, onSubmit }: Se
             <select
               id="sensor-type"
               value={type}
-              onChange={(e) => handleTypeChange(e.target.value as SensorType)}
+              onChange={(e) => {
+                handleTypeChange(e.target.value as SensorType);
+                if (errors.type) setErrors((prev) => ({ ...prev, type: '' }));
+              }}
               className={selectClass}
             >
               {Object.values(SensorType).map((st) => (
@@ -235,7 +297,11 @@ export function SensorDialog({ open, onOpenChange, sensor, areas, onSubmit }: Se
                 if (errors.unit) setErrors((prev) => ({ ...prev, unit: '' }));
               }}
             />
-            {errors.unit && <p className="text-[11px] text-red-500">{errors.unit}</p>}
+            {errors.unit && (
+              <p className="text-[11px] text-red-500" data-testid="sensor-unit-error">
+                {errors.unit}
+              </p>
+            )}
           </div>
         </div>
 
@@ -260,7 +326,11 @@ export function SensorDialog({ open, onOpenChange, sensor, areas, onSubmit }: Se
               </option>
             ))}
           </select>
-          {errors.areaId && <p className="text-[11px] text-red-500">{errors.areaId}</p>}
+          {errors.areaId && (
+            <p className="text-[11px] text-red-500" data-testid="sensor-area-error">
+              {errors.areaId}
+            </p>
+          )}
         </div>
 
         {/* Trạng thái hoạt động */}
