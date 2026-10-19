@@ -22,6 +22,7 @@ import { CmsModule } from './modules/cms/cms.module';
 import { PublicTraceModule } from './modules/public-trace/public-trace.module';
 import { PurchaseOrdersModule } from './modules/purchase-orders/purchase-orders.module';
 import { WebshopModule } from './modules/webshop/webshop.module';
+import { FinanceModule } from './modules/finance/finance.module';
 import { SequenceModule } from './common/sequence/sequence.module';
 
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
@@ -57,6 +58,7 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
     PublicTraceModule,
     PurchaseOrdersModule,
     WebshopModule,
+    FinanceModule,
   ],
   providers: [
     {
