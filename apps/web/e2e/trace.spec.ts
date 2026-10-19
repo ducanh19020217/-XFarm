@@ -1,27 +1,10 @@
 import { expect, test } from './fixtures';
 
-process.loadEnvFile?.('../../.env');
-const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4650/api/v1';
-
-async function checkApiTraceReady(code = 'DEMO000001'): Promise<boolean> {
-  try {
-    const res = await fetch(`${apiBase}/public/trace/${code}`, {
-      headers: { Accept: 'application/json' },
-    });
-    return res.status === 200;
-  } catch {
-    return false;
-  }
-}
-
 test.describe('Public Traceability (/trace/[code])', () => {
   test('chạy được không cần đăng nhập và hiển thị đúng thông tin lô DEMO000001', async ({
     page,
     errors,
   }) => {
-    const isReady = await checkApiTraceReady('DEMO000001');
-    test.fixme(!isReady, 'Chờ module public-trace từ task p3-api-trace được merge vào nhánh');
-
     // Truy cập trực tiếp không cần đăng nhập
     await page.goto('/trace/DEMO000001');
 
