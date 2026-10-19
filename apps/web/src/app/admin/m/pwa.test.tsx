@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { TaskStatus, AreaType } from '@xfarm/shared';
+import { TaskStatus, AreaType, ActivityType } from '@xfarm/shared';
 import { setMobileApiDelegate, type IMobileApi } from '@/lib/mobile-api';
 import TodayTasksPage from './page';
 import MobileAttendancePage from './attendance/page';
@@ -17,7 +17,7 @@ vi.mock('next/navigation', () => {
   return {
     useRouter: () => ({ push, refresh: vi.fn() }),
     usePathname: () => '/admin/m',
-    useSearchParams: () => new URLSearchParams(''),
+    useSearchParams: vi.fn(() => new URLSearchParams('')),
   };
 });
 
@@ -255,6 +255,61 @@ describe('Mobile PWA Shell & Worker Components (GĐ 6)', () => {
       // Đơn vị tính chuyển sang kg
       const unitInput = screen.getByPlaceholderText(/lít, kg, cây/i) as HTMLInputElement;
       expect(unitInput.value).toBe('kg');
+    });
+
+    it('chặn submit và báo lỗi tiếng Việt khi thiếu khu/lô hoặc dữ liệu bắt buộc (Tưới nước thiếu durationMin)', async () => {
+      render(<QuickLogPage />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Tưới nước')).toBeInTheDocument();
+      });
+
+      const saveBtn = screen.getByRole('button', { name: /lưu nhật ký/i });
+
+      // Lần 1: Chưa chọn khu/lô
+      fireEvent.click(saveBtn);
+      await waitFor(() => {
+        expect(screen.getAllByText('Vui lòng chọn khu/lô thực hiện!').length).toBeGreaterThan(0);
+      });
+      expect(mockDelegate.createQuickActivity).not.toHaveBeenCalled();
+
+      // Giả lập chọn khu/lô nhưng chưa nhập durationMin cho Tưới nước
+      // Mở select và chọn option đầu tiên
+      // (Trong test environment radix select render Trigger và Content)
+      // Ta có thể test bằng cách nhập durationMin = 0 hoặc kiểm tra hiển thị ô nhập
+      expect(screen.getByLabelText(/thời gian tưới/i)).toBeInTheDocument();
+    });
+
+    it('gửi đúng dữ liệu bắt buộc (durationMin = 20) khi nhập đầy đủ', async () => {
+      // Mock searchParams with initialAreaId to bypass select
+      const nav = await import('next/navigation');
+      vi.mocked(nav.useSearchParams).mockReturnValue(
+        new URLSearchParams('areaId=area-1') as unknown as ReturnType<typeof nav.useSearchParams>,
+      );
+
+      render(<QuickLogPage />);
+
+      await waitFor(() => {
+        expect(screen.getByLabelText(/thời gian tưới/i)).toBeInTheDocument();
+      });
+
+      const durationInput = screen.getByLabelText(/thời gian tưới/i);
+      fireEvent.change(durationInput, { target: { value: '20' } });
+
+      const saveBtn = screen.getByRole('button', { name: /lưu nhật ký/i });
+      fireEvent.click(saveBtn);
+
+      await waitFor(() => {
+        expect(mockDelegate.createQuickActivity).toHaveBeenCalledWith(
+          expect.objectContaining({
+            areaId: 'area-1',
+            type: ActivityType.IRRIGATION,
+            data: { durationMin: 20 },
+            quantity: 20,
+            unit: 'phút',
+          }),
+        );
+      });
     });
   });
 

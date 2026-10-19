@@ -147,11 +147,14 @@ export class SyncService {
     const payload: Record<string, unknown> = { ...item.payload };
     payload.clientId = item.clientId;
     if (!payload.performedAt) {
-      payload.performedAt = item.createdAt;
+      payload.performedAt = payload.date || item.createdAt;
     }
     // Security: WORKER can only record activities for themselves
     if (user.role === Role.WORKER) {
       payload.performedById = user.id;
+    }
+    if (payload.quantity === '' || Number.isNaN(payload.quantity)) {
+      delete payload.quantity;
     }
 
     const dto = createActivitySchema.parse(payload);

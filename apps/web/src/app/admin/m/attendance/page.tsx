@@ -174,13 +174,20 @@ export default function MobileAttendancePage() {
           )}
 
           <div className="space-y-0.5">
-            <h3 className="text-base font-bold leading-tight">
-              {hasCheckedOut
-                ? 'Đã kết thúc ca làm việc'
-                : hasCheckedIn
-                  ? 'Đang trong ca làm việc'
-                  : 'Chưa chấm công vào ca'}
-            </h3>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="text-base font-bold leading-tight">
+                {hasCheckedOut
+                  ? 'Đã kết thúc ca làm việc'
+                  : hasCheckedIn
+                    ? 'Đang trong ca làm việc'
+                    : 'Chưa chấm công vào ca'}
+              </h3>
+              {todayAttendance?.pendingSync && (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-400">
+                  Chờ đồng bộ
+                </span>
+              )}
+            </div>
             <p className="text-xs opacity-80">
               {hasCheckedOut
                 ? `Vào ca: ${formatTime(todayAttendance?.checkIn)} · Ra ca: ${formatTime(todayAttendance?.checkOut)} (${todayAttendance?.hours || 0} giờ)`

@@ -1,6 +1,10 @@
 import { defineConfig, devices } from '@playwright/test';
 
-process.loadEnvFile?.('../../.env');
+for (const envFile of ['../../.env', '../.env', '.env']) {
+  try {
+    process.loadEnvFile?.(envFile);
+  } catch {}
+}
 const baseURL = process.env.WEB_URL || 'http://localhost:3100';
 const apiURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4100/api/v1';
 const webPort = new URL(baseURL).port || '3100';

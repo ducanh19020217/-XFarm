@@ -38,6 +38,9 @@ if (typeof window !== 'undefined') {
 }
 
 async function fetchWithAbortHandling(input: RequestInfo | URL, init: RequestInit) {
+  if (typeof navigator !== 'undefined' && !navigator.onLine) {
+    throw new TypeError('Failed to fetch: network offline');
+  }
   try {
     return await fetch(input, init);
   } catch (error) {
