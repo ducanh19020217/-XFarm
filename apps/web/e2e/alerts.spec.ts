@@ -19,6 +19,8 @@ test.describe('Alerts & Notification Bell', () => {
     await page.locator('#item-unit').fill('kg');
     await page.locator('#item-min-stock').fill('10');
     await page.getByRole('button', { name: 'Tạo mới' }).click();
+    await expect(page.getByRole('dialog')).toBeHidden();
+    await expect(page.getByText(`Vật tư cảnh báo ${suffix}`).first()).toBeVisible();
 
     // 2. Vào trang cảnh báo /admin/alerts
     await page.goto('/admin/alerts');
@@ -26,11 +28,14 @@ test.describe('Alerts & Notification Bell', () => {
 
     // 3. OWNER bấm "Chạy kiểm tra" (hoặc gọi API /alerts/run-inventory-check)
     const runCheckBtn = page.getByRole('button', { name: /chạy kiểm tra/i });
-    if (await runCheckBtn.isVisible()) {
-      await runCheckBtn.click();
-    } else {
-      await api(page, '/alerts/run-inventory-check', { method: 'POST' });
-    }
+    await expect(runCheckBtn).toBeVisible();
+    const runCheckResponse = page.waitForResponse(
+      (response) =>
+        response.url().includes('/api/v1/alerts/run-inventory-check') &&
+        response.request().method() === 'POST',
+    );
+    await runCheckBtn.click();
+    await expect((await runCheckResponse).ok()).toBeTruthy();
 
     // 4. Icon chuông có badge số chưa đọc (> 0)
     const badge = page.getByTestId('alerts-unread-badge');
@@ -43,7 +48,11 @@ test.describe('Alerts & Notification Bell', () => {
     await page.getByTestId('alerts-bell-button').click();
     const dropdown = page.getByTestId('alerts-dropdown');
     await expect(dropdown).toBeVisible();
-    const markReadBtn = dropdown.getByRole('button', { name: /đánh dấu đã đọc/i }).first();
+    const unreadButtons = dropdown.getByRole('button', { name: /đánh dấu đã đọc/i });
+    const initialButtonCount = await unreadButtons.count();
+    expect(initialButtonCount).toBeGreaterThan(0);
+
+    const markReadBtn = unreadButtons.first();
     await expect(markReadBtn).toBeVisible();
     const markReadResponse = page.waitForResponse(
       (response) =>
@@ -53,7 +62,9 @@ test.describe('Alerts & Notification Bell', () => {
     await expect((await markReadResponse).ok()).toBeTruthy();
 
     // 6. Cảnh báo vừa đọc không còn nút "Đánh dấu đã đọc" trong dropdown.
-    await expect(dropdown.getByRole('button', { name: /đánh dấu đã đọc/i })).toHaveCount(0);
+    await expect(dropdown.getByRole('button', { name: /đánh dấu đã đọc/i })).toHaveCount(
+      initialButtonCount - 1,
+    );
 
     // 7. Dropdown có link "Xem tất cả"
     await expect(dropdown.getByRole('link', { name: 'Xem tất cả', exact: true })).toBeVisible();
