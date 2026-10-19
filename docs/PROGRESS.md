@@ -256,3 +256,13 @@ timeout 600 pnpm --filter @xfarm/web exec playwright test e2e/phase4-acceptance.
 ### 3. Điểm còn lo ngại
 - Báo cáo mùa vụ chỉ phân bổ doanh thu cho dòng đơn gắn `stockLotId` có liên kết lô thu hoạch; sản phẩm nhập mua chỉ xuất hiện trong báo cáo doanh thu sản phẩm.
 - Webshop vẫn phụ thuộc cấu hình `SiteSetting` `bank.vietqr` khi khách chọn chuyển khoản.
+
+### 4. Kết quả nghiệm thu lượt này
+- `pnpm lint`: đạt; còn 5 cảnh báo đã có từ trước (2 unused-vars ở API, 3 `no-explicit-any` ở activity form).
+- `pnpm typecheck`: đạt.
+- `pnpm turbo run test --force`: đạt, shared 66 test, API 26 test, web 211 test.
+- `pnpm --filter @xfarm/api test:e2e`: đạt 17 suite / 203 test sau khi đồng bộ database test bị lệch schema.
+- `pnpm --filter @xfarm/api smoke:dev`: đạt toàn bộ route, gồm các route GĐ4; route tra cứu mã giả trả 404 đúng kỳ vọng.
+- `pnpm --filter @xfarm/web build`: đạt; Next cảnh báo plugin ESLint chưa được phát hiện và 3 cảnh báo `any` cũ.
+- `pnpm --filter @xfarm/web exec playwright test e2e/phase4-acceptance.spec.ts`: đạt 1/1.
+- `pnpm --filter @xfarm/web test:ui`: chưa đạt do Playwright timeout 120 giây khi chờ webServer production khởi động; spec acceptance riêng vẫn đạt. Không có server slot còn chạy sau kiểm tra.
