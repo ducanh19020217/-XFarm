@@ -88,6 +88,7 @@ async function main() {
     type RouteItem = string | RouteDefinition;
 
     const routes: RouteItem[] = [
+      '/health',
       '/users',
       '/areas',
       '/cycles',
