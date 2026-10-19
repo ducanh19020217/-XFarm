@@ -261,4 +261,19 @@ describe('Reports E2E', () => {
     expect(products.status).toBe(200);
     expect(products.body.data[0]).toMatchObject({ quantity: '4.00', revenue: '60000.00' });
   });
+
+  it('excludes revenue of cancelled orders from cycle profit', async () => {
+    await prisma.salesOrder.update({ where: { code: 'SO-REPORT' }, data: { status: 'CANCELLED' } });
+    const cost = await request(app.getHttpServer())
+      .get(`/api/v1/reports/cycles/${cycleId}/cost`)
+      .set('Cookie', ownerCookies);
+    expect(cost.status).toBe(200);
+    expect(cost.body.data.totalCost).toBe('40000.00');
+    expect(cost.body.data.revenue).toBe('0.00');
+    expect(cost.body.data.profit).toBe('-40000.00');
+    const products = await request(app.getHttpServer())
+      .get('/api/v1/reports/products?from=2026-01-01&to=2026-12-31')
+      .set('Cookie', ownerCookies);
+    expect(products.body.data).toHaveLength(0);
+  });
 });
