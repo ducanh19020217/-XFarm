@@ -1,25 +1,15 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import cookieParser from 'cookie-parser';
-import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { getEnv } from './config/env.config';
+import { configureSecurity } from './config/security.config';
 
 async function bootstrap() {
   // Validate env variables on startup
   const env = getEnv();
 
   const app = await NestFactory.create(AppModule);
-
-  // Security middlewares
-  app.use(helmet());
-  app.use(cookieParser());
-
-  // CORS
-  app.enableCors({
-    origin: [env.WEB_URL, 'http://localhost:3100', 'http://127.0.0.1:3100'],
-    credentials: true,
-  });
+  configureSecurity(app);
 
   // Global prefix
   app.setGlobalPrefix('api/v1');
