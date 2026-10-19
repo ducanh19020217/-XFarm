@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from '@xfarm/ui';
 import { Loader2 } from 'lucide-react';
+import { ApiError } from '@/lib/api';
 import { formatDate } from '../../common/format';
 import type { AttendanceItem, EmployeeItem, CycleOption } from '../../common/types';
 
@@ -54,10 +55,12 @@ export function EditAttendanceDialog({
 
   const [submitting, setSubmitting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>({});
 
   React.useEffect(() => {
     if (open) {
       setError(null);
+      setFieldErrors({});
       if (attendance) {
         setHours(Number(attendance.hours) || 0);
         // Extract time strings HH:mm
@@ -95,7 +98,7 @@ export function EditAttendanceDialog({
         setNotes('');
       }
     }
-  }, [open, attendance]);
+  }, [open, attendance, employee?.id, dateStr]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,11 +107,13 @@ export function EditAttendanceDialog({
     const numHours = typeof hours === 'number' ? hours : 0;
     if (numHours < 0 || numHours > 24) {
       setError('Số giờ làm việc phải từ 0 đến 24 giờ');
+      setFieldErrors({});
       return;
     }
 
     setSubmitting(true);
     setError(null);
+    setFieldErrors({});
 
     // Build ISO dates for checkIn / checkOut if provided
     let isoCheckIn: string | null = null;
@@ -135,8 +140,31 @@ export function EditAttendanceDialog({
       });
       onOpenChange(false);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Lỗi khi lưu thông tin chấm công';
-      setError(msg);
+      if (err instanceof ApiError) {
+        const errorsMap: Record<string, string> = {};
+        const details: string[] = [];
+        if (Array.isArray(err.errors) && err.errors.length > 0) {
+          for (const item of err.errors as Array<{
+            field?: string;
+            path?: string[];
+            message?: string;
+          }>) {
+            const field = item.field || (Array.isArray(item.path) ? item.path.join('.') : '');
+            const msg = item.message || 'Dữ liệu không hợp lệ';
+            if (field) {
+              errorsMap[field] = msg;
+              details.push(`${field}: ${msg}`);
+            } else {
+              details.push(msg);
+            }
+          }
+        }
+        setFieldErrors(errorsMap);
+        setError(details.length > 0 ? `${err.message}: ${details.join('; ')}` : err.message);
+      } else {
+        const msg = err instanceof Error ? err.message : 'Lỗi khi lưu thông tin chấm công';
+        setError(msg);
+      }
     } finally {
       setSubmitting(false);
     }
@@ -149,7 +177,7 @@ export function EditAttendanceDialog({
       open={open}
       onOpenChange={onOpenChange}
       title={`Chấm công: ${employee.fullName}`}
-      description={`Cập nhật giờ công ngày ${formatDate(dateStr)} (${employee.code} - ${employee.position}).`}
+      description={`Cập nhật giờ công ngày ${formatDate(dateStr)} cho ${employee.fullName} (${employee.code} - ${employee.position}).`}
     >
       <form noValidate onSubmit={handleSubmit} className="space-y-4">
         {error && (
@@ -177,6 +205,9 @@ export function EditAttendanceDialog({
               disabled={submitting}
               required
             />
+            {fieldErrors.hours && (
+              <p className="text-xs text-red-500 font-medium">{fieldErrors.hours}</p>
+            )}
           </div>
 
           <div className="space-y-1">
@@ -188,6 +219,9 @@ export function EditAttendanceDialog({
               onChange={(e) => setCheckInTime(e.target.value)}
               disabled={submitting}
             />
+            {fieldErrors.checkIn && (
+              <p className="text-xs text-red-500 font-medium">{fieldErrors.checkIn}</p>
+            )}
           </div>
 
           <div className="space-y-1">
@@ -199,6 +233,9 @@ export function EditAttendanceDialog({
               onChange={(e) => setCheckOutTime(e.target.value)}
               disabled={submitting}
             />
+            {fieldErrors.checkOut && (
+              <p className="text-xs text-red-500 font-medium">{fieldErrors.checkOut}</p>
+            )}
           </div>
         </div>
 
@@ -219,6 +256,9 @@ export function EditAttendanceDialog({
               </SelectContent>
             </Select>
             <p className="text-[11px] text-slate-400">Gắn vào mùa vụ để tính chi phí công</p>
+            {fieldErrors.cycleId && (
+              <p className="text-xs text-red-500 font-medium">{fieldErrors.cycleId}</p>
+            )}
           </div>
 
           <div className="space-y-1">
@@ -239,6 +279,9 @@ export function EditAttendanceDialog({
             <p className="text-[11px] text-slate-400">
               Dành cho nhân viên hưởng lương theo sản phẩm
             </p>
+            {fieldErrors.pieceQty && (
+              <p className="text-xs text-red-500 font-medium">{fieldErrors.pieceQty}</p>
+            )}
           </div>
         </div>
 
@@ -251,6 +294,9 @@ export function EditAttendanceDialog({
             onChange={(e) => setNotes(e.target.value)}
             disabled={submitting}
           />
+          {fieldErrors.notes && (
+            <p className="text-xs text-red-500 font-medium">{fieldErrors.notes}</p>
+          )}
         </div>
 
         <div className="flex justify-end gap-3 pt-4">

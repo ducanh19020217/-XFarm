@@ -35,7 +35,10 @@ export function AttendanceGrid({
     const map = new Map<string, AttendanceItem>();
     attendances.forEach((att) => {
       // att.date can be ISO string or YYYY-MM-DD
-      const dStr = att.date.slice(0, 10);
+      const dStr =
+        typeof att.date === 'string'
+          ? att.date.slice(0, 10)
+          : new Date(att.date).toISOString().slice(0, 10);
       map.set(`${att.employeeId}_${dStr}`, att);
     });
     return map;
@@ -133,6 +136,8 @@ export function AttendanceGrid({
             return (
               <tr
                 key={emp.id}
+                data-employee-id={emp.id}
+                data-testid={`attendance-row-${emp.id}`}
                 className="hover:bg-slate-50/60 dark:hover:bg-slate-900/40 transition-colors"
               >
                 {/* Employee info */}
@@ -164,6 +169,9 @@ export function AttendanceGrid({
                   return (
                     <td
                       key={day.dateStr}
+                      data-employee-id={emp.id}
+                      data-date={day.dateStr}
+                      data-testid={`attendance-cell-${emp.id}-${day.dateStr}`}
                       onClick={() => canEdit && onCellClick(emp, day.dateStr, att || null)}
                       className={`p-2.5 text-center transition-colors select-none ${
                         canEdit
@@ -171,7 +179,9 @@ export function AttendanceGrid({
                           : ''
                       } ${day.isToday ? 'bg-emerald-50/30 dark:bg-emerald-950/10' : ''}`}
                       title={
-                        canEdit ? `Bấm để chỉnh sửa chấm công ngày ${day.formattedDate}` : undefined
+                        canEdit
+                          ? `Bấm để chỉnh sửa chấm công ngày ${day.formattedDate} cho ${emp.fullName}`
+                          : undefined
                       }
                     >
                       <div className="flex flex-col items-center justify-center gap-0.5">

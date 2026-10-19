@@ -1,22 +1,22 @@
 import { z } from 'zod';
 import { paginationSchema } from './pagination';
-import { optionalDate, optionalNumber, optionalString } from './helpers';
+import { optionalDate, optionalNullableString, optionalNumber, optionalString } from './helpers';
 
 export const checkInSchema = z.object({
-  clientId: optionalString(),
+  clientId: optionalNullableString(),
   at: optionalDate(),
-  cycleId: optionalString(),
-  employeeId: optionalString(),
-  notes: optionalString(),
+  cycleId: optionalNullableString(),
+  employeeId: optionalNullableString(),
+  notes: optionalNullableString(),
 });
 
 export const checkOutSchema = z.object({
-  clientId: optionalString(),
+  clientId: optionalNullableString(),
   at: optionalDate(),
-  cycleId: optionalString(),
-  employeeId: optionalString(),
+  cycleId: optionalNullableString(),
+  employeeId: optionalNullableString(),
   pieceQty: optionalNumber(z.number().min(0, 'Số lượng khoán không được âm')),
-  notes: optionalString(),
+  notes: optionalNullableString(),
 });
 
 export const createAttendanceSchema = z.object({
@@ -27,15 +27,16 @@ export const createAttendanceSchema = z.object({
   checkIn: optionalDate(),
   checkOut: optionalDate(),
   hours: optionalNumber(z.number().min(0, 'Số giờ không được âm').max(24, 'Số giờ tối đa là 24')),
-  cycleId: optionalString(),
+  cycleId: optionalNullableString(),
   pieceQty: optionalNumber(z.number().min(0, 'Số lượng khoán không được âm')),
-  notes: optionalString(),
-  clientId: optionalString(),
+  notes: optionalNullableString(),
+  clientId: optionalNullableString(),
 });
 
 export const updateAttendanceSchema = createAttendanceSchema.partial();
 
 export const queryAttendanceSchema = paginationSchema.extend({
+  pageSize: z.coerce.number().int().min(1).max(1000).default(20),
   employeeId: optionalString(),
   cycleId: optionalString(),
   date: optionalDate(),
