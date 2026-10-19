@@ -1,11 +1,12 @@
 import { z } from 'zod';
-import { PaymentMethod, SalesChannel, SalesOrderStatus } from '../types';
-import { optionalNumber, optionalString } from './helpers';
+import { PaymentMethod, PaymentStatus, SalesChannel, SalesOrderStatus } from '../types';
+import { optionalDate, optionalNumber, optionalString } from './helpers';
 import { paginationSchema } from './pagination';
 
 export const paymentMethodSchema = z.nativeEnum(PaymentMethod);
 export const salesOrderStatusSchema = z.nativeEnum(SalesOrderStatus);
 export const salesChannelSchema = z.nativeEnum(SalesChannel);
+export const paymentStatusSchema = z.nativeEnum(PaymentStatus);
 
 const salesOrderLineSchema = z.object({
   productId: optionalString(),
@@ -24,6 +25,14 @@ export const createSalesOrderSchema = z.object({
   lines: z.array(salesOrderLineSchema).min(1, 'Đơn hàng phải có ít nhất một dòng'),
 });
 
+export const updateSalesOrderSchema = createSalesOrderSchema.partial().extend({
+  status: salesOrderStatusSchema.optional(),
+});
+
+export const confirmSalesOrderSchema = z.object({
+  warehouseId: z.string().min(1, 'Kho xuất không được để trống'),
+});
+
 export const transitionSalesOrderSchema = z.object({
   status: salesOrderStatusSchema,
 });
@@ -33,8 +42,13 @@ export const querySalesOrderSchema = paginationSchema.extend({
   customerId: optionalString(),
   channel: salesChannelSchema.optional(),
   status: salesOrderStatusSchema.optional(),
+  paymentStatus: paymentStatusSchema.optional(),
+  fromDate: optionalDate(),
+  toDate: optionalDate(),
 });
 
 export type CreateSalesOrderInput = z.infer<typeof createSalesOrderSchema>;
+export type UpdateSalesOrderInput = z.infer<typeof updateSalesOrderSchema>;
+export type ConfirmSalesOrderInput = z.infer<typeof confirmSalesOrderSchema>;
 export type TransitionSalesOrderInput = z.infer<typeof transitionSalesOrderSchema>;
 export type QuerySalesOrderInput = z.infer<typeof querySalesOrderSchema>;

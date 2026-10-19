@@ -10,7 +10,7 @@ export const createCustomerSchema = z.object({
   phone: z.string().trim().min(1, 'Số điện thoại không được để trống'),
   email: optionalString(),
   address: optionalString(),
-  type: customerTypeSchema,
+  type: customerTypeSchema.optional().default('RETAIL'),
   userId: optionalString(),
   isActive: z.boolean().optional(),
 });

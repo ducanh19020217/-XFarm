@@ -4,7 +4,7 @@ import { optionalString } from './helpers';
 import { paginationSchema } from './pagination';
 
 export const createPaymentSchema = z.object({
-  orderId: optionalString(),
+  orderId: z.string().min(1, 'Đơn hàng không được để trống'),
   amount: z.coerce.number().positive('Số tiền phải lớn hơn 0'),
   method: z.nativeEnum(PaymentMethod),
   paidAt: z.coerce.date().optional(),
