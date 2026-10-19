@@ -268,24 +268,27 @@ export class TransactionsService {
   }
 
   async remove(id: string) {
-    return prisma.$transaction(async (tx) => {
-      const existing = await tx.transaction.findUnique({
-        where: { id },
-      });
+    return prisma.$transaction(
+      async (tx) => {
+        const existing = await tx.transaction.findUnique({
+          where: { id },
+        });
 
-      if (!existing) {
-        throw new NotFoundException('Không tìm thấy giao dịch');
-      }
+        if (!existing) {
+          throw new NotFoundException('Không tìm thấy giao dịch');
+        }
 
-      if (existing.refType) {
-        throw new UnprocessableEntityException('Không thể xóa giao dịch tự động');
-      }
+        if (existing.refType) {
+          throw new UnprocessableEntityException('Không thể xóa giao dịch tự động');
+        }
 
-      await tx.transaction.delete({
-        where: { id },
-      });
+        await tx.transaction.delete({
+          where: { id },
+        });
 
-      return { message: 'Xóa giao dịch thành công' };
-    });
+        return { message: 'Xóa giao dịch thành công' };
+      },
+      { timeout: 15_000 },
+    );
   }
 }
