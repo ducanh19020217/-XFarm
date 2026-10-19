@@ -111,6 +111,8 @@ async function main() {
       '/transactions',
       '/payments',
       '/finance/receivables',
+      '/customers',
+      '/sales-orders',
     ];
 
     for (const route of routes) {
