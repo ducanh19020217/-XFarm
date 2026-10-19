@@ -68,39 +68,56 @@ export default function EquipmentPage() {
     return () => controller.abort();
   }, []);
 
-  const fetchEquipment = React.useCallback(
-    async (signal?: AbortSignal) => {
-      setIsLoading(true);
-      try {
-        const res = await getEquipmentList(
-          {
-            page,
-            pageSize,
-            search: search.trim() || undefined,
-            type: typeFilter !== 'ALL' ? typeFilter : undefined,
-            status: statusFilter !== 'ALL' ? statusFilter : undefined,
-            areaId: areaFilter !== 'ALL' ? areaFilter : undefined,
-            sort: 'createdAt:desc',
-          },
-          signal,
-        );
+  const requestIdRef = React.useRef(0);
+  const abortControllerRef = React.useRef<AbortController | null>(null);
+
+  const fetchEquipment = React.useCallback(async () => {
+    // Abort previous in-flight request if any
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+    const currentRequestId = ++requestIdRef.current;
+
+    setIsLoading(true);
+    try {
+      const res = await getEquipmentList(
+        {
+          page,
+          pageSize,
+          search: search.trim() || undefined,
+          type: typeFilter !== 'ALL' ? typeFilter : undefined,
+          status: statusFilter !== 'ALL' ? statusFilter : undefined,
+          areaId: areaFilter !== 'ALL' ? areaFilter : undefined,
+          sort: 'createdAt:desc',
+        },
+        controller.signal,
+      );
+
+      // Only apply response if this is still the latest request and not aborted
+      if (currentRequestId === requestIdRef.current && !controller.signal.aborted) {
         setEquipmentList(res.data || []);
         setTotal(res.total || 0);
-      } catch (err) {
-        if (!isAbortError(err)) {
-          showToast('Không thể tải danh sách thiết bị');
-        }
-      } finally {
+      }
+    } catch (err) {
+      if (!isAbortError(err) && currentRequestId === requestIdRef.current) {
+        showToast('Không thể tải danh sách thiết bị');
+      }
+    } finally {
+      if (currentRequestId === requestIdRef.current) {
         setIsLoading(false);
       }
-    },
-    [page, pageSize, search, typeFilter, statusFilter, areaFilter, showToast],
-  );
+    }
+  }, [page, pageSize, search, typeFilter, statusFilter, areaFilter, showToast]);
 
   React.useEffect(() => {
-    const controller = new AbortController();
-    void fetchEquipment(controller.signal);
-    return () => controller.abort();
+    void fetchEquipment();
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
   }, [fetchEquipment]);
 
   const handleOpenCreate = () => {

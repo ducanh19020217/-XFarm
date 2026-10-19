@@ -127,8 +127,20 @@ export interface MaintenanceStatusResult {
   daysRemaining: number | null;
 }
 
+export function getVNDateKey(date: Date | string = new Date()): string {
+  const d = typeof date === 'string' ? new Date(date) : date;
+  if (Number.isNaN(d.getTime())) return '';
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Ho_Chi_Minh',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(d);
+}
+
 /**
  * Checks if any active schedule of an equipment is overdue or due within 3 days.
+ * Calculations are strictly anchored to the Asia/Ho_Chi_Minh timezone calendar.
  */
 export function getEquipmentMaintenanceStatus(
   schedules?: EquipmentScheduleItem[],
@@ -139,10 +151,9 @@ export function getEquipmentMaintenanceStatus(
     return { isOverdue: false, isDueSoon: false, earliestDueDate: null, daysRemaining: null };
   }
 
-  const refYear = referenceDate.getFullYear();
-  const refMonth = referenceDate.getMonth();
-  const refDate = referenceDate.getDate();
-  const startOfRefDay = new Date(refYear, refMonth, refDate, 0, 0, 0, 0);
+  const refKey = getVNDateKey(referenceDate);
+  const [refYear, refMonth, refDate] = refKey.split('-').map(Number);
+  const refMidnightUtc = Date.UTC(refYear, refMonth - 1, refDate);
 
   let hasOverdue = false;
   let hasDueSoon = false;
@@ -153,12 +164,12 @@ export function getEquipmentMaintenanceStatus(
     const due = new Date(s.nextDueDate);
     if (Number.isNaN(due.getTime())) continue;
 
-    const dueYear = due.getFullYear();
-    const dueMonth = due.getMonth();
-    const dueDate = due.getDate();
-    const startOfDueDay = new Date(dueYear, dueMonth, dueDate, 0, 0, 0, 0);
+    const dueKey = getVNDateKey(due);
+    if (!dueKey) continue;
+    const [dueYear, dueMonth, dueDate] = dueKey.split('-').map(Number);
+    const dueMidnightUtc = Date.UTC(dueYear, dueMonth - 1, dueDate);
 
-    const diffMs = startOfDueDay.getTime() - startOfRefDay.getTime();
+    const diffMs = dueMidnightUtc - refMidnightUtc;
     const diffDays = Math.round(diffMs / (24 * 60 * 60 * 1000));
 
     if (diffDays < 0) {
@@ -187,6 +198,7 @@ export function formatVNDate(date: string | Date | null | undefined): string {
     const d = new Date(date);
     if (Number.isNaN(d.getTime())) return String(date);
     return new Intl.DateTimeFormat('vi-VN', {
+      timeZone: 'Asia/Ho_Chi_Minh',
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',

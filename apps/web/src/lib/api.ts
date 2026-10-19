@@ -120,10 +120,19 @@ export async function apiFetch<T = unknown>(
     throw new ApiError(response.status, message, errorData.errors);
   }
 
+  if (options.signal?.aborted) {
+    throw new ApiAbortError();
+  }
+
   // Handle 204 No Content
   if (response.status === 204) {
     return {} as T;
   }
 
-  return response.json();
+  const data = await response.json();
+  if (options.signal?.aborted) {
+    throw new ApiAbortError();
+  }
+
+  return data;
 }

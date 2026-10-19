@@ -147,6 +147,31 @@ describe('equipment-api', () => {
       expect(res.isDueSoon).toBe(false);
       expect(res.daysRemaining).toBe(11);
     });
+
+    it('handles nextDueDate in ISO UTC 04:52Z+2 days anchored in Asia/Ho_Chi_Minh', () => {
+      // Reference at 04:52 UTC on Oct 19, 2026 (11:52 in Asia/Ho_Chi_Minh)
+      const ref = new Date('2026-10-19T04:52:00.000Z');
+      // nextDueDate at 04:52 UTC on Oct 21, 2026 (11:52 in Asia/Ho_Chi_Minh - exactly 2 days later)
+      const dueIso = new Date('2026-10-21T04:52:00.000Z').toISOString();
+
+      const schedules: EquipmentScheduleItem[] = [
+        {
+          id: 'iso-utc-test',
+          equipmentId: 'eq-1',
+          name: 'Lịch bảo trì ISO UTC 04:52Z+2d',
+          intervalDays: 14,
+          nextDueDate: dueIso,
+          isActive: true,
+          createdAt: '2026-10-19T04:52:00.000Z',
+        },
+      ];
+
+      const res = getEquipmentMaintenanceStatus(schedules, ref);
+      expect(res.isOverdue).toBe(false);
+      expect(res.isDueSoon).toBe(true);
+      expect(res.daysRemaining).toBe(2);
+      expect(res.earliestDueDate).toEqual(new Date(dueIso));
+    });
   });
 
   describe('API calls', () => {

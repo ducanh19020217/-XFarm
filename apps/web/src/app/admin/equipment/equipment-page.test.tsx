@@ -245,4 +245,67 @@ describe('EquipmentPage Component', () => {
 
     expect(screen.queryByRole('button', { name: /thêm thiết bị/i })).not.toBeInTheDocument();
   });
+
+  it('discards out-of-order stale responses when search changes quickly', async () => {
+    let resolveFirstRequest!: (val: unknown) => void;
+    const firstRequestPromise = new Promise((resolve) => {
+      resolveFirstRequest = resolve;
+    });
+
+    vi.mocked(equipmentApi.getEquipmentList).mockImplementation(async (params) => {
+      if (!params?.search) {
+        // Initial / empty search returns slowly
+        return firstRequestPromise as Promise<never>;
+      }
+      // Search for specific item returns quickly
+      return {
+        data: [
+          {
+            id: 'eq-fast',
+            code: 'EQ-FAST',
+            name: 'Máy phun thuốc nhanh',
+            type: 'OTHER',
+            status: EquipmentStatus.ACTIVE,
+            isActive: true,
+            createdAt: '2026-10-19T00:00:00.000Z',
+            updatedAt: '2026-10-19T00:00:00.000Z',
+            maintenanceSchedules: [],
+          },
+        ],
+        total: 1,
+        page: 1,
+        pageSize: 10,
+      };
+    });
+
+    render(
+      <AdminUserProvider
+        user={{ id: '1', email: 'owner@xfarm.vn', fullName: 'Owner', role: 'OWNER' }}
+      >
+        <EquipmentPage />
+      </AdminUserProvider>,
+    );
+
+    // Type into search input before first request resolves
+    const searchInput = screen.getByPlaceholderText(/tìm theo tên hoặc mã/i);
+    fireEvent.change(searchInput, { target: { value: 'phun thuốc' } });
+
+    // Fast search results should appear
+    await waitFor(() => {
+      expect(screen.getByText('Máy phun thuốc nhanh')).toBeInTheDocument();
+    });
+
+    // Now resolve the older first request with stale data
+    resolveFirstRequest({
+      data: mockEquipments,
+      total: 2,
+      page: 1,
+      pageSize: 10,
+    });
+
+    // The fast search result must remain and NOT be overwritten by stale response
+    await new Promise((r) => setTimeout(r, 50));
+    expect(screen.getByText('Máy phun thuốc nhanh')).toBeInTheDocument();
+    expect(screen.queryByText('Máy cày Kubota')).not.toBeInTheDocument();
+  });
 });
