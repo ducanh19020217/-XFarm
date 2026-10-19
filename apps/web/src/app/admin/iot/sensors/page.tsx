@@ -138,51 +138,58 @@ export default function SensorsPage() {
   };
 
   const handleSaveSensor = async (values: SensorFormValues) => {
-    if (selectedSensor) {
-      const payload: UpdateSensorPayload = {
-        name: values.name,
-        type: values.type,
-        unit: values.unit,
-        areaId: values.areaId,
-        isActive: values.isActive,
-      };
-      await updateSensor(selectedSensor.id, payload);
-      showToast('Cập nhật cảm biến thành công');
-      void fetchSensors();
-    } else {
-      const createPayload: CreateSensorPayload = {
-        code: values.code,
-        name: values.name,
-        type: values.type,
-        unit: values.unit,
-        areaId: values.areaId,
-        isActive: values.isActive,
-      };
-      const created = await createSensor(createPayload);
-      showToast('Thêm cảm biến mới thành công');
+    try {
+      if (selectedSensor) {
+        const payload: UpdateSensorPayload = {
+          name: values.name,
+          type: values.type,
+          unit: values.unit,
+          areaId: values.areaId,
+          isActive: values.isActive,
+        };
+        await updateSensor(selectedSensor.id, payload);
+        showToast('Cập nhật cảm biến thành công');
+        void fetchSensors();
+      } else {
+        const createPayload: CreateSensorPayload = {
+          code: values.code,
+          name: values.name,
+          type: values.type,
+          unit: values.unit,
+          areaId: values.areaId,
+          isActive: values.isActive,
+        };
+        const created = await createSensor(createPayload);
+        showToast('Thêm cảm biến mới thành công');
 
-      // Create initial alert rule if provided
-      if (values.initialAlertRule) {
-        try {
-          await createAlertRule({
-            sensorId: created.data.id,
-            op: values.initialAlertRule.op,
-            threshold: values.initialAlertRule.threshold,
-            cooldownMinutes: values.initialAlertRule.cooldownMinutes,
-          });
-        } catch (e) {
-          console.error('Không thể tạo ngưỡng cảnh báo ban đầu:', e);
+        // Create initial alert rule if provided
+        if (values.initialAlertRule) {
+          try {
+            await createAlertRule({
+              sensorId: created.data.id,
+              op: values.initialAlertRule.op,
+              threshold: values.initialAlertRule.threshold,
+              cooldownMinutes: values.initialAlertRule.cooldownMinutes,
+            });
+          } catch (e) {
+            console.error('Không thể tạo ngưỡng cảnh báo ban đầu:', e);
+            showToast('Đã tạo cảm biến nhưng không thể tạo ngưỡng cảnh báo ban đầu');
+          }
         }
-      }
 
-      // Display API Key dialog once!
-      if (created.apiKey) {
-        setActiveApiKey(created.apiKey);
-        setKeySensorMeta({ name: created.data.name, code: created.data.code });
-        setApiKeyDialogOpen(true);
-      }
+        // Display API Key dialog once!
+        if (created.apiKey) {
+          setActiveApiKey(created.apiKey);
+          setKeySensorMeta({ name: created.data.name, code: created.data.code });
+          setApiKeyDialogOpen(true);
+        }
 
-      void fetchSensors();
+        void fetchSensors();
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Có lỗi xảy ra khi lưu';
+      showToast(msg);
+      throw err;
     }
   };
 

@@ -16,16 +16,21 @@ test.describe('IoT Sensors & Charts Flow', () => {
     // 1. Đăng nhập với quyền OWNER
     await loginAs(page, 'OWNER');
 
-    // Đảm bảo có ít nhất 1 khu vực (Area) để gán cho cảm biến
-    const areasRes = await api<{ data: Array<{ id: string; name: string }> }>(page, '/areas');
-    let areaId = areasRes.data?.[0]?.id;
-    if (!areaId) {
-      const newArea = await api<{ data: { id: string } }>(page, '/areas', {
+    const suffix = Date.now();
+    const sensorCode = `SN-E2E-${suffix}`;
+    const sensorName = `Nhiệt độ Ao E2E ${suffix}`;
+    const areaName = `Khu Ao E2E ${suffix}`;
+
+    // Tạo khu vực riêng cho test có Date.now(), tránh xung đột dữ liệu cũ và không chọn .first() mù
+    const newArea = await api<{ data: { id: string; code: string; name: string } }>(
+      page,
+      '/areas',
+      {
         method: 'POST',
-        body: JSON.stringify({ name: 'Khu Ao E2E', type: 'POND' }),
-      });
-      areaId = newArea.data.id;
-    }
+        body: JSON.stringify({ name: areaName, type: 'POND' }),
+      },
+    );
+    const areaId = newArea.data.id;
 
     // 2. Vào trang quản lý cảm biến /admin/iot/sensors
     await page.goto('/admin/iot/sensors');
@@ -34,15 +39,18 @@ test.describe('IoT Sensors & Charts Flow', () => {
     });
 
     // 3. Mở dialog tạo sensor
-    const suffix = Date.now();
-    const sensorName = `Nhiệt độ Ao E2E ${suffix}`;
-
     await page.getByTestId('create-sensor-btn').click();
     await expectDialogInViewport(page);
 
+    await page.locator('#sensor-code').fill(sensorCode);
     await page.locator('#sensor-name').fill(sensorName);
     await page.locator('#sensor-unit').fill('°C');
+
+    // Chờ option của khu/lô vừa tạo xuất hiện trong select và chọn chính xác
+    const areaOption = page.locator(`#sensor-area option[value="${areaId}"]`);
+    await expect(areaOption).toBeAttached({ timeout: 15_000 });
     await page.locator('#sensor-area').selectOption(areaId);
+    await expect(page.locator('#sensor-area')).toHaveValue(areaId);
 
     // Bật cấu hình ngưỡng ban đầu: vượt ngưỡng 30 °C
     await page.locator('#enable-initial-rule').check();
@@ -118,8 +126,13 @@ test.describe('IoT Sensors & Charts Flow', () => {
     const dropdown = page.getByTestId('alerts-dropdown');
     await expect(dropdown).toBeVisible();
 
-    // Dropdown hiển thị alert và có link sang biểu đồ cảm biến
-    const chartLink = dropdown.getByRole('link', { name: /xem biểu đồ cảm biến/i }).first();
+    // Dropdown hiển thị alert của đúng cảm biến vừa tạo và có link sang biểu đồ cảm biến
+    const sensorAlert = dropdown
+      .locator('[data-testid^="alert-item-"]')
+      .filter({ hasText: sensorName })
+      .first();
+    await expect(sensorAlert).toBeVisible({ timeout: 15_000 });
+    const chartLink = sensorAlert.getByRole('link', { name: /xem biểu đồ cảm biến/i });
     await expect(chartLink).toBeVisible();
 
     // 7. Mở biểu đồ thấy series

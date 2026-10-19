@@ -253,4 +253,84 @@ describe('SensorsPage', () => {
       expect(screen.getByText(/chỉ xem/i)).toBeInTheDocument();
     });
   });
+
+  it('displays error under input and in toast when API returns duplicate code (409 Conflict)', async () => {
+    vi.mocked(iotApi.createSensor).mockRejectedValueOnce(
+      new apiModule.ApiError(409, 'Mã cảm biến đã tồn tại'),
+    );
+
+    renderComponent('OWNER');
+
+    await waitFor(() => {
+      expect(screen.getByText('Cảm biến nhiệt độ hồ cá')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId('create-sensor-btn'));
+
+    await waitFor(() => {
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+      expect(screen.getByText('Thêm Cảm biến Mới')).toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByLabelText(/mã cảm biến/i), {
+      target: { value: 'SN-0001' },
+    });
+    fireEvent.change(screen.getByLabelText(/tên cảm biến/i), {
+      target: { value: 'Cảm biến trùng mã' },
+    });
+    fireEvent.change(screen.getByLabelText(/đơn vị đo/i), {
+      target: { value: '°C' },
+    });
+    fireEvent.change(screen.getByLabelText(/khu\/lô lắp đặt/i), {
+      target: { value: 'area-1' },
+    });
+
+    fireEvent.click(screen.getByTestId('submit-sensor-form-btn'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('sensor-code-error')).toHaveTextContent('Mã cảm biến đã tồn tại');
+      expect(screen.getByTestId('sensor-form-error')).toHaveTextContent('Mã cảm biến đã tồn tại');
+      expect(screen.getByRole('status', { hidden: true })).toHaveTextContent(
+        'Mã cảm biến đã tồn tại',
+      );
+    });
+  });
+
+  it('displays error under area select when API returns invalid area (422 Unprocessable)', async () => {
+    vi.mocked(iotApi.createSensor).mockRejectedValueOnce(
+      new apiModule.ApiError(422, 'Khu/lô không tồn tại'),
+    );
+
+    renderComponent('OWNER');
+
+    await waitFor(() => {
+      expect(screen.getByText('Cảm biến nhiệt độ hồ cá')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId('create-sensor-btn'));
+
+    await waitFor(() => {
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+      expect(screen.getByText('Thêm Cảm biến Mới')).toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByLabelText(/tên cảm biến/i), {
+      target: { value: 'Cảm biến sai khu' },
+    });
+    fireEvent.change(screen.getByLabelText(/đơn vị đo/i), {
+      target: { value: '°C' },
+    });
+    fireEvent.change(screen.getByLabelText(/khu\/lô lắp đặt/i), {
+      target: { value: 'area-1' },
+    });
+
+    fireEvent.click(screen.getByTestId('submit-sensor-form-btn'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('sensor-area-error')).toHaveTextContent('Khu/lô không tồn tại');
+      expect(screen.getByRole('status', { hidden: true })).toHaveTextContent(
+        'Khu/lô không tồn tại',
+      );
+    });
+  });
 });
