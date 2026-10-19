@@ -28,7 +28,9 @@ export class StockController {
   @Get('documents') documents(@Query('page') page = '1', @Query('pageSize') pageSize = '20') {
     return this.stock.documents(Number(page), Number(pageSize));
   }
-  @Get('documents/:code') document(@Param('code') code: string) {
+  @Get('documents/:code')
+  @Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT)
+  document(@Param('code') code: string) {
     return this.stock.getDocument(code).then((data) => ({ data }));
   }
 

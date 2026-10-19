@@ -14,7 +14,7 @@ export class WarehousesController {
   ) {}
 
   @Get()
-  @Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES, Role.WORKER)
+  @Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES)
   @ApiOperation({ summary: 'Danh sách kho (phân trang & tìm kiếm)' })
   @ApiResponse({ status: 200, description: 'Lấy danh sách thành công' })
   async findAll(@Query() query: QueryWarehouseDto) {
@@ -22,7 +22,7 @@ export class WarehousesController {
   }
 
   @Get(':id')
-  @Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES, Role.WORKER)
+  @Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES)
   @ApiOperation({ summary: 'Chi tiết kho' })
   @ApiResponse({ status: 200, description: 'Lấy chi tiết thành công' })
   @ApiResponse({ status: 404, description: 'Không tìm thấy kho' })

@@ -11,7 +11,7 @@ export class SiteSettingsController {
   constructor(@Inject(CmsService) private readonly cmsService: CmsService) {}
 
   @Get()
-  @Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES, Role.WORKER)
+  @Roles(Role.OWNER, Role.MANAGER)
   @ApiOperation({ summary: 'Danh sách cấu hình website (admin)' })
   @ApiResponse({ status: 200, description: 'Lấy danh sách thành công' })
   async findAll(@Query() query: QuerySiteSettingDto) {
@@ -19,7 +19,7 @@ export class SiteSettingsController {
   }
 
   @Get(':key')
-  @Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES, Role.WORKER)
+  @Roles(Role.OWNER, Role.MANAGER)
   @ApiOperation({ summary: 'Chi tiết cấu hình theo key' })
   @ApiResponse({ status: 200, description: 'Lấy chi tiết thành công' })
   @ApiResponse({ status: 404, description: 'Không tìm thấy cấu hình' })

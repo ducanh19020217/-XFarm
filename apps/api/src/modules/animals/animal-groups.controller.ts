@@ -8,10 +8,12 @@ import { AnimalsService } from './animals.service';
 
 @ApiTags('animal-groups')
 @Controller('animal-groups')
+@Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES)
 export class AnimalGroupsController {
   constructor(private readonly animalsService: AnimalsService) {}
 
   @Get()
+  @Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES)
   @ApiOperation({ summary: 'Danh sách đàn vật nuôi (phân trang & lọc)' })
   @ApiResponse({ status: 200, description: 'Lấy danh sách thành công' })
   async findAll(@Query() query: QueryAnimalGroupDto) {
@@ -19,6 +21,7 @@ export class AnimalGroupsController {
   }
 
   @Get(':id')
+  @Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.SALES)
   @ApiOperation({ summary: 'Chi tiết đàn vật nuôi kèm số lượng theo trạng thái' })
   @ApiResponse({ status: 200, description: 'Lấy chi tiết thành công' })
   @ApiResponse({ status: 404, description: 'Không tìm thấy đàn vật nuôi' })
