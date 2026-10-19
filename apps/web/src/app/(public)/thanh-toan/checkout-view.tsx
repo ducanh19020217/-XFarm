@@ -8,7 +8,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { CreditCard, Truck, ArrowLeft, AlertCircle, ShoppingBag, Loader2 } from 'lucide-react';
 import { webshopCheckoutSchema, type WebshopCheckoutInput, PaymentMethod } from '@xfarm/shared';
 import { useCart } from '@/lib/cart';
-import { formatCurrency, type PublicProduct, FALLBACK_PRODUCTS } from '@/lib/public-api';
+import {
+  formatCurrency,
+  type PublicProduct,
+  FALLBACK_PRODUCTS,
+  API_BASE_URL,
+} from '@/lib/public-api';
 
 export function CheckoutView() {
   const router = useRouter();
@@ -23,7 +28,7 @@ export function CheckoutView() {
     let cancelled = false;
     async function loadProducts() {
       try {
-        const res = await fetch('/api/v1/public/products');
+        const res = await fetch(`${API_BASE_URL}/public/products`);
         if (res.ok) {
           const body = await res.json();
           const list = Array.isArray(body) ? body : Array.isArray(body.data) ? body.data : [];
@@ -102,7 +107,7 @@ export function CheckoutView() {
     setIsSubmitting(true);
 
     try {
-      const res = await fetch('/api/v1/public/orders', {
+      const res = await fetch(`${API_BASE_URL}/public/orders`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

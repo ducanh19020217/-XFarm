@@ -18,7 +18,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { webshopOrderLookupSchema, type WebshopOrderLookupInput } from '@xfarm/shared';
-import { formatCurrency, formatDate } from '@/lib/public-api';
+import { formatCurrency, formatDate, API_BASE_URL } from '@/lib/public-api';
 
 interface LookupOrderResult {
   code: string;
@@ -65,7 +65,7 @@ export function LookupView() {
         code: data.code.trim(),
         phone: data.phone.trim(),
       });
-      const res = await fetch(`/api/v1/public/orders/lookup?${query.toString()}`);
+      const res = await fetch(`${API_BASE_URL}/public/orders/lookup?${query.toString()}`);
       if (!res.ok) {
         if (res.status === 404) {
           throw new Error(

@@ -5,7 +5,12 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useCart } from '@/lib/cart';
-import { formatCurrency, type PublicProduct, FALLBACK_PRODUCTS } from '@/lib/public-api';
+import {
+  formatCurrency,
+  type PublicProduct,
+  FALLBACK_PRODUCTS,
+  API_BASE_URL,
+} from '@/lib/public-api';
 
 export function CartView() {
   const { items, updateQuantity, removeFromCart, isLoaded } = useCart();
@@ -16,7 +21,7 @@ export function CartView() {
     let isCancelled = false;
     async function loadProducts() {
       try {
-        const res = await fetch('/api/v1/public/products');
+        const res = await fetch(`${API_BASE_URL}/public/products`);
         if (res.ok) {
           const body = await res.json();
           const list = Array.isArray(body) ? body : Array.isArray(body.data) ? body.data : [];

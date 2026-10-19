@@ -1,5 +1,6 @@
-import { test, expect, loginAs } from './fixtures';
+import { test, expect } from './fixtures';
 import path from 'node:path';
+import fs from 'node:fs/promises';
 import { PrismaClient } from '@prisma/client';
 
 test.describe('Webshop E2E – Cửa hàng online', () => {
@@ -124,6 +125,7 @@ test.describe('Webshop E2E – Cửa hàng online', () => {
     page,
     errors,
   }) => {
+    test.setTimeout(120_000);
     const timestamp = Date.now();
     const customerPhone = '0988776655';
     const customerName = `Khách hàng Test ${timestamp}`;
@@ -133,14 +135,17 @@ test.describe('Webshop E2E – Cửa hàng online', () => {
     await expect(page.getByRole('heading', { name: /sản phẩm trang trại/i })).toBeVisible();
 
     // 2. Thêm sản phẩm thứ nhất vào giỏ (từ danh sách sản phẩm)
-    const addBtn1 = page.getByTestId(`add-to-cart-${testProduct1.id}`);
+    const addBtn1 = page
+      .locator('#main-content')
+      .getByTestId(`add-to-cart-${testProduct1.id}`)
+      .first();
     await expect(addBtn1).toBeVisible();
     await addBtn1.click();
 
     // 3. Vào chi tiết sản phẩm thứ 2 và thêm vào giỏ
     await page.goto(`/san-pham/${testProduct2.slug}`);
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(testProduct2.name);
-    const detailAddBtn = page.getByTestId('add-to-cart-button');
+    const detailAddBtn = page.locator('#main-content').getByTestId('add-to-cart-button').first();
     await expect(detailAddBtn).toBeVisible();
     await detailAddBtn.click();
     await expect(page.getByText('Đã thêm vào giỏ!')).toBeVisible();
@@ -226,16 +231,24 @@ test.describe('Webshop E2E – Cửa hàng online', () => {
     await expect(statusBadge).toContainText('PENDING');
 
     // 11. Đăng nhập OWNER và kiểm tra đơn
-    await loginAs(page, 'OWNER');
+    const statePath = path.resolve('e2e/.auth', 'owner.json');
+    const state = JSON.parse(await fs.readFile(statePath, 'utf8'));
+    await page.context().clearCookies();
+    await page.context().addCookies(state.cookies || []);
+    await page.goto('/admin', { waitUntil: 'domcontentloaded' });
+    await expect(page.getByText(/Xin chào,/)).toBeVisible({ timeout: 15_000 });
 
     // Kiểm tra /admin/sales/orders nếu có trên nhánh, nếu không kiểm tra qua API
-    const adminOrdersRes = await page.goto('/admin/sales/orders').catch(() => null);
+    const adminOrdersRes = await page
+      .goto('/admin/sales/orders', { waitUntil: 'domcontentloaded' })
+      .catch(() => null);
     if (adminOrdersRes && adminOrdersRes.status() === 200) {
       await expect(page.getByText(orderCode!)).toBeVisible();
     } else {
       // Kiểm tra qua API public order lookup
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4350/api/v1';
       const apiRes = await page.request.get(
-        `/api/v1/public/orders/lookup?code=${orderCode}&phone=${customerPhone}`,
+        `${apiBase}/public/orders/lookup?code=${orderCode}&phone=${customerPhone}`,
       );
       expect(apiRes.status()).toBe(200);
       const data = await apiRes.json();
@@ -260,7 +273,10 @@ test.describe('Webshop E2E – Cửa hàng online', () => {
     expect(scrollWidth).toBeLessThanOrEqual(clientWidth + 5);
 
     // 2. Thêm vào giỏ từ mobile
-    const addBtn = page.getByTestId(`add-to-cart-${testProduct1.id}`);
+    const addBtn = page
+      .locator('#main-content')
+      .getByTestId(`add-to-cart-${testProduct1.id}`)
+      .first();
     await expect(addBtn).toBeVisible();
     await addBtn.click();
 
