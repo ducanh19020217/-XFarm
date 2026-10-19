@@ -115,3 +115,15 @@ Tài liệu này ghi lại các quyết định thiết kế và kỹ thuật qu
 - **Bối cảnh**: `phase-6-hr` tách từ nền GĐ 2 trong khi `main` đã có schema và seed GĐ 3.
 - **Quyết định**: Giữ nguyên toàn bộ model/migration Harvest, CMS, trace và bổ sung model Employee, Task, Attendance, Payroll cùng các quan hệ cần thiết; seed giữ cả dữ liệu public/CMS/Harvest và HR, đều dùng upsert để chạy lặp lại.
 - **Hệ quả**: Hai nhóm tính năng dùng chung Prisma Client và có thể migrate deploy trên DB trống mà không sửa migration đã phát hành.
+
+---
+
+### DECISION-015: Giới hạn số worker và tiến trình song song khi kiểm thử
+- **Bối cảnh**: Trên máy phát triển 12 nhân, có 4–6 worker/agent cùng chạy song song. Mỗi lần chạy kiểm thử, Vitest mặc định kích hoạt toàn bộ luồng (~12 threads/forks) và Turbo thực thi đồng thời nhiều task, khiến system load vọt lên 40–60 làm máy bị treo/đơ.
+- **Quyết định**:
+  1. **Vitest**: Cấu hình `test.maxWorkers: 2` và `minWorkers: 1` trong tất cả các tệp cấu hình Vitest (`apps/web/vitest.config.ts`, `packages/shared/vitest.config.ts`), cho phép ghi đè thông qua biến môi trường `VITEST_MAX_WORKERS`.
+  2. **Jest**: Đặt `maxWorkers: 2` cho bộ unit tests (`apps/api/jest.config.json`); tiếp tục giữ `--runInBand` cho Jest E2E (`apps/api/package.json` script `test:e2e`).
+  3. **Turbo**: Cấu hình `"concurrency": "2"` trong `turbo.json` và bổ sung `--concurrency=2` cho script `test` trong `package.json` gốc nhằm giới hạn số lượng tác vụ test chạy song song.
+  4. **Playwright**: Tiếp tục duy trì `workers: 1` (`apps/web/playwright.config.ts`) tránh tranh chấp cổng và tài nguyên DB.
+- **Hệ quả**: Giảm thiểu tải CPU đột ngột khi chạy kiểm thử đồng thời giữa các agent/worker, đảm bảo máy phát triển hoạt động ổn định và các lệnh kiểm thử hoàn thành tin cậy trong thời gian hợp lý.
+
