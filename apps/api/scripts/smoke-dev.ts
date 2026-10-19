@@ -105,6 +105,8 @@ async function main() {
       '/public/site-settings',
       '/public/trace/DEMO000001',
       '/purchase-orders',
+      '/tours',
+      '/public/tours',
     ];
 
     for (const route of routes) {
