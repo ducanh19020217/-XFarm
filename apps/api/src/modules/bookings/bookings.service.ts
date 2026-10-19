@@ -170,7 +170,7 @@ export class BookingsService {
           ...(status === BookingStatus.CONFIRMED ? { confirmedAt: new Date() } : {}),
           ...(status === BookingStatus.CANCELLED ? { cancelledAt: new Date() } : {}),
         },
-        include: { slot: { include: { tour: true } } },
+        include: { slot: { include: { tour: true } }, payments: true },
       });
     });
     if (status === BookingStatus.CONFIRMED)
@@ -191,9 +191,16 @@ export class BookingsService {
       const amount = new Prisma.Decimal(input.amount);
       if (current.plus(amount).greaterThan(booking.total))
         throw new UnprocessableEntityException('Số tiền thu vượt quá tổng tiền đặt chỗ');
-      const category = await tx.financeCategory.findUnique({ where: { systemKey: 'TOUR' } });
-      if (!category)
-        throw new UnprocessableEntityException('Chưa cấu hình danh mục tài chính TOUR');
+      let category = await tx.financeCategory.findUnique({ where: { systemKey: 'TOUR' } });
+      if (!category) {
+        category = await tx.financeCategory.create({
+          data: {
+            name: 'Tour',
+            type: TransactionType.INCOME,
+            systemKey: 'TOUR',
+          },
+        });
+      }
       const paymentCode = await this.sequence.nextInTransaction(tx, 'TT');
       const transactionCode = await this.sequence.nextInTransaction(tx, 'TN');
       const transaction = await tx.transaction.create({
@@ -225,6 +232,7 @@ export class BookingsService {
         data: {
           paymentStatus: total.equals(booking.total) ? PaymentStatus.PAID : PaymentStatus.PARTIAL,
         },
+        include: { slot: { include: { tour: true } }, payments: true },
       });
     });
   }
