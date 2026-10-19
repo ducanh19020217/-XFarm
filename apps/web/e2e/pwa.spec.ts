@@ -29,12 +29,48 @@ test.describe('PWA Shell & Worker Mobile App (p6-pwa-shell)', () => {
     const iconSizes = manifest.icons.map((i: { sizes: string }) => i.sizes);
     expect(iconSizes).toContain('192x192');
     expect(iconSizes).toContain('512x512');
+
+    // Kiểm tra trực tiếp các file icon thực tế trả về 200 OK
+    const icon192Res = await request.get('/icons/icon-192.png');
+    expect(icon192Res.status()).toBe(200);
+    expect(icon192Res.headers()['content-type']).toContain('image/png');
+
+    const icon512Res = await request.get('/icons/icon-512.png');
+    expect(icon512Res.status()).toBe(200);
+    expect(icon512Res.headers()['content-type']).toContain('image/png');
+
+    // Kiểm tra service worker script
+    const swRes = await request.get('/sw.js');
+    expect(swRes.status()).toBe(200);
+
+    console.log('\n======================================================');
+    console.log('  KẾT QUẢ KIỂM TRA PWA CÀI ĐẶT ĐƯỢC (PWA INSTALLABILITY)');
+    console.log('======================================================');
+    console.log(`[PASS] Web App Manifest: /manifest.webmanifest (HTTP 200)`);
+    console.log(`       - Name: ${manifest.name}`);
+    console.log(`       - Short Name: ${manifest.short_name}`);
+    console.log(`       - Start URL: ${manifest.start_url}`);
+    console.log(`       - Display: ${manifest.display}`);
+    console.log(`       - Theme Color: ${manifest.theme_color}`);
+    console.log(`       - Background Color: ${manifest.background_color}`);
+    console.log(
+      `[PASS] Icon 192x192: /icons/icon-192.png (HTTP ${icon192Res.status()}, image/png)`,
+    );
+    console.log(
+      `[PASS] Icon 512x512: /icons/icon-512.png (HTTP ${icon512Res.status()}, image/png)`,
+    );
+    console.log(`[PASS] Service Worker Script: /sw.js (HTTP ${swRes.status()})`);
   });
 
   test('2. service worker đăng ký thành công trên ứng dụng mobile /admin/m', async ({ page }) => {
     await loginAs(page, 'WORKER');
     await page.goto('/admin/m');
     await expect(page.locator('h1')).toContainText(/việc hôm nay/i);
+
+    // Kiểm tra thẻ <link rel="manifest"> trong head của trang
+    const manifestLink = await page.locator('link[rel="manifest"]').getAttribute('href');
+    expect(manifestLink).toContain('manifest');
+    console.log(`[PASS] HTML Head Manifest Link: <link rel="manifest" href="${manifestLink}">`);
 
     // Đợi Service Worker đăng ký thành công trong browser context
     const hasServiceWorker = await page.evaluate(async () => {
@@ -46,6 +82,8 @@ test.describe('PWA Shell & Worker Mobile App (p6-pwa-shell)', () => {
     });
 
     expect(hasServiceWorker).toBe(true);
+    console.log(`[PASS] Service Worker Registration: navigator.serviceWorker is active`);
+    console.log('======================================================\n');
   });
 
   test('3. đăng nhập WORKER, thấy việc hôm nay và chấm công vào ca', async ({ page }) => {

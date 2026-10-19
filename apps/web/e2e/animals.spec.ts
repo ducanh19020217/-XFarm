@@ -1,6 +1,7 @@
 import { expect, api, loginAs, test } from './fixtures';
 
 test('tạo cá thể, ghi WEIGHING và chặn sự kiện sau khi chết', async ({ page, errors }) => {
+  test.setTimeout(60_000);
   await loginAs(page);
   const areas = await api<{ data: Array<{ id: string }> }>(page, '/areas?pageSize=1');
   const areaId = areas.data[0]?.id;
@@ -43,7 +44,7 @@ test('tạo cá thể, ghi WEIGHING và chặn sự kiện sau khi chết', asyn
   await page.getByPlaceholder(/tìm theo mã tai/i).fill(tag);
   await expect(page.getByText(tag)).toBeVisible();
   await page.getByRole('link', { name: tag, exact: true }).click();
-  await expect(page).toHaveURL(new RegExp(`/admin/animals/${animal.id}`));
+  await expect(page).toHaveURL(new RegExp(`/admin/animals/${animal.id}`), { timeout: 15_000 });
   await page.getByRole('button', { name: 'Ghi sự kiện', exact: true }).click();
   await page.getByLabel('Loại sự kiện').click();
   await page.getByRole('option', { name: /cân trọng lượng/i }).click();

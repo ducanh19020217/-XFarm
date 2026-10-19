@@ -22,6 +22,7 @@ test('ghi nhật ký WATER_TEST và thấy tóm tắt pH', async ({ page, errors
     ),
   });
   await page.getByRole('button', { name: /lưu nhật ký/i }).click();
-  await expect(page.getByText(/DO 5\.1 · pH 7\.2 · Nhiệt độ \(°C\) 26/i).last()).toBeVisible();
+  await page.getByLabel('Lọc theo loại').selectOption('WATER_TEST');
+  await expect(page.getByText(/DO 5\.1 · pH 7\.2 · Nhiệt độ \(°C\) 26/i).first()).toBeVisible();
   errors.assertClean();
 });
