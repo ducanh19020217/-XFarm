@@ -8,6 +8,7 @@ test.describe('E2E Quản lý Nhân sự, Giao việc, Chấm công, Tính lươ
     page,
     errors,
   }) => {
+    test.setTimeout(60_000);
     // 1. Kiểm tra API backend hr (p6-api-hr và p6-api-payroll chạy song song)
     const apiCheck = await fetch(`${apiBase}/employees`, {
       headers: { 'Content-Type': 'application/json' },

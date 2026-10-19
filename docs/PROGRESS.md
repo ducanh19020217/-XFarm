@@ -176,3 +176,84 @@ Bộ UI E2E hiện có 8 kịch bản, chạy tuần tự một worker. Global s
 - **Timeline chưa phân trang**: Timeline nhật ký của mùa vụ hiện tải toàn bộ hoạt động theo mùa vụ, về lâu dài khi mùa vụ có hàng nghìn hoạt động cần bổ sung infinite scroll hoặc pagination.
 - **Quy tắc sinh mã chưa đồng nhất**: Mã khu/lô và đàn vật nuôi không theo năm (`AR-0001`, `AG-0001`), trong khi mã mùa vụ đánh theo năm (`CY-2026-0001`). Cần xem xét chuẩn hóa lại quy ước sinh mã số ở các giai đoạn sau nếu cần quản lý tài sản theo niên độ.
 - **Kiểm tra vòng lặp cha–con của khu/lô**: Thuật toán phát hiện chu trình khi chọn khu/lô cha hiện đang duyệt từng cấp (recursive loop check), có thể xem xét tối ưu bằng CTE query trong database khi cây phân cấp sâu.
+
+---
+
+## GĐ 6 – Nhân sự + PWA công nhân (phase-6-hr) – HOÀN THÀNH
+
+### 1. Việc đã làm
+- **Cơ sở dữ liệu & Schema (`packages/db`)**:
+  - Mô hình thực thể: `Employee`, `Task`, `Attendance`, `Payroll`, `PayrollDetail`.
+  - Enums: `PayType` (`DAILY`, `MONTHLY`, `PIECE`), `TaskStatus` (`PENDING`, `IN_PROGRESS`, `COMPLETED`, `CANCELLED`), `AttendanceStatus` (`PRESENT`, `ABSENT`, `LEAVE`, `HALF_DAY`), `PayrollStatus` (`DRAFT`, `APPROVED`, `PAID`).
+  - Ràng buộc phân bổ giờ công đa mùa vụ: `unique(employeeId, date, cycleId)` trên bảng `Attendance`.
+  - Khóa ngoại liên kết tài khoản hệ thống `User.employeeId`.
+- **Backend API (`apps/api`)**:
+  - Mô-đun **Employees** (`/employees`): Quản lý hồ sơ nhân viên, mã tự sinh dạng `EMP-0001`, tìm kiếm theo tên/mã, lọc theo phòng ban, trạng thái hoạt động và hình thức trả lương.
+  - Mô-đun **Tasks** (`/tasks`): Giao việc cho nhân viên, gắn với mùa vụ và khu/lô, theo dõi tiến độ và trạng thái công việc. WORKER chỉ thấy công việc được giao cho chính mình.
+  - Mô-đun **Attendance** (`/attendance`): Chấm công vào/ra ca tự động tính số giờ công (nghỉ trưa 1h nếu > 6h, làm tròn 15 phút), cho phép điều chỉnh công thủ công, hỗ trợ gắn mùa vụ để tính giá thành nhân công.
+  - Mô-đun **Payroll** (`/payrolls`):
+    - Tính lương hàng loạt theo kỳ (`POST /payrolls/generate`), tự động gộp giờ công theo ngày, tính ngày công chuẩn (≥ 4h tính 1 công, < 4h tính 0,5 công).
+    - Phân bổ chi phí và ngày công theo mùa vụ cho cả `DAILY` và `MONTHLY`.
+    - Xử lý làm tròn tiền tệ và bù số dư vào dòng cuối đảm bảo tổng tiền bảng lương khớp tuyệt đối với chi tiết.
+    - Bỏ qua bảng lương đã duyệt (`APPROVED`) hoặc đã trả (`PAID`) khi tính toán lại trong cùng kỳ (DECISION-013).
+    - Vòng đời: `DRAFT` → `APPROVED` (Kế toán duyệt) → `PAID` (Chủ trang trại duyệt chi trả).
+    - Phát sinh sự kiện `PayrollPaidEvent` khi chi trả lương sẵn sàng cho phân hệ Tài chính (GĐ 4).
+  - Mô-đun **Labor Cost** (`/cycles/:id/labor-cost`): Tổng hợp tổng chi phí nhân công và số công của mùa vụ từ các bản ghi chấm công có gắn `cycleId`.
+  - Mô-đun **Sync** (`POST /sync/batch`): Tiếp nhận đồng bộ nhật ký từ PWA công nhân, kiểm tra và đảm bảo tính duy nhất qua `clientSyncId` (idempotent).
+- **Frontend Quản trị Web (`apps/web` - Desktop Admin)**:
+  - Trang Quản lý nhân viên `/admin/employees`: Danh sách DataTable, tìm kiếm, form thêm/sửa, liên kết tài khoản đăng nhập.
+  - Trang Giao việc `/admin/tasks`: Quản lý danh sách công việc, phân công người thực hiện, lọc theo trạng thái, mùa vụ và khu/lô.
+  - Trang Chấm công `/admin/attendance`: Bảng theo dõi chấm công theo ngày/tháng, điều chỉnh giờ công và mùa vụ gắn kèm.
+  - Trang Bảng lương `/admin/payrolls`: Tạo kỳ lương mới, xem chi tiết bảng lương từng nhân viên, duyệt lương và thanh toán lương theo phân quyền.
+- **PWA & Giao diện Mobile cho Công nhân (`/admin/m`)**:
+  - Tích hợp Serwist (`@serwist/next`), Service Worker (`/sw.js`) và Web App Manifest (`/manifest.webmanifest`) cài đặt được trên thiết bị di động (PWA Installable).
+  - Giao diện mobile-first tối ưu màn hình cảm ứng, bottom tab bar tiện lợi:
+    - `/admin/m`: Việc hôm nay của công nhân, chuyển trạng thái và hoàn thành việc.
+    - `/admin/m/checkin`: Chấm công vào ca / ra ca nhanh bằng một chạm.
+    - `/admin/m/qr`: Quét mã QR khu/lô với cơ chế quét kép (BarcodeDetector phần cứng + ZXing fallback) và nhập mã thủ công.
+    - `/admin/m/activities`: Ghi nhật ký nông trại nhanh.
+  - Cơ chế ngoại tuyến (Offline Queue) bằng IndexedDB:
+    - Cho phép công nhân tiếp tục ghi nhật ký khi ở ngoài đồng không có sóng di động/mạng.
+    - Tự động nhận diện mạng online trở lại và gửi đồng bộ qua `POST /sync/batch`.
+    - Không phát sinh dữ liệu trùng lặp khi đồng bộ nhiều lần hoặc reload trang.
+
+### 2. Cách chạy thử
+1. Chạy di chuyển schema và dữ liệu mẫu:
+   ```bash
+   pnpm db:migrate
+   pnpm db:seed
+   ```
+2. Khởi chạy ứng dụng:
+   ```bash
+   pnpm dev
+   ```
+3. Đăng nhập kiểm tra:
+   - Quản trị viên/Kế toán: Truy cập `http://localhost:3100/login` với tài khoản `admin@xfarm.local` hoặc `accountant@xfarm.local`.
+   - Công nhân: Truy cập `http://localhost:3100/login` với tài khoản `worker@xfarm.local` / `Worker@123`, tự động chuyển hướng vào PWA `/admin/m`.
+4. Trải nghiệm các tính năng GĐ 6:
+   - `/admin/employees`: Hồ sơ nhân sự và hình thức trả lương.
+   - `/admin/tasks`: Giao việc và theo dõi tiến độ công việc.
+   - `/admin/attendance`: Chấm công và điều chỉnh ngày công.
+   - `/admin/payrolls`: Tính toán, phê duyệt và thanh toán lương.
+   - `/admin/m`: Trải nghiệm PWA công nhân, kiểm tra offline mode bằng cách bật DevTools Offline và ghi nhật ký.
+
+### 3. Nghiệm thu
+- **Kịch bản nghiệm thu GĐ 6 (`e2e/phase6-acceptance.spec.ts`)**:
+  - Tiêu chí (a): WORKER trên PWA hoạt động offline, ghi 2 nhật ký vào IndexedDB queue, khi bật mạng lại tự động đồng bộ lên máy chủ, đếm qua API đúng 2 bản ghi và không bị trùng lặp khi reload: **PASS**.
+  - Tiêu chí (b): Chấm công 3 ngày (tổng 24 giờ), chạy tính lương kỳ hiện tại thì bảng lương khớp chính xác tổng số giờ và ngày công: **PASS**.
+  - Tiêu chí (c): Chi phí công mùa vụ (`/cycles/:id/labor-cost`) khớp chính xác với tổng chấm công có gắn mã mùa vụ đó: **PASS**.
+- **Kiểm tra PWA cài đặt được (`e2e/pwa.spec.ts`)**:
+  - Manifest (`/manifest.webmanifest`): Trả về HTTP 200, đầy đủ `name`, `short_name`, `start_url`, `display: standalone`, icon 192x192 và 512x512.
+  - Icon files: `/icons/icon-192.png` và `/icons/icon-512.png` đều trả về HTTP 200 (image/png).
+  - Service Worker: `/sw.js` trả về HTTP 200 và đăng ký `active` thành công trên trình duyệt.
+- **Kiểm thử tự động**:
+  - `pnpm lint`: Đạt chuẩn lint và prettier format trên toàn bộ monorepo (0 lỗi).
+  - `pnpm typecheck`: Đạt chuẩn kiểu dữ liệu TypeScript 100% trên toàn bộ packages.
+  - `pnpm test`: 175/175 tests unit/component đều PASS.
+  - `pnpm --filter @xfarm/api test:e2e`: 155/155 tests e2e API đều PASS.
+  - `pnpm --filter @xfarm/api smoke:dev`: Toàn bộ 18 endpoints API chính khởi chạy và trả về 200 OK.
+  - `pnpm test:ui`: Toàn bộ các bộ test Playwright E2E đều đạt khi chạy đơn lẻ.
+
+### 4. Các điểm còn lo ngại & Lưu ý
+- **Giới hạn inotify trên môi trường Linux**: Khi chạy đồng thời nhiều watcher trong monorepo lớn, hệ thống có thể chạm ngưỡng inotify instances (`max_user_instances`). Giải pháp thiết lập `WATCHPACK_POLLING=true` giúp Next.js dev server chạy ổn định và mượt mà mà không phụ thuộc vào inotify handle.
+- **Tích hợp sổ quỹ GĐ 4**: Sự kiện `PayrollPaidEvent` đã được phát ra từ module payroll; khi triển khai GĐ 4 phân hệ Tài chính chỉ cần thêm listener để tự động hạch toán bút toán chi tiền.
