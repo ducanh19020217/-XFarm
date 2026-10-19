@@ -2,16 +2,12 @@
 
 import * as React from 'react';
 import { PaymentMethod } from '@xfarm/shared';
-import { Button, Input, Label, Select } from '@xfarm/ui';
+import { Button, Input, Label } from '@xfarm/ui';
 import { CreditCard, CheckCircle2 } from 'lucide-react';
 import { apiFetch, ApiError } from '@/lib/api';
 import { MoneyInput } from '@/components/ui/money-input';
 import type { SalesOrderRecord } from '../../_components/types';
-import {
-  formatCurrency,
-  formatDate,
-  paymentMethodLabels,
-} from '../../_components/constants';
+import { formatCurrency, formatDate, paymentMethodLabels } from '../../_components/constants';
 
 interface PaymentRecordCardProps {
   order: SalesOrderRecord;
@@ -19,11 +15,7 @@ interface PaymentRecordCardProps {
   userRole?: string;
 }
 
-export function PaymentRecordCard({
-  order,
-  onPaymentSuccess,
-  userRole,
-}: PaymentRecordCardProps) {
+export function PaymentRecordCard({ order, onPaymentSuccess, userRole }: PaymentRecordCardProps) {
   const canRecordPayment =
     userRole === 'OWNER' ||
     userRole === 'MANAGER' ||
@@ -152,7 +144,10 @@ export function PaymentRecordCard({
 
       {/* Form ghi thu tiền */}
       {canRecordPayment && order.status !== 'CANCELLED' && remaining > 0 && (
-        <form onSubmit={handleSubmit} className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-3">
+        <form
+          onSubmit={handleSubmit}
+          className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-3"
+        >
           <h3 className="text-xs font-semibold uppercase text-slate-500 tracking-wider">
             Ghi nhận thu tiền mới
           </h3>
@@ -187,8 +182,9 @@ export function PaymentRecordCard({
               <Label htmlFor="payment-method-select" className="text-xs">
                 Phương thức
               </Label>
-              <Select
+              <select
                 id="payment-method-select"
+                className="flex h-9 w-full rounded-md border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-slate-950 dark:border-slate-800 dark:bg-slate-900"
                 value={method}
                 onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                   setMethod(e.target.value as PaymentMethod)
@@ -200,7 +196,7 @@ export function PaymentRecordCard({
                     {label}
                   </option>
                 ))}
-              </Select>
+              </select>
             </div>
 
             <div className="space-y-1">

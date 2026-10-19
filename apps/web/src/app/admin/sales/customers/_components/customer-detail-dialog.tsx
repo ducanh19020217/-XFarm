@@ -2,10 +2,10 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Button, FormDialog, StatusBadge, Badge } from '@xfarm/ui';
-import { ShoppingBag, CreditCard, Phone, Mail, MapPin, ExternalLink, Calendar } from 'lucide-react';
+import { Button, FormDialog, StatusBadge } from '@xfarm/ui';
+import { ShoppingBag, CreditCard, Phone, Mail, MapPin, ExternalLink } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
-import type { CustomerRecord, CustomerDetailRecord, SalesOrderRecord } from '../../_components/types';
+import type { CustomerDetailRecord, SalesOrderRecord } from '../../_components/types';
 import { formatCurrency, formatDate } from '../../_components/constants';
 import {
   OrderStatusBadge,
@@ -174,7 +174,10 @@ export function CustomerDetailDialog({
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                     {orders.map((order) => (
-                      <tr key={order.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/50">
+                      <tr
+                        key={order.id}
+                        className="hover:bg-slate-50/50 dark:hover:bg-slate-900/50"
+                      >
                         <td className="py-2.5 px-3 font-medium text-slate-900 dark:text-slate-100">
                           {order.code}
                         </td>

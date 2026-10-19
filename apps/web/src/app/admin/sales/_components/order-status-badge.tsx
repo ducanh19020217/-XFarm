@@ -2,12 +2,7 @@
 
 import * as React from 'react';
 import { Badge } from '@xfarm/ui';
-import {
-  SalesChannel,
-  SalesOrderStatus,
-  PaymentStatus,
-  CustomerType,
-} from '@xfarm/shared';
+import { SalesChannel, SalesOrderStatus, PaymentStatus, CustomerType } from '@xfarm/shared';
 import {
   orderStatusLabels,
   paymentStatusLabels,

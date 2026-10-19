@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Button, FormDialog, Label, Select } from '@xfarm/ui';
+import { Button, FormDialog, Label } from '@xfarm/ui';
 import { apiFetch, ApiError } from '@/lib/api';
 import type { WarehouseOption } from '../../_components/types';
 import { AlertTriangle } from 'lucide-react';
@@ -113,8 +113,9 @@ export function ConfirmOrderDialog({
           <Label htmlFor="warehouse-select">
             Kho xuất hàng <span className="text-rose-500">*</span>
           </Label>
-          <Select
+          <select
             id="warehouse-select"
+            className="flex h-9 w-full rounded-md border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-slate-950 dark:border-slate-800 dark:bg-slate-900"
             value={selectedWarehouseId}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
               setSelectedWarehouseId(e.target.value)
@@ -127,7 +128,7 @@ export function ConfirmOrderDialog({
                 {w.name} ({w.code})
               </option>
             ))}
-          </Select>
+          </select>
           <p className="text-xs text-slate-500">
             Hệ thống sẽ tự động tìm các lô hàng có hạn sử dụng hoặc ngày nhập cũ nhất để xuất trước.
           </p>

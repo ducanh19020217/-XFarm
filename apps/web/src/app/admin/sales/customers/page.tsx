@@ -11,7 +11,6 @@ import {
   ConfirmDialog,
   useToast,
   Toast,
-  Select,
 } from '@xfarm/ui';
 import { Plus, Edit2, Lock, Unlock, Eye } from 'lucide-react';
 import { apiFetch, ApiError } from '@/lib/api';
@@ -198,7 +197,10 @@ export default function CustomersPage() {
           description="Quản lý thông tin khách hàng, công nợ và lịch sử mua hàng"
         />
         {canWrite && (
-          <Button onClick={() => setCreateOpen(true)} className="flex items-center gap-2 self-start">
+          <Button
+            onClick={() => setCreateOpen(true)}
+            className="flex items-center gap-2 self-start"
+          >
             <Plus className="h-4 w-4" />
             <span>Thêm khách hàng</span>
           </Button>
@@ -207,7 +209,8 @@ export default function CustomersPage() {
 
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
         <div className="w-full sm:w-56">
-          <Select
+          <select
+            className="flex h-9 w-full rounded-md border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-slate-950 dark:border-slate-800 dark:bg-slate-900"
             value={typeFilter}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
               setTypeFilter(e.target.value);
@@ -220,7 +223,7 @@ export default function CustomersPage() {
               {customerTypeLabels[CustomerType.WHOLESALE]}
             </option>
             <option value={CustomerType.AGENT}>{customerTypeLabels[CustomerType.AGENT]}</option>
-          </Select>
+          </select>
         </div>
       </div>
 

@@ -4,7 +4,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import QRCode from 'qrcode';
-import { ArrowLeft, Printer, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Printer } from 'lucide-react';
 import { Button } from '@xfarm/ui';
 import { apiFetch } from '@/lib/api';
 import type { SalesOrderRecord } from '../../../_components/types';
@@ -48,22 +48,18 @@ export default function SalesOrderPrintPage() {
       apiFetch<PrintData | { data: PrintData }>(
         `/sales-orders/${params.id}/print?type=${printType}`,
       ),
-      apiFetch<
-        | { key: string; value: BankVietQR }
-        | { data: { key: string; value: BankVietQR } }
-      >('/site-settings/bank.vietqr').catch(() => null),
+      apiFetch<{ key: string; value: BankVietQR } | { data: { key: string; value: BankVietQR } }>(
+        '/site-settings/bank.vietqr',
+      ).catch(() => null),
     ])
       .then(([printRes, bankRes]) => {
         if (!active) return;
-        const resData = (
-          printRes && 'data' in printRes ? printRes.data : printRes
-        ) as PrintData;
+        const resData = (printRes && 'data' in printRes ? printRes.data : printRes) as PrintData;
         setData(resData);
 
         if (bankRes) {
-          const rawBank = (
-            'data' in bankRes ? bankRes.data?.value : bankRes.value
-          ) as BankVietQR | undefined;
+          const rawBank = ('data' in bankRes ? bankRes.data?.value : bankRes.value) as
+            BankVietQR | undefined;
           if (rawBank && rawBank.accountNumber) {
             setBankInfo(rawBank);
           }
@@ -91,7 +87,7 @@ export default function SalesOrderPrintPage() {
     if (isUnpaid && isBank) {
       // Build VietQR payload format: standard or bank link
       const vietQrPayload = `00020101021238540010A00000072701240006${bankInfo.bank}0110${bankInfo.accountNumber}520400005303704540${String(data.order.total).length}${data.order.total}5802VN62${data.order.code.length + 4}08${data.order.code.length}${data.order.code}6304`;
-      
+
       // Generate QR
       QRCode.toDataURL(
         vietQrPayload,
@@ -116,7 +112,9 @@ export default function SalesOrderPrintPage() {
   };
 
   if (loading) {
-    return <div className="py-12 text-center text-sm text-slate-500">Đang chuẩn bị trang in...</div>;
+    return (
+      <div className="py-12 text-center text-sm text-slate-500">Đang chuẩn bị trang in...</div>
+    );
   }
 
   if (error || !data?.order) {
@@ -136,8 +134,7 @@ export default function SalesOrderPrintPage() {
 
   const { order, site } = data;
   const isInvoice = printType === 'invoice';
-  const showVietQr =
-    order.paymentStatus !== 'PAID' && order.paymentMethod === 'BANK_TRANSFER';
+  const showVietQr = order.paymentStatus !== 'PAID' && order.paymentMethod === 'BANK_TRANSFER';
 
   return (
     <div className="space-y-6 print:space-y-0">
@@ -237,8 +234,8 @@ export default function SalesOrderPrintPage() {
               {order.paymentStatus === 'PAID'
                 ? 'Đã thanh toán đủ'
                 : order.paymentStatus === 'PARTIAL'
-                ? 'Thanh toán một phần'
-                : 'Chưa thanh toán'}
+                  ? 'Thanh toán một phần'
+                  : 'Chưa thanh toán'}
             </p>
             {order.warehouse && (
               <p>
@@ -345,7 +342,6 @@ export default function SalesOrderPrintPage() {
 
             <div className="text-center shrink-0">
               {qrCodeDataUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={qrCodeDataUrl}
                   alt={`VietQR thanh toan ${order.code}`}
@@ -356,7 +352,9 @@ export default function SalesOrderPrintPage() {
                   Mã VietQR
                 </div>
               )}
-              <div className="text-[10px] font-semibold text-slate-600 mt-1">Quét mã để thanh toán</div>
+              <div className="text-[10px] font-semibold text-slate-600 mt-1">
+                Quét mã để thanh toán
+              </div>
             </div>
           </div>
         )}

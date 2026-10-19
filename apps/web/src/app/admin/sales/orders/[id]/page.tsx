@@ -2,8 +2,8 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
-import { Button, ConfirmDialog, PageHeader, Toast, useToast } from '@xfarm/ui';
+import { useParams } from 'next/navigation';
+import { Button, ConfirmDialog, Toast, useToast } from '@xfarm/ui';
 import {
   ArrowLeft,
   Printer,
@@ -12,7 +12,6 @@ import {
   Truck,
   CheckCheck,
   XCircle,
-  Warehouse,
   User,
   MapPin,
   Clock,
@@ -21,11 +20,7 @@ import {
 import { apiFetch, ApiError } from '@/lib/api';
 import { useAdminUser } from '../../../admin-user-context';
 import type { SalesOrderRecord } from '../../_components/types';
-import {
-  formatCurrency,
-  formatDate,
-  paymentMethodLabels,
-} from '../../_components/constants';
+import { formatCurrency, formatDate, paymentMethodLabels } from '../../_components/constants';
 import {
   ChannelBadge,
   OrderStatusBadge,
@@ -36,7 +31,6 @@ import { PaymentRecordCard } from '../_components/payment-record-card';
 
 export default function SalesOrderDetailPage() {
   const params = useParams<{ id: string }>();
-  const router = useRouter();
   const user = useAdminUser();
   const { message: toastMessage, showToast, closeToast } = useToast();
 
@@ -140,8 +134,7 @@ export default function SalesOrderDetailPage() {
     );
   }
 
-  const canAction =
-    user?.role === 'OWNER' || user?.role === 'MANAGER' || user?.role === 'SALES';
+  const canAction = user?.role === 'OWNER' || user?.role === 'MANAGER' || user?.role === 'SALES';
 
   return (
     <div className="space-y-6">
@@ -280,7 +273,10 @@ export default function SalesOrderDetailPage() {
               </Link>
             </div>
             <div className="text-slate-600 dark:text-slate-400">
-              Số điện thoại: <span className="font-medium text-slate-800 dark:text-slate-200">{order.customer.phone}</span>
+              Số điện thoại:{' '}
+              <span className="font-medium text-slate-800 dark:text-slate-200">
+                {order.customer.phone}
+              </span>
             </div>
             {order.customer.email && (
               <div className="text-slate-600 dark:text-slate-400">
@@ -297,7 +293,10 @@ export default function SalesOrderDetailPage() {
           </div>
           <div className="space-y-1.5 text-sm">
             <div className="text-slate-600 dark:text-slate-400">
-              Địa chỉ: <span className="font-medium text-slate-800 dark:text-slate-200">{order.shippingAddress}</span>
+              Địa chỉ:{' '}
+              <span className="font-medium text-slate-800 dark:text-slate-200">
+                {order.shippingAddress}
+              </span>
             </div>
             <div className="text-slate-600 dark:text-slate-400">
               Kho xuất:{' '}
@@ -324,7 +323,10 @@ export default function SalesOrderDetailPage() {
           </div>
           <div className="space-y-1.5 text-sm">
             <div className="text-slate-600 dark:text-slate-400">
-              Ngày tạo: <span className="font-medium text-slate-800 dark:text-slate-200">{formatDate(order.createdAt)}</span>
+              Ngày tạo:{' '}
+              <span className="font-medium text-slate-800 dark:text-slate-200">
+                {formatDate(order.createdAt)}
+              </span>
             </div>
             {order.confirmedAt && (
               <div className="text-slate-600 dark:text-slate-400">
@@ -403,9 +405,7 @@ export default function SalesOrderDetailPage() {
             {Number(order.discount) > 0 && (
               <div className="flex justify-between text-slate-600 dark:text-slate-400">
                 <span>Chiết khấu:</span>
-                <span className="font-medium text-rose-600">
-                  -{formatCurrency(order.discount)}
-                </span>
+                <span className="font-medium text-rose-600">-{formatCurrency(order.discount)}</span>
               </div>
             )}
             {Number(order.shippingFee) > 0 && (
@@ -440,8 +440,8 @@ export default function SalesOrderDetailPage() {
             {order.status === 'PENDING'
               ? 'Chưa xuất kho (đơn hàng đang chờ xác nhận)'
               : order.status === 'CANCELLED'
-              ? 'Đơn hàng đã hủy (lô xuất đã được hoàn lại kho)'
-              : 'Chưa có thông tin xuất lô'}
+                ? 'Đơn hàng đã hủy (lô xuất đã được hoàn lại kho)'
+                : 'Chưa có thông tin xuất lô'}
           </div>
         ) : (
           <div className="overflow-x-auto rounded-md border border-slate-200 dark:border-slate-800">
@@ -478,11 +478,7 @@ export default function SalesOrderDetailPage() {
       </div>
 
       {/* Khu thanh toán và lịch sử thanh toán */}
-      <PaymentRecordCard
-        order={order}
-        onPaymentSuccess={fetchOrder}
-        userRole={user?.role}
-      />
+      <PaymentRecordCard order={order} onPaymentSuccess={fetchOrder} userRole={user?.role} />
 
       {/* Dialog chọn kho khi Xác nhận đơn */}
       <ConfirmOrderDialog

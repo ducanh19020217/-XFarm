@@ -3,14 +3,9 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { ColumnDef } from '@tanstack/react-table';
-import {
-  PaymentStatus,
-  SalesChannel,
-  SalesOrderStatus,
-  type Paginated,
-} from '@xfarm/shared';
-import { DataTable, PageHeader, Button, Select, useToast, Toast } from '@xfarm/ui';
-import { Plus, Eye, Printer, ShoppingCart } from 'lucide-react';
+import { type Paginated } from '@xfarm/shared';
+import { DataTable, PageHeader, Button, useToast, Toast } from '@xfarm/ui';
+import { Plus, Eye, Printer } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
 import { useAdminUser } from '../../admin-user-context';
 import type { SalesOrderRecord } from '../_components/types';
@@ -29,8 +24,7 @@ import {
 
 export default function SalesOrdersPage() {
   const user = useAdminUser();
-  const canCreate =
-    user?.role === 'OWNER' || user?.role === 'MANAGER' || user?.role === 'SALES';
+  const canCreate = user?.role === 'OWNER' || user?.role === 'MANAGER' || user?.role === 'SALES';
   const { message: toastMessage, showToast, closeToast } = useToast();
 
   const [orders, setOrders] = React.useState<SalesOrderRecord[]>([]);
@@ -188,7 +182,8 @@ export default function SalesOrdersPage() {
       {/* Bộ lọc trạng thái / thanh toán / kênh */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div>
-          <Select
+          <select
+            className="flex h-9 w-full rounded-md border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-slate-950 dark:border-slate-800 dark:bg-slate-900"
             value={status}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
               setStatus(e.target.value);
@@ -201,11 +196,12 @@ export default function SalesOrdersPage() {
                 {label}
               </option>
             ))}
-          </Select>
+          </select>
         </div>
 
         <div>
-          <Select
+          <select
+            className="flex h-9 w-full rounded-md border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-slate-950 dark:border-slate-800 dark:bg-slate-900"
             value={paymentStatus}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
               setPaymentStatus(e.target.value);
@@ -218,11 +214,12 @@ export default function SalesOrdersPage() {
                 {label}
               </option>
             ))}
-          </Select>
+          </select>
         </div>
 
         <div>
-          <Select
+          <select
+            className="flex h-9 w-full rounded-md border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-slate-950 dark:border-slate-800 dark:bg-slate-900"
             value={channel}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
               setChannel(e.target.value);
@@ -235,7 +232,7 @@ export default function SalesOrdersPage() {
                 {label}
               </option>
             ))}
-          </Select>
+          </select>
         </div>
       </div>
 

@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { CustomerType, createCustomerSchema, updateCustomerSchema } from '@xfarm/shared';
-import { Button, FormDialog, Input, Label, Select } from '@xfarm/ui';
+import { Button, FormDialog, Input, Label } from '@xfarm/ui';
 import { apiFetch, ApiError } from '@/lib/api';
 import type { CustomerRecord } from '../../_components/types';
 import { customerTypeLabels } from '../../_components/constants';
@@ -119,7 +119,9 @@ export function CustomerFormDialog({
       open={open}
       onOpenChange={onOpenChange}
       title={dialogTitle}
-      description={isEdit ? 'Cập nhật thông tin khách hàng' : 'Nhập thông tin để tạo khách hàng mới'}
+      description={
+        isEdit ? 'Cập nhật thông tin khách hàng' : 'Nhập thông tin để tạo khách hàng mới'
+      }
       className="sm:max-w-[500px]"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -185,8 +187,9 @@ export function CustomerFormDialog({
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1">
             <Label htmlFor="customer-type">Loại khách hàng</Label>
-            <Select
+            <select
               id="customer-type"
+              className="flex h-9 w-full rounded-md border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-slate-950 dark:border-slate-800 dark:bg-slate-900"
               value={type}
               onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                 setType(e.target.value as CustomerType)
@@ -198,13 +201,14 @@ export function CustomerFormDialog({
                 {customerTypeLabels[CustomerType.WHOLESALE]}
               </option>
               <option value={CustomerType.AGENT}>{customerTypeLabels[CustomerType.AGENT]}</option>
-            </Select>
+            </select>
           </div>
 
           <div className="space-y-1">
             <Label htmlFor="customer-status">Trạng thái</Label>
-            <Select
+            <select
               id="customer-status"
+              className="flex h-9 w-full rounded-md border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-slate-950 dark:border-slate-800 dark:bg-slate-900"
               value={isActive ? 'true' : 'false'}
               onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                 setIsActive(e.target.value === 'true')
@@ -213,7 +217,7 @@ export function CustomerFormDialog({
             >
               <option value="true">Hoạt động</option>
               <option value="false">Đã khóa</option>
-            </Select>
+            </select>
           </div>
         </div>
 

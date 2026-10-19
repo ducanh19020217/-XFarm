@@ -178,7 +178,9 @@ export default function CustomerDetailPage() {
                         {order.code}
                       </Link>
                     </td>
-                    <td className="py-3 px-4 text-xs text-slate-500">{formatDate(order.createdAt)}</td>
+                    <td className="py-3 px-4 text-xs text-slate-500">
+                      {formatDate(order.createdAt)}
+                    </td>
                     <td className="py-3 px-4">
                       <ChannelBadge channel={order.channel} status={order.status} />
                     </td>

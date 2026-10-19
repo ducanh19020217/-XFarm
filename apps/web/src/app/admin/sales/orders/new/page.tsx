@@ -4,8 +4,8 @@ import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { PaymentMethod, createSalesOrderSchema } from '@xfarm/shared';
-import { Button, Input, Label, PageHeader, Select, Toast, useToast } from '@xfarm/ui';
-import { ArrowLeft, Plus, Trash2, UserPlus, ShoppingCart } from 'lucide-react';
+import { Button, Input, Label, PageHeader, Toast, useToast } from '@xfarm/ui';
+import { ArrowLeft, Plus, Trash2, UserPlus } from 'lucide-react';
 import { apiFetch, ApiError } from '@/lib/api';
 import { MoneyInput } from '@/components/ui/money-input';
 import type { CustomerRecord, ProductOption, SalesOrderRecord } from '../../_components/types';
@@ -51,7 +51,9 @@ export default function NewSalesOrderPage() {
     setLoadingData(true);
     try {
       const [custRes, prodRes] = await Promise.all([
-        apiFetch<{ data: CustomerRecord[] } | CustomerRecord[]>('/customers?pageSize=100&isActive=true'),
+        apiFetch<{ data: CustomerRecord[] } | CustomerRecord[]>(
+          '/customers?pageSize=100&isActive=true',
+        ),
         apiFetch<{ data: ProductOption[] } | ProductOption[]>('/products?pageSize=100'),
       ]);
 
@@ -269,8 +271,9 @@ export default function NewSalesOrderPage() {
                   }
                   className="text-xs"
                 />
-                <Select
+                <select
                   id="customer-select"
+                  className="flex h-9 w-full rounded-md border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-slate-950 dark:border-slate-800 dark:bg-slate-900"
                   value={selectedCustomerId}
                   onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                     handleSelectCustomer(e.target.value)
@@ -283,7 +286,7 @@ export default function NewSalesOrderPage() {
                       {c.name} ({c.phone}) - {c.code}
                     </option>
                   ))}
-                </Select>
+                </select>
               </div>
               {formErrors.customerId && (
                 <p className="text-xs text-rose-500 mt-1">{formErrors.customerId}</p>
@@ -337,7 +340,6 @@ export default function NewSalesOrderPage() {
             </div>
 
             {lines.map((line, idx) => {
-              const lineTotal = line.quantity * line.unitPrice;
               return (
                 <div
                   key={idx}
@@ -345,9 +347,10 @@ export default function NewSalesOrderPage() {
                 >
                   <div className="col-span-5 space-y-1">
                     <Label className="md:hidden text-xs">Sản phẩm</Label>
-                    <Select
+                    <select
                       id={`order-line-product-${idx}`}
                       aria-label={`Sản phẩm dòng ${idx + 1}`}
+                      className="flex h-9 w-full rounded-md border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-slate-950 dark:border-slate-800 dark:bg-slate-900"
                       value={line.productId}
                       onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                         handleProductChange(idx, e.target.value)
@@ -359,7 +362,7 @@ export default function NewSalesOrderPage() {
                           {p.name} ({p.unit}) - {formatCurrency(p.price)}
                         </option>
                       ))}
-                    </Select>
+                    </select>
                   </div>
 
                   <div className="col-span-2 space-y-1">
@@ -380,7 +383,11 @@ export default function NewSalesOrderPage() {
 
                   <div className="col-span-2 space-y-1">
                     <Label className="md:hidden text-xs">Đơn vị</Label>
-                    <Input value={line.unit || '—'} disabled className="bg-white dark:bg-slate-900" />
+                    <Input
+                      value={line.unit || '—'}
+                      disabled
+                      className="bg-white dark:bg-slate-900"
+                    />
                   </div>
 
                   <div className="col-span-2 space-y-1">
@@ -421,8 +428,9 @@ export default function NewSalesOrderPage() {
 
             <div className="space-y-1">
               <Label htmlFor="payment-method">Phương thức thanh toán</Label>
-              <Select
+              <select
                 id="payment-method"
+                className="flex h-9 w-full rounded-md border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-slate-950 dark:border-slate-800 dark:bg-slate-900"
                 value={paymentMethod}
                 onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                   setPaymentMethod(e.target.value as PaymentMethod)
@@ -433,7 +441,7 @@ export default function NewSalesOrderPage() {
                     {label}
                   </option>
                 ))}
-              </Select>
+              </select>
             </div>
 
             <div className="space-y-1">
@@ -487,7 +495,9 @@ export default function NewSalesOrderPage() {
               </div>
 
               <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-base">
-                <span className="font-bold text-slate-900 dark:text-slate-100">Tổng thanh toán:</span>
+                <span className="font-bold text-slate-900 dark:text-slate-100">
+                  Tổng thanh toán:
+                </span>
                 <span className="text-xl font-bold text-emerald-700 dark:text-emerald-400">
                   {formatCurrency(total)}
                 </span>
