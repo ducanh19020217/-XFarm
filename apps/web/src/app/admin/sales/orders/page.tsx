@@ -2,263 +2,255 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { ColumnDef } from '@tanstack/react-table';
+import { type Paginated } from '@xfarm/shared';
+import { DataTable, PageHeader, Button, useToast, Toast } from '@xfarm/ui';
+import { Plus, Eye, Printer } from 'lucide-react';
+import { apiFetch } from '@/lib/api';
+import { useAdminUser } from '../../admin-user-context';
+import type { SalesOrderRecord } from '../_components/types';
 import {
-  Button,
-  DataTable,
-  Input,
-  PageHeader,
-  StatusBadge,
-  Toast,
-  useToast,
-} from '@xfarm/ui';
-import type { ColumnDef } from '@tanstack/react-table';
-import { PaymentStatus, SalesOrderStatus } from '@xfarm/shared';
-import { apiFetch, ApiError } from '@/lib/api';
-
-interface SalesOrderListItem {
-  id: string;
-  code: string;
-  channel: string;
-  status: SalesOrderStatus;
-  paymentStatus: PaymentStatus;
-  subtotal: number | string;
-  total: number | string;
-  createdAt: string;
-  customer?: {
-    id: string;
-    code: string;
-    name: string;
-    phone: string;
-  };
-  _count?: {
-    lines: number;
-    payments: number;
-  };
-}
-
-interface SalesOrderListResponse {
-  data: SalesOrderListItem[];
-  total: number;
-  page: number;
-  pageSize: number;
-}
-
-function formatVND(amount: number | string | null | undefined): string {
-  if (amount === null || amount === undefined || amount === '') return '0 ₫';
-  const num = typeof amount === 'number' ? amount : Number(amount);
-  if (Number.isNaN(num)) return '0 ₫';
-  return new Intl.NumberFormat('vi-VN', {
-    style: 'currency',
-    currency: 'VND',
-    maximumFractionDigits: 0,
-  }).format(num);
-}
-
-function formatDate(dateStr: string | null | undefined): string {
-  if (!dateStr) return '-';
-  try {
-    const d = new Date(dateStr);
-    return d.toLocaleDateString('vi-VN', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  } catch {
-    return '-';
-  }
-}
+  channelLabels,
+  formatCurrency,
+  formatDate,
+  orderStatusLabels,
+  paymentStatusLabels,
+} from '../_components/constants';
+import {
+  ChannelBadge,
+  OrderStatusBadge,
+  PaymentStatusBadge,
+} from '../_components/order-status-badge';
 
 export default function SalesOrdersPage() {
-  const router = useRouter();
-  const { message, showToast, closeToast } = useToast();
+  const user = useAdminUser();
+  const canCreate = user?.role === 'OWNER' || user?.role === 'MANAGER' || user?.role === 'SALES';
+  const { message: toastMessage, showToast, closeToast } = useToast();
 
-  const [orders, setOrders] = React.useState<SalesOrderListItem[]>([]);
+  const [orders, setOrders] = React.useState<SalesOrderRecord[]>([]);
   const [total, setTotal] = React.useState(0);
-  const [loading, setLoading] = React.useState(true);
-
-  // Filters
-  const [search, setSearch] = React.useState('');
-  const [status, setStatus] = React.useState<string>('ALL');
-  const [paymentStatus, setPaymentStatus] = React.useState<string>('ALL');
   const [page, setPage] = React.useState(1);
-  const pageSize = 20;
+  const [pageSize] = React.useState(10);
+  const [search, setSearch] = React.useState('');
+  const [status, setStatus] = React.useState<string>('');
+  const [paymentStatus, setPaymentStatus] = React.useState<string>('');
+  const [channel, setChannel] = React.useState<string>('');
+  const [isLoading, setIsLoading] = React.useState(true);
 
   const fetchOrders = React.useCallback(async () => {
-    setLoading(true);
+    setIsLoading(true);
     try {
-      const params = new URLSearchParams();
-      params.set('page', page.toString());
-      params.set('pageSize', pageSize.toString());
+      const params = new URLSearchParams({
+        page: String(page),
+        pageSize: String(pageSize),
+      });
       if (search.trim()) params.set('search', search.trim());
-      if (status !== 'ALL') params.set('status', status);
-      if (paymentStatus !== 'ALL') params.set('paymentStatus', paymentStatus);
+      if (status) params.set('status', status);
+      if (paymentStatus) params.set('paymentStatus', paymentStatus);
+      if (channel) params.set('channel', channel);
 
-      const res = await apiFetch<SalesOrderListResponse>(`/sales-orders?${params.toString()}`);
+      const res = await apiFetch<Paginated<SalesOrderRecord>>(`/sales-orders?${params.toString()}`);
       setOrders(res.data || []);
       setTotal(res.total || 0);
-    } catch (error) {
-      showToast(error instanceof ApiError ? error.message : 'Không thể tải danh sách đơn bán');
+    } catch (err) {
+      console.error('Lỗi khi tải danh sách đơn hàng:', err);
+      showToast('Không thể tải danh sách đơn hàng');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
-  }, [page, search, status, paymentStatus, showToast]);
+  }, [page, pageSize, search, status, paymentStatus, channel, showToast]);
 
   React.useEffect(() => {
-    void fetchOrders();
+    fetchOrders();
   }, [fetchOrders]);
 
-  const columns: ColumnDef<SalesOrderListItem>[] = [
-    {
-      header: 'Mã đơn',
-      accessorKey: 'code',
-      cell: ({ row }) => (
-        <Link
-          href={`/admin/sales/orders/${row.original.id}`}
-          className="font-medium text-emerald-600 hover:underline dark:text-emerald-400"
-        >
-          {row.original.code}
-        </Link>
-      ),
-    },
-    {
-      header: 'Khách hàng',
-      accessorKey: 'customer',
-      cell: ({ row }) => {
-        const cust = row.original.customer;
-        if (!cust) return <span className="text-slate-400">-</span>;
-        return (
-          <div>
-            <div className="font-medium text-slate-900 dark:text-slate-100">{cust.name}</div>
-            <div className="text-xs text-slate-500">{cust.phone}</div>
-          </div>
-        );
+  const columns = React.useMemo<ColumnDef<SalesOrderRecord>[]>(
+    () => [
+      {
+        accessorKey: 'code',
+        header: 'Mã đơn',
+        cell: ({ row }) => (
+          <Link
+            href={`/admin/sales/orders/${row.original.id}`}
+            className="font-medium text-emerald-700 hover:text-emerald-900 hover:underline dark:text-emerald-400"
+          >
+            {row.original.code}
+          </Link>
+        ),
       },
-    },
-    {
-      header: 'Ngày tạo',
-      accessorKey: 'createdAt',
-      cell: ({ row }) => (
-        <span className="text-xs text-slate-500">{formatDate(row.original.createdAt)}</span>
-      ),
-    },
-    {
-      header: 'Kênh',
-      accessorKey: 'channel',
-      cell: ({ row }) => (
-        <span className="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-700 dark:bg-slate-800 dark:text-slate-300">
-          {row.original.channel === 'WEBSHOP' ? 'Cửa hàng online' : 'Nội bộ'}
-        </span>
-      ),
-    },
-    {
-      header: 'Trạng thái đơn',
-      accessorKey: 'status',
-      cell: ({ row }) => <StatusBadge status={row.original.status} />,
-    },
-    {
-      header: 'Thanh toán',
-      accessorKey: 'paymentStatus',
-      cell: ({ row }) => <StatusBadge status={row.original.paymentStatus} />,
-    },
-    {
-      header: 'Tổng tiền',
-      accessorKey: 'total',
-      cell: ({ row }) => (
-        <span className="font-semibold text-slate-900 dark:text-slate-100">
-          {formatVND(row.original.total)}
-        </span>
-      ),
-    },
-    {
-      header: 'Thao tác',
-      id: 'actions',
-      cell: ({ row }) => (
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => router.push(`/admin/sales/orders/${row.original.id}`)}
-        >
-          Chi tiết
-        </Button>
-      ),
-    },
-  ];
+      {
+        accessorKey: 'customer',
+        header: 'Khách hàng',
+        cell: ({ row }) => (
+          <div>
+            <div className="font-medium text-slate-900 dark:text-slate-100">
+              {row.original.customer?.name}
+            </div>
+            <div className="text-xs text-slate-500">{row.original.customer?.phone}</div>
+          </div>
+        ),
+      },
+      {
+        accessorKey: 'channel',
+        header: 'Kênh bán',
+        cell: ({ row }) => (
+          <ChannelBadge channel={row.original.channel} status={row.original.status} />
+        ),
+      },
+      {
+        accessorKey: 'createdAt',
+        header: 'Ngày tạo',
+        cell: ({ row }) => (
+          <span className="text-xs text-slate-600 dark:text-slate-400">
+            {formatDate(row.original.createdAt)}
+          </span>
+        ),
+      },
+      {
+        accessorKey: 'status',
+        header: 'Trạng thái',
+        cell: ({ row }) => <OrderStatusBadge status={row.original.status} />,
+      },
+      {
+        accessorKey: 'paymentStatus',
+        header: 'Thanh toán',
+        cell: ({ row }) => <PaymentStatusBadge status={row.original.paymentStatus} />,
+      },
+      {
+        accessorKey: 'total',
+        header: 'Tổng tiền',
+        cell: ({ row }) => (
+          <span className="font-semibold text-slate-900 dark:text-slate-100">
+            {formatCurrency(row.original.total)}
+          </span>
+        ),
+      },
+      {
+        id: 'actions',
+        header: 'Thao tác',
+        cell: ({ row }) => {
+          const item = row.original;
+          return (
+            <div className="flex items-center gap-1">
+              <Link href={`/admin/sales/orders/${item.id}`} passHref>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  title="Xem chi tiết"
+                  className="h-8 w-8 p-0 text-slate-600 hover:text-slate-900"
+                >
+                  <Eye className="h-4 w-4" />
+                </Button>
+              </Link>
+              <Link href={`/admin/sales/orders/${item.id}/print?type=invoice`} passHref>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  title="In hóa đơn"
+                  className="h-8 w-8 p-0 text-slate-600 hover:text-slate-900"
+                >
+                  <Printer className="h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+          );
+        },
+      },
+    ],
+    [],
+  );
 
   return (
     <div className="space-y-6">
-      <Toast message={message} onClose={closeToast} />
+      {toastMessage && <Toast message={toastMessage} onClose={closeToast} />}
 
-      <PageHeader
-        title="Đơn bán hàng"
-        description="Quản lý đơn hàng bán, giao nhận và thanh toán"
-      />
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <PageHeader
+          title="Đơn hàng bán"
+          description="Quản lý và xử lý đơn hàng từ các kênh bán hàng (Admin, Webshop)"
+        />
+        {canCreate && (
+          <Link href="/admin/sales/orders/new">
+            <Button className="flex items-center gap-2 self-start">
+              <Plus className="h-4 w-4" />
+              <span>Tạo đơn hàng</span>
+            </Button>
+          </Link>
+        )}
+      </div>
 
-      {/* Filter bar */}
-      <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <div className="min-w-[200px] flex-1">
-          <Input
-            placeholder="Tìm theo mã đơn hoặc tên khách..."
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
-          />
-        </div>
-
-        <div className="w-48">
+      {/* Bộ lọc trạng thái / thanh toán / kênh */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div>
           <select
-            aria-label="Lọc trạng thái đơn"
-            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring dark:bg-slate-800"
+            className="flex h-9 w-full rounded-md border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-slate-950 dark:border-slate-800 dark:bg-slate-900"
             value={status}
-            onChange={(e) => {
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
               setStatus(e.target.value);
               setPage(1);
             }}
           >
-            <option value="ALL">Tất cả trạng thái đơn</option>
-            <option value="PENDING">Chờ xác nhận</option>
-            <option value="CONFIRMED">Đã xác nhận</option>
-            <option value="PACKING">Đang đóng gói</option>
-            <option value="SHIPPING">Đang giao hàng</option>
-            <option value="COMPLETED">Đã hoàn thành</option>
-            <option value="CANCELLED">Đã hủy</option>
+            <option value="">Tất cả trạng thái đơn</option>
+            {Object.entries(orderStatusLabels).map(([key, label]) => (
+              <option key={key} value={key}>
+                {label}
+              </option>
+            ))}
           </select>
         </div>
 
-        <div className="w-44">
+        <div>
           <select
-            aria-label="Lọc trạng thái thanh toán"
-            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring dark:bg-slate-800"
+            className="flex h-9 w-full rounded-md border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-slate-950 dark:border-slate-800 dark:bg-slate-900"
             value={paymentStatus}
-            onChange={(e) => {
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
               setPaymentStatus(e.target.value);
               setPage(1);
             }}
           >
-            <option value="ALL">Tất cả thanh toán</option>
-            <option value="UNPAID">Chưa thanh toán</option>
-            <option value="PARTIAL">Thanh toán 1 phần</option>
-            <option value="PAID">Đã thanh toán đủ</option>
+            <option value="">Tất cả trạng thái thanh toán</option>
+            {Object.entries(paymentStatusLabels).map(([key, label]) => (
+              <option key={key} value={key}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <select
+            className="flex h-9 w-full rounded-md border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-slate-950 dark:border-slate-800 dark:bg-slate-900"
+            value={channel}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+              setChannel(e.target.value);
+              setPage(1);
+            }}
+          >
+            <option value="">Tất cả kênh bán</option>
+            {Object.entries(channelLabels).map(([key, label]) => (
+              <option key={key} value={key}>
+                {label}
+              </option>
+            ))}
           </select>
         </div>
       </div>
 
-      {/* Table */}
-      <div className="rounded-lg border bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <DataTable
-          columns={columns}
-          data={orders}
-          total={total}
-          page={page}
-          pageSize={pageSize}
-          onPageChange={setPage}
-          isLoading={loading}
-        />
-      </div>
+      <DataTable
+        columns={columns}
+        data={orders}
+        total={total}
+        page={page}
+        pageSize={pageSize}
+        onPageChange={setPage}
+        searchValue={search}
+        onSearchChange={(val) => {
+          setSearch(val);
+          setPage(1);
+        }}
+        searchPlaceholder="Tìm theo mã đơn hoặc tên khách hàng..."
+        isLoading={isLoading}
+      />
     </div>
   );
 }
