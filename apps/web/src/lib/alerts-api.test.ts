@@ -55,6 +55,10 @@ describe('alerts-api', () => {
         label: 'Đến hạn bảo trì',
         variant: 'warning',
       });
+      expect(getAlertTypeInfo('SENSOR_THRESHOLD')).toEqual({
+        label: 'Vượt ngưỡng cảm biến',
+        variant: 'destructive',
+      });
     });
 
     it('returns fallback for unknown alert types', () => {
@@ -66,6 +70,20 @@ describe('alerts-api', () => {
   });
 
   describe('getInventoryLink', () => {
+    it('returns sensor charts link for sensor threshold alert', () => {
+      const alert: AlertItem = {
+        id: 'sn-1',
+        type: 'SENSOR_THRESHOLD',
+        message: 'Cảm biến nhiệt độ vượt ngưỡng',
+        refType: 'Sensor',
+        refId: 'sensor-999',
+        createdAt: '2026-10-16T00:00:00Z',
+      };
+      const link = getInventoryLink(alert);
+      expect(link.href).toBe('/admin/iot/charts?sensorId=sensor-999');
+      expect(link.label).toBe('Xem biểu đồ cảm biến');
+    });
+
     it('returns equipment link for equipment maintenance alert', () => {
       const alert: AlertItem = {
         id: 'eq-1',
