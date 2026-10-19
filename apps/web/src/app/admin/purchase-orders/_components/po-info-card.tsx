@@ -36,7 +36,20 @@ export function POInfoCard({ po }: POInfoCardProps) {
           <p className="font-semibold text-slate-800">{formatDate(po.orderDate)}</p>
 
           <span className="text-xs font-medium text-slate-400 block mt-2">Tổng tiền</span>
-          <p className="text-base font-bold text-emerald-700">{formatCurrency(po.total)}</p>
+          <p className="text-base font-bold text-slate-900">{formatCurrency(po.total)}</p>
+
+          <div className="mt-2 grid grid-cols-2 gap-2">
+            <div>
+              <span className="text-xs font-medium text-slate-400 block">Đã thanh toán</span>
+              <p className="text-sm font-semibold text-emerald-700">{formatCurrency(po.paidAmount || 0)}</p>
+            </div>
+            <div>
+              <span className="text-xs font-medium text-slate-400 block">Còn lại</span>
+              <p className="text-sm font-semibold text-amber-600">
+                {formatCurrency(Math.max(0, Number(po.total) - Number(po.paidAmount || 0)))}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 

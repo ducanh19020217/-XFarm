@@ -8,12 +8,14 @@ import {
   canOrderPO,
   canCancelPO,
   canReceivePO,
+  canPayPO,
   formatCurrency,
   formatDate,
 } from './_components/constants';
 import { POActions } from './_components/po-actions';
 import { POForm, type POFormSubmitData } from './_components/po-form';
 import { POReceiveDialog, type ReceiveSubmitPayload } from './_components/po-receive-dialog';
+import { POPayDialog } from './_components/po-pay-dialog';
 import { POInfoCard } from './_components/po-info-card';
 import { POLinesTable } from './_components/po-lines-table';
 import type {
@@ -113,6 +115,15 @@ describe('Purchase Orders Unit & Component Tests', () => {
       expect(canReceivePO('WORKER')).toBe(false);
       expect(canReceivePO(null)).toBe(false);
     });
+
+    it('canPayPO: OWNER, MANAGER, ACCOUNTANT có quyền trả tiền; SALES, WORKER thì không', () => {
+      expect(canPayPO('OWNER')).toBe(true);
+      expect(canPayPO('MANAGER')).toBe(true);
+      expect(canPayPO('ACCOUNTANT')).toBe(true);
+      expect(canPayPO('SALES')).toBe(false);
+      expect(canPayPO('WORKER')).toBe(false);
+      expect(canPayPO(null)).toBe(false);
+    });
   });
 
   describe('2. Hiển thị StatusBadge', () => {
@@ -158,7 +169,7 @@ describe('Purchase Orders Unit & Component Tests', () => {
       expect(screen.getByText('PO-2026-0001')).toBeDefined();
       expect(screen.getByText('Công ty Giống & Phân bón An Phát')).toBeDefined();
       expect(screen.getByText('Giao hàng giờ hành chính')).toBeDefined();
-      expect(screen.getByText(/1.500.000/)).toBeDefined();
+      expect(screen.getAllByText(/1.500.000/).length).toBeGreaterThanOrEqual(1);
     });
 
     it('POLinesTable tính đúng số lượng còn lại và thành tiền từng dòng', () => {
@@ -425,6 +436,56 @@ describe('Purchase Orders Unit & Component Tests', () => {
       expect(payload.lines).toHaveLength(1);
       expect(payload.lines[0].lineId).toBe('line-1');
       expect(payload.lines[0].quantity).toBe(4);
+    });
+  });
+
+  describe('6. POPayDialog và Nút Trả tiền', () => {
+    it('POActions hiển thị nút Trả tiền cho OWNER/ACCOUNTANT khi đơn chưa hủy', () => {
+      const onPay = vi.fn();
+      render(
+        <POActions
+          status={PurchaseOrderStatus.ORDERED}
+          role="ACCOUNTANT"
+          onOrder={vi.fn()}
+          onCancel={vi.fn()}
+          onReceive={vi.fn()}
+          onPay={onPay}
+        />,
+      );
+
+      const payBtn = screen.getByRole('button', { name: /trả tiền/i });
+      expect(payBtn).toBeDefined();
+      fireEvent.click(payBtn);
+      expect(onPay).toHaveBeenCalledTimes(1);
+    });
+
+    it('POPayDialog hiển thị đúng số tiền còn lại và submit thành công', async () => {
+      const onSubmit = vi.fn();
+      const poToPay: PurchaseOrderDetail = {
+        ...mockPO,
+        total: 1000000,
+        paidAmount: 400000,
+      };
+
+      render(
+        <POPayDialog
+          open={true}
+          onOpenChange={vi.fn()}
+          purchaseOrder={poToPay}
+          onSubmit={onSubmit}
+        />,
+      );
+
+      expect(screen.getByText('Trả tiền đơn mua hàng')).toBeDefined();
+      expect(screen.getByText('Còn lại cần trả:')).toBeDefined();
+
+      const submitBtn = screen.getByRole('button', { name: /xác nhận trả tiền/i });
+      fireEvent.click(submitBtn);
+
+      await waitFor(() => {
+        expect(onSubmit).toHaveBeenCalledTimes(1);
+      });
+      expect(onSubmit.mock.calls[0][0].amount).toBe(600000);
     });
   });
 });

@@ -10,6 +10,7 @@ import { POActions } from '../_components/po-actions';
 import { POInfoCard } from '../_components/po-info-card';
 import { POLinesTable } from '../_components/po-lines-table';
 import { POReceiveDialog, type ReceiveSubmitPayload } from '../_components/po-receive-dialog';
+import { POPayDialog, type POPayPayload } from '../_components/po-pay-dialog';
 import type { PurchaseOrderDetail, WarehouseOption } from '../_components/types';
 
 export default function PurchaseOrderDetailPage() {
@@ -26,6 +27,7 @@ export default function PurchaseOrderDetailPage() {
   const [orderConfirmOpen, setOrderConfirmOpen] = React.useState(false);
   const [cancelConfirmOpen, setCancelConfirmOpen] = React.useState(false);
   const [receiveOpen, setReceiveOpen] = React.useState(false);
+  const [payOpen, setPayOpen] = React.useState(false);
   const [actionSubmitting, setActionSubmitting] = React.useState(false);
 
   const fetchPO = React.useCallback(async () => {
@@ -108,6 +110,24 @@ export default function PurchaseOrderDetailPage() {
     }
   };
 
+  const handlePay = async (payload: POPayPayload) => {
+    if (!po) return;
+    setActionSubmitting(true);
+    try {
+      await apiFetch(`/purchase-orders/${po.id}/pay`, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+      setPayOpen(false);
+      showToast('Trả tiền thành công');
+      await fetchPO();
+    } catch (error) {
+      showToast(error instanceof ApiError ? error.message : 'Không thể trả tiền cho đơn mua hàng');
+    } finally {
+      setActionSubmitting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center p-12 text-slate-500">
@@ -148,6 +168,7 @@ export default function PurchaseOrderDetailPage() {
           onOrder={() => setOrderConfirmOpen(true)}
           onCancel={() => setCancelConfirmOpen(true)}
           onReceive={() => setReceiveOpen(true)}
+          onPay={() => setPayOpen(true)}
         />
       </PageHeader>
 
@@ -187,6 +208,14 @@ export default function PurchaseOrderDetailPage() {
         purchaseOrder={po}
         warehouses={warehouses}
         onSubmit={handleReceive}
+        isSubmitting={actionSubmitting}
+      />
+
+      <POPayDialog
+        open={payOpen}
+        onOpenChange={setPayOpen}
+        purchaseOrder={po}
+        onSubmit={handlePay}
         isSubmitting={actionSubmitting}
       />
     </div>
