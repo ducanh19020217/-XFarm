@@ -101,6 +101,7 @@ async function main() {
       '/pages',
       '/site-settings',
       '/public/products',
+      '/public/orders/lookup?code=SMOKE&phone=0900000000',
       '/public/posts',
       '/public/site-settings',
       '/public/trace/DEMO000001',
