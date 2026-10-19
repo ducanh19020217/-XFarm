@@ -106,12 +106,25 @@ async function main() {
       '/public/trace/DEMO000001',
       '/purchase-orders',
       '/bookings',
+      '/tours',
+      '/public/tours',
     ];
 
     for (const route of routes) {
-      const response = await request(`${baseUrl}${route}`, {
-        headers: { cookie: cookieHeader },
-      });
+      let response: Response | undefined;
+      for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+          response = await request(`${baseUrl}${route}`, {
+            headers: { cookie: cookieHeader },
+          });
+          break;
+        } catch {
+          await new Promise((resolvePromise) => setTimeout(resolvePromise, 1000));
+        }
+      }
+      if (!response) {
+        throw new Error(`Failed to request ${route} after 3 attempts\nServer output:\n${output}`);
+      }
       if (response.status === 404 && route.startsWith('/calendar')) {
         console.log(`SKIP ${route} (404: route chưa có)`);
         continue;

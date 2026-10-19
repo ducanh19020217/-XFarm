@@ -1,54 +1,69 @@
 import { z } from 'zod';
 import { optionalBoolean, optionalDate, optionalString } from './helpers';
 import { paginationSchema } from './pagination';
+import { toVietnamDateString } from './calendar';
 
 export function calculateBatchSlotCount(
-  from: Date,
-  to: Date,
+  from: Date | string,
+  to: Date | string,
   weekdays: number[],
   times: string[],
 ): number {
   const distinctTimes = Array.from(new Set(times));
-  if (from > to || weekdays.length === 0 || distinctTimes.length === 0) return 0;
-  let count = 0;
-  const cur = new Date(from);
-  cur.setHours(0, 0, 0, 0);
-  const end = new Date(to);
-  end.setHours(23, 59, 59, 999);
+  if (weekdays.length === 0 || distinctTimes.length === 0) return 0;
+  const fromStr = toVietnamDateString(from);
+  const toStr = toVietnamDateString(to);
+  if (fromStr > toStr) return 0;
+
+  const [fy, fm, fd] = fromStr.split('-').map(Number);
+  const [ty, tm, td] = toStr.split('-').map(Number);
+  let curTime = Date.UTC(fy, fm - 1, fd);
+  const endTime = Date.UTC(ty, tm - 1, td);
   const weekdaySet = new Set(weekdays);
-  while (cur <= end) {
-    if (weekdaySet.has(cur.getDay())) {
+  let count = 0;
+
+  while (curTime <= endTime) {
+    const curDate = new Date(curTime);
+    if (weekdaySet.has(curDate.getUTCDay())) {
       count += distinctTimes.length;
     }
-    cur.setDate(cur.getDate() + 1);
+    curTime += 24 * 60 * 60 * 1000;
   }
   return count;
 }
 
 export function generateBatchSlotDates(
-  from: Date,
-  to: Date,
+  from: Date | string,
+  to: Date | string,
   weekdays: number[],
   times: string[],
 ): Date[] {
   const distinctTimes = Array.from(new Set(times)).sort();
-  const cur = new Date(from);
-  cur.setHours(0, 0, 0, 0);
-  const end = new Date(to);
-  end.setHours(23, 59, 59, 999);
+  if (weekdays.length === 0 || distinctTimes.length === 0) return [];
+  const fromStr = toVietnamDateString(from);
+  const toStr = toVietnamDateString(to);
+  if (fromStr > toStr) return [];
+
+  const [fy, fm, fd] = fromStr.split('-').map(Number);
+  const [ty, tm, td] = toStr.split('-').map(Number);
+  let curTime = Date.UTC(fy, fm - 1, fd);
+  const endTime = Date.UTC(ty, tm - 1, td);
   const weekdaySet = new Set(weekdays);
   const dates: Date[] = [];
 
-  while (cur <= end) {
-    if (weekdaySet.has(cur.getDay())) {
+  while (curTime <= endTime) {
+    const curDate = new Date(curTime);
+    if (weekdaySet.has(curDate.getUTCDay())) {
+      const y = curDate.getUTCFullYear();
+      const m = curDate.getUTCMonth();
+      const d = curDate.getUTCDate();
       for (const time of distinctTimes) {
         const [hours, minutes] = time.split(':').map(Number);
-        const slotDate = new Date(cur);
-        slotDate.setHours(hours, minutes, 0, 0);
+        const slotDate = new Date(Date.UTC(y, m, d, hours - 7, minutes, 0, 0));
         dates.push(slotDate);
       }
     }
-    cur.setDate(cur.getDate() + 1);
+    curTime += 24 * 60 * 60 * 1000;
   }
   return dates;
 }
@@ -67,7 +82,7 @@ export const updateTourSlotSchema = z.object({
 
 export const batchCreateTourSlotsSchema = z
   .object({
-    tourId: z.string().min(1, 'Tour không được để trống'),
+    tourId: z.string().optional(),
     from: z.coerce.date(),
     to: z.coerce.date(),
     weekdays: z
