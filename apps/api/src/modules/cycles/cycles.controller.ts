@@ -21,6 +21,16 @@ export class CyclesController {
     return { data: await this.cyclesService.findById(id) };
   }
 
+  @Get(':id/labor-cost')
+  @Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT)
+  async getLaborCost(@Param('id') id: string) {
+    const result = await this.cyclesService.getLaborCost(id);
+    return {
+      ...result,
+      data: result,
+    };
+  }
+
   @Post()
   @Roles(Role.OWNER, Role.MANAGER)
   async create(@Body() dto: CreateCycleDto, @CurrentUser('id') userId: string) {

@@ -104,6 +104,7 @@ export const createActivitySchema = z.object({
   notes: z.string().nullable().optional(),
   mediaIds: z.array(z.string()).optional().default([]),
   materials: z.array(activityMaterialSchema).optional(),
+  clientId: z.string().nullable().optional(),
 });
 
 export const updateActivitySchema = createActivitySchema.partial();

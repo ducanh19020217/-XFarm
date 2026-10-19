@@ -110,3 +110,8 @@ Tài liệu này ghi lại các quyết định thiết kế và kỹ thuật qu
 - **Bối cảnh**: Next dev biên dịch động trong lúc test khiến bộ UI gộp dễ timeout/`ERR_ABORTED`; các worktree cần dùng đúng API và cổng web riêng trong `.env` gốc.
 - **Quyết định**: Playwright build web một lần rồi chạy `next start`; Next config và script `dev`/`start` nạp `.env` gốc, lấy cổng từ `WEB_URL`. Client server/public dùng chung một `API_BASE_URL`.
 - **Hệ quả**: UI E2E kiểm tra gần với môi trường production và không tranh cổng mặc định giữa các slot; đổi lại mỗi lượt `test:ui` cần thời gian build.
+
+### DECISION-014: Hợp nhất schema và seed GĐ 3 với GĐ 6
+- **Bối cảnh**: `phase-6-hr` tách từ nền GĐ 2 trong khi `main` đã có schema và seed GĐ 3.
+- **Quyết định**: Giữ nguyên toàn bộ model/migration Harvest, CMS, trace và bổ sung model Employee, Task, Attendance, Payroll cùng các quan hệ cần thiết; seed giữ cả dữ liệu public/CMS/Harvest và HR, đều dùng upsert để chạy lặp lại.
+- **Hệ quả**: Hai nhóm tính năng dùng chung Prisma Client và có thể migrate deploy trên DB trống mà không sửa migration đã phát hành.

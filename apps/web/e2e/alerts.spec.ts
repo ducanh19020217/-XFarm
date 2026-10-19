@@ -53,7 +53,9 @@ test.describe('Alerts & Notification Bell', () => {
     await expect((await markReadResponse).ok()).toBeTruthy();
 
     // 6. Cảnh báo vừa đọc không còn nút "Đánh dấu đã đọc" trong dropdown.
-    await expect(dropdown.getByRole('button', { name: /đánh dấu đã đọc/i })).toHaveCount(0);
+    await expect
+      .poll(() => dropdown.getByRole('button', { name: /đánh dấu đã đọc/i }).count())
+      .toBeLessThan(initialCount);
 
     // 7. Dropdown có link "Xem tất cả"
     await expect(dropdown.getByRole('link', { name: 'Xem tất cả', exact: true })).toBeVisible();

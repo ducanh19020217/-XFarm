@@ -22,19 +22,27 @@ import {
   Menu,
   X,
   Bell,
+  Smartphone,
 } from 'lucide-react';
 import { Button, StatusBadge, Badge } from '@xfarm/ui';
 import { apiFetch, isAbortError } from '@/lib/api';
 import { NotificationBell } from '@/components/alerts/notification-bell';
 import { AdminUserProvider, type AdminUser } from './admin-user-context';
+import { RegisterServiceWorker } from './m/_components/register-sw';
 
 type UserProfile = AdminUser;
+
+interface SubNavItem {
+  title: string;
+  href: string;
+}
 
 interface NavItem {
   title: string;
   href: string;
   icon: React.ElementType;
   isReady?: boolean;
+  children?: SubNavItem[];
 }
 
 const navItems: NavItem[] = [
@@ -113,9 +121,21 @@ const navItems: NavItem[] = [
   },
   {
     title: 'Nhân sự & Chấm công',
-    href: '/admin/hr',
+    href: '/admin/hr/employees',
     icon: Briefcase,
-    isReady: false,
+    isReady: true,
+    children: [
+      { title: 'Nhân viên', href: '/admin/hr/employees' },
+      { title: 'Giao việc', href: '/admin/hr/tasks' },
+      { title: 'Chấm công', href: '/admin/hr/attendance' },
+      { title: 'Bảng lương', href: '/admin/hr/payroll' },
+    ],
+  },
+  {
+    title: 'Ứng dụng công nhân',
+    href: '/admin/m',
+    icon: Smartphone,
+    isReady: true,
   },
   {
     title: 'Thiết bị & IoT',
@@ -134,12 +154,50 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   React.useEffect(() => {
     let isMounted = true;
     const controller = new AbortController();
+
+    const isOffline = typeof navigator !== 'undefined' && !navigator.onLine;
+    if (isOffline) {
+      try {
+        const raw = localStorage.getItem('xfarm_cached_user');
+        if (raw && isMounted) {
+          setUser(JSON.parse(raw));
+          return;
+        }
+      } catch {
+        /* ignore */
+      }
+      if (pathname?.startsWith('/admin/m')) {
+        return;
+      }
+    }
+
     apiFetch<{ data: UserProfile }>('/auth/me', { signal: controller.signal })
       .then((res) => {
-        if (isMounted) setUser(res.data);
+        if (isMounted) {
+          setUser(res.data);
+          try {
+            localStorage.setItem('xfarm_cached_user', JSON.stringify(res.data));
+          } catch {
+            /* ignore */
+          }
+        }
       })
       .catch((error) => {
         if (isAbortError(error)) return;
+        if (typeof navigator !== 'undefined' && !navigator.onLine) {
+          try {
+            const raw = localStorage.getItem('xfarm_cached_user');
+            if (raw && isMounted) {
+              setUser(JSON.parse(raw));
+              return;
+            }
+          } catch {
+            /* ignore */
+          }
+          if (pathname?.startsWith('/admin/m')) {
+            return;
+          }
+        }
         // If auth/me fails, redirect to login
         router.push('/login');
       });
@@ -148,7 +206,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       isMounted = false;
       controller.abort();
     };
-  }, [router]);
+  }, [router, pathname]);
 
   const handleLogout = async () => {
     try {
@@ -179,7 +237,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <nav className="space-y-1">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`);
+            const isChildActive = item.children?.some(
+              (c) => pathname === c.href || pathname?.startsWith(`${c.href}/`),
+            );
+            const isActive =
+              pathname === item.href ||
+              pathname?.startsWith(`${item.href}/`) ||
+              Boolean(isChildActive);
 
             if (!item.isReady) {
               return (
@@ -199,19 +263,42 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             }
 
             return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                  isActive
-                    ? 'bg-emerald-50 text-emerald-700 font-semibold dark:bg-emerald-950/50 dark:text-emerald-400'
-                    : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800'
-                }`}
-              >
-                <Icon className={`h-4 w-4 ${isActive ? 'text-emerald-600' : 'text-slate-500'}`} />
-                <span>{item.title}</span>
-              </Link>
+              <div key={item.href} className="space-y-1">
+                <Link
+                  href={item.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                    isActive
+                      ? 'bg-emerald-50 text-emerald-700 font-semibold dark:bg-emerald-950/50 dark:text-emerald-400'
+                      : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800'
+                  }`}
+                >
+                  <Icon className={`h-4 w-4 ${isActive ? 'text-emerald-600' : 'text-slate-500'}`} />
+                  <span>{item.title}</span>
+                </Link>
+                {item.children && (
+                  <div className="ml-7 space-y-0.5 border-l border-slate-200 pl-2 dark:border-slate-800">
+                    {item.children.map((sub) => {
+                      const isSubActive =
+                        pathname === sub.href || pathname?.startsWith(`${sub.href}/`);
+                      return (
+                        <Link
+                          key={sub.href}
+                          href={sub.href}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className={`block px-2 py-1 text-xs font-medium rounded transition-colors ${
+                            isSubActive
+                              ? 'text-emerald-700 font-semibold bg-emerald-50 dark:bg-emerald-950/50 dark:text-emerald-400'
+                              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800'
+                          }`}
+                        >
+                          {sub.title}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             );
           })}
         </nav>
@@ -234,8 +321,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     </div>
   );
 
+  const isMobileApp = pathname?.startsWith('/admin/m');
+
+  if (isMobileApp) {
+    return (
+      <AdminUserProvider user={user}>
+        <RegisterServiceWorker />
+        {children}
+      </AdminUserProvider>
+    );
+  }
+
   return (
     <AdminUserProvider user={user}>
+      <RegisterServiceWorker />
       <div className="flex min-h-screen bg-slate-50 dark:bg-slate-900">
         {/* Desktop Sidebar */}
         <aside className="hidden w-64 border-r border-slate-200 bg-white md:block dark:border-slate-800 dark:bg-slate-950 print:hidden">

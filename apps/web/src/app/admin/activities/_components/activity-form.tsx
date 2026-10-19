@@ -128,6 +128,11 @@ export interface ActivityFormProps {
   onCancel?: () => void;
 }
 
+function toLocalDatetimeString(date: Date) {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
 export function ActivityForm({
   areas,
   cycles,
@@ -140,7 +145,7 @@ export function ActivityForm({
   const [type, setType] = React.useState<ActivityType>(ActivityType.OTHER);
   const [cycleId, setCycleId] = React.useState(initialCycleId ?? '');
   const [areaId, setAreaId] = React.useState('');
-  const [performedAt, setPerformedAt] = React.useState(() => new Date().toISOString().slice(0, 16));
+  const [performedAt, setPerformedAt] = React.useState(() => toLocalDatetimeString(new Date()));
   const [data, setData] = React.useState<Record<string, any>>({});
   const [materials, setMaterials] = React.useState<FormMaterialRow[]>([]);
   const [fetchedItems, setFetchedItems] = React.useState<AvailableItem[]>([]);

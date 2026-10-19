@@ -8,5 +8,6 @@ import { SequenceModule } from '../../common/sequence/sequence.module';
   imports: [InventoryModule, SequenceModule],
   controllers: [ActivitiesController],
   providers: [ActivitiesService],
+  exports: [ActivitiesService],
 })
 export class ActivitiesModule {}

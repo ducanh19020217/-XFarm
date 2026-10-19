@@ -15,6 +15,7 @@ import {
   AlertCircle,
   RefreshCw,
   FolderTree,
+  QrCode,
 } from 'lucide-react';
 import { Button, StatusBadge, Badge, ConfirmDialog } from '@xfarm/ui';
 import { Role, type CreateAreaInput } from '@xfarm/shared';
@@ -22,6 +23,7 @@ import { apiFetch, ApiError } from '@/lib/api';
 import { AreaItem, AREA_TYPE_LABELS, AREA_TYPE_COLORS } from '@/lib/area-constants';
 import { GeoJsonPolygon } from '@/lib/geojson';
 import { AreaFormDialog } from '@/components/area/area-form-dialog';
+import { AreaQrDialog } from '@/components/area/area-qr-dialog';
 import { DynamicAreaMapEditor } from '@/components/map';
 
 interface UserProfile {
@@ -53,6 +55,9 @@ export default function AreaDetailPage() {
   const [statusDialogOpen, setStatusDialogOpen] = React.useState(false);
   const [statusError, setStatusError] = React.useState<string | null>(null);
   const [isStatusSubmitting, setIsStatusSubmitting] = React.useState(false);
+
+  // QR Dialog state
+  const [qrDialogOpen, setQrDialogOpen] = React.useState(false);
 
   // Map saving state
   const [isMapSaving, setIsMapSaving] = React.useState(false);
@@ -253,48 +258,60 @@ export default function AreaDetailPage() {
           </div>
         </div>
 
-        {/* Nút hành động (ẩn nếu không phải OWNER/MANAGER) */}
-        {canWrite && (
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setFormError(null);
-                setFormOpen(true);
-              }}
-            >
-              <Edit2 className="mr-1.5 h-3.5 w-3.5" />
-              Sửa thông tin
-            </Button>
+        {/* Nút hành động */}
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setQrDialogOpen(true)}
+            title="In tem mã QR khu/lô"
+          >
+            <QrCode className="mr-1.5 h-3.5 w-3.5 text-emerald-600" />
+            In QR khu/lô
+          </Button>
 
-            <Button
-              variant={area.isActive ? 'outline' : 'default'}
-              size="sm"
-              className={
-                area.isActive
-                  ? 'text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950'
-                  : 'bg-emerald-600 text-white hover:bg-emerald-700'
-              }
-              onClick={() => {
-                setStatusError(null);
-                setStatusDialogOpen(true);
-              }}
-            >
-              {area.isActive ? (
-                <>
-                  <Lock className="mr-1.5 h-3.5 w-3.5" />
-                  Khóa khu vực
-                </>
-              ) : (
-                <>
-                  <Unlock className="mr-1.5 h-3.5 w-3.5" />
-                  Mở khóa khu vực
-                </>
-              )}
-            </Button>
-          </div>
-        )}
+          {canWrite && (
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setFormError(null);
+                  setFormOpen(true);
+                }}
+              >
+                <Edit2 className="mr-1.5 h-3.5 w-3.5" />
+                Sửa thông tin
+              </Button>
+
+              <Button
+                variant={area.isActive ? 'outline' : 'default'}
+                size="sm"
+                className={
+                  area.isActive
+                    ? 'text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950'
+                    : 'bg-emerald-600 text-white hover:bg-emerald-700'
+                }
+                onClick={() => {
+                  setStatusError(null);
+                  setStatusDialogOpen(true);
+                }}
+              >
+                {area.isActive ? (
+                  <>
+                    <Lock className="mr-1.5 h-3.5 w-3.5" />
+                    Khóa khu vực
+                  </>
+                ) : (
+                  <>
+                    <Unlock className="mr-1.5 h-3.5 w-3.5" />
+                    Mở khóa khu vực
+                  </>
+                )}
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Main Content Layout */}
@@ -502,6 +519,9 @@ export default function AreaDetailPage() {
           }
         }}
       />
+
+      {/* Dialog In mã QR Khu/Lô */}
+      <AreaQrDialog open={qrDialogOpen} onOpenChange={setQrDialogOpen} area={area} />
     </div>
   );
 }

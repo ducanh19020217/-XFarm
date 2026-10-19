@@ -9,6 +9,9 @@ type DatabaseClient = PrismaClient;
 export async function cleanupDatabase(client: DatabaseClient = defaultPrisma): Promise<void> {
   await client.$transaction(
     async (tx) => {
+      await tx.payroll.deleteMany();
+      await tx.attendance.deleteMany();
+      await tx.task.deleteMany();
       await tx.product.deleteMany();
       await tx.harvestLot.deleteMany();
       await tx.activityMaterial.deleteMany();
@@ -23,7 +26,21 @@ export async function cleanupDatabase(client: DatabaseClient = defaultPrisma): P
       await tx.animalGroup.deleteMany();
       await tx.activity.deleteMany();
       await tx.cycle.deleteMany();
+      // The shared test database can contain IoT rows from another worktree.
+      // Delete them when present so their Area FK does not block production cleanup.
+      await tx.$executeRawUnsafe(`
+        DO $$
+        DECLARE table_name text;
+        BEGIN
+          FOREACH table_name IN ARRAY ARRAY['sensor_readings', 'alerts_rules', 'sensors', 'equipment', 'maintenance_logs', 'maintenance_schedules'] LOOP
+            IF to_regclass(format('public.%I', table_name)) IS NOT NULL THEN
+              EXECUTE format('DELETE FROM %I', table_name);
+            END IF;
+          END LOOP;
+        END $$;
+      `);
       await tx.area.deleteMany();
+      await tx.employee.deleteMany();
       await tx.auditLog.deleteMany();
       await tx.refreshToken.deleteMany();
       await tx.media.deleteMany();
@@ -71,6 +88,9 @@ export async function cleanupInventoryData(
 
 export async function cleanupProductionData(client: DatabaseClient = defaultPrisma): Promise<void> {
   await client.$transaction(async (tx) => {
+    await tx.payroll.deleteMany();
+    await tx.attendance.deleteMany();
+    await tx.task.deleteMany();
     await tx.harvestLot.deleteMany();
     await tx.activityMaterial.deleteMany();
     await tx.stockMove.deleteMany();
@@ -80,8 +100,20 @@ export async function cleanupProductionData(client: DatabaseClient = defaultPris
     await tx.animalGroup.deleteMany();
     await tx.activity.deleteMany();
     await tx.cycle.deleteMany();
+    await tx.$executeRawUnsafe(`
+      DO $$
+      DECLARE table_name text;
+      BEGIN
+        FOREACH table_name IN ARRAY ARRAY['sensor_readings', 'alerts_rules', 'sensors', 'equipment', 'maintenance_logs', 'maintenance_schedules'] LOOP
+          IF to_regclass(format('public.%I', table_name)) IS NOT NULL THEN
+            EXECUTE format('DELETE FROM %I', table_name);
+          END IF;
+        END LOOP;
+      END $$;
+    `);
     await tx.area.updateMany({ data: { parentId: null } });
     await tx.area.deleteMany();
+    await tx.employee.deleteMany();
     await tx.sequence.deleteMany();
   });
 }
