@@ -22,6 +22,14 @@ const sensorPublicSelect = {
   createdAt: true,
   updatedAt: true,
   area: { select: { id: true, code: true, name: true } },
+  readings: {
+    take: 1,
+    orderBy: { recordedAt: 'desc' },
+    select: { value: true, recordedAt: true },
+  },
+  alertRules: {
+    select: { id: true, op: true, threshold: true, isActive: true, cooldownMinutes: true },
+  },
 } satisfies Prisma.SensorSelect;
 
 export function hashSensorKey(key: string) {

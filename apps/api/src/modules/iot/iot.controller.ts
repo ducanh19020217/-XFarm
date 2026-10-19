@@ -22,7 +22,7 @@ export class IotController {
     return this.service.series(query);
   }
   @Get('latest') @Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT, Role.WORKER) latest(
-    @Query('areaId') areaId: string,
+    @Query('areaId') areaId?: string,
   ) {
     return this.service.latest(areaId);
   }
