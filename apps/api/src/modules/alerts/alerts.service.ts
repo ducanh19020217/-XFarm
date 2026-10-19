@@ -49,6 +49,23 @@ export function getVNInventoryCheckBoundaries(referenceDate: Date = new Date()):
   return { todayStart, thirtyDaysLater };
 }
 
+export function getVNMaintenanceCheckBoundaries(referenceDate: Date = new Date()): {
+  todayStart: Date;
+  threeDaysLaterEnd: Date;
+} {
+  const dateKey = getVNDateKey(referenceDate);
+  const [year, month, day] = dateKey.split('-').map(Number);
+  const todayStart = new Date(`${dateKey}T00:00:00.000+07:00`);
+
+  const targetDate = new Date(Date.UTC(year, month - 1, day + 3));
+  const y3 = targetDate.getUTCFullYear();
+  const m3 = String(targetDate.getUTCMonth() + 1).padStart(2, '0');
+  const d3 = String(targetDate.getUTCDate()).padStart(2, '0');
+  const threeDaysLaterEnd = new Date(`${y3}-${m3}-${d3}T23:59:59.999+07:00`);
+
+  return { todayStart, threeDaysLaterEnd };
+}
+
 @Injectable()
 export class AlertsService implements OnModuleInit, OnModuleDestroy {
   private queue: Queue | null = null;
@@ -76,12 +93,19 @@ export class AlertsService implements OnModuleInit, OnModuleDestroy {
         pattern: '0 6 * * *',
         tz: 'Asia/Ho_Chi_Minh',
       });
+      await this.queue.upsertJobScheduler('maintenance-daily-check', {
+        pattern: '0 6 * * *',
+        tz: 'Asia/Ho_Chi_Minh',
+      });
 
       this.worker = new Worker(
         'inventory-alerts',
         async (job) => {
           if (job.name === 'inventory-daily-check' || job.name === 'inventory-check') {
             await this.runInventoryCheck();
+          }
+          if (job.name === 'maintenance-daily-check' || job.name === 'maintenance-check') {
+            await this.runMaintenanceCheck();
           }
         },
         { connection },
@@ -289,6 +313,54 @@ export class AlertsService implements OnModuleInit, OnModuleDestroy {
       expiringCount,
       expiredCount,
       totalAlertsCreated: lowStockCount + expiringCount + expiredCount,
+    };
+  }
+
+  async runMaintenanceCheck(referenceDate: Date = new Date()) {
+    const { threeDaysLaterEnd } = getVNMaintenanceCheckBoundaries(referenceDate);
+
+    const schedules = await prisma.maintenanceSchedule.findMany({
+      where: {
+        isActive: true,
+        nextDueDate: { lte: threeDaysLaterEnd },
+        equipment: {
+          isActive: true,
+        },
+      },
+      include: {
+        equipment: {
+          select: {
+            id: true,
+            code: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    let dueCount = 0;
+    for (const schedule of schedules) {
+      const dueDateKey = getVNDateKey(schedule.nextDueDate);
+      const dedupeKey = `maint:${schedule.id}:${dueDateKey}`;
+      const message = `Lịch bảo trì "${schedule.name}" của thiết bị "${schedule.equipment.name}" (${schedule.equipment.code}) đến hạn vào ngày ${formatVNDate(schedule.nextDueDate)}`;
+
+      await prisma.alert.upsert({
+        where: { dedupeKey },
+        create: {
+          type: 'MAINTENANCE_DUE',
+          message,
+          refType: 'EQUIPMENT',
+          refId: schedule.equipment.id,
+          dedupeKey,
+        },
+        update: {},
+      });
+      dueCount++;
+    }
+
+    return {
+      dueCount,
+      totalAlertsCreated: dueCount,
     };
   }
 

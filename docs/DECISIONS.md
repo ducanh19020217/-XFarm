@@ -110,3 +110,11 @@ Tài liệu này ghi lại các quyết định thiết kế và kỹ thuật qu
 - **Bối cảnh**: Next dev biên dịch động trong lúc test khiến bộ UI gộp dễ timeout/`ERR_ABORTED`; các worktree cần dùng đúng API và cổng web riêng trong `.env` gốc.
 - **Quyết định**: Playwright build web một lần rồi chạy `next start`; Next config và script `dev`/`start` nạp `.env` gốc, lấy cổng từ `WEB_URL`. Client server/public dùng chung một `API_BASE_URL`.
 - **Hệ quả**: UI E2E kiểm tra gần với môi trường production và không tranh cổng mặc định giữa các slot; đổi lại mỗi lượt `test:ui` cần thời gian build.
+
+---
+
+### DECISION-014: Phân quyền ghi nhật ký bảo trì cho vai trò WORKER
+- **Bối cảnh**: Yêu cầu nghiệp vụ Giai đoạn 7 chỉ định nhân viên (WORKER) chỉ ghi được nhật ký bảo trì cho thiết bị thuộc khu vực do mình phụ trách ("thiết bị khu mình"). Tuy nhiên, ở giai đoạn hiện tại (GĐ 7), mô hình dữ liệu `User` chưa có trường liên kết khu vực (`areaId`) hoặc bảng phân công khu vực cho nhân sự (tính năng thuộc phân hệ Nhân sự & Chấm công GĐ 6).
+- **Quyết định**: Cho phép người dùng vai trò `WORKER` được phép xem thiết bị và tạo bản ghi nhật ký bảo trì (`POST /equipment/:id/maintenance-logs` và `POST /maintenance-logs`) cho mọi thiết bị đang hoạt động.
+- **Hệ quả**: Đảm bảo luồng vận hành thiết bị và ghi nhận sửa chữa, bảo dưỡng không bị gián đoạn. Khi phân hệ Nhân sự (gán khu vực làm việc cho nhân viên) được hoàn thiện ở các giai đoạn tiếp theo, bộ lọc kiểm tra quyền theo khu vực của Worker sẽ được bổ sung vào `MaintenanceService` mà không làm thay đổi hợp đồng API.
+
