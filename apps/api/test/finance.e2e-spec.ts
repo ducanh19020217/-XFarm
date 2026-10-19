@@ -86,12 +86,22 @@ describe('Finance E2E Tests (Categories, Transactions, Payments, PO Pay, Receiva
     await prisma.financeCategory.upsert({
       where: { systemKey: 'SALES' },
       update: { name: 'Bán hàng', type: TransactionType.INCOME, isActive: true },
-      create: { name: 'Bán hàng', type: TransactionType.INCOME, systemKey: 'SALES', isActive: true },
+      create: {
+        name: 'Bán hàng',
+        type: TransactionType.INCOME,
+        systemKey: 'SALES',
+        isActive: true,
+      },
     });
     await prisma.financeCategory.upsert({
       where: { systemKey: 'PURCHASE' },
       update: { name: 'Mua vật tư', type: TransactionType.EXPENSE, isActive: true },
-      create: { name: 'Mua vật tư', type: TransactionType.EXPENSE, systemKey: 'PURCHASE', isActive: true },
+      create: {
+        name: 'Mua vật tư',
+        type: TransactionType.EXPENSE,
+        systemKey: 'PURCHASE',
+        isActive: true,
+      },
     });
 
     // 4. Compile Nest Application
@@ -153,9 +163,9 @@ describe('Finance E2E Tests (Categories, Transactions, Payments, PO Pay, Receiva
         .get('/api/v1/finance-categories/tree?type=EXPENSE')
         .set('Cookie', accountantCookies);
       expect(res.status).toBe(200);
-      const parentInTree = (res.body.data as CategoryTreeNode[]).find(c => c.id === parentCatId);
+      const parentInTree = (res.body.data as CategoryTreeNode[]).find((c) => c.id === parentCatId);
       expect(parentInTree).toBeDefined();
-      expect(parentInTree!.children.some(c => c.id === childCatId)).toBe(true);
+      expect(parentInTree!.children.some((c) => c.id === childCatId)).toBe(true);
     });
 
     it('rejects circular parent assignment with 422', async () => {
@@ -403,6 +413,38 @@ describe('Finance E2E Tests (Categories, Transactions, Payments, PO Pay, Receiva
       expect(res.status).toBe(422);
     });
 
+    it('locks the order so two concurrent full payments only succeed once', async () => {
+      const raceOrder = await prisma.salesOrder.create({
+        data: {
+          code: 'SO-RACE-PAY-01',
+          customerId,
+          channel: 'ADMIN',
+          status: 'CONFIRMED',
+          paymentStatus: 'UNPAID',
+          paymentMethod: 'CASH',
+          shippingAddress: 'Hà Nội',
+          subtotal: new Prisma.Decimal(300000),
+          discount: new Prisma.Decimal(0),
+          shippingFee: new Prisma.Decimal(0),
+          total: new Prisma.Decimal(300000),
+        },
+      });
+
+      const pay = () =>
+        request(app.getHttpServer())
+          .post(`/api/v1/sales-orders/${raceOrder.id}/payments`)
+          .set('Cookie', accountantCookies)
+          .send({ amount: 300000, method: 'CASH' });
+      const results = await Promise.all([pay(), pay()]);
+      const statuses = results.map((r) => r.status).sort();
+      expect(statuses).toEqual([201, 422]);
+
+      const payments = await prisma.payment.findMany({ where: { orderId: raceOrder.id } });
+      expect(payments).toHaveLength(1);
+      const order = await prisma.salesOrder.findUnique({ where: { id: raceOrder.id } });
+      expect(order?.paymentStatus).toBe('PAID');
+    });
+
     it('rejects paying a CANCELLED order with 422', async () => {
       const cancelledOrder = await prisma.salesOrder.create({
         data: {
@@ -628,13 +670,13 @@ describe('Finance E2E Tests (Categories, Transactions, Payments, PO Pay, Receiva
       expect(res.status).toBe(200);
 
       const customerDebt = (res.body.data.byCustomer as CustomerReceivableItem[]).find(
-        c => c.customerId === overdueCustomerId,
+        (c) => c.customerId === overdueCustomerId,
       );
       expect(customerDebt).toBeDefined();
       expect(customerDebt!.debt).toBe(800000);
 
       const orderDebt = (res.body.data.byOrder as OrderReceivableItem[]).find(
-        o => o.customerId === overdueCustomerId,
+        (o) => o.customerId === overdueCustomerId,
       );
       expect(orderDebt).toBeDefined();
       expect(orderDebt!.isOverdue).toBe(true);

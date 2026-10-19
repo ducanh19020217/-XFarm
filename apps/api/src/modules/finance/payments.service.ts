@@ -78,6 +78,10 @@ export class PaymentsService {
 
   async addSalesOrderPayment(orderId: string, dto: CreatePaymentDto, userId?: string) {
     return prisma.$transaction(async (tx) => {
+      // Khóa đơn để 2 lượt thu đồng thời không cùng vượt tổng tiền
+      await tx.$queryRaw(
+        Prisma.sql`SELECT id FROM "sales_orders" WHERE id = ${orderId} FOR UPDATE`,
+      );
       const order = await tx.salesOrder.findUnique({
         where: { id: orderId },
       });

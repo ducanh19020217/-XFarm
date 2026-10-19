@@ -530,6 +530,8 @@ export class PurchaseOrdersService {
 
   async pay(id: string, dto: PayPurchaseOrderDto, userId?: string) {
     return prisma.$transaction(async (tx) => {
+      // Khóa PO để 2 lượt trả đồng thời không cùng vượt tổng tiền
+      await tx.$queryRaw(Prisma.sql`SELECT id FROM "purchase_orders" WHERE id = ${id} FOR UPDATE`);
       const po = await tx.purchaseOrder.findUnique({
         where: { id },
         include: {
