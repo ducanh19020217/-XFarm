@@ -10,6 +10,9 @@ export async function cleanupDatabase(client: DatabaseClient = defaultPrisma): P
   await client.$transaction(
     async (tx) => {
       await tx.payment.deleteMany();
+      await tx.booking.deleteMany();
+      await tx.tourSlot.deleteMany();
+      await tx.tour.deleteMany();
       await tx.salesOrderLine.deleteMany();
       await tx.salesOrder.deleteMany();
       await tx.customer.deleteMany();
