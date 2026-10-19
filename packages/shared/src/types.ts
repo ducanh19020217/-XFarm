@@ -164,6 +164,44 @@ export const PAYROLL_STATUS_LABELS: Record<PayrollStatus, string> = {
   [PayrollStatus.PAID]: 'Đã thanh toán',
 };
 
+export enum CustomerType {
+  RETAIL = 'RETAIL',
+  WHOLESALE = 'WHOLESALE',
+  AGENT = 'AGENT',
+}
+
+export enum SalesChannel {
+  ADMIN = 'ADMIN',
+  WEBSHOP = 'WEBSHOP',
+}
+
+export enum SalesOrderStatus {
+  PENDING = 'PENDING',
+  CONFIRMED = 'CONFIRMED',
+  PACKING = 'PACKING',
+  SHIPPING = 'SHIPPING',
+  COMPLETED = 'COMPLETED',
+  CANCELLED = 'CANCELLED',
+}
+
+export enum PaymentStatus {
+  UNPAID = 'UNPAID',
+  PARTIAL = 'PARTIAL',
+  PAID = 'PAID',
+}
+
+export enum PaymentMethod {
+  COD = 'COD',
+  BANK_TRANSFER = 'BANK_TRANSFER',
+  CASH = 'CASH',
+  VNPAY = 'VNPAY',
+}
+
+export enum TransactionType {
+  INCOME = 'INCOME',
+  EXPENSE = 'EXPENSE',
+}
+
 export interface Paginated<T> {
   data: T[];
   total: number;

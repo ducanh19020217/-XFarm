@@ -26,3 +26,8 @@ export * from './schemas/attendance';
 export * from './schemas/payroll';
 export * from './schemas/sync';
 export * from './types';
+export * from './schemas/customer';
+export * from './schemas/sales-order';
+export * from './schemas/webshop';
+export * from './schemas/payment';
+export * from './schemas/finance';

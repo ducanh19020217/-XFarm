@@ -21,6 +21,7 @@ import {
   UpdatePurchaseOrderDto,
   ReceivePurchaseOrderDto,
   QueryPurchaseOrderDto,
+  PayPurchaseOrderDto,
 } from './purchase-orders.dto';
 
 @ApiTags('purchase-orders')
@@ -137,6 +138,27 @@ export class PurchaseOrdersController {
   })
   async receive(@Param('id') id: string, @Body() dto: ReceivePurchaseOrderDto) {
     const po = await this.purchaseOrdersService.receive(id, dto);
+    return { data: po };
+  }
+
+  @Post(':id/pay')
+  @HttpCode(HttpStatus.OK)
+  @Roles(Role.OWNER, Role.MANAGER, Role.ACCOUNTANT)
+  @ApiOperation({ summary: 'Thanh toán tiền cho đơn mua hàng' })
+  @ApiResponse({ status: 200, description: 'Thanh toán thành công' })
+  @ApiResponse({ status: 400, description: 'Dữ liệu không hợp lệ' })
+  @ApiResponse({ status: 403, description: 'Không có quyền truy cập' })
+  @ApiResponse({ status: 404, description: 'Không tìm thấy đơn mua hàng' })
+  @ApiResponse({
+    status: 422,
+    description: 'Thanh toán vượt giá trị đơn mua hoặc trạng thái không hợp lệ',
+  })
+  async pay(
+    @Param('id') id: string,
+    @Body() dto: PayPurchaseOrderDto,
+    @CurrentUser('id') userId?: string,
+  ) {
+    const po = await this.purchaseOrdersService.pay(id, dto, userId);
     return { data: po };
   }
 }

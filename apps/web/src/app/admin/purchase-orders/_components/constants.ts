@@ -28,6 +28,11 @@ export function canReceivePO(role?: string | null): boolean {
   return role === 'OWNER' || role === 'MANAGER';
 }
 
+export function canPayPO(role?: string | null): boolean {
+  if (!role) return false;
+  return role === 'OWNER' || role === 'MANAGER' || role === 'ACCOUNTANT';
+}
+
 export function formatCurrency(amount: number | string | null | undefined): string {
   if (amount === null || amount === undefined || amount === '') return '0 ₫';
   const num = typeof amount === 'number' ? amount : Number(amount);

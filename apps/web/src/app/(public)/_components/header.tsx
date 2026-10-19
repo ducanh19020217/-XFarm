@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Sprout } from 'lucide-react';
+import { Menu, X, Sprout, ShoppingCart } from 'lucide-react';
 import type { PublicSiteSettings } from '@/lib/public-api';
+import { useCart } from '@/lib/cart';
 
 interface HeaderProps {
   settings?: PublicSiteSettings;
@@ -21,6 +22,7 @@ const NAV_ITEMS = [
 export function Header({ settings }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const { totalCount, isLoaded } = useCart();
 
   const farmName = settings?.['farm.name'] || 'XFarm – Nông trại sinh thái';
 
@@ -46,32 +48,68 @@ export function Header({ settings }: HeaderProps) {
             </div>
           </Link>
 
-          {/* Desktop Navigation */}
-          <nav aria-label="Menu chính" className="hidden md:flex items-center gap-1 lg:gap-2">
-            {NAV_ITEMS.map((item) => {
-              const isActive =
-                item.href === '/'
-                  ? pathname === '/'
-                  : pathname === item.href || pathname.startsWith(`${item.href}/`);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-emerald-500 ${
-                    isActive
-                      ? 'bg-emerald-50 text-emerald-800 font-semibold'
-                      : 'text-slate-700 hover:text-emerald-700 hover:bg-slate-100/80'
-                  }`}
-                  aria-current={isActive ? 'page' : undefined}
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
-          </nav>
+          {/* Desktop Navigation & Cart */}
+          <div className="hidden md:flex items-center gap-2 lg:gap-3">
+            <nav aria-label="Menu chính" className="flex items-center gap-1 lg:gap-2">
+              {NAV_ITEMS.map((item) => {
+                const isActive =
+                  item.href === '/'
+                    ? pathname === '/'
+                    : pathname === item.href || pathname.startsWith(`${item.href}/`);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-emerald-500 ${
+                      isActive
+                        ? 'bg-emerald-50 text-emerald-800 font-semibold'
+                        : 'text-slate-700 hover:text-emerald-700 hover:bg-slate-100/80'
+                    }`}
+                    aria-current={isActive ? 'page' : undefined}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </nav>
 
-          {/* Mobile menu toggle */}
-          <div className="flex md:hidden">
+            <Link
+              href="/gio-hang"
+              data-testid="cart-header-btn"
+              className="relative p-2 ml-1 rounded-lg text-slate-700 hover:text-emerald-700 hover:bg-slate-100/80 transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-emerald-500 flex items-center justify-center"
+              aria-label={`Giỏ hàng${totalCount > 0 ? ` (${totalCount} sản phẩm)` : ''}`}
+            >
+              <ShoppingCart
+                className="w-5 h-5 sm:w-6 sm:h-6 text-slate-700 hover:text-emerald-700"
+                aria-hidden="true"
+              />
+              {isLoaded && totalCount > 0 && (
+                <span
+                  data-testid="cart-badge-count"
+                  className="absolute -top-1 -right-1 bg-emerald-600 text-white text-[11px] font-bold rounded-full min-w-5 h-5 px-1 flex items-center justify-center shadow-xs"
+                >
+                  {totalCount > 99 ? '99+' : totalCount}
+                </span>
+              )}
+            </Link>
+          </div>
+
+          {/* Mobile Cart & menu toggle */}
+          <div className="flex md:hidden items-center gap-1.5">
+            <Link
+              href="/gio-hang"
+              data-testid="cart-header-mobile-btn"
+              className="relative p-2 rounded-lg text-slate-700 hover:text-emerald-700 hover:bg-slate-100 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-emerald-500 flex items-center justify-center"
+              aria-label={`Giỏ hàng${totalCount > 0 ? ` (${totalCount} sản phẩm)` : ''}`}
+            >
+              <ShoppingCart className="w-6 h-6 text-slate-700" aria-hidden="true" />
+              {isLoaded && totalCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-emerald-600 text-white text-[10px] font-bold rounded-full min-w-4.5 h-4.5 px-1 flex items-center justify-center shadow-xs">
+                  {totalCount > 99 ? '99+' : totalCount}
+                </span>
+              )}
+            </Link>
+
             <button
               type="button"
               onClick={() => setMobileMenuOpen((open) => !open)}
@@ -114,6 +152,25 @@ export function Header({ settings }: HeaderProps) {
                 </Link>
               );
             })}
+            <Link
+              href="/gio-hang"
+              onClick={() => setMobileMenuOpen(false)}
+              className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-base font-medium transition-colors ${
+                pathname === '/gio-hang'
+                  ? 'bg-emerald-50 text-emerald-800 font-semibold'
+                  : 'text-slate-700 hover:text-emerald-700 hover:bg-slate-50'
+              }`}
+            >
+              <span className="flex items-center gap-2">
+                <ShoppingCart className="w-5 h-5" aria-hidden="true" />
+                <span>Giỏ hàng</span>
+              </span>
+              {isLoaded && totalCount > 0 && (
+                <span className="bg-emerald-600 text-white text-xs font-bold rounded-full px-2 py-0.5">
+                  {totalCount}
+                </span>
+              )}
+            </Link>
           </nav>
         </div>
       )}

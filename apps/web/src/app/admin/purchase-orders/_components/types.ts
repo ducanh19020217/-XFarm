@@ -52,6 +52,7 @@ export interface PurchaseOrderItem {
   status: PurchaseOrderStatus;
   orderDate: string;
   total: number | string;
+  paidAmount?: number | string;
   notes?: string | null;
   createdAt?: string;
   updatedAt?: string;

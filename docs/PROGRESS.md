@@ -238,3 +238,10 @@ pnpm --filter @xfarm/web lighthouse
 
 ### 2. Điểm còn lại
 - Nghiệm thu đầy đủ sau merge được ghi ở marker `.agenthub/DONE`; nếu môi trường hoặc dịch vụ ngoài repo làm lệnh thất bại, ghi rõ lệnh và nguyên nhân tại đó.
+
+## Tích hợp GĐ 4 vào main – ĐANG NGHIỆM THU
+
+- Hợp nhất bán hàng, webshop, tài chính, báo cáo và các migration của GĐ4 với HR/GĐ6, CMS, truy xuất và website công khai.
+- Giữ đủ module/route smoke, cleanup FK, schema và seed của hai nhánh; seed thêm danh mục tài chính, khách hàng mẫu và cấu hình VietQR idempotent.
+- Báo cáo giá thành Cycle gọi lại logic `CyclesService.getLaborCost()` của GĐ6; chi phí Attendance gắn `cycleId` được cộng vào `laborCost`, `totalCost`, `profit` và `costDetails`.
+- Đã bổ sung e2e xác nhận chấm công 8 giờ theo đơn giá ngày 300.000 làm tổng giá thành tăng tương ứng.

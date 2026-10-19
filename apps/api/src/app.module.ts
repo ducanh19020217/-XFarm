@@ -26,6 +26,11 @@ import { TasksModule } from './modules/tasks/tasks.module';
 import { AttendanceModule } from './modules/attendance/attendance.module';
 import { PayrollsModule } from './modules/payrolls/payrolls.module';
 import { SyncModule } from './modules/sync/sync.module';
+import { WebshopModule } from './modules/webshop/webshop.module';
+import { FinanceModule } from './modules/finance/finance.module';
+import { CustomersModule } from './modules/customers/customers.module';
+import { SalesOrdersModule } from './modules/sales-orders/sales-orders.module';
+import { ReportsModule } from './modules/reports/reports.module';
 import { SequenceModule } from './common/sequence/sequence.module';
 
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
@@ -65,6 +70,11 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
     AttendanceModule,
     PayrollsModule,
     SyncModule,
+    WebshopModule,
+    FinanceModule,
+    CustomersModule,
+    SalesOrdersModule,
+    ReportsModule,
   ],
   providers: [
     {
