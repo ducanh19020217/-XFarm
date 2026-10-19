@@ -122,14 +122,16 @@ test.describe('IoT Sensors & Charts Flow', () => {
     ).toBeVisible({ timeout: 15_000 });
 
     // Thấy biểu đồ của sensor vừa tạo
-    await expect(page.getByText(sensorName)).toBeVisible({ timeout: 15_000 });
+    await expect(
+      page.getByRole('heading', { name: sensorName }),
+    ).toBeVisible({ timeout: 15_000 });
     await expect(page.getByTestId('sensor-charts-container')).toBeVisible({
       timeout: 15_000,
     });
 
     // Thấy giá trị vừa gửi hiển thị trên card (38.5 hoặc 38,5)
     await expect(
-      page.getByText('38.5 °C').or(page.getByText('38,5 °C')),
+      page.getByText('38.5 °C').or(page.getByText('38,5 °C')).first(),
     ).toBeVisible({ timeout: 15_000 });
 
     errors.assertClean();
