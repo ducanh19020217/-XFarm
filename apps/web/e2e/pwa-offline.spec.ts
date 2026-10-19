@@ -55,13 +55,14 @@ test.describe('PWA Offline IndexedDB Queue & Idempotent Auto-Sync (p6-pwa-offlin
     const note1 = `Nhật ký offline 1 - Tưới nước ${runId}`;
     const note2 = `Nhật ký offline 2 - Bón phân ${runId}`;
 
-    // 4. Ghi nhật ký nhanh lần 1 khi offline
+    // 4. Ghi nhật ký nhanh lần 1 khi offline (Tưới nước: điền bắt buộc thời gian tưới 20 phút)
     await expect(areaSelect).toBeEnabled();
     await areaSelect.click();
     const firstAreaOption = page.locator('div[role="option"]').first();
     await expect(firstAreaOption).toBeVisible();
     await firstAreaOption.click();
 
+    await page.locator('input[name="durationMin"]').fill('20');
     await page.locator('textarea').fill(note1);
     await page.getByRole('button', { name: /lưu nhật ký/i }).click();
 
@@ -69,7 +70,7 @@ test.describe('PWA Offline IndexedDB Queue & Idempotent Auto-Sync (p6-pwa-offlin
     await expect(page).toHaveURL(/\/admin\/m/);
     await expect(page.getByText(/1 thao tác chờ/i)).toBeVisible();
 
-    // 5. Ghi nhật ký nhanh lần 2 khi offline
+    // 5. Ghi nhật ký nhanh lần 2 khi offline (Bón phân)
     await page.goto('/admin/m/quick-log');
     await expect(page.getByRole('heading', { name: /ghi nhanh nhật ký/i })).toBeVisible();
 
@@ -79,6 +80,7 @@ test.describe('PWA Offline IndexedDB Queue & Idempotent Auto-Sync (p6-pwa-offlin
     await expect(secondAreaOption).toBeVisible();
     await secondAreaOption.click();
 
+    await page.getByRole('button', { name: /bón phân/i }).click();
     await page.locator('textarea').fill(note2);
     await page.getByRole('button', { name: /lưu nhật ký/i }).click();
 

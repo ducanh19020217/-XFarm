@@ -15,15 +15,18 @@ import {
   SelectValue,
   Input,
 } from '@xfarm/ui';
-import { ActivityType } from '@xfarm/shared';
+import { ActivityType, activityDataSchemas } from '@xfarm/shared';
 import { mobileApi, type QuickActivityPayload } from '@/lib/mobile-api';
 import type { AreaOption, CycleOption } from '@/app/admin/hr/common/types';
 
 const popularActivityTypes: { type: ActivityType; label: string; icon: string }[] = [
   { type: ActivityType.IRRIGATION, label: 'Tưới nước', icon: '🚿' },
+  { type: ActivityType.FEEDING, label: 'Cho ăn', icon: '🌾' },
   { type: ActivityType.FERTILIZING, label: 'Bón phân', icon: '🧪' },
   { type: ActivityType.SPRAYING, label: 'Phun thuốc', icon: '💧' },
-  { type: ActivityType.FEEDING, label: 'Cho ăn', icon: '🌾' },
+  { type: ActivityType.WEIGHING, label: 'Cân mẫu', icon: '⚖️' },
+  { type: ActivityType.MORTALITY, label: 'Hao hụt', icon: '⚠️' },
+  { type: ActivityType.STOCKING, label: 'Thả giống', icon: '🐟' },
   { type: ActivityType.PRUNING, label: 'Tỉa cành', icon: '✂️' },
   { type: ActivityType.HARVEST, label: 'Thu hoạch', icon: '🧺' },
   { type: ActivityType.CLEANING, label: 'Vệ sinh', icon: '🧹' },
@@ -46,9 +49,40 @@ function QuickLogContent() {
   const [selectedAreaId, setSelectedAreaId] = React.useState<string>(initialAreaId);
   const [selectedCycleId, setSelectedCycleId] = React.useState<string>('NONE');
   const [selectedType, setSelectedType] = React.useState<ActivityType>(ActivityType.IRRIGATION);
-  const [metricValue, setMetricValue] = React.useState<string>('');
-  const [metricUnit, setMetricUnit] = React.useState<string>('lít');
+
+  // Type-specific field states
+  // Tưới nước
+  const [durationMin, setDurationMin] = React.useState<string>('');
+  const [volumeL, setVolumeL] = React.useState<string>('');
+
+  // Cho ăn
+  const [feedKg, setFeedKg] = React.useState<string>('');
+
+  // Cân mẫu
+  const [avgWeightKg, setAvgWeightKg] = React.useState<string>('');
+  const [sampleSize, setSampleSize] = React.useState<string>('');
+
+  // Hao hụt / Chết
+  const [mortalityCount, setMortalityCount] = React.useState<string>('');
+  const [mortalityCause, setMortalityCause] = React.useState<string>('');
+
+  // Thả giống
+  const [stockingCount, setStockingCount] = React.useState<string>('');
+  const [stockingAvgWeightG, setStockingAvgWeightG] = React.useState<string>('');
+
+  // Bón phân & Phun thuốc
+  const [chemicalProduct, setChemicalProduct] = React.useState<string>('');
+  const [chemicalDosage, setChemicalDosage] = React.useState<string>('');
+
+  // Hoạt động thông thường khác
+  const [genericValue, setGenericValue] = React.useState<string>('');
+  const [genericUnit, setGenericUnit] = React.useState<string>('lít');
+
+  // Ghi chú chung
   const [notes, setNotes] = React.useState<string>('');
+
+  // Validation errors
+  const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>({});
 
   // Camera / photo state
   const [photoFile, setPhotoFile] = React.useState<File | null>(null);
@@ -92,21 +126,22 @@ function QuickLogContent() {
 
   // Adjust default unit when activity type changes
   React.useEffect(() => {
+    setFieldErrors({});
     switch (selectedType) {
       case ActivityType.IRRIGATION:
-        setMetricUnit('lít');
+        setGenericUnit('lít');
         break;
       case ActivityType.FERTILIZING:
       case ActivityType.SPRAYING:
-        setMetricUnit('kg/lọ');
+        setGenericUnit('kg/lọ');
         break;
       case ActivityType.FEEDING:
       case ActivityType.HARVEST:
       case ActivityType.WEIGHING:
-        setMetricUnit('kg');
+        setGenericUnit('kg');
         break;
       default:
-        setMetricUnit('số lượng');
+        setGenericUnit('số lượng');
         break;
     }
   }, [selectedType]);
@@ -133,10 +168,107 @@ function QuickLogContent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedAreaId) {
+      setFieldErrors((prev) => ({ ...prev, areaId: 'Vui lòng chọn khu/lô thực hiện!' }));
       showToast('Vui lòng chọn khu/lô thực hiện!');
       return;
     }
 
+    // Chuẩn bị dữ liệu đặc thù theo loại hoạt động
+    const activityData: Record<string, unknown> = {};
+    let finalQuantity: number | undefined;
+    let finalUnit: string | undefined;
+
+    if (selectedType === ActivityType.IRRIGATION) {
+      if (durationMin.trim()) {
+        const num = Number(durationMin.trim());
+        if (!isNaN(num)) activityData.durationMin = num;
+      }
+      if (volumeL.trim()) {
+        const num = Number(volumeL.trim());
+        if (!isNaN(num)) activityData.volumeL = num;
+      }
+      finalQuantity = activityData.durationMin as number | undefined;
+      finalUnit = 'phút';
+    } else if (selectedType === ActivityType.FEEDING) {
+      if (feedKg.trim()) {
+        const num = Number(feedKg.trim());
+        if (!isNaN(num)) activityData.feedKg = num;
+      }
+      finalQuantity = activityData.feedKg as number | undefined;
+      finalUnit = 'kg';
+    } else if (selectedType === ActivityType.WEIGHING) {
+      if (avgWeightKg.trim()) {
+        const num = Number(avgWeightKg.trim());
+        if (!isNaN(num)) activityData.avgWeightKg = num;
+      }
+      if (sampleSize.trim()) {
+        const num = Number(sampleSize.trim());
+        if (!isNaN(num)) activityData.sampleSize = num;
+      }
+      finalQuantity = activityData.avgWeightKg as number | undefined;
+      finalUnit = 'kg';
+    } else if (selectedType === ActivityType.MORTALITY) {
+      if (mortalityCount.trim()) {
+        const num = Number(mortalityCount.trim());
+        if (!isNaN(num)) activityData.count = num;
+      }
+      if (mortalityCause.trim()) {
+        activityData.cause = mortalityCause.trim();
+      }
+      finalQuantity = activityData.count as number | undefined;
+      finalUnit = 'con';
+    } else if (selectedType === ActivityType.STOCKING) {
+      if (stockingCount.trim()) {
+        const num = Number(stockingCount.trim());
+        if (!isNaN(num)) activityData.count = num;
+      }
+      if (stockingAvgWeightG.trim()) {
+        const num = Number(stockingAvgWeightG.trim());
+        if (!isNaN(num)) activityData.avgWeightG = num;
+      }
+      finalQuantity = activityData.count as number | undefined;
+      finalUnit = 'con';
+    } else if (
+      selectedType === ActivityType.FERTILIZING ||
+      selectedType === ActivityType.SPRAYING
+    ) {
+      if (chemicalProduct.trim()) {
+        activityData.product = chemicalProduct.trim();
+      }
+      if (chemicalDosage.trim()) {
+        activityData.dosage = chemicalDosage.trim();
+      }
+    } else {
+      if (genericValue.trim()) {
+        const num = Number(genericValue.trim());
+        if (!isNaN(num)) {
+          finalQuantity = num;
+          finalUnit = genericUnit.trim() || undefined;
+        }
+      }
+    }
+
+    // Validate dữ liệu theo schema từ @xfarm/shared (dùng chung, không viết lại quy tắc ở web)
+    const schema = activityDataSchemas[selectedType];
+    if (schema) {
+      const parseResult = schema.safeParse(activityData);
+      if (!parseResult.success) {
+        const errors: Record<string, string> = {};
+        for (const issue of parseResult.error.issues) {
+          const key = issue.path[0] ? String(issue.path[0]) : 'general';
+          if (!errors[key]) {
+            errors[key] = issue.message;
+          }
+        }
+        setFieldErrors(errors);
+        const firstMessage =
+          parseResult.error.issues[0]?.message || 'Vui lòng điền đủ các thông tin bắt buộc!';
+        showToast(firstMessage);
+        return;
+      }
+    }
+
+    setFieldErrors({});
     setIsSubmitting(true);
     try {
       const clientId = crypto.randomUUID?.() || String(Date.now());
@@ -153,56 +285,6 @@ function QuickLogContent() {
         }
       }
 
-      const metricsObj: Record<string, unknown> = {};
-      let numVal: number | undefined;
-      if (metricValue.trim()) {
-        const num = parseFloat(metricValue.trim());
-        if (!isNaN(num)) {
-          numVal = num;
-          metricsObj.amount = num;
-          metricsObj.unit = metricUnit;
-        } else {
-          metricsObj.value = metricValue.trim();
-        }
-      }
-
-      // Chuẩn bị dữ liệu đặc thù theo loại hoạt động (phù hợp với schema backend)
-      const activityData: Record<string, unknown> = {};
-      if (selectedType === ActivityType.IRRIGATION) {
-        if (numVal && numVal > 0) {
-          const unitLower = metricUnit.toLowerCase();
-          if (
-            unitLower.includes('phút') ||
-            unitLower.includes('min') ||
-            unitLower.includes('giờ') ||
-            unitLower.includes('h')
-          ) {
-            activityData.durationMin =
-              unitLower.includes('giờ') || unitLower.includes('h') ? numVal * 60 : numVal;
-          } else {
-            activityData.durationMin = 30;
-            activityData.volumeL = numVal;
-          }
-        } else {
-          activityData.durationMin = 30;
-        }
-      } else if (selectedType === ActivityType.FEEDING) {
-        activityData.feedKg = numVal && numVal > 0 ? numVal : 1;
-      } else if (selectedType === ActivityType.WEIGHING) {
-        activityData.avgWeightKg = numVal && numVal > 0 ? numVal : 1;
-        activityData.sampleSize = 1;
-      } else if (selectedType === ActivityType.MORTALITY) {
-        activityData.count = numVal && numVal >= 1 ? Math.floor(numVal) : 1;
-      } else if (selectedType === ActivityType.STOCKING) {
-        activityData.count = numVal && numVal >= 1 ? Math.floor(numVal) : 1;
-      } else if (selectedType === ActivityType.FERTILIZING) {
-        if (notes.trim()) activityData.product = notes.trim();
-        if (numVal) activityData.dosage = `${numVal} ${metricUnit}`;
-      } else if (selectedType === ActivityType.SPRAYING) {
-        if (notes.trim()) activityData.product = notes.trim();
-        if (numVal) activityData.dosage = `${numVal} ${metricUnit}`;
-      }
-
       const now = new Date().toISOString();
       const payload: QuickActivityPayload = {
         clientId,
@@ -212,10 +294,9 @@ function QuickLogContent() {
         performedAt: now,
         date: now,
         data: activityData,
-        quantity: numVal && numVal > 0 ? numVal : undefined,
-        unit: numVal && numVal > 0 ? metricUnit : undefined,
+        quantity: finalQuantity,
+        unit: finalUnit,
         notes: notes.trim() || undefined,
-        metrics: Object.keys(metricsObj).length > 0 ? metricsObj : undefined,
         mediaIds: mediaIds.length > 0 ? mediaIds : undefined,
       };
 
@@ -228,9 +309,21 @@ function QuickLogContent() {
       } else {
         showToast('Đã lưu nhật ký thành công!');
       }
+
       // Reset form
       setNotes('');
-      setMetricValue('');
+      setDurationMin('');
+      setVolumeL('');
+      setFeedKg('');
+      setAvgWeightKg('');
+      setSampleSize('');
+      setMortalityCount('');
+      setMortalityCause('');
+      setStockingCount('');
+      setStockingAvgWeightG('');
+      setChemicalProduct('');
+      setChemicalDosage('');
+      setGenericValue('');
       handleRemovePhoto();
 
       setTimeout(() => {
@@ -279,7 +372,12 @@ function QuickLogContent() {
             <div className="flex-1">
               <Select
                 value={selectedAreaId}
-                onValueChange={(val) => setSelectedAreaId(val)}
+                onValueChange={(val) => {
+                  setSelectedAreaId(val);
+                  if (fieldErrors.areaId) {
+                    setFieldErrors((prev) => ({ ...prev, areaId: '' }));
+                  }
+                }}
                 disabled={loadingInitial}
               >
                 <SelectTrigger className="h-12 rounded-xl bg-slate-50 dark:bg-slate-800/80 text-sm font-semibold">
@@ -295,6 +393,7 @@ function QuickLogContent() {
               </Select>
             </div>
           </div>
+          {fieldErrors.areaId && <p className="text-xs text-red-500 mt-1">{fieldErrors.areaId}</p>}
 
           {/* Mùa vụ liên quan (Tùy chọn) */}
           <div>
@@ -356,40 +455,375 @@ function QuickLogContent() {
             3. Số liệu & Ghi chú
           </label>
 
-          <div className="grid grid-cols-2 gap-2">
+          {/* Các ô nhập bắt buộc theo loại hoạt động */}
+          {selectedType === ActivityType.IRRIGATION && (
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label
+                    htmlFor="durationMin"
+                    className="block text-[11px] font-semibold text-slate-500 mb-1"
+                  >
+                    Thời gian tưới (phút) <span className="text-red-500">*</span>
+                  </label>
+                  <Input
+                    id="durationMin"
+                    name="durationMin"
+                    type="number"
+                    step="any"
+                    inputMode="decimal"
+                    value={durationMin}
+                    onChange={(e) => {
+                      setDurationMin(e.target.value);
+                      if (fieldErrors.durationMin) {
+                        setFieldErrors((prev) => ({ ...prev, durationMin: '' }));
+                      }
+                    }}
+                    placeholder="VD: 20"
+                    className={`h-12 rounded-xl text-base font-bold ${
+                      fieldErrors.durationMin ? 'border-red-500 focus-visible:ring-red-500' : ''
+                    }`}
+                  />
+                  {fieldErrors.durationMin && (
+                    <p className="text-xs text-red-500 mt-1">{fieldErrors.durationMin}</p>
+                  )}
+                </div>
+                <div>
+                  <label
+                    htmlFor="volumeL"
+                    className="block text-[11px] font-semibold text-slate-500 mb-1"
+                  >
+                    Lượng nước (lít - tùy chọn)
+                  </label>
+                  <Input
+                    id="volumeL"
+                    name="volumeL"
+                    type="number"
+                    step="any"
+                    inputMode="decimal"
+                    value={volumeL}
+                    onChange={(e) => {
+                      setVolumeL(e.target.value);
+                      if (fieldErrors.volumeL) {
+                        setFieldErrors((prev) => ({ ...prev, volumeL: '' }));
+                      }
+                    }}
+                    placeholder="VD: 100"
+                    className={`h-12 rounded-xl text-sm font-medium ${
+                      fieldErrors.volumeL ? 'border-red-500 focus-visible:ring-red-500' : ''
+                    }`}
+                  />
+                  {fieldErrors.volumeL && (
+                    <p className="text-xs text-red-500 mt-1">{fieldErrors.volumeL}</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {selectedType === ActivityType.FEEDING && (
             <div>
-              <label className="block text-[11px] font-semibold text-slate-500 mb-1">
-                Số lượng / Khối lượng
+              <label
+                htmlFor="feedKg"
+                className="block text-[11px] font-semibold text-slate-500 mb-1"
+              >
+                Khối lượng thức ăn (kg) <span className="text-red-500">*</span>
               </label>
               <Input
+                id="feedKg"
+                name="feedKg"
                 type="number"
                 step="any"
                 inputMode="decimal"
-                value={metricValue}
-                onChange={(e) => setMetricValue(e.target.value)}
-                placeholder="VD: 50"
-                className="h-12 rounded-xl text-base font-bold"
+                value={feedKg}
+                onChange={(e) => {
+                  setFeedKg(e.target.value);
+                  if (fieldErrors.feedKg) {
+                    setFieldErrors((prev) => ({ ...prev, feedKg: '' }));
+                  }
+                }}
+                placeholder="VD: 5"
+                className={`h-12 rounded-xl text-base font-bold ${
+                  fieldErrors.feedKg ? 'border-red-500 focus-visible:ring-red-500' : ''
+                }`}
               />
+              {fieldErrors.feedKg && (
+                <p className="text-xs text-red-500 mt-1">{fieldErrors.feedKg}</p>
+              )}
             </div>
-            <div>
-              <label className="block text-[11px] font-semibold text-slate-500 mb-1">
-                Đơn vị tính
-              </label>
-              <Input
-                type="text"
-                value={metricUnit}
-                onChange={(e) => setMetricUnit(e.target.value)}
-                placeholder="lít, kg, cây..."
-                className="h-12 rounded-xl text-sm font-medium"
-              />
+          )}
+
+          {selectedType === ActivityType.WEIGHING && (
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label
+                  htmlFor="avgWeightKg"
+                  className="block text-[11px] font-semibold text-slate-500 mb-1"
+                >
+                  Khối lượng TB (kg) <span className="text-red-500">*</span>
+                </label>
+                <Input
+                  id="avgWeightKg"
+                  name="avgWeightKg"
+                  type="number"
+                  step="any"
+                  inputMode="decimal"
+                  value={avgWeightKg}
+                  onChange={(e) => {
+                    setAvgWeightKg(e.target.value);
+                    if (fieldErrors.avgWeightKg) {
+                      setFieldErrors((prev) => ({ ...prev, avgWeightKg: '' }));
+                    }
+                  }}
+                  placeholder="VD: 1.5"
+                  className={`h-12 rounded-xl text-base font-bold ${
+                    fieldErrors.avgWeightKg ? 'border-red-500 focus-visible:ring-red-500' : ''
+                  }`}
+                />
+                {fieldErrors.avgWeightKg && (
+                  <p className="text-xs text-red-500 mt-1">{fieldErrors.avgWeightKg}</p>
+                )}
+              </div>
+              <div>
+                <label
+                  htmlFor="sampleSize"
+                  className="block text-[11px] font-semibold text-slate-500 mb-1"
+                >
+                  Cỡ mẫu (số con) <span className="text-red-500">*</span>
+                </label>
+                <Input
+                  id="sampleSize"
+                  name="sampleSize"
+                  type="number"
+                  step="1"
+                  inputMode="numeric"
+                  value={sampleSize}
+                  onChange={(e) => {
+                    setSampleSize(e.target.value);
+                    if (fieldErrors.sampleSize) {
+                      setFieldErrors((prev) => ({ ...prev, sampleSize: '' }));
+                    }
+                  }}
+                  placeholder="VD: 10"
+                  className={`h-12 rounded-xl text-sm font-medium ${
+                    fieldErrors.sampleSize ? 'border-red-500 focus-visible:ring-red-500' : ''
+                  }`}
+                />
+                {fieldErrors.sampleSize && (
+                  <p className="text-xs text-red-500 mt-1">{fieldErrors.sampleSize}</p>
+                )}
+              </div>
             </div>
-          </div>
+          )}
+
+          {selectedType === ActivityType.MORTALITY && (
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label
+                  htmlFor="mortalityCount"
+                  className="block text-[11px] font-semibold text-slate-500 mb-1"
+                >
+                  Số lượng chết/hao hụt (con) <span className="text-red-500">*</span>
+                </label>
+                <Input
+                  id="mortalityCount"
+                  name="count"
+                  type="number"
+                  step="1"
+                  inputMode="numeric"
+                  value={mortalityCount}
+                  onChange={(e) => {
+                    setMortalityCount(e.target.value);
+                    if (fieldErrors.count) {
+                      setFieldErrors((prev) => ({ ...prev, count: '' }));
+                    }
+                  }}
+                  placeholder="VD: 2"
+                  className={`h-12 rounded-xl text-base font-bold ${
+                    fieldErrors.count ? 'border-red-500 focus-visible:ring-red-500' : ''
+                  }`}
+                />
+                {fieldErrors.count && (
+                  <p className="text-xs text-red-500 mt-1">{fieldErrors.count}</p>
+                )}
+              </div>
+              <div>
+                <label
+                  htmlFor="mortalityCause"
+                  className="block text-[11px] font-semibold text-slate-500 mb-1"
+                >
+                  Nguyên nhân (tùy chọn)
+                </label>
+                <Input
+                  id="mortalityCause"
+                  name="cause"
+                  type="text"
+                  value={mortalityCause}
+                  onChange={(e) => setMortalityCause(e.target.value)}
+                  placeholder="VD: Sốc nhiệt, dịch bệnh..."
+                  className="h-12 rounded-xl text-sm font-medium"
+                />
+              </div>
+            </div>
+          )}
+
+          {selectedType === ActivityType.STOCKING && (
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label
+                  htmlFor="stockingCount"
+                  className="block text-[11px] font-semibold text-slate-500 mb-1"
+                >
+                  Số lượng thả giống (con) <span className="text-red-500">*</span>
+                </label>
+                <Input
+                  id="stockingCount"
+                  name="count"
+                  type="number"
+                  step="1"
+                  inputMode="numeric"
+                  value={stockingCount}
+                  onChange={(e) => {
+                    setStockingCount(e.target.value);
+                    if (fieldErrors.count) {
+                      setFieldErrors((prev) => ({ ...prev, count: '' }));
+                    }
+                  }}
+                  placeholder="VD: 1000"
+                  className={`h-12 rounded-xl text-base font-bold ${
+                    fieldErrors.count ? 'border-red-500 focus-visible:ring-red-500' : ''
+                  }`}
+                />
+                {fieldErrors.count && (
+                  <p className="text-xs text-red-500 mt-1">{fieldErrors.count}</p>
+                )}
+              </div>
+              <div>
+                <label
+                  htmlFor="stockingAvgWeightG"
+                  className="block text-[11px] font-semibold text-slate-500 mb-1"
+                >
+                  Khối lượng TB (gam)
+                </label>
+                <Input
+                  id="stockingAvgWeightG"
+                  name="avgWeightG"
+                  type="number"
+                  step="any"
+                  inputMode="decimal"
+                  value={stockingAvgWeightG}
+                  onChange={(e) => {
+                    setStockingAvgWeightG(e.target.value);
+                    if (fieldErrors.avgWeightG) {
+                      setFieldErrors((prev) => ({ ...prev, avgWeightG: '' }));
+                    }
+                  }}
+                  placeholder="VD: 50"
+                  className={`h-12 rounded-xl text-sm font-medium ${
+                    fieldErrors.avgWeightG ? 'border-red-500 focus-visible:ring-red-500' : ''
+                  }`}
+                />
+                {fieldErrors.avgWeightG && (
+                  <p className="text-xs text-red-500 mt-1">{fieldErrors.avgWeightG}</p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {(selectedType === ActivityType.FERTILIZING ||
+            selectedType === ActivityType.SPRAYING) && (
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label
+                  htmlFor="chemicalProduct"
+                  className="block text-[11px] font-semibold text-slate-500 mb-1"
+                >
+                  Tên phân / thuốc
+                </label>
+                <Input
+                  id="chemicalProduct"
+                  name="product"
+                  type="text"
+                  value={chemicalProduct}
+                  onChange={(e) => setChemicalProduct(e.target.value)}
+                  placeholder="VD: NPK 16-16-8"
+                  className="h-12 rounded-xl text-sm font-medium"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="chemicalDosage"
+                  className="block text-[11px] font-semibold text-slate-500 mb-1"
+                >
+                  Liều lượng
+                </label>
+                <Input
+                  id="chemicalDosage"
+                  name="dosage"
+                  type="text"
+                  value={chemicalDosage}
+                  onChange={(e) => setChemicalDosage(e.target.value)}
+                  placeholder="VD: 2kg / 10L nước"
+                  className="h-12 rounded-xl text-sm font-medium"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Các loại hoạt động thông thường khác */}
+          {![
+            ActivityType.IRRIGATION,
+            ActivityType.FEEDING,
+            ActivityType.WEIGHING,
+            ActivityType.MORTALITY,
+            ActivityType.STOCKING,
+            ActivityType.FERTILIZING,
+            ActivityType.SPRAYING,
+          ].includes(selectedType) && (
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label
+                  htmlFor="genericValue"
+                  className="block text-[11px] font-semibold text-slate-500 mb-1"
+                >
+                  Số lượng / Khối lượng
+                </label>
+                <Input
+                  id="genericValue"
+                  type="number"
+                  step="any"
+                  inputMode="decimal"
+                  value={genericValue}
+                  onChange={(e) => setGenericValue(e.target.value)}
+                  placeholder="VD: 50"
+                  className="h-12 rounded-xl text-base font-bold"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="genericUnit"
+                  className="block text-[11px] font-semibold text-slate-500 mb-1"
+                >
+                  Đơn vị tính
+                </label>
+                <Input
+                  id="genericUnit"
+                  type="text"
+                  value={genericUnit}
+                  onChange={(e) => setGenericUnit(e.target.value)}
+                  placeholder="lít, kg, cây..."
+                  className="h-12 rounded-xl text-sm font-medium"
+                />
+              </div>
+            </div>
+          )}
 
           <div>
-            <label className="block text-[11px] font-semibold text-slate-500 mb-1">
+            <label htmlFor="notes" className="block text-[11px] font-semibold text-slate-500 mb-1">
               Ghi chú thêm
             </label>
             <textarea
+              id="notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="VD: Tưới đẫm nước khu vực luống 1 đến 5..."
