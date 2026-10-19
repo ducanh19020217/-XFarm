@@ -113,6 +113,9 @@ async function main() {
       '/finance/receivables',
       '/customers',
       '/sales-orders',
+      '/reports/cashflow?year=2026',
+      '/reports/cycles',
+      '/reports/products',
     ];
 
     for (const route of routes) {
