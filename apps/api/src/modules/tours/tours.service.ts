@@ -62,7 +62,18 @@ export class ToursService {
     if (query.sort) {
       const [field, direction] = query.sort.split(':');
       const dir = direction?.toLowerCase() === 'asc' ? 'asc' : 'desc';
-      if (['name', 'slug', 'priceAdult', 'priceChild', 'capacity', 'sortOrder', 'createdAt', 'updatedAt'].includes(field)) {
+      if (
+        [
+          'name',
+          'slug',
+          'priceAdult',
+          'priceChild',
+          'capacity',
+          'sortOrder',
+          'createdAt',
+          'updatedAt',
+        ].includes(field)
+      ) {
         orderBy = [{ [field]: dir }];
       }
     }

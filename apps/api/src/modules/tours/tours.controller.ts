@@ -1,14 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Patch,
-  Delete,
-  Param,
-  Body,
-  Query,
-  Inject,
-} from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Param, Body, Query, Inject } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Role } from '@xfarm/shared';
 import { Roles } from '../../common/decorators/roles.decorator';
@@ -144,10 +134,7 @@ export class ToursController {
   @Patch(':id/slots/:slotId')
   @Roles(Role.OWNER, Role.MANAGER)
   @ApiOperation({ summary: 'Cập nhật slot qua tour sub-route' })
-  async updateSlotUnderTour(
-    @Param('slotId') slotId: string,
-    @Body() dto: UpdateTourSlotDto,
-  ) {
+  async updateSlotUnderTour(@Param('slotId') slotId: string, @Body() dto: UpdateTourSlotDto) {
     const slot = await this.toursService.updateSlot(slotId, dto);
     return { data: slot };
   }

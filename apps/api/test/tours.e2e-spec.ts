@@ -526,9 +526,7 @@ describe('Tours and Tour Slots API E2E Tests (Admin & Public)', () => {
       expect(publishedTour.createdById).toBeUndefined();
 
       // Đảm bảo không có tour chưa publish
-      const unpub = res.body.data.find(
-        (t: { slug: string }) => t.slug === unpublishedTourSlug,
-      );
+      const unpub = res.body.data.find((t: { slug: string }) => t.slug === unpublishedTourSlug);
       expect(unpub).toBeUndefined();
     });
 
