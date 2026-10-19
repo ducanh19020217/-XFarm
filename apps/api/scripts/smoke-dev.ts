@@ -108,6 +108,7 @@ async function main() {
       '/bookings',
       '/tours',
       '/public/tours',
+      '/public/bookings/lookup?code=TEST&phone=0900000000',
     ];
 
     for (const route of routes) {

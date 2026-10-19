@@ -74,4 +74,33 @@ test.describe('SEO: Metadata, Canonical & JSON-LD', () => {
 
     errors.assertClean();
   });
+
+  test('trang tour có metadata SEO hợp lệ và trang tra cứu có noindex', async ({
+    page,
+    errors,
+  }) => {
+    // 1. Kiểm tra trang /tour
+    await page.goto('/tour');
+    const title = await page.title();
+    expect(title).toMatch(/Tour trải nghiệm \| .+/);
+
+    const desc = page.locator('meta[name="description"]');
+    await expect(desc).toHaveCount(1);
+    const descContent = await desc.getAttribute('content');
+    expect(descContent).toBeTruthy();
+
+    const canonical = page.locator('link[rel="canonical"]');
+    await expect(canonical).toHaveCount(1);
+    const canonicalHref = await canonical.getAttribute('href');
+    expect(canonicalHref).toMatch(/\/tour$/);
+
+    // 2. Kiểm tra trang /tour/tra-cuu có noindex
+    await page.goto('/tour/tra-cuu');
+    const robots = page.locator('meta[name="robots"]');
+    await expect(robots).toHaveCount(1);
+    const robotsContent = await robots.getAttribute('content');
+    expect(robotsContent).toContain('noindex');
+
+    errors.assertClean();
+  });
 });

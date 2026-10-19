@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { getSiteUrl } from '@/lib/site-url';
-import { getPublicProducts, getPublicPosts } from '@/lib/public-api';
+import { getPublicProducts, getPublicPosts, getPublicTours } from '@/lib/public-api';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = getSiteUrl();
@@ -20,6 +20,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: `${siteUrl}/san-pham`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.9,
+    },
+    {
+      url: `${siteUrl}/tour`,
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.9,
@@ -53,6 +59,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // fallback or empty
   }
 
+  let tourRoutes: MetadataRoute.Sitemap = [];
+  try {
+    const tours = await getPublicTours();
+    tourRoutes = (tours || [])
+      .filter((t) => t.isPublished !== false)
+      .map((t) => ({
+        url: `${siteUrl}/tour/${t.slug}`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly',
+        priority: 0.8,
+      }));
+  } catch {
+    // fallback or empty
+  }
+
   let postRoutes: MetadataRoute.Sitemap = [];
   try {
     const postsResult = await getPublicPosts({ page: 1, pageSize: 100 });
@@ -68,5 +89,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // fallback or empty
   }
 
-  return [...staticRoutes, ...productRoutes, ...postRoutes];
+  return [...staticRoutes, ...productRoutes, ...tourRoutes, ...postRoutes];
 }

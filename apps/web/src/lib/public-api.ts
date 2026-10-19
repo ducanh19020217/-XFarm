@@ -33,6 +33,55 @@ export interface PublicPage {
   content: string;
 }
 
+export interface PublicTourSlot {
+  id: string;
+  tourId: string;
+  startAt: string;
+  capacity: number;
+  bookedCount: number;
+  remaining: number;
+  isActive?: boolean;
+}
+
+export interface PublicTour {
+  id: string;
+  slug: string;
+  name: string;
+  description: string;
+  durationMinutes: number;
+  priceAdult: number;
+  priceChild: number;
+  capacity: number;
+  mediaIds?: string[];
+  isPublished?: boolean;
+  sortOrder?: number;
+  slots?: PublicTourSlot[];
+}
+
+export interface PublicBookingView {
+  code: string;
+  total: string | number;
+  startAt: string;
+  tourName: string;
+  tourSlug?: string;
+  status: string;
+  paymentStatus: string;
+  paymentMethod?: string | null;
+  customerName?: string;
+  phone?: string;
+  email?: string | null;
+  adults: number;
+  children: number;
+  createdAt?: string;
+  bankTransfer?: {
+    bankId: string;
+    accountNo: string;
+    accountName: string;
+    amount: string;
+    addInfo: string;
+  };
+}
+
 export interface PublicSiteSettings {
   'farm.name'?: string;
   'farm.slogan'?: string;
@@ -427,4 +476,187 @@ export function formatDate(date: string | Date | null | undefined): string {
     month: '2-digit',
     day: '2-digit',
   }).format(d);
+}
+
+export const FALLBACK_TOURS: PublicTour[] = [
+  {
+    id: 'tour-1-ngay-lam-nong-dan',
+    slug: 'mot-ngay-lam-nong-dan',
+    name: 'Một ngày làm nông dân nhí & gia đình',
+    description:
+      '<p>Trải nghiệm chân thực và sống động cùng hệ sinh thái nông nghiệp tuần hoàn XFarm. Tự tay thu hoạch rau củ quả hữu cơ, cho gà ăn trên đồi, bắt cá ao sinh thái và thưởng thức bữa trưa đậm vị thôn dã ngay tại trang trại.</p>',
+    durationMinutes: 180,
+    priceAdult: 250000,
+    priceChild: 150000,
+    capacity: 30,
+    mediaIds: ['/images/banner-3.jpg'],
+    isPublished: true,
+    sortOrder: 1,
+    slots: [
+      {
+        id: 'slot-sample-1',
+        tourId: 'tour-1-ngay-lam-nong-dan',
+        startAt: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
+        capacity: 30,
+        bookedCount: 5,
+        remaining: 25,
+        isActive: true,
+      },
+    ],
+  },
+  {
+    id: 'tour-kham-pha-he-sinh-thai',
+    slug: 'kham-pha-he-sinh-thai-tuan-hoan',
+    name: 'Khám phá nông trại sinh thái tuần hoàn',
+    description:
+      '<p>Chương trình tham quan học tập chuyên sâu: tìm hiểu quy trình nuôi cấy vi sinh bản địa IMO, hệ thống tưới nhỏ giọt tiết kiệm nước và cách xử lý phụ phẩm nông nghiệp thành tài nguyên hữu cơ giá trị cao.</p>',
+    durationMinutes: 120,
+    priceAdult: 180000,
+    priceChild: 100000,
+    capacity: 25,
+    mediaIds: ['/images/banner-1.jpg'],
+    isPublished: true,
+    sortOrder: 2,
+    slots: [],
+  },
+];
+
+/**
+ * Fetch all published public tours
+ */
+export async function getPublicTours(query?: {
+  search?: string;
+  page?: number;
+  pageSize?: number;
+}): Promise<PublicTour[]> {
+  try {
+    const searchParams = new URLSearchParams();
+    if (query?.search) searchParams.set('search', query.search);
+    if (query?.page) searchParams.set('page', String(query.page));
+    if (query?.pageSize) searchParams.set('pageSize', String(query.pageSize));
+    const qs = searchParams.toString();
+    const url = `${API_BASE_URL}/public/tours${qs ? `?${qs}` : ''}`;
+    const res = await fetch(url, {
+      next: { revalidate: 60 },
+    });
+    if (res.ok) {
+      const body = await res.json();
+      const list = Array.isArray(body) ? body : Array.isArray(body?.data) ? body.data : [];
+      if (list.length > 0) {
+        return list.map(
+          (t: { priceAdult: unknown; priceChild: unknown; [key: string]: unknown }) => ({
+            ...t,
+            priceAdult: Number(t.priceAdult),
+            priceChild: Number(t.priceChild),
+          }),
+        ) as PublicTour[];
+      }
+    }
+  } catch {
+    // fallback
+  }
+  return FALLBACK_TOURS;
+}
+
+/**
+ * Fetch public tour by slug (with available slots)
+ */
+export async function getPublicTourBySlug(slug: string): Promise<PublicTour | null> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/public/tours/${encodeURIComponent(slug)}`, {
+      next: { revalidate: 60 },
+    });
+    if (res.ok) {
+      const body = await res.json();
+      const tour = body?.data ?? body;
+      if (tour) {
+        return {
+          ...tour,
+          priceAdult: Number(tour.priceAdult),
+          priceChild: Number(tour.priceChild),
+          slots: Array.isArray(tour.slots)
+            ? tour.slots.map(
+                (s: {
+                  remaining?: number;
+                  capacity: number;
+                  bookedCount?: number;
+                  [key: string]: unknown;
+                }) => ({
+                  ...s,
+                  remaining: s.remaining ?? Math.max(0, s.capacity - (s.bookedCount ?? 0)),
+                }),
+              )
+            : [],
+        } as PublicTour;
+      }
+    }
+  } catch {
+    // fallback
+  }
+  const found = FALLBACK_TOURS.find((t) => t.slug === slug);
+  return found || null;
+}
+
+/**
+ * Create public booking
+ */
+export async function createPublicBooking(data: {
+  slotId: string;
+  customerName: string;
+  phone: string;
+  email?: string;
+  adults: number;
+  children?: number;
+  notes?: string;
+  paymentMethod?: string;
+}): Promise<PublicBookingView> {
+  const res = await fetch(`${API_BASE_URL}/public/bookings`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const err = new Error(body?.message || 'Đặt chỗ không thành công');
+    (err as unknown as { statusCode?: number; errors?: unknown }).statusCode = res.status;
+    (err as unknown as { statusCode?: number; errors?: unknown }).errors = body?.errors;
+    throw err;
+  }
+  return body?.data ?? body;
+}
+
+/**
+ * Lookup public booking by code and phone
+ */
+export async function lookupPublicBooking(code: string, phone: string): Promise<PublicBookingView> {
+  const params = new URLSearchParams({ code, phone });
+  const res = await fetch(`${API_BASE_URL}/public/bookings/lookup?${params.toString()}`, {
+    cache: 'no-store',
+  });
+  if (!res.ok) {
+    const errorBody = await res.json().catch(() => ({}));
+    const err = new Error(errorBody?.message || 'Không tìm thấy đặt chỗ');
+    (err as unknown as { statusCode?: number }).statusCode = res.status;
+    throw err;
+  }
+  const data = await res.json();
+  return data?.data ?? data;
+}
+
+/**
+ * Get public booking by code (for booking success page)
+ */
+export async function getPublicBookingByCode(code: string): Promise<PublicBookingView | null> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/public/bookings/${encodeURIComponent(code)}`, {
+      cache: 'no-store',
+    });
+    if (res.ok) {
+      const data = await res.json();
+      return data?.data ?? data;
+    }
+  } catch {
+    // fallback
+  }
+  return null;
 }
