@@ -112,13 +112,19 @@ export class BookingsService {
         { customerName: { contains: query.search, mode: 'insensitive' } },
         { phone: { contains: query.search } },
       ];
-    if (query.from || query.to)
+    if (query.from || query.to || query.tourId) {
       where.slot = {
-        startAt: {
-          ...(query.from ? { gte: query.from } : {}),
-          ...(query.to ? { lte: query.to } : {}),
-        },
+        ...(query.tourId ? { tourId: query.tourId } : {}),
+        ...(query.from || query.to
+          ? {
+              startAt: {
+                ...(query.from ? { gte: query.from } : {}),
+                ...(query.to ? { lte: query.to } : {}),
+              },
+            }
+          : {}),
       };
+    }
     const [data, total] = await Promise.all([
       prisma.booking.findMany({
         where,
@@ -130,6 +136,15 @@ export class BookingsService {
       prisma.booking.count({ where }),
     ]);
     return { data, total, page, pageSize };
+  }
+
+  async findOne(id: string) {
+    const booking = await prisma.booking.findUnique({
+      where: { id },
+      include: { slot: { include: { tour: true } }, payments: true },
+    });
+    if (!booking) throw new NotFoundException('Không tìm thấy đặt chỗ');
+    return booking;
   }
 
   async changeStatus(id: string, status: BookingStatus) {
@@ -155,7 +170,7 @@ export class BookingsService {
           ...(status === BookingStatus.CONFIRMED ? { confirmedAt: new Date() } : {}),
           ...(status === BookingStatus.CANCELLED ? { cancelledAt: new Date() } : {}),
         },
-        include: { slot: { include: { tour: true } } },
+        include: { slot: { include: { tour: true } }, payments: true },
       });
     });
     if (status === BookingStatus.CONFIRMED)
@@ -176,9 +191,16 @@ export class BookingsService {
       const amount = new Prisma.Decimal(input.amount);
       if (current.plus(amount).greaterThan(booking.total))
         throw new UnprocessableEntityException('Số tiền thu vượt quá tổng tiền đặt chỗ');
-      const category = await tx.financeCategory.findUnique({ where: { systemKey: 'TOUR' } });
-      if (!category)
-        throw new UnprocessableEntityException('Chưa cấu hình danh mục tài chính TOUR');
+      let category = await tx.financeCategory.findUnique({ where: { systemKey: 'TOUR' } });
+      if (!category) {
+        category = await tx.financeCategory.create({
+          data: {
+            name: 'Tour',
+            type: TransactionType.INCOME,
+            systemKey: 'TOUR',
+          },
+        });
+      }
       const paymentCode = await this.sequence.nextInTransaction(tx, 'TT');
       const transactionCode = await this.sequence.nextInTransaction(tx, 'TN');
       const transaction = await tx.transaction.create({
@@ -210,6 +232,7 @@ export class BookingsService {
         data: {
           paymentStatus: total.equals(booking.total) ? PaymentStatus.PAID : PaymentStatus.PARTIAL,
         },
+        include: { slot: { include: { tour: true } }, payments: true },
       });
     });
   }

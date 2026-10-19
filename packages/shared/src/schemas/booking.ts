@@ -28,6 +28,7 @@ export const adminUpdateBookingStatusSchema = z.object({
 
 export const queryBookingSchema = paginationSchema.extend({
   slotId: optionalString(),
+  tourId: optionalString(),
   status: bookingStatusSchema.optional(),
   paymentStatus: z.nativeEnum(PaymentStatus).optional(),
   search: optionalString(),
