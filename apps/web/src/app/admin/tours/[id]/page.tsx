@@ -3,20 +3,8 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import {
-  Role,
-  buildMonthGrid,
-  toVietnamDateString,
-  type Paginated,
-} from '@xfarm/shared';
-import {
-  Button,
-  Badge,
-  Input,
-  Label,
-  FormDialog,
-  ConfirmDialog,
-} from '@xfarm/ui';
+import { Role, buildMonthGrid, toVietnamDateString, type Paginated } from '@xfarm/shared';
+import { Button, Badge, Input, Label, FormDialog, ConfirmDialog } from '@xfarm/ui';
 import {
   ArrowLeft,
   ChevronLeft,
@@ -390,9 +378,7 @@ export default function TourDetailPage() {
     setEditError(null);
 
     if (editCapacity < editingSlot.bookedCount) {
-      setEditError(
-        `Sức chứa không được nhỏ hơn số vé đã đặt (${editingSlot.bookedCount} vé)`,
-      );
+      setEditError(`Sức chứa không được nhỏ hơn số vé đã đặt (${editingSlot.bookedCount} vé)`);
       return;
     }
 
@@ -542,12 +528,22 @@ export default function TourDetailPage() {
               Chuẩn {tour.capacity} khách
             </span>
             <span>•</span>
-            <span>Người lớn: <b className="text-emerald-600 dark:text-emerald-400">{formatMoney(tour.priceAdult)}</b></span>
+            <span>
+              Người lớn:{' '}
+              <b className="text-emerald-600 dark:text-emerald-400">
+                {formatMoney(tour.priceAdult)}
+              </b>
+            </span>
             <span>•</span>
-            <span>Trẻ em: <b>{formatMoney(tour.priceChild)}</b></span>
+            <span>
+              Trẻ em: <b>{formatMoney(tour.priceChild)}</b>
+            </span>
             <span>•</span>
             {tour.isPublished ? (
-              <Badge variant="default" className="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] h-5">
+              <Badge
+                variant="default"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] h-5"
+              >
                 Đã xuất bản
               </Badge>
             ) : (
@@ -596,7 +592,9 @@ export default function TourDetailPage() {
 
           <span className="ml-2 font-semibold text-slate-900 dark:text-slate-100 text-sm sm:text-base flex items-center gap-2">
             {viewMode === 'MONTH' ? monthLabel : weekLabel}
-            {isLoadingSlots && <span className="text-xs text-slate-400 font-normal">(Đang tải...)</span>}
+            {isLoadingSlots && (
+              <span className="text-xs text-slate-400 font-normal">(Đang tải...)</span>
+            )}
           </span>
         </div>
 
@@ -691,9 +689,7 @@ export default function TourDetailPage() {
                 {/* Day Slots List */}
                 <div className="flex-1 space-y-2 overflow-y-auto max-h-[500px]">
                   {daySlots.length === 0 ? (
-                    <p className="text-center py-6 text-xs text-slate-400 italic">
-                      Không có suất
-                    </p>
+                    <p className="text-center py-6 text-xs text-slate-400 italic">Không có suất</p>
                   ) : (
                     daySlots.map((slot) => {
                       const timeStr = formatVietnamTime(slot.startAt);
@@ -707,8 +703,8 @@ export default function TourDetailPage() {
                             isInactive
                               ? 'border-slate-200 bg-slate-50 opacity-60 dark:border-slate-800 dark:bg-slate-900'
                               : isFull
-                              ? 'border-red-200 bg-red-50/60 dark:border-red-900 dark:bg-red-950/20'
-                              : 'border-emerald-200 bg-emerald-50/40 hover:border-emerald-400 dark:border-emerald-900 dark:bg-emerald-950/20'
+                                ? 'border-red-200 bg-red-50/60 dark:border-red-900 dark:bg-red-950/20'
+                                : 'border-emerald-200 bg-emerald-50/40 hover:border-emerald-400 dark:border-emerald-900 dark:bg-emerald-950/20'
                           }`}
                         >
                           <div className="flex items-center justify-between font-semibold">
@@ -815,8 +811,8 @@ export default function TourDetailPage() {
                     !cell.isCurrentMonth
                       ? 'bg-slate-50/50 text-slate-400 dark:bg-slate-900/30'
                       : cell.isToday
-                      ? 'bg-emerald-50/20'
-                      : 'bg-white dark:bg-slate-950'
+                        ? 'bg-emerald-50/20'
+                        : 'bg-white dark:bg-slate-950'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1.5">
@@ -825,8 +821,8 @@ export default function TourDetailPage() {
                         cell.isToday
                           ? 'flex h-5 w-5 items-center justify-center rounded-full bg-emerald-600 text-white'
                           : cell.isCurrentMonth
-                          ? 'text-slate-800 dark:text-slate-200'
-                          : 'text-slate-400'
+                            ? 'text-slate-800 dark:text-slate-200'
+                            : 'text-slate-400'
                       }`}
                     >
                       {cell.day}
@@ -858,8 +854,8 @@ export default function TourDetailPage() {
                             isInactive
                               ? 'bg-slate-100 text-slate-400 line-through dark:bg-slate-800'
                               : isFull
-                              ? 'bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-950/60 dark:text-red-300'
-                              : 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300'
+                                ? 'bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-950/60 dark:text-red-300'
+                                : 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300'
                           }`}
                           title={`${timeStr}: ${slot.bookedCount}/${slot.capacity} khách ${
                             isInactive ? '(Đã tắt)' : isFull ? '(Đầy)' : ''
@@ -1014,7 +1010,13 @@ export default function TourDetailPage() {
                 onChange={(e) => setNewTimeInput(e.target.value)}
                 className="w-36 h-9"
               />
-              <Button type="button" variant="outline" size="sm" onClick={addBulkTime} className="h-9 text-xs">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addBulkTime}
+                className="h-9 text-xs"
+              >
                 + Thêm giờ
               </Button>
             </div>

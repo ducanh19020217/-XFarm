@@ -250,10 +250,10 @@ export default function AdminTourBookingsPage() {
   const handleConfirmBooking = async (booking: BookingItem) => {
     setIsActionLoading(true);
     try {
-      const res = await apiFetch<{ data: BookingItem }>(`/bookings/${booking.id}/confirm`, {
+      await apiFetch<{ data: BookingItem }>(`/bookings/${booking.id}/confirm`, {
         method: 'POST',
       });
-      setSelectedBooking(res.data);
+      await refreshSelectedBooking(booking.id);
       void fetchBookings();
     } catch (err) {
       if (err instanceof ApiError) alert(err.message);
@@ -266,10 +266,10 @@ export default function AdminTourBookingsPage() {
   const handleCompleteBooking = async (booking: BookingItem) => {
     setIsActionLoading(true);
     try {
-      const res = await apiFetch<{ data: BookingItem }>(`/bookings/${booking.id}/complete`, {
+      await apiFetch<{ data: BookingItem }>(`/bookings/${booking.id}/complete`, {
         method: 'POST',
       });
-      setSelectedBooking(res.data);
+      await refreshSelectedBooking(booking.id);
       void fetchBookings();
     } catch (err) {
       if (err instanceof ApiError) alert(err.message);
@@ -283,14 +283,11 @@ export default function AdminTourBookingsPage() {
     if (!cancellingBooking) return;
     setIsCancelling(true);
     try {
-      const res = await apiFetch<{ data: BookingItem }>(
-        `/bookings/${cancellingBooking.id}/cancel`,
-        {
-          method: 'POST',
-        },
-      );
+      await apiFetch<{ data: BookingItem }>(`/bookings/${cancellingBooking.id}/cancel`, {
+        method: 'POST',
+      });
       if (selectedBooking?.id === cancellingBooking.id) {
-        setSelectedBooking(res.data);
+        await refreshSelectedBooking(cancellingBooking.id);
       }
       setCancellingBooking(null);
       void fetchBookings();
@@ -304,7 +301,7 @@ export default function AdminTourBookingsPage() {
 
   // Payment dialog
   const openPaymentDialog = (booking: BookingItem) => {
-    const totalPaid = booking.payments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+    const totalPaid = (booking.payments || []).reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
     const remaining = Math.max(0, Number(booking.total) - totalPaid);
 
     setPaymentAmount(remaining);
@@ -354,13 +351,19 @@ export default function AdminTourBookingsPage() {
     switch (status) {
       case BookingStatus.PENDING:
         return (
-          <Badge variant="outline" className="border-amber-400 bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300">
+          <Badge
+            variant="outline"
+            className="border-amber-400 bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300"
+          >
             Chờ xác nhận
           </Badge>
         );
       case BookingStatus.CONFIRMED:
         return (
-          <Badge variant="outline" className="border-sky-400 bg-sky-50 text-sky-700 dark:bg-sky-950 dark:text-sky-300">
+          <Badge
+            variant="outline"
+            className="border-sky-400 bg-sky-50 text-sky-700 dark:bg-sky-950 dark:text-sky-300"
+          >
             Đã xác nhận
           </Badge>
         );
@@ -371,11 +374,7 @@ export default function AdminTourBookingsPage() {
           </Badge>
         );
       case BookingStatus.CANCELLED:
-        return (
-          <Badge variant="destructive">
-            Đã hủy
-          </Badge>
-        );
+        return <Badge variant="destructive">Đã hủy</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -385,13 +384,19 @@ export default function AdminTourBookingsPage() {
     switch (status) {
       case PaymentStatus.UNPAID:
         return (
-          <Badge variant="outline" className="border-red-300 bg-red-50 text-red-600 dark:bg-red-950 dark:text-red-400">
+          <Badge
+            variant="outline"
+            className="border-red-300 bg-red-50 text-red-600 dark:bg-red-950 dark:text-red-400"
+          >
             Chưa thanh toán
           </Badge>
         );
       case PaymentStatus.PARTIAL:
         return (
-          <Badge variant="outline" className="border-amber-400 bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300">
+          <Badge
+            variant="outline"
+            className="border-amber-400 bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300"
+          >
             Một phần
           </Badge>
         );
@@ -469,7 +474,11 @@ export default function AdminTourBookingsPage() {
           return (
             <span className="text-xs text-slate-700 dark:text-slate-300">
               <b>{item.adults}</b> người lớn
-              {item.children > 0 && <>, <b>{item.children}</b> trẻ em</>}
+              {item.children > 0 && (
+                <>
+                  , <b>{item.children}</b> trẻ em
+                </>
+              )}
             </span>
           );
         },
@@ -835,7 +844,7 @@ export default function AdminTourBookingsPage() {
                 <div className="rounded-md bg-slate-50 p-3 dark:bg-slate-900">
                   <span className="text-xs text-slate-500 block">Còn lại cần thu</span>
                   {(() => {
-                    const paid = selectedBooking.payments.reduce(
+                    const paid = (selectedBooking.payments || []).reduce(
                       (s, p) => s + (Number(p.amount) || 0),
                       0,
                     );
@@ -893,12 +902,8 @@ export default function AdminTourBookingsPage() {
                       <span className="font-semibold text-slate-900 dark:text-slate-100">
                         {formatMoney(p.amount)}
                       </span>
-                      <span>
-                        {PAYMENT_METHOD_LABELS[p.method] || p.method}
-                      </span>
-                      <span className="text-slate-500">
-                        {formatVietnamDateTime(p.createdAt)}
-                      </span>
+                      <span>{PAYMENT_METHOD_LABELS[p.method] || p.method}</span>
+                      <span className="text-slate-500">{formatVietnamDateTime(p.createdAt)}</span>
                     </div>
                   ))}
                 </div>

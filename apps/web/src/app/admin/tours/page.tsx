@@ -213,7 +213,9 @@ export default function AdminToursPage() {
 
   const handleTogglePublish = async (tour: TourItem) => {
     try {
-      const endpoint = tour.isPublished ? `/tours/${tour.id}/unpublish` : `/tours/${tour.id}/publish`;
+      const endpoint = tour.isPublished
+        ? `/tours/${tour.id}/unpublish`
+        : `/tours/${tour.id}/publish`;
       await apiFetch(endpoint, { method: 'PATCH' });
       void fetchTours();
     } catch (err) {
@@ -626,10 +628,7 @@ export default function AdminToursPage() {
                 control={form.control}
                 name="mediaIds"
                 render={({ field }) => (
-                  <MultiImageUpload
-                    value={field.value}
-                    onChange={(ids) => field.onChange(ids)}
-                  />
+                  <MultiImageUpload value={field.value} onChange={(ids) => field.onChange(ids)} />
                 )}
               />
             </div>
@@ -651,9 +650,7 @@ export default function AdminToursPage() {
                 )}
               />
               {form.formState.errors.description && (
-                <p className="text-xs text-red-500">
-                  {form.formState.errors.description.message}
-                </p>
+                <p className="text-xs text-red-500">{form.formState.errors.description.message}</p>
               )}
             </div>
           </div>
