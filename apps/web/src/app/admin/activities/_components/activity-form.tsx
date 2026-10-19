@@ -118,13 +118,32 @@ export interface WarehouseOption {
   isActive?: boolean;
 }
 
+export interface SavedActivityResult {
+  id?: string;
+  type?: ActivityType;
+  harvestLot?: { id: string } | null;
+  harvestLotId?: string | null;
+  [key: string]: unknown;
+}
+
+export interface ActivityFormData {
+  itemId?: string;
+  quantity?: string | number;
+  unit?: string;
+  warehouseId?: string;
+  qualityGrade?: string;
+  certification?: string;
+  isPublic?: boolean;
+  [key: string]: unknown;
+}
+
 export interface ActivityFormProps {
   areas: ActivityArea[];
   cycles: ActivityCycle[];
   initialCycleId?: string;
   availableItems?: AvailableItem[];
   warehouses?: WarehouseOption[];
-  onSaved: (result?: any) => Promise<void> | void;
+  onSaved: (result?: SavedActivityResult) => Promise<void> | void;
   onCancel?: () => void;
 }
 
@@ -146,7 +165,7 @@ export function ActivityForm({
   const [cycleId, setCycleId] = React.useState(initialCycleId ?? '');
   const [areaId, setAreaId] = React.useState('');
   const [performedAt, setPerformedAt] = React.useState(() => toLocalDatetimeString(new Date()));
-  const [data, setData] = React.useState<Record<string, any>>({});
+  const [data, setData] = React.useState<ActivityFormData>({});
   const [materials, setMaterials] = React.useState<FormMaterialRow[]>([]);
   const [fetchedItems, setFetchedItems] = React.useState<AvailableItem[]>([]);
   const [catalogItems, setCatalogItems] = React.useState<AvailableItem[]>([]);
@@ -324,7 +343,7 @@ export function ActivityForm({
           }));
       }
 
-      const res = await apiFetch<{ data: any }>('/activities', {
+      const res = await apiFetch<{ data: SavedActivityResult }>('/activities', {
         method: 'POST',
         body: JSON.stringify({
           type,
@@ -574,7 +593,11 @@ export function ActivityForm({
                       id={`activity-data-${field}`}
                       type={text ? 'text' : 'number'}
                       step="any"
-                      value={data[field] ?? ''}
+                      value={
+                        typeof data[field] === 'string' || typeof data[field] === 'number'
+                          ? (data[field] as string | number)
+                          : ''
+                      }
                       onChange={(event) =>
                         setData((current) => ({ ...current, [field]: event.target.value }))
                       }
