@@ -6,6 +6,7 @@ test('ghi nhật ký WATER_TEST và thấy tóm tắt pH', async ({ page, errors
   await page.getByRole('button', { name: /ghi nhật ký/i }).click();
   await page.getByLabel('Khu/lô').selectOption({ index: 1 });
   await page.getByLabel('Loại nhật ký').selectOption('WATER_TEST');
+  await page.locator('#activity-date').fill('2099-01-01T10:00');
   await page.getByLabel(/pH/i).fill('7.2');
   await page.getByLabel(/DO/i).fill('5.1');
   await page.getByLabel(/nhiệt độ/i).fill('26');
