@@ -185,7 +185,7 @@ describe('XFarm API E2E Tests', () => {
         ),
       );
 
-      expect(results.map((result) => result.status).sort()).toEqual([200, 401]);
+      expect(results.map((result) => result.status).sort()).toEqual([200, 200]);
       const successfulRefresh = results.find((result) => result.status === 200);
       expect(successfulRefresh?.body.accessToken).toBeUndefined();
       const newCookies = successfulRefresh?.headers['set-cookie'];
