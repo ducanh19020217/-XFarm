@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Plus } from 'lucide-react';
+import { Activity, CheckCircle2, Layers, MapPin, Plus } from 'lucide-react';
 import { ActivityType } from '@xfarm/shared';
 import { DataTable, FormDialog, PageHeader, Toast, useToast, Button } from '@xfarm/ui';
 import { apiFetch, ApiError, isAbortError } from '@/lib/api';
@@ -101,6 +101,9 @@ export default function ActivitiesPage() {
     );
     setPage(1);
   };
+
+  const harvestCount = activities.filter((a) => a.type === ActivityType.HARVEST).length;
+
   return (
     <div className="space-y-6">
       <Toast message={message} onClose={closeToast} variant={variant} />
@@ -115,6 +118,38 @@ export default function ActivitiesPage() {
           </Button>
         )}
       </PageHeader>
+
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div className="rounded-lg border border-line bg-surface p-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-muted">Tổng hoạt động</span>
+            <Activity className="h-4 w-4 text-accent" />
+          </div>
+          <p className="mt-2 text-2xl font-bold text-fg">{total}</p>
+        </div>
+        <div className="rounded-lg border border-line bg-surface p-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-muted">Lượt thu hoạch</span>
+            <CheckCircle2 className="h-4 w-4 text-ok" />
+          </div>
+          <p className="mt-2 text-2xl font-bold text-fg">{harvestCount}</p>
+        </div>
+        <div className="rounded-lg border border-line bg-surface p-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-muted">Khu / Lô liên quan</span>
+            <MapPin className="h-4 w-4 text-info" />
+          </div>
+          <p className="mt-2 text-2xl font-bold text-fg">{areas.length}</p>
+        </div>
+        <div className="rounded-lg border border-line bg-surface p-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-muted">Mùa vụ áp dụng</span>
+            <Layers className="h-4 w-4 text-warn" />
+          </div>
+          <p className="mt-2 text-2xl font-bold text-fg">{cycles.length}</p>
+        </div>
+      </div>
+
       <ActivityFilters
         areas={areas}
         cycles={cycles}

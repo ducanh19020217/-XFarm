@@ -57,69 +57,69 @@ export function ActivityDetailDialog({
       className="max-w-2xl"
     >
       <div className="space-y-4 text-sm">
-        <div className="grid grid-cols-2 gap-3 rounded-lg border bg-slate-50 p-3">
+        <div className="grid grid-cols-2 gap-3 rounded-lg border border-line bg-surface-2 p-3">
           <div>
-            <span className="text-xs text-slate-500">Khu/lô</span>
-            <p className="font-medium text-slate-800">
+            <span className="text-xs text-muted">Khu/lô</span>
+            <p className="font-medium text-fg">
               {activity.area.code} - {activity.area.name}
             </p>
           </div>
           <div>
-            <span className="text-xs text-slate-500">Mùa vụ</span>
-            <p className="font-medium text-slate-800">
+            <span className="text-xs text-muted">Mùa vụ</span>
+            <p className="font-medium text-fg">
               {activity.cycle
                 ? `${activity.cycle.code} - ${activity.cycle.name}`
                 : 'Không gắn mùa vụ'}
             </p>
           </div>
           <div>
-            <span className="text-xs text-slate-500">Người thực hiện</span>
-            <p className="font-medium text-slate-800">
+            <span className="text-xs text-muted">Người thực hiện</span>
+            <p className="font-medium text-fg">
               {activity.performedBy?.fullName ?? 'Chưa rõ'}
             </p>
           </div>
           <div>
-            <span className="text-xs text-slate-500">Thời điểm</span>
-            <p className="font-medium text-slate-800">{formatDate(activity.performedAt)}</p>
+            <span className="text-xs text-muted">Thời điểm</span>
+            <p className="font-medium text-fg">{formatDate(activity.performedAt)}</p>
           </div>
         </div>
 
         {summaryText ? (
-          <div className="rounded-md border border-slate-200 p-3">
-            <span className="text-xs font-medium uppercase tracking-wider text-slate-500">
+          <div className="rounded-md border border-line p-3">
+            <span className="text-xs font-medium uppercase tracking-wider text-muted">
               Chỉ số ghi chép
             </span>
-            <p className="mt-1 text-slate-700">{summaryText}</p>
+            <p className="mt-1 text-fg">{summaryText}</p>
           </div>
         ) : null}
 
         {activity.notes ? (
-          <div className="rounded-md border border-slate-200 p-3">
-            <span className="text-xs font-medium uppercase tracking-wider text-slate-500">
+          <div className="rounded-md border border-line p-3">
+            <span className="text-xs font-medium uppercase tracking-wider text-muted">
               Ghi chú
             </span>
-            <p className="mt-1 text-slate-700">{activity.notes}</p>
+            <p className="mt-1 text-fg">{activity.notes}</p>
           </div>
         ) : null}
 
-        <div className="rounded-md border border-slate-200 p-3">
-          <span className="text-xs font-medium uppercase tracking-wider text-slate-500">
+        <div className="rounded-md border border-line p-3">
+          <span className="text-xs font-medium uppercase tracking-wider text-muted">
             Vật tư sử dụng
           </span>
           {materials.length === 0 ? (
-            <p className="mt-1 text-slate-500">Không sử dụng vật tư.</p>
+            <p className="mt-1 text-muted">Không sử dụng vật tư.</p>
           ) : (
             <div className="mt-2 overflow-x-auto">
-              <table className="w-full text-left text-xs text-slate-700">
+              <table className="w-full text-left text-xs text-fg">
                 <thead>
-                  <tr className="border-b bg-slate-50">
+                  <tr className="border-b border-line bg-surface-2">
                     <th className="py-2 px-2 font-medium">Vật tư</th>
                     <th className="py-2 px-2 font-medium text-right">Số lượng</th>
                     <th className="py-2 px-2 font-medium">Đơn vị</th>
                     {canViewCost && <th className="py-2 px-2 font-medium text-right">Giá vốn</th>}
                   </tr>
                 </thead>
-                <tbody className="divide-y">
+                <tbody className="divide-y divide-line">
                   {materials.map((mat, idx) => {
                     const name = mat.itemName || mat.item?.name || 'Vật tư';
                     const unit = mat.unit || mat.item?.unit || '';
@@ -129,7 +129,7 @@ export function ActivityDetailDialog({
                         <td className="py-2 px-2 text-right">{mat.quantity}</td>
                         <td className="py-2 px-2">{unit}</td>
                         {canViewCost && (
-                          <td className="py-2 px-2 text-right font-mono text-slate-600">
+                          <td className="py-2 px-2 text-right font-mono text-muted">
                             {mat.unitCost != null ? formatCost(mat.unitCost) : '—'}
                           </td>
                         )}
@@ -144,7 +144,7 @@ export function ActivityDetailDialog({
 
         {activity.media?.length ? (
           <div className="space-y-1">
-            <span className="text-xs font-medium uppercase tracking-wider text-slate-500">
+            <span className="text-xs font-medium uppercase tracking-wider text-muted">
               Ảnh đính kèm
             </span>
             <div className="flex flex-wrap gap-2 pt-1">
@@ -153,7 +153,7 @@ export function ActivityDetailDialog({
                   key={media.id}
                   src={media.url}
                   alt={media.alt ?? 'Ảnh nhật ký'}
-                  className="h-20 w-20 rounded-md object-cover border"
+                  className="h-20 w-20 rounded-md object-cover border border-line"
                 />
               ))}
             </div>
