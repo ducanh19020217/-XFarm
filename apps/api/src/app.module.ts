@@ -38,6 +38,7 @@ import { IotModule } from './modules/iot/iot.module';
 import { SensorsModule } from './modules/sensors/sensors.module';
 import { AlertRulesModule } from './modules/alert-rules/alert-rules.module';
 import { SequenceModule } from './common/sequence/sequence.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
@@ -89,6 +90,7 @@ import { HealthController } from './health.controller';
     IotModule,
     SensorsModule,
     AlertRulesModule,
+    DashboardModule,
   ],
   providers: [
     {

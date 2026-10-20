@@ -98,6 +98,8 @@ async function main() {
       `/calendar?month=${new Date().toISOString().slice(0, 7)}`,
       '/stock/balances',
       '/stock/moves',
+      '/dashboard/summary',
+      '/dashboard/charts?months=12',
       '/stock/documents',
       '/alerts',
       '/alerts/unread-count',
