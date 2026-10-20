@@ -8,6 +8,22 @@ const slotApiUrl =
   (process.env.API_PORT ? `http://localhost:${process.env.API_PORT}/api/v1` : '');
 
 test.describe('Nghiệm thu GĐ 7 – Thiết bị & IoT', () => {
+  test('Dashboard tổng quan hiển thị đủ KPI và biểu đồ', async ({ page, errors }) => {
+    await loginAs(page, 'OWNER');
+    await page.goto('/admin');
+    await expect(page.getByRole('heading', { name: 'Tổng quan' })).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText('Mùa vụ đang chạy')).toBeVisible();
+    await expect(page.getByText('Doanh thu tháng này')).toBeVisible();
+    await expect(page.getByText('Booking 7 ngày tới')).toBeVisible();
+    await expect(page.getByText('Mặt hàng dưới minStock')).toBeVisible();
+    await expect(page.getByText('Lô sắp hết hạn')).toBeVisible();
+    await expect(page.getByText('Task quá hạn')).toBeVisible();
+    await expect(page.getByText('Cảnh báo chưa đọc')).toBeVisible();
+    await expect(page.getByTestId('revenue-chart')).toBeVisible();
+    await expect(page.getByTestId('production-chart')).toBeVisible();
+    errors.assertClean();
+  });
+
   test('(a) Tạo sensor + AlertRule, gửi reading vượt ngưỡng qua POST /api/v1/iot/readings → chuông hiện Alert SENSOR_THRESHOLD ≤ 30s', async ({
     page,
     request,

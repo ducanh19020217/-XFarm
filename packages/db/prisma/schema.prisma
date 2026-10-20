@@ -605,6 +605,7 @@ model StockMove {
   toWarehouse   Warehouse? @relation("StockMovesTo", fields: [toWarehouseId], references: [id])
 
   @@index([itemId, stockLotId])
+  @@index([itemId, stockLotId, type])
   @@index([refType, refId])
   @@index([fromWarehouseId])
   @@index([toWarehouseId])
@@ -1001,6 +1002,7 @@ model Transaction {
   createdBy   User?           @relation("TransactionsCreated", fields: [createdById], references: [id], onDelete: SetNull)
 
   @@index([date])
+  @@index([type, date])
   @@index([cycleId])
   @@index([refType, refId])
   @@map("transactions")
@@ -1046,6 +1048,7 @@ model TourSlot {
 
   @@unique([tourId, startAt])
   @@index([startAt])
+  @@index([startAt, isActive])
   @@index([tourId, isActive])
   @@map("tour_slots")
 }
