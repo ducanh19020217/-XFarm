@@ -13,7 +13,7 @@ export function getHarvestLotColumns(): ColumnDef<HarvestLotRecord>[] {
       cell: ({ row }) => (
         <Link
           href={`/admin/harvest-lots/${row.original.id}`}
-          className="font-semibold text-emerald-700 hover:underline"
+          className="font-semibold text-accent hover:underline"
         >
           {row.original.code}
         </Link>
@@ -23,7 +23,7 @@ export function getHarvestLotColumns(): ColumnDef<HarvestLotRecord>[] {
       accessorKey: 'traceCode',
       header: 'Mã truy xuất',
       cell: ({ row }) => (
-        <code className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-xs font-medium text-slate-800 dark:bg-slate-800 dark:text-slate-200">
+        <code className="rounded border border-line bg-surface-2 px-1.5 py-0.5 font-mono text-xs font-medium text-fg">
           {row.original.traceCode}
         </code>
       ),
@@ -35,10 +35,10 @@ export function getHarvestLotColumns(): ColumnDef<HarvestLotRecord>[] {
         const item = row.original.item;
         return (
           <div>
-            <span className="font-medium text-slate-900 dark:text-slate-100">
+            <span className="font-medium text-fg">
               {item?.name || '—'}
             </span>
-            {item?.sku && <span className="block text-xs text-slate-400">{item.sku}</span>}
+            {item?.sku && <span className="block text-xs text-muted">{item.sku}</span>}
           </div>
         );
       },
@@ -48,9 +48,9 @@ export function getHarvestLotColumns(): ColumnDef<HarvestLotRecord>[] {
       header: 'Mùa vụ',
       cell: ({ row }) => {
         const cycle = row.original.cycle;
-        if (!cycle) return <span className="text-slate-400">—</span>;
+        if (!cycle) return <span className="text-muted">—</span>;
         return (
-          <span className="text-sm text-slate-700 dark:text-slate-300">
+          <span className="text-sm text-fg">
             {cycle.code} · {cycle.name}
           </span>
         );
@@ -62,7 +62,7 @@ export function getHarvestLotColumns(): ColumnDef<HarvestLotRecord>[] {
       cell: ({ row }) => {
         const date = new Date(row.original.harvestedAt);
         return (
-          <span className="text-sm text-slate-600 dark:text-slate-400">
+          <span className="text-sm text-muted">
             {isNaN(date.getTime()) ? '—' : date.toLocaleDateString('vi-VN')}
           </span>
         );
@@ -72,7 +72,7 @@ export function getHarvestLotColumns(): ColumnDef<HarvestLotRecord>[] {
       accessorKey: 'quantity',
       header: 'Số lượng',
       cell: ({ row }) => (
-        <span className="font-medium text-slate-900 dark:text-slate-100">
+        <span className="font-medium text-fg">
           {row.original.quantity} {row.original.unit}
         </span>
       ),
@@ -86,7 +86,7 @@ export function getHarvestLotColumns(): ColumnDef<HarvestLotRecord>[] {
           row.original.stockLot?.remainingQuantity ??
           row.original.quantity;
         return (
-          <span className="font-medium text-slate-700 dark:text-slate-300">
+          <span className="font-medium text-fg">
             {remaining} {row.original.unit}
           </span>
         );
@@ -112,7 +112,7 @@ export function getHarvestLotColumns(): ColumnDef<HarvestLotRecord>[] {
               href={`/admin/harvest-lots/${lot.id}`}
               title="Chi tiết & QR"
               aria-label={`Chi tiết lô ${lot.code}`}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted hover:bg-surface-2 hover:text-fg"
             >
               <QrCode className="h-4 w-4" />
             </Link>
@@ -120,7 +120,7 @@ export function getHarvestLotColumns(): ColumnDef<HarvestLotRecord>[] {
               href={`/admin/harvest-lots/${lot.id}/print`}
               title="In tem"
               aria-label={`In tem lô ${lot.code}`}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted hover:bg-surface-2 hover:text-fg"
             >
               <Printer className="h-4 w-4" />
             </Link>
@@ -129,7 +129,7 @@ export function getHarvestLotColumns(): ColumnDef<HarvestLotRecord>[] {
               target="_blank"
               title="Xem trang truy xuất"
               aria-label={`Xem trang truy xuất mã ${lot.traceCode}`}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-md text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-md text-accent hover:bg-accent-bg hover:text-accent"
             >
               <ExternalLink className="h-4 w-4" />
             </Link>

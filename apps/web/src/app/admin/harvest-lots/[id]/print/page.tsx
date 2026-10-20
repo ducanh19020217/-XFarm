@@ -147,7 +147,7 @@ export default function HarvestLotPrintPage() {
   return (
     <div className="space-y-6">
       {/* Print Controls Bar - Hidden when printing */}
-      <div className="print:hidden rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+      <div className="print:hidden rounded-lg border border-line bg-surface p-4 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Link href={`/admin/harvest-lots/${lot.id}`}>
@@ -157,10 +157,10 @@ export default function HarvestLotPrintPage() {
               </Button>
             </Link>
             <div>
-              <h1 className="text-base font-bold text-slate-900 dark:text-slate-100">
+              <h1 className="text-base font-bold text-fg">
                 In tem nhãn lô {lot.code}
               </h1>
-              <span className="text-xs text-slate-500">
+              <span className="text-xs text-muted">
                 {lot.item?.name} · Mã truy xuất: {lot.traceCode}
               </span>
             </div>
@@ -176,7 +176,7 @@ export default function HarvestLotPrintPage() {
                 aria-label="Chọn khổ tem"
                 value={layout}
                 onChange={(e) => handleLayoutChange(e.target.value as PrintLayoutType)}
-                className="h-9 rounded-md border border-slate-300 bg-white px-2.5 text-xs font-medium dark:border-slate-800 dark:bg-slate-900"
+                className="h-9 rounded-md border border-line bg-surface px-2.5 text-xs font-medium text-fg focus:outline-none focus:ring-2 focus:ring-accent"
               >
                 <option value="a4">A4 (Lưới 3x8 tem - 24 tem/trang)</option>
                 <option value="label">Tem đơn (50x30 mm)</option>
@@ -199,7 +199,7 @@ export default function HarvestLotPrintPage() {
               />
             </div>
 
-            <Button onClick={handlePrint} className="bg-emerald-600 hover:bg-emerald-700">
+            <Button onClick={handlePrint}>
               <Printer className="mr-1.5 h-4 w-4" />
               In tem ngay
             </Button>
