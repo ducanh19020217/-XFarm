@@ -65,6 +65,10 @@ const emptySummary: Summary = {
 
 const money = new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 0 });
 const quantity = new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 3 });
+const compactCurrency = new Intl.NumberFormat('vi-VN', {
+  notation: 'compact',
+  maximumFractionDigits: 1,
+});
 
 interface KpiCardProps {
   href: string;
@@ -119,8 +123,25 @@ function KpiCard({ href, label, value, icon: Icon, tone, trend }: KpiCardProps) 
               </span>
             )}
             {trend.direction === 'neutral' && (
-              <span className="inline-flex items-center gap-0.5 font-medium text-muted">
+              <span
+                className={`inline-flex items-center gap-0.5 font-medium ${
+                  trend.isGood ? 'text-ok' : 'text-muted'
+                }`}
+              >
                 <Minus className="h-3.5 w-3.5" />
+                {trend.label}
+              </span>
+            )}
+            {!trend.direction && (
+              <span
+                className={`inline-flex items-center gap-0.5 font-medium ${
+                  trend.isGood === true
+                    ? 'text-ok'
+                    : trend.isGood === false
+                      ? 'text-crit'
+                      : 'text-muted'
+                }`}
+              >
                 {trend.label}
               </span>
             )}
@@ -173,6 +194,46 @@ export default function AdminDashboardPage() {
     quantityValue: Number(item.quantity),
   }));
 
+  const revenueTrend = React.useMemo(() => {
+    if (!charts.months || charts.months.length < 2) {
+      return { label: 'Chưa có dữ liệu tháng trước', direction: 'neutral' as const };
+    }
+    const currentMonthItem = charts.months[charts.months.length - 1];
+    const prevMonthItem = charts.months[charts.months.length - 2];
+
+    const currentRevenue = Number(summary.revenueThisMonth || currentMonthItem?.revenue || 0);
+    const prevRevenue = Number(prevMonthItem?.revenue || 0);
+
+    if (prevRevenue <= 0) {
+      return { label: 'Chưa có dữ liệu tháng trước', direction: 'neutral' as const };
+    }
+
+    const diff = currentRevenue - prevRevenue;
+    const pct = (diff / prevRevenue) * 100;
+    const formattedPct = `${pct > 0 ? '+' : ''}${pct.toLocaleString('vi-VN', {
+      maximumFractionDigits: 1,
+    })}%`;
+
+    if (pct > 0) {
+      return {
+        label: `${formattedPct} so với tháng trước`,
+        direction: 'up' as const,
+        isGood: true,
+      };
+    } else if (pct < 0) {
+      return {
+        label: `${formattedPct} so với tháng trước`,
+        direction: 'down' as const,
+        isGood: false,
+      };
+    } else {
+      return {
+        label: '0% so với tháng trước',
+        direction: 'neutral' as const,
+      };
+    }
+  }, [charts.months, summary.revenueThisMonth]);
+
   return (
     <div className="space-y-6" data-testid="dashboard-page">
       <PageHeader
@@ -199,7 +260,6 @@ export default function AdminDashboardPage() {
                 value={summary.activeCycles}
                 icon={Sprout}
                 tone="bg-accent-bg text-accent"
-                trend={{ label: 'Mục tiêu quý này', direction: 'neutral' }}
               />
             )}
             <KpiCard
@@ -208,7 +268,7 @@ export default function AdminDashboardPage() {
               value={`${money.format(Number(summary.revenueThisMonth))} ₫`}
               icon={CircleDollarSign}
               tone="bg-info-bg text-info"
-              trend={{ label: '+12.5% so với tháng trước', direction: 'up', isGood: true }}
+              trend={revenueTrend}
             />
             <KpiCard
               href="/admin/tours/bookings"
@@ -216,7 +276,6 @@ export default function AdminDashboardPage() {
               value={summary.upcomingBookings}
               icon={CalendarDays}
               tone="bg-chip text-chip-text"
-              trend={{ label: 'Xu hướng tăng', direction: 'up', isGood: true }}
             />
             {!isSales && (
               <KpiCard
@@ -227,7 +286,7 @@ export default function AdminDashboardPage() {
                 tone="bg-warn-bg text-warn"
                 trend={
                   summary.lowStockItems > 0
-                    ? { label: 'Cần bổ sung kho', direction: 'up', isGood: false }
+                    ? { label: 'Cần bổ sung kho', isGood: false }
                     : { label: 'Kho ổn định', direction: 'neutral', isGood: true }
                 }
               />
@@ -239,7 +298,11 @@ export default function AdminDashboardPage() {
                 value={summary.expiringLots}
                 icon={Clock3}
                 tone="bg-warn-bg text-warn"
-                trend={{ label: 'Trong 30 ngày', direction: 'neutral' }}
+                trend={
+                  summary.expiringLots > 0
+                    ? { label: 'Hết hạn trong 7 ngày', isGood: false }
+                    : undefined
+                }
               />
             )}
             {!isSales && (
@@ -251,7 +314,7 @@ export default function AdminDashboardPage() {
                 tone="bg-crit-bg text-crit"
                 trend={
                   summary.overdueTasks > 0
-                    ? { label: 'Cần xử lý gấp', direction: 'up', isGood: false }
+                    ? { label: 'Cần xử lý gấp', isGood: false }
                     : { label: 'Đúng tiến độ', direction: 'neutral', isGood: true }
                 }
               />
@@ -264,7 +327,7 @@ export default function AdminDashboardPage() {
               tone="bg-crit-bg text-crit"
               trend={
                 summary.unreadAlerts > 0
-                  ? { label: 'Cần kiểm tra thiết bị', direction: 'up', isGood: false }
+                  ? { label: 'Cần kiểm tra thiết bị', isGood: false }
                   : { label: 'Hệ thống an toàn', direction: 'neutral', isGood: true }
               }
             />
@@ -290,7 +353,7 @@ export default function AdminDashboardPage() {
                     <YAxis
                       stroke={colors.axis}
                       tick={{ fill: colors.axis, fontSize: 12 }}
-                      tickFormatter={(val) => `${Math.round(val / 1000000)}tr`}
+                      tickFormatter={(val) => compactCurrency.format(Number(val))}
                     />
                     <Tooltip
                       formatter={(val) => `${money.format(Number(val))} ₫`}
