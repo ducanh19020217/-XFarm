@@ -1,0 +1,96 @@
+/* Design Tokens for XFarm Theme (Light & Dark) */
+:root {
+  --t-bg: #f4f6f5;
+  --t-surface: #ffffff;
+  --t-surface-2: #f6f7f8;
+  --t-hover: hsla(150, 15%, 40%, 8%);
+  --t-selected: #e3f4ea;
+  --t-border: hsla(229, 15%, 6%, 12%);
+  --t-border-strong: #c4c7d4;
+  --t-text: #21232c;
+  --t-text-2: #3a3d4a;
+  --t-text-3: #6c7393;
+  --t-accent: #15803d;
+  --t-accent-hover: #166534;
+  --t-accent-fade: #bbf7d0;
+  --t-accent-on-fade: #14532d;
+  --t-accent-bg: #ecfdf3;
+  --t-crit: #c91a03;
+  --t-crit-fill: #fc4d36;
+  --t-crit-bg: rgba(201, 26, 3, 0.1);
+  --t-warn: #a86b00;
+  --t-warn-fill: #ffa100;
+  --t-warn-bg: rgba(255, 161, 0, 0.14);
+  --t-ok: #367d1c;
+  --t-ok-fill: #50bc29;
+  --t-ok-bg: rgba(54, 125, 28, 0.12);
+  --t-info: #0052cc;
+  --t-info-bg: #edf3ff;
+  --t-chip: #dcfce7;
+  --t-chip-text: #166534;
+}
+
+html.dark,
+.dark {
+  --t-bg: #1a1c23;
+  --t-surface: #1e2029;
+  --t-surface-2: #23252f;
+  --t-hover: hsla(229, 15%, 50%, 16%);
+  --t-selected: #0f2e1f;
+  --t-border: #2a2d39;
+  --t-border-strong: #303341;
+  --t-text: #dcdfe8;
+  --t-text-2: #c4c7d4;
+  --t-text-3: #8a8fa8;
+  --t-accent: #4ade80;
+  --t-accent-hover: #22c55e;
+  --t-accent-fade: #14532d;
+  --t-accent-on-fade: #bbf7d0;
+  --t-accent-bg: #0f2e1f;
+  --t-crit: #e8705c;
+  --t-crit-fill: #e8705c;
+  --t-crit-bg: rgba(252, 77, 54, 0.16);
+  --t-warn: #e0a95e;
+  --t-warn-fill: #e0a95e;
+  --t-warn-bg: rgba(224, 169, 94, 0.16);
+  --t-ok: #50bc29;
+  --t-ok-fill: #50bc29;
+  --t-ok-bg: rgba(80, 188, 41, 0.16);
+  --t-info: #8fbbff;
+  --t-info-bg: #001f4d;
+  --t-chip: #14532d;
+  --t-chip-text: #bbf7d0;
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  --color-app: var(--t-bg);
+  --color-surface: var(--t-surface);
+  --color-surface-2: var(--t-surface-2);
+  --color-hover: var(--t-hover);
+  --color-selected: var(--t-selected);
+  --color-fg: var(--t-text);
+  --color-fg-2: var(--t-text-2);
+  --color-muted: var(--t-text-3);
+  --color-line: var(--t-border);
+  --color-line-strong: var(--t-border-strong);
+  --color-accent: var(--t-accent);
+  --color-accent-hover: var(--t-accent-hover);
+  --color-accent-fade: var(--t-accent-fade);
+  --color-accent-on-fade: var(--t-accent-on-fade);
+  --color-accent-bg: var(--t-accent-bg);
+  --color-crit: var(--t-crit);
+  --color-crit-fill: var(--t-crit-fill);
+  --color-crit-bg: var(--t-crit-bg);
+  --color-warn: var(--t-warn);
+  --color-warn-fill: var(--t-warn-fill);
+  --color-warn-bg: var(--t-warn-bg);
+  --color-ok: var(--t-ok);
+  --color-ok-fill: var(--t-ok-fill);
+  --color-ok-bg: var(--t-ok-bg);
+  --color-info: var(--t-info);
+  --color-info-bg: var(--t-info-bg);
+  --color-chip: var(--t-chip);
+  --color-chip-text: var(--t-chip-text);
+}
