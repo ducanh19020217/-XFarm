@@ -136,7 +136,7 @@ export default async function TracePage({ params }: { params: Promise<{ code: st
   const normalizedPhotos = normalizePhotos(trace.photos);
 
   return (
-    <main className="min-h-screen bg-app text-fg py-4 sm:py-8 px-3 sm:px-4">
+    <div className="min-h-screen bg-app text-fg py-4 sm:py-8 px-3 sm:px-4">
       <div className="max-w-md mx-auto space-y-4">
         {/* Header: tên sản phẩm & badge chứng nhận */}
         <TraceHeader product={trace.product} lot={trace.lot} />
@@ -153,6 +153,6 @@ export default async function TracePage({ params }: { params: Promise<{ code: st
         {/* Footer: tên trại, liên hệ (site-settings) và link về trang chủ */}
         <TraceFooter settings={siteSettings} />
       </div>
-    </main>
+    </div>
   );
 }

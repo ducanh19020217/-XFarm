@@ -4,7 +4,7 @@ import { AlertCircle, Home, QrCode } from 'lucide-react';
 
 export default function TraceNotFound() {
   return (
-    <main className="min-h-screen bg-app text-fg flex items-center justify-center p-4">
+    <div className="min-h-screen bg-app text-fg flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-surface rounded-3xl p-6 sm:p-8 shadow-xs border border-line text-center space-y-6">
         <div className="mx-auto flex items-center justify-center w-16 h-16 rounded-full bg-crit-bg text-crit border border-crit/20">
           <AlertCircle className="w-8 h-8" />
@@ -41,6 +41,6 @@ export default function TraceNotFound() {
           </Link>
         </div>
       </div>
-    </main>
+    </div>
   );
 }
