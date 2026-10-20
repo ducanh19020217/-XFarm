@@ -53,7 +53,7 @@ pnpm db:seed:demo
 pnpm --filter @xfarm/db exec dotenv -e ../../.env -- tsx prisma/seed-demo.ts --reset-demo
 ```
 
-`db:seed:demo` thêm các mùa vụ, nhật ký, vật tư, thu hoạch, đơn bán đã thu tiền, chi phí, chấm công/bảng lương, booking tour đã thanh toán và dữ liệu cảm biến 2 giờ/lần trong 30 ngày. Dữ liệu có tiền tố `DEMO-` và không thay đổi seed nền.
+`db:seed:demo` tạo khoảng 4.000 đơn bán (có mùa vụ cao điểm, hủy, công nợ gần đây), 72 mùa vụ với nhật ký/vật tư/thu hoạch, 15 nhân viên chấm công và tính lương theo tháng, khoảng 400 booking tour cuối tuần và 12 cảm biến. Reading cảm biến được ghi mỗi 15 phút trong 30 ngày gần nhất và mỗi 2 giờ cho 11 tháng trước đó. Dữ liệu có tiền tố `DEMO-`, chạy lại không nhân đôi và không thay đổi seed nền.
 
 ### Bước 5: Chạy kiểm thử chất lượng và build
 
