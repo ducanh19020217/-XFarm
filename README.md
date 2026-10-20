@@ -47,13 +47,18 @@ pnpm i
 ```bash
 pnpm db:migrate
 pnpm db:seed
-# Nạp dữ liệu demo xác định cho 12 tháng gần nhất (có thể chạy lặp lại)
+# Nạp toàn bộ dữ liệu mẫu, nội dung và vận hành 12 tháng (khuyến nghị cho dev/staging)
+pnpm db:seed:all
+
+# Hoặc nạp riêng từng phần theo thứ tự tùy ý:
+pnpm db:seed:content
 pnpm db:seed:demo
-# Xóa riêng dữ liệu demo rồi tạo lại
+
+# Xóa riêng dữ liệu vận hành 12 tháng (DEMO12-)
 pnpm --filter @xfarm/db exec dotenv -e ../../.env -- tsx prisma/seed-demo.ts --reset-demo
 ```
 
-`db:seed:demo` tạo khoảng 4.000 đơn bán (có mùa vụ cao điểm, hủy, công nợ gần đây), 72 mùa vụ với nhật ký/vật tư/thu hoạch, 15 nhân viên chấm công và tính lương theo tháng, khoảng 400 booking tour cuối tuần và 12 cảm biến. Reading cảm biến được ghi mỗi 15 phút trong 30 ngày gần nhất và mỗi 2 giờ cho 11 tháng trước đó. Dữ liệu có tiền tố `DEMO-`, chạy lại không nhân đôi và không thay đổi seed nền.
+`db:seed:demo` tạo khoảng 4.000 đơn bán (có mùa vụ cao điểm, hủy, công nợ gần đây), 72 mùa vụ với nhật ký/vật tư/thu hoạch, 15 nhân viên chấm công và tính lương theo tháng, khoảng 400 booking tour cuối tuần và 12 cảm biến. Reading cảm biến được ghi mỗi 15 phút trong 30 ngày gần nhất và mỗi 2 giờ cho 11 tháng trước đó. Dữ liệu vận hành có tiền tố `DEMO12-`, ưu tiên liên kết danh mục `DEMO-` của `seed:content` nếu có (hoặc tự tạo danh mục tối thiểu `DEMO12-` nếu chạy độc lập), chạy lại không nhân đôi, không âm tồn kho và chỉ reset khi có cờ tường minh.
 
 ### Bước 5: Chạy kiểm thử chất lượng và build
 
@@ -91,6 +96,10 @@ Hệ thống được seed sẵn các tài khoản sau (cùng mật khẩu `Admi
 
 Hệ thống cung cấp kịch bản nạp nội dung và danh mục demo sinh động (`pnpm db:seed:content`):
 
+- **Tách không gian tên dữ liệu**:
+  - `seed-content.ts`: Sử dụng tiền tố `DEMO-` / `demo-` cho danh mục, nội dung trang web, sản phẩm webshop, bài viết blog, đối tác và hạ tầng.
+  - `seed-demo.ts`: Sử dụng tiền tố `DEMO12-` / `demo12-` cho dữ liệu vận hành 12 tháng (mùa vụ canh tác, đơn bán hàng, thanh toán, giao dịch tài chính, chấm công, bảng lương, booking và số đo cảm biến).
+- **Tương thích mọi thứ tự chạy**: Có thể chạy `content → demo` hoặc `demo → content` mà không bị vi phạm khóa ngoại (FK) hay nhân đôi dữ liệu. `seed-demo.ts` tự động liên kết danh mục `DEMO-` nếu đã tồn tại, hoặc khởi tạo danh mục tối thiểu `DEMO12-` khi chạy trước.
 - **Bộ hình ảnh SVG minh họa**: ~32 file SVG phong cách phẳng đặt tại `apps/web/public/demo/*.svg` (< 30 KB/file, có `<title>`), được đăng ký vào bảng `Media` trỏ URL `/demo/<file>.svg`.
 - **Bản đồ 23 khu vực**: Tọa độ GeoJSON Polygon thực tế, chuẩn xác tại Lâm Đồng (11.94°N, 108.44°E), không chồng lấn, phủ đủ 4 nhóm phân hệ (Trồng trọt, Chăn nuôi, Thủy sản, Dịch vụ/Cảnh quan/Hạ tầng).
 - **Danh mục 42 vật tư**: Thuộc 4 kho (`KHO-TT`, `KHO-CN`, `KHO-TS`, `KHO-CHUNG`), có định mức dự trữ tối thiểu (`minStock`).
@@ -104,12 +113,24 @@ Hệ thống cung cấp kịch bản nạp nội dung và danh mục demo sinh �
 ### Các lệnh quản trị dữ liệu demo
 
 ```bash
+# Nạp toàn bộ dữ liệu mẫu theo thứ tự chuẩn: seed -> seed:content -> seed:demo
+pnpm db:seed:all
+
 # Nạp dữ liệu nền tảng ban đầu (tài khoản, quyền, cấu hình gốc)
 pnpm db:seed
 
-# Nạp dữ liệu nội dung & danh mục demo sinh động (idempotent upsert)
+# Nạp dữ liệu nội dung & danh mục demo sinh động (DEMO-, idempotent upsert)
 pnpm db:seed:content
 
-# Xóa riêng toàn bộ dữ liệu demo (không ảnh hưởng tới dữ liệu gốc hay người dùng thật)
-pnpm db:seed:content --reset-content
+# Nạp dữ liệu vận hành 12 tháng (DEMO12-, idempotent kiểm tra tồn tại)
+pnpm db:seed:demo
+
+# Xóa riêng dữ liệu vận hành 12 tháng (DEMO12-)
+pnpm --filter @xfarm/db exec dotenv -e ../../.env -- tsx prisma/seed-demo.ts --reset-demo
+
+# Xóa danh mục & nội dung demo (từ chối nếu còn dữ liệu DEMO12- đang tham chiếu)
+pnpm db:seed:content -- --reset-content
+
+# Xóa toàn bộ dữ liệu demo (dọn sạch DEMO12- trước rồi dọn DEMO-)
+pnpm db:seed:content -- --reset-content --with-demo
 ```
