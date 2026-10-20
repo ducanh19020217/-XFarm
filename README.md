@@ -80,3 +80,30 @@ Hệ thống được seed sẵn các tài khoản sau (cùng mật khẩu `Admi
 - **Kế toán (ACCOUNTANT)**: `accountant@xfarm.local`
 - **Bán hàng (SALES)**: `sales@xfarm.local`
 - **Công nhân (WORKER)**: `worker@xfarm.local`
+
+## 5. Dữ liệu demo (Demo Content & Catalog)
+
+Hệ thống cung cấp kịch bản nạp nội dung và danh mục demo sinh động (`pnpm db:seed:content`):
+
+- **Bộ hình ảnh SVG minh họa**: ~32 file SVG phong cách phẳng đặt tại `apps/web/public/demo/*.svg` (< 30 KB/file, có `<title>`), được đăng ký vào bảng `Media` trỏ URL `/demo/<file>.svg`.
+- **Bản đồ 23 khu vực**: Tọa độ GeoJSON Polygon thực tế, chuẩn xác tại Lâm Đồng (11.94°N, 108.44°E), không chồng lấn, phủ đủ 4 nhóm phân hệ (Trồng trọt, Chăn nuôi, Thủy sản, Dịch vụ/Cảnh quan/Hạ tầng).
+- **Danh mục 42 vật tư**: Thuộc 4 kho (`KHO-TT`, `KHO-CN`, `KHO-TS`, `KHO-CHUNG`), có định mức dự trữ tối thiểu (`minStock`).
+- **20 sản phẩm bán lẻ webshop**: Đầy đủ phân loại, đơn vị tính, giá bán, mô tả HTML trực quan và ảnh minh họa SVG.
+- **12 bài viết Blog**: Trải dài 12 tháng qua 4 chuyên mục (Kỹ thuật canh tác, Đời sống nông trại, Ẩm thực sạch, Cẩm nang trải nghiệm).
+- **Trang tĩnh & Cấu hình Farm**: Giới thiệu (`/gioi-thieu`), Chính sách giao hàng (`/chinh-sach-giao-hang`), Liên hệ (`/lien-he`), cùng 3 banner trình chiếu và thông tin `SiteSetting`.
+- **6 tour trải nghiệm**: Đi kèm đầy đủ các suất tour (TourSlot) cố định vào các ngày thứ Bảy, Chủ Nhật trong 8 tuần tiếp theo.
+- **Dữ liệu đối tác & nhân sự**: 60 khách hàng Việt Nam giả lập hợp lệ, 15 nhân viên đa dạng chức vụ và hình thức trả lương (`MONTHLY`, `DAILY`, `HOURLY`), 10 nhà cung cấp uy tín.
+- **Chăn nuôi & Thiết bị & IoT**: 4 đàn vật nuôi, 20 cá thể có thẻ tai/RFID và ghi nhận phả hệ mẹ, 15 máy móc thiết bị kèm lịch bảo trì định kỳ, 12 cảm biến IoT cùng bộ quy tắc cảnh báo (AlertRule).
+
+### Các lệnh quản trị dữ liệu demo
+
+```bash
+# Nạp dữ liệu nền tảng ban đầu (tài khoản, quyền, cấu hình gốc)
+pnpm db:seed
+
+# Nạp dữ liệu nội dung & danh mục demo sinh động (idempotent upsert)
+pnpm db:seed:content
+
+# Xóa riêng toàn bộ dữ liệu demo (không ảnh hưởng tới dữ liệu gốc hay người dùng thật)
+pnpm db:seed:content --reset-content
+```
