@@ -20,19 +20,19 @@ const DEFAULT_SLIDES: BannerItem[] = [
     title: 'Nông nghiệp sinh thái tuần hoàn bền vững',
     subtitle:
       'Canh tác 100% không hóa chất độc hại, ứng dụng vi sinh hữu cơ tuần hoàn để bảo vệ sức khỏe gia đình bạn.',
-    image: '/images/banner-1.jpg',
+    image: '/demo/banner-1.svg',
   },
   {
     title: 'Nông sản tươi ngon từ đất mẹ',
     subtitle:
       'Thu hoạch từ sáng sớm tinh sương, đóng gói đạt chuẩn VietGAP và giao ngay đến tận bếp nhà bạn.',
-    image: '/images/banner-2.jpg',
+    image: '/demo/banner-2.svg',
   },
   {
     title: 'Du lịch trải nghiệm sinh thái cuối tuần',
     subtitle:
       'Không gian xanh mát, không khí trong lành với các hoạt động trải nghiệm bổ ích cho gia đình và trẻ nhỏ.',
-    image: '/images/banner-3.jpg',
+    image: '/demo/banner-3.svg',
   },
 ];
 
