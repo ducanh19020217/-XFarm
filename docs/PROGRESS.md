@@ -292,3 +292,10 @@ pnpm --filter @xfarm/api smoke:dev
 - `pnpm --filter @xfarm/api smoke:dev`: 100% các endpoint đạt status 200/hợp lệ.
 - `pnpm --filter @xfarm/web build`: đạt, hoàn thành build tối ưu production không lỗi.
 - `apps/web/e2e/phase5-acceptance.spec.ts`: PASS trọn vẹn luồng tạo tour, tạo slot hàng loạt, đặt chỗ public, giảm chỗ, xác nhận, thu tiền sinh Transaction INCOME (TOUR), hủy booking trả chỗ.
+
+## Tích hợp GĐ 7 – Thiết bị/IoT + Dashboard – ĐÃ HỢP NHẤT
+
+- Hợp nhất Equipment, MaintenanceSchedule/MaintenanceLog, Sensor, SensorReading, AlertRule và ingestion IoT với các phân hệ GĐ 1–6.
+- Hợp nhất alert `MAINTENANCE_DUE` và `SENSOR_THRESHOLD` với chuông cảnh báo dùng chung; bổ sung link tới thiết bị/biểu đồ.
+- Giữ rewrite `/api/v1/*`, sidebar, smoke routes, cleanup FK, migration và seed idempotent.
+- Nghiệm thu: migration deploy + `prisma migrate diff` không lệch; seed chạy 2 lần; lint, typecheck, unit, API e2e 26 suites/310 tests, smoke và web build đều PASS; Playwright UI 53/53 PASS.

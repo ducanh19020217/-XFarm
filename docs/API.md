@@ -81,3 +81,11 @@ Các endpoint công khai nằm dưới `/public/*`. Dữ liệu trả về chỉ
 | POST | `/bookings/:id/cancel` | OWNER, MANAGER, SALES | Hủy đặt chỗ (chuyển sang `CANCELLED`, tự động hoàn trả số chỗ vào `tour_slots.bookedCount` trong database transaction) |
 | POST | `/bookings/:id/complete` | OWNER, MANAGER, SALES | Đánh dấu hoàn thành chuyến tham quan (`COMPLETED`) |
 | POST | `/bookings/:id/payments` | OWNER, MANAGER, SALES, ACCOUNTANT | Ghi nhận thu tiền đặt chỗ: kiểm tra không thu vượt tổng tiền, tự sinh mã phiếu thu `TT-`, cập nhật `paymentStatus` (`PARTIAL` hoặc `PAID`), tự động tạo `Transaction` loại `INCOME` với danh mục tài chính `TOUR` trong cùng transaction |
+## Phân hệ Thiết bị và IoT (Giai đoạn 7)
+
+- `GET/POST/PATCH /equipment`: quản lý thiết bị; `GET /equipment/:id` trả lịch và nhật ký bảo trì.
+- `GET/POST/PATCH /maintenance-schedules`, `GET/POST/PATCH /maintenance-logs`: quản lý lịch và nhật ký bảo trì.
+- `POST /alerts/run-maintenance-check`: quét thiết bị đến hạn, tạo `MAINTENANCE_DUE`.
+- `GET/POST/PATCH /sensors` và `POST /sensors/:id/rotate-key`: quản lý cảm biến, API key chỉ trả một lần khi tạo/đổi key.
+- `POST /iot/readings` là public, xác thực bằng `X-Sensor-Key`; `GET /iot/series` và `GET /iot/latest` phục vụ biểu đồ.
+- `GET/POST/PATCH/DELETE /alert-rules`: cấu hình ngưỡng `GT`/`LT`; reading vượt ngưỡng tạo `SENSOR_THRESHOLD` theo cooldown.

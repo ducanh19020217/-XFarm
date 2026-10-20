@@ -33,6 +33,10 @@ import { SalesOrdersModule } from './modules/sales-orders/sales-orders.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { BookingsModule } from './modules/bookings/bookings.module';
 import { ToursModule } from './modules/tours/tours.module';
+import { EquipmentModule } from './modules/equipment/equipment.module';
+import { IotModule } from './modules/iot/iot.module';
+import { SensorsModule } from './modules/sensors/sensors.module';
+import { AlertRulesModule } from './modules/alert-rules/alert-rules.module';
 import { SequenceModule } from './common/sequence/sequence.module';
 
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
@@ -81,6 +85,10 @@ import { HealthController } from './health.controller';
     ReportsModule,
     BookingsModule,
     ToursModule,
+    EquipmentModule,
+    IotModule,
+    SensorsModule,
+    AlertRulesModule,
   ],
   providers: [
     {

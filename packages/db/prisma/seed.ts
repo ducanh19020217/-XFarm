@@ -16,7 +16,12 @@ import {
   BookingStatus,
   PaymentStatus,
   PaymentMethod,
+  EquipmentStatus,
+  MaintenanceType,
+  SensorType,
+  AlertOp,
 } from '@prisma/client';
+import { createHash } from 'node:crypto';
 import * as argon2 from 'argon2';
 import { Prisma } from '@prisma/client';
 
@@ -1386,6 +1391,289 @@ async function main() {
   }
 
   await ensureSequence('BK', currentYear, 3);
+  // 11. Seed Equipment & IoT (GĐ 7)
+  console.log('Seeding Phase 7 Equipment & IoT...');
+
+  // 11.1 Equipment (4 thiết bị: máy bơm khu rau, máy sục khí ao cá, máy phát điện, máy phun)
+  const loRau = await prisma.area.findUniqueOrThrow({ where: { code: 'AR-0002' } });
+  const aoCa = await prisma.area.findUniqueOrThrow({ where: { code: 'AR-0005' } });
+
+  const equipments = [
+    {
+      code: 'EQ-0001',
+      name: 'Máy bơm khu rau',
+      type: 'PUMP',
+      areaId: loRau.id,
+      purchaseDate: new Date('2025-03-15T00:00:00Z'),
+      value: new Prisma.Decimal('15000000.00'),
+      status: EquipmentStatus.ACTIVE,
+      notes: 'Máy bơm chìm 2HP cấp nước tưới tự động khu rau',
+      isActive: true,
+      createdById: admin.id,
+    },
+    {
+      code: 'EQ-0002',
+      name: 'Máy sục khí ao cá',
+      type: 'AERATOR',
+      areaId: aoCa.id,
+      purchaseDate: new Date('2025-05-20T00:00:00Z'),
+      value: new Prisma.Decimal('22000000.00'),
+      status: EquipmentStatus.ACTIVE,
+      notes: 'Máy quạt nước tạo oxy 4 cánh ao cá 1',
+      isActive: true,
+      createdById: admin.id,
+    },
+    {
+      code: 'EQ-0003',
+      name: 'Máy phát điện',
+      type: 'GENERATOR',
+      areaId: khuA.id,
+      purchaseDate: new Date('2024-11-10T00:00:00Z'),
+      value: new Prisma.Decimal('45000000.00'),
+      status: EquipmentStatus.ACTIVE,
+      notes: 'Máy phát điện diesel 3 pha 25kVA dự phòng toàn khu',
+      isActive: true,
+      createdById: admin.id,
+    },
+    {
+      code: 'EQ-0004',
+      name: 'Máy phun',
+      type: 'SPRAYER',
+      areaId: loRau.id,
+      purchaseDate: new Date('2025-08-01T00:00:00Z'),
+      value: new Prisma.Decimal('8500000.00'),
+      status: EquipmentStatus.ACTIVE,
+      notes: 'Máy phun thuốc / phân bón lá áp lực cao',
+      isActive: true,
+      createdById: admin.id,
+    },
+  ];
+
+  const seededEquipments = new Map<string, { id: string }>();
+  for (const eq of equipments) {
+    const saved = await prisma.equipment.upsert({
+      where: { code: eq.code },
+      update: eq,
+      create: eq,
+      select: { id: true },
+    });
+    seededEquipments.set(eq.code, saved);
+    console.log(`Seeded equipment: ${eq.code} (${eq.name})`);
+  }
+  await ensureSequence('EQ', currentYear, 4);
+
+  // 11.2 Lịch bảo trì (1 cái đến hạn trong 3 ngày)
+  const pumpEq = seededEquipments.get('EQ-0001');
+  if (pumpEq) {
+    const nextDueIn2Days = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
+    const existingSchedule = await prisma.maintenanceSchedule.findFirst({
+      where: { equipmentId: pumpEq.id, name: 'Bảo dưỡng định kỳ máy bơm' },
+    });
+    const pumpSchedule = existingSchedule
+      ? await prisma.maintenanceSchedule.update({
+          where: { id: existingSchedule.id },
+          data: { nextDueDate: nextDueIn2Days, intervalDays: 30, isActive: true },
+        })
+      : await prisma.maintenanceSchedule.create({
+          data: {
+            equipmentId: pumpEq.id,
+            name: 'Bảo dưỡng định kỳ máy bơm',
+            intervalDays: 30,
+            nextDueDate: nextDueIn2Days,
+            isActive: true,
+            createdById: admin.id,
+          },
+        });
+    console.log(`Seeded maintenance schedule for EQ-0001 (nextDue in 2 days)`);
+
+    const existingLog = await prisma.maintenanceLog.findFirst({
+      where: { equipmentId: pumpEq.id, scheduleId: pumpSchedule.id },
+    });
+    if (!existingLog) {
+      await prisma.maintenanceLog.create({
+        data: {
+          equipmentId: pumpEq.id,
+          scheduleId: pumpSchedule.id,
+          date: new Date(Date.now() - 28 * 24 * 60 * 60 * 1000),
+          type: MaintenanceType.ROUTINE,
+          cost: new Prisma.Decimal('350000.00'),
+          notes: 'Thay dầu động cơ và bảo dưỡng trục bơm',
+          performedById: worker.id,
+          createdById: admin.id,
+        },
+      });
+      console.log(`Seeded maintenance log for EQ-0001`);
+    }
+  }
+
+  // 11.3 Cảm biến (4 cảm biến: nhiệt độ + ẩm đất khu rau, pH + DO ao cá)
+  function hashApiKey(rawKey: string): string {
+    return createHash('sha256').update(rawKey).digest('hex');
+  }
+
+  const sensorConfigs = [
+    {
+      code: 'SN-0001',
+      name: 'Cảm biến nhiệt độ khu rau',
+      type: SensorType.TEMP,
+      unit: '°C',
+      areaId: loRau.id,
+      rawKey: 'dev-sensor-key-temp-01',
+    },
+    {
+      code: 'SN-0002',
+      name: 'Cảm biến độ ẩm đất khu rau',
+      type: SensorType.SOIL_MOISTURE,
+      unit: '%',
+      areaId: loRau.id,
+      rawKey: 'dev-sensor-key-soil-02',
+    },
+    {
+      code: 'SN-0003',
+      name: 'Cảm biến pH ao cá',
+      type: SensorType.PH,
+      unit: 'pH',
+      areaId: aoCa.id,
+      rawKey: 'dev-sensor-key-ph-03',
+    },
+    {
+      code: 'SN-0004',
+      name: 'Cảm biến DO ao cá',
+      type: SensorType.DO,
+      unit: 'mg/L',
+      areaId: aoCa.id,
+      rawKey: 'dev-sensor-key-do-04',
+    },
+  ];
+
+  const seededSensors = new Map<string, { id: string; type: SensorType }>();
+  for (const s of sensorConfigs) {
+    const apiKeyPrefix = s.rawKey.slice(0, 8);
+    const apiKeyHash = hashApiKey(s.rawKey);
+
+    const saved = await prisma.sensor.upsert({
+      where: { code: s.code },
+      update: {
+        name: s.name,
+        type: s.type,
+        unit: s.unit,
+        areaId: s.areaId,
+        apiKeyHash,
+        apiKeyPrefix,
+        isActive: true,
+      },
+      create: {
+        code: s.code,
+        name: s.name,
+        type: s.type,
+        unit: s.unit,
+        areaId: s.areaId,
+        apiKeyHash,
+        apiKeyPrefix,
+        isActive: true,
+        createdById: admin.id,
+      },
+      select: { id: true, type: true },
+    });
+    seededSensors.set(s.code, saved);
+    console.log(
+      `Seeded sensor: ${s.code} (${s.name}) - Dev API Key: ${s.rawKey} (prefix: ${apiKeyPrefix})`,
+    );
+  }
+  await ensureSequence('SN', currentYear, 4);
+
+  // 11.4 AlertRule mẫu (DO < 4, nhiệt độ > 38)
+  const doSensor = seededSensors.get('SN-0004');
+  if (doSensor) {
+    const existingDoRule = await prisma.alertRule.findFirst({
+      where: { sensorId: doSensor.id, op: AlertOp.LT },
+    });
+    if (existingDoRule) {
+      await prisma.alertRule.update({
+        where: { id: existingDoRule.id },
+        data: { threshold: new Prisma.Decimal('4.0000'), isActive: true, cooldownMinutes: 30 },
+      });
+    } else {
+      await prisma.alertRule.create({
+        data: {
+          sensorId: doSensor.id,
+          op: AlertOp.LT,
+          threshold: new Prisma.Decimal('4.0000'),
+          isActive: true,
+          cooldownMinutes: 30,
+          createdById: admin.id,
+        },
+      });
+    }
+    console.log('Seeded AlertRule: DO < 4.0000 (cooldown 30m)');
+  }
+
+  const tempSensor = seededSensors.get('SN-0001');
+  if (tempSensor) {
+    const existingTempRule = await prisma.alertRule.findFirst({
+      where: { sensorId: tempSensor.id, op: AlertOp.GT },
+    });
+    if (existingTempRule) {
+      await prisma.alertRule.update({
+        where: { id: existingTempRule.id },
+        data: { threshold: new Prisma.Decimal('38.0000'), isActive: true, cooldownMinutes: 30 },
+      });
+    } else {
+      await prisma.alertRule.create({
+        data: {
+          sensorId: tempSensor.id,
+          op: AlertOp.GT,
+          threshold: new Prisma.Decimal('38.0000'),
+          isActive: true,
+          cooldownMinutes: 30,
+          createdById: admin.id,
+        },
+      });
+    }
+    console.log('Seeded AlertRule: TEMP > 38.0000 (cooldown 30m)');
+  }
+
+  // 11.5 7 ngày reading mỗi 30 phút cho mỗi cảm biến (idempotent, không nhân đôi)
+  const readingNow = new Date();
+  const totalReadingsPerSensor = 7 * 24 * 2; // 336 data points
+  for (const s of sensorConfigs) {
+    const sensor = seededSensors.get(s.code);
+    if (!sensor) continue;
+
+    const readings: Array<{ sensorId: string; value: Prisma.Decimal; recordedAt: Date }> = [];
+    for (let i = totalReadingsPerSensor - 1; i >= 0; i--) {
+      const recordedAt = new Date(readingNow.getTime() - i * 30 * 60 * 1000);
+      let val = 0;
+      if (s.type === SensorType.TEMP) {
+        val = 26 + 6 * Math.sin(((i % 48) / 48) * 2 * Math.PI) + (i % 5 === 0 ? 1.5 : -0.5);
+      } else if (s.type === SensorType.SOIL_MOISTURE) {
+        val = 65 + 8 * Math.cos(((i % 48) / 48) * 2 * Math.PI) + (i % 3 === 0 ? 2 : -1);
+      } else if (s.type === SensorType.PH) {
+        val = 7.2 + 0.3 * Math.sin(((i % 48) / 48) * 2 * Math.PI) + (i % 4 === 0 ? 0.1 : -0.05);
+      } else if (s.type === SensorType.DO) {
+        val = 5.5 + 1.2 * Math.cos(((i % 48) / 48) * 2 * Math.PI) + (i % 6 === 0 ? 0.3 : -0.2);
+      }
+      readings.push({
+        sensorId: sensor.id,
+        value: new Prisma.Decimal(val.toFixed(4)),
+        recordedAt,
+      });
+    }
+
+    // Idempotent: Xóa readings cũ của cảm biến này và nạp lại đúng 336 điểm
+    await prisma.sensorReading.deleteMany({
+      where: { sensorId: sensor.id },
+    });
+    await prisma.sensorReading.createMany({
+      data: readings,
+    });
+    await prisma.sensor.update({
+      where: { id: sensor.id },
+      data: { lastSeenAt: readingNow },
+    });
+    console.log(`Seeded ${readings.length} readings (7 days @ 30m) for sensor ${s.code}`);
+  }
+
   console.log('Seed completed successfully!');
 }
 
