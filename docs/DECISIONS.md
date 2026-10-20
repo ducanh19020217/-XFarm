@@ -1,40 +1,6 @@
 # XFarm – Nhật ký Quyết định Kỹ thuật (Decisions Log)
 
-### DECISION-009: Tồn kho theo kho và hướng điều chỉnh
-- `StockLot.warehouseId` được lưu nullable để lô nhập kho xác định được kho hiện tại; các lô thu hoạch ở giai đoạn sau có thể được gán kho khi phát sinh nhập.
-- `StockMove.quantity` luôn là số dương. Với `ADJUST`, cột `direction` (IN/OUT) biểu diễn tăng hoặc giảm; view `stock_balances` không suy diễn dấu từ `refType`.
-- View tổng hợp mọi biến động theo `(itemId, stockLotId, warehouseId)`, nên không lưu số tồn riêng trong bảng nghiệp vụ.
-
----
-
-### DECISION-010: Hoãn tính năng Trả tiền và Transaction chi của Đơn mua hàng sang GĐ 4
-- **Bối cảnh**: Kế hoạch tổng thể (`docs/PLAN.md` mục 6 "Mua hàng") có nêu: "Nếu đánh dấu đã trả tiền thì tạo thêm Transaction chi". Tuy nhiên, phân hệ Tài chính (FinanceCategory, Transaction thu/chi) và luồng thanh toán thuộc Giai đoạn 4.
-- **Quyết định**: Trong Giai đoạn 2 (task `p2-api-purchase`), API đơn mua hàng chỉ tập trung giải quyết trọn vẹn vòng đời mua hàng và quản lý kho vận: lập đơn (DRAFT), duyệt đặt hàng (ORDERED), hủy đơn (CANCELLED), và tiếp nhận hàng hóa vào kho qua `InventoryService.receive` (PARTIAL / RECEIVED). Nghiệp vụ thanh toán và tự động hạch toán bút toán chi (Transaction EXPENSE) sẽ được tích hợp đồng bộ ở GĐ 4 khi phân hệ Tài chính được hoàn thiện.
-- **Hệ quả**: Giữ đúng phạm vi ranh giới của GĐ 2, tránh phụ thuộc chéo vào schema tài chính chưa sẵn sàng, đảm bảo module `purchase-orders` độc lập, an toàn và dễ kiểm thử.
-
 Tài liệu này ghi lại các quyết định thiết kế và kỹ thuật quan trọng trong quá trình triển khai dự án XFarm.
-
-### DECISION-011: Chọn kho mặc định khi Activity xuất vật tư
-- Khi dòng vật tư có `warehouseId`, hệ thống xuất đúng kho đó.
-- Nếu bỏ trống, hệ thống ưu tiên kho có `areaId` trùng với khu/lô của Activity, sau đó lần lượt các kho gắn với khu cha của khu/lô đó.
-- Nếu không tìm được kho theo cây khu/lô, dùng kho đầu tiên theo `createdAt`, rồi `id` để kết quả deterministic. Không có kho nào thì trả 422 và transaction tạo Activity bị rollback.
-
-### DECISION-011: Tạm tính giá vốn lô thu hoạch ở GĐ 3
-- Khi Activity HARVEST sinh StockLot, `unitCost` được ghi nhận là `0` để bảo đảm lô và tồn kho được tạo nguyên tử cùng nhật ký.
-- Giá thành thực tế của mùa vụ sẽ được tính lại ở GĐ 4 từ vật tư, chi phí và công lao động; luồng HARVEST không tự suy đoán giá vốn tại thời điểm nhập kho.
-
-### DECISION-008: Đưa Playwright E2E lên GĐ 1
-- **Bối cảnh**: Lỗi giao diện liên quan đến layout và tương tác trình duyệt thật không được phát hiện bởi test jsdom; yêu cầu sản phẩm cần kiểm tra ngay các luồng GĐ 0–1.
-- **Quyết định**: Bổ sung bộ test Playwright tại `apps/web/e2e` trong task P1, dùng Chrome hệ thống và không tải browser riêng.
-- **Hệ quả**: `test:ui` cần web/API đang chạy và database slot đã migrate/seed; kế hoạch gốc đặt Playwright ở GĐ 3 được điều chỉnh cho mục tiêu kiểm thử sớm.
-
----
-
-### DECISION-007: Dùng TypeScript watch và Node watch cho API development server
-- **Bối cảnh**: `tsx watch` dùng esbuild và không phát sinh `emitDecoratorMetadata`, khiến NestJS không inject được các dependency constructor không có `@Inject()` trong môi trường dev.
-- **Quyết định**: Đổi script `@xfarm/api dev` sang script chạy `tsc` một lần, sau đó chạy `tsc --watch` song song với `node --watch dist/src/main.js`. TypeScript compiler dùng `tsconfig.json` hiện tại nên phát sinh decorator metadata trong lúc watch.
-- **Lý do chọn phương án**: Nest CLI Webpack cần thêm loader và khi chạy trong monorepo này externalize `@xfarm/shared`, dẫn tới lỗi ESM source không có extension. Phương án compiler/runtime tách đôi không cần thay đổi package shared.
-- **Hệ quả**: Hot reload vẫn được giữ, dev server dùng cùng cơ chế metadata với bản build `tsc`; thêm smoke test khởi động bằng chính script `dev` để kiểm tra các route bị ảnh hưởng.
 
 ---
 
@@ -101,24 +67,72 @@ Tài liệu này ghi lại các quyết định thiết kế và kỹ thuật qu
 - **Hệ quả**:
   - Đảm bảo tính ổn định, dễ bảo trì, khả năng mở rộng tốt cho các giai đoạn tiếp theo (như cắt lô, chia luống, đo diện tích tự động).
 
-### DECISION-012: Không cache trang truy xuất khi trạng thái công khai thay đổi
+---
+
+### DECISION-007: Dùng TypeScript watch và Node watch cho API development server
+- **Bối cảnh**: `tsx watch` dùng esbuild và không phát sinh `emitDecoratorMetadata`, khiến NestJS không inject được các dependency constructor không có `@Inject()` trong môi trường dev.
+- **Quyết định**: Đổi script `@xfarm/api dev` sang script chạy `tsc` một lần, sau đó chạy `tsc --watch` song song với `node --watch dist/src/main.js`. TypeScript compiler dùng `tsconfig.json` hiện tại nên phát sinh decorator metadata trong lúc watch.
+- **Lý do chọn phương án**: Nest CLI Webpack cần thêm loader và khi chạy trong monorepo này externalize `@xfarm/shared`, dẫn tới lỗi ESM source không có extension. Phương án compiler/runtime tách đôi không cần thay đổi package shared.
+- **Hệ quả**: Hot reload vẫn được giữ, dev server dùng cùng cơ chế metadata với bản build `tsc`; thêm smoke test khởi động bằng chính script `dev` để kiểm tra các route bị ảnh hưởng.
+
+---
+
+### DECISION-008: Đưa Playwright E2E lên GĐ 1
+- **Bối cảnh**: Lỗi giao diện liên quan đến layout và tương tác trình duyệt thật không được phát hiện bởi test jsdom; yêu cầu sản phẩm cần kiểm tra ngay các luồng GĐ 0–1.
+- **Quyết định**: Bổ sung bộ test Playwright tại `apps/web/e2e` trong task P1, dùng Chrome hệ thống và không tải browser riêng.
+- **Hệ quả**: `test:ui` cần web/API đang chạy và database slot đã migrate/seed; kế hoạch gốc đặt Playwright ở GĐ 3 được điều chỉnh cho mục tiêu kiểm thử sớm.
+
+---
+
+### DECISION-009: Tồn kho theo kho và hướng điều chỉnh
+- `StockLot.warehouseId` được lưu nullable để lô nhập kho xác định được kho hiện tại; các lô thu hoạch ở giai đoạn sau có thể được gán kho khi phát sinh nhập.
+- `StockMove.quantity` luôn là số dương. Với `ADJUST`, cột `direction` (IN/OUT) biểu diễn tăng hoặc giảm; view `stock_balances` không suy diễn dấu từ `refType`.
+- View tổng hợp mọi biến động theo `(itemId, stockLotId, warehouseId)`, nên không lưu số tồn riêng trong bảng nghiệp vụ.
+
+---
+
+### DECISION-010: Hoãn tính năng Trả tiền và Transaction chi của Đơn mua hàng sang GĐ 4
+- **Bối cảnh**: Kế hoạch tổng thể (`docs/PLAN.md` mục 6 "Mua hàng") có nêu: "Nếu đánh dấu đã trả tiền thì tạo thêm Transaction chi". Tuy nhiên, phân hệ Tài chính (FinanceCategory, Transaction thu/chi) và luồng thanh toán thuộc Giai đoạn 4.
+- **Quyết định**: Trong Giai đoạn 2 (task `p2-api-purchase`), API đơn mua hàng chỉ tập trung giải quyết trọn vẹn vòng đời mua hàng và quản lý kho vận: lập đơn (DRAFT), duyệt đặt hàng (ORDERED), hủy đơn (CANCELLED), và tiếp nhận hàng hóa vào kho qua `InventoryService.receive` (PARTIAL / RECEIVED). Nghiệp vụ thanh toán và tự động hạch toán bút toán chi (Transaction EXPENSE) sẽ được tích hợp đồng bộ ở GĐ 4 khi phân hệ Tài chính được hoàn thiện.
+- **Hệ quả**: Giữ đúng phạm vi ranh giới của GĐ 2, tránh phụ thuộc chéo vào schema tài chính chưa sẵn sàng, đảm bảo module `purchase-orders` độc lập, an toàn và dễ kiểm thử.
+
+---
+
+### DECISION-011: Chọn kho mặc định khi Activity xuất vật tư
+- Khi dòng vật tư có `warehouseId`, hệ thống xuất đúng kho đó.
+- Nếu bỏ trống, hệ thống ưu tiên kho có `areaId` trùng với khu/lô của Activity, sau đó lần lượt các kho gắn với khu cha của khu/lô đó.
+- Nếu không tìm được kho theo cây khu/lô, dùng kho đầu tiên theo `createdAt`, rồi `id` để kết quả deterministic. Không có kho nào thì trả 422 và transaction tạo Activity bị rollback.
+
+---
+
+### DECISION-012: Tạm tính giá vốn lô thu hoạch ở GĐ 3
+- Khi Activity HARVEST sinh StockLot, `unitCost` được ghi nhận là `0` để bảo đảm lô và tồn kho được tạo nguyên tử cùng nhật ký.
+- Giá thành thực tế của mùa vụ sẽ được tính lại ở GĐ 4 từ vật tư, chi phí và công lao động; luồng HARVEST không tự suy đoán giá vốn tại thời điểm nhập kho.
+
+---
+
+### DECISION-013: Không cache trang truy xuất khi trạng thái công khai thay đổi
 - **Bối cảnh**: Khi tắt `HarvestLot.isPublic`, URL truy xuất phải ngừng hiển thị ngay; cache ISR có thể tiếp tục trả nội dung public cũ trong thời gian revalidate.
 - **Quyết định**: Trang `/trace/[code]` dùng `cache: 'no-store'` và `force-dynamic`; các trang public CMS khác vẫn dùng revalidate theo quy ước chung.
 - **Hệ quả**: Thay đổi công khai được phản ánh ngay trên URL truy xuất, đổi lại mỗi lượt truy xuất cần gọi API backend.
 
-### DECISION-013: Chạy Playwright trên bản build production và dùng env theo worktree
+---
+
+### DECISION-014: Chạy Playwright trên bản build production và dùng env theo worktree
 - **Bối cảnh**: Next dev biên dịch động trong lúc test khiến bộ UI gộp dễ timeout/`ERR_ABORTED`; các worktree cần dùng đúng API và cổng web riêng trong `.env` gốc.
 - **Quyết định**: Playwright build web một lần rồi chạy `next start`; Next config và script `dev`/`start` nạp `.env` gốc, lấy cổng từ `WEB_URL`. Client server/public dùng chung một `API_BASE_URL`.
 - **Hệ quả**: UI E2E kiểm tra gần với môi trường production và không tranh cổng mặc định giữa các slot; đổi lại mỗi lượt `test:ui` cần thời gian build.
 
-### DECISION-014: Hợp nhất schema và seed GĐ 3 với GĐ 6
+---
+
+### DECISION-015: Hợp nhất schema và seed GĐ 3 với GĐ 6
 - **Bối cảnh**: `phase-6-hr` tách từ nền GĐ 2 trong khi `main` đã có schema và seed GĐ 3.
 - **Quyết định**: Giữ nguyên toàn bộ model/migration Harvest, CMS, trace và bổ sung model Employee, Task, Attendance, Payroll cùng các quan hệ cần thiết; seed giữ cả dữ liệu public/CMS/Harvest và HR, đều dùng upsert để chạy lặp lại.
 - **Hệ quả**: Hai nhóm tính năng dùng chung Prisma Client và có thể migrate deploy trên DB trống mà không sửa migration đã phát hành.
 
 ---
 
-### DECISION-015: Giới hạn số worker và tiến trình song song khi kiểm thử
+### DECISION-016: Giới hạn số worker và tiến trình song song khi kiểm thử
 - **Bối cảnh**: Trên máy phát triển 12 nhân, có 4–6 worker/agent cùng chạy song song. Mỗi lần chạy kiểm thử, Vitest mặc định kích hoạt toàn bộ luồng (~12 threads/forks) và Turbo thực thi đồng thời nhiều task, khiến system load vọt lên 40–60 làm máy bị treo/đơ.
 - **Quyết định**:
   1. **Vitest**: Cấu hình `test.maxWorkers: 2` và `minWorkers: 1` trong tất cả các tệp cấu hình Vitest (`apps/web/vitest.config.ts`, `packages/shared/vitest.config.ts`), cho phép ghi đè thông qua biến môi trường `VITEST_MAX_WORKERS`.
@@ -129,7 +143,7 @@ Tài liệu này ghi lại các quyết định thiết kế và kỹ thuật qu
 
 ---
 
-### DECISION-016: Single-flight server cho refresh token
+### DECISION-017: Single-flight server cho refresh token
 - **Bối cảnh**: Client đã gom các request refresh trong cùng một bundle, nhưng nhiều tab, prefetch hoặc request tới nhiều instance API vẫn có thể gửi cùng refresh token đồng thời. Rotation khi đó chỉ cho một request thành công; request còn lại nhận 401 và có thể làm layout điều hướng sai về `/admin`.
 - **Quyết định**: Trong mỗi instance API, các request refresh đồng thời có cùng raw token dùng chung một Promise rotation. Tất cả request trong nhóm nhận cùng access/refresh token mới; token cũ vẫn được revoke một lần. Việc dùng lại token sau cửa sổ grace 30 giây vẫn kích hoạt cơ chế revoke toàn bộ phiên như DECISION-003.
 - **Hệ quả**: Refresh race trong một instance không làm mất phiên hoặc ghi đè cookie bằng kết quả lỗi. Với deployment nhiều instance, client single-flight vẫn là lớp chính; cần shared lock/cache nếu mở rộng theo chiều ngang.

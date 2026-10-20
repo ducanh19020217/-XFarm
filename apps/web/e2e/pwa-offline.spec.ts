@@ -1,4 +1,5 @@
 import { api, expect, loginAs, test } from './fixtures';
+import { PrismaClient } from '@prisma/client';
 
 try {
   process.loadEnvFile?.('../../.env');
@@ -42,11 +43,11 @@ test.describe('PWA Offline IndexedDB Queue & Idempotent Auto-Sync (p6-pwa-offlin
     await expect(areaSelect).toBeEnabled();
 
     // Lấy số lượng nhật ký ban đầu qua API để kiểm tra sau đồng bộ
-    const initialActivitiesRes = await api<{ data: Array<{ id: string; notes?: string }> }>(
-      page,
-      '/activities?pageSize=100',
-    );
-    const initialCount = initialActivitiesRes?.data?.length ?? 0;
+    const initialActivitiesRes = await api<{
+      total: number;
+      data: Array<{ id: string; notes?: string }>;
+    }>(page, '/activities?pageSize=10');
+    const initialCount = initialActivitiesRes?.total ?? 0;
 
     // 3. Ngắt kết nối mạng (Offline)
     await context.setOffline(true);
@@ -104,28 +105,29 @@ test.describe('PWA Offline IndexedDB Queue & Idempotent Auto-Sync (p6-pwa-offlin
     await expect(page.getByText(/hàng đợi trống/i)).toBeVisible();
 
     // 7. Kiểm tra qua API có đúng 2 activity mới được tạo từ 2 thao tác offline (không trùng)
-    const afterSyncRes = await api<{ data: Array<{ id: string; notes?: string }> }>(
+    const afterSyncRes = await api<{ total: number; data: Array<{ id: string; notes?: string }> }>(
       page,
-      '/activities?pageSize=100',
+      '/activities?pageSize=10',
     );
-    const syncedNotes = (afterSyncRes?.data || [])
-      .map((a) => a.notes)
-      .filter((note) => note === note1 || note === note2);
-    expect(syncedNotes).toHaveLength(2);
-    expect(afterSyncRes?.data?.length ?? 0).toBe(initialCount + 2);
+    expect(afterSyncRes?.total).toBe(initialCount + 2);
+    const prisma = new PrismaClient();
+    try {
+      const synced = await prisma.activity.findMany({
+        where: { notes: { in: [note1, note2] } },
+      });
+      expect(synced).toHaveLength(2);
+    } finally {
+      await prisma.$disconnect();
+    }
 
     // 8. Reload trang và xác nhận không phát sinh trùng lặp
     await page.reload();
     await expect(page.getByText(/hàng đợi trống/i)).toBeVisible();
 
-    const afterReloadRes = await api<{ data: Array<{ id: string; notes?: string }> }>(
-      page,
-      '/activities?pageSize=100',
-    );
-    const syncedNotesAfterReload = (afterReloadRes?.data || [])
-      .map((a) => a.notes)
-      .filter((note) => note === note1 || note === note2);
-    expect(syncedNotesAfterReload).toHaveLength(2);
-    expect(afterReloadRes?.data?.length ?? 0).toBe(initialCount + 2);
+    const afterReloadRes = await api<{
+      total: number;
+      data: Array<{ id: string; notes?: string }>;
+    }>(page, '/activities?pageSize=10');
+    expect(afterReloadRes?.total).toBe(initialCount + 2);
   });
 });

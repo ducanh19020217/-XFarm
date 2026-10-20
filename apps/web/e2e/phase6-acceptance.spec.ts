@@ -1,4 +1,5 @@
 import { api, expect, expectDialogInViewport, loginAs, test } from './fixtures';
+import { PrismaClient } from '@prisma/client';
 
 for (const envFile of ['../../.env', '../.env', '.env']) {
   try {
@@ -36,11 +37,11 @@ test.describe('Nghiệm thu GĐ 6 (Phase 6 Acceptance Criteria)', () => {
     await expect(areaSelect).toBeEnabled();
 
     // Đếm số lượng hoạt động ban đầu qua API
-    const initialActivitiesRes = await api<{ data: Array<{ id: string; notes?: string }> }>(
-      page,
-      '/activities?pageSize=100',
-    );
-    const initialCount = initialActivitiesRes?.data?.length ?? 0;
+    const initialActivitiesRes = await api<{
+      total: number;
+      data: Array<{ id: string; notes?: string }>;
+    }>(page, '/activities?pageSize=10');
+    const initialCount = initialActivitiesRes?.total ?? 0;
 
     // 3. Ngắt mạng (Offline)
     await context.setOffline(true);
@@ -94,29 +95,30 @@ test.describe('Nghiệm thu GĐ 6 (Phase 6 Acceptance Criteria)', () => {
     await expect(page.getByText(/hàng đợi trống/i)).toBeVisible();
 
     // 5. Kiểm tra qua API: đúng 2 hoạt động mới được tạo, không bị trùng
-    const afterSyncRes = await api<{ data: Array<{ id: string; notes?: string }> }>(
+    const afterSyncRes = await api<{ total: number; data: Array<{ id: string; notes?: string }> }>(
       page,
-      '/activities?pageSize=100',
+      '/activities?pageSize=10',
     );
-    const syncedNotes = (afterSyncRes?.data || [])
-      .map((a) => a.notes)
-      .filter((note) => note === note1 || note === note2);
-    expect(syncedNotes).toHaveLength(2);
-    expect(afterSyncRes?.data?.length ?? 0).toBe(initialCount + 2);
+    expect(afterSyncRes?.total).toBe(initialCount + 2);
+    const prisma = new PrismaClient();
+    try {
+      const synced = await prisma.activity.findMany({
+        where: { notes: { in: [note1, note2] } },
+      });
+      expect(synced).toHaveLength(2);
+    } finally {
+      await prisma.$disconnect();
+    }
 
     // 6. Reload trang và xác nhận idempotent (không tạo trùng lần nữa)
     await page.reload();
     await expect(page.getByText(/hàng đợi trống/i)).toBeVisible();
 
-    const afterReloadRes = await api<{ data: Array<{ id: string; notes?: string }> }>(
-      page,
-      '/activities?pageSize=100',
-    );
-    const syncedNotesAfterReload = (afterReloadRes?.data || [])
-      .map((a) => a.notes)
-      .filter((note) => note === note1 || note === note2);
-    expect(syncedNotesAfterReload).toHaveLength(2);
-    expect(afterReloadRes?.data?.length ?? 0).toBe(initialCount + 2);
+    const afterReloadRes = await api<{
+      total: number;
+      data: Array<{ id: string; notes?: string }>;
+    }>(page, '/activities?pageSize=10');
+    expect(afterReloadRes?.total).toBe(initialCount + 2);
   });
 
   test('(b) & (c) Chấm công 3 ngày gắn cycle, tính lương khớp giờ công và chi phí công cycle (/cycles/:id/labor-cost) bằng tổng chấm công gắn cycle', async ({

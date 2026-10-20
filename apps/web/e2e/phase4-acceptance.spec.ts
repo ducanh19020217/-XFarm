@@ -50,7 +50,7 @@ test('GĐ4 acceptance: webshop → admin → kho → thu tiền → transaction 
     data: Array<{ quantity: string | number }>;
   }>(
     page,
-    `/stock/balances?itemId=${product!.itemId}&warehouseId=${warehouse!.id}&includeZero=true`,
+    `/stock/balances?itemId=${product!.itemId}&warehouseId=${warehouse!.id}&includeZero=true&pageSize=100`,
   );
   const initialStock = balance.data.reduce((sum, row) => sum + Number(row.quantity), 0);
   if (initialStock < 1) {
@@ -85,6 +85,8 @@ test('GĐ4 acceptance: webshop → admin → kho → thu tiền → transaction 
   // 2. Đơn xuất hiện trong admin, xác nhận và kiểm tra kho giảm đúng 1.
   await loginAs(page, 'OWNER');
   await page.goto('/admin/sales/orders', { waitUntil: 'domcontentloaded' });
+  await page.getByPlaceholder(/tìm theo mã đơn/i).fill(orderCode!);
+  await page.waitForTimeout(500);
   await expect(page.getByText(orderCode!, { exact: true })).toBeVisible();
   const orders = await api<{
     data: Array<{ id: string; code: string; total: string | number }>;
@@ -94,7 +96,7 @@ test('GĐ4 acceptance: webshop → admin → kho → thu tiền → transaction 
 
   const beforeConfirm = await api<{ data: Array<{ quantity: string | number }> }>(
     page,
-    `/stock/balances?itemId=${product!.itemId}&warehouseId=${warehouse!.id}&includeZero=true`,
+    `/stock/balances?itemId=${product!.itemId}&warehouseId=${warehouse!.id}&includeZero=true&pageSize=100`,
   );
   const stockBeforeConfirm = beforeConfirm.data.reduce((sum, row) => sum + Number(row.quantity), 0);
   await page.goto(`/admin/sales/orders/${order!.id}`, { waitUntil: 'domcontentloaded' });
@@ -105,7 +107,7 @@ test('GĐ4 acceptance: webshop → admin → kho → thu tiền → transaction 
 
   const afterConfirm = await api<{ data: Array<{ quantity: string | number }> }>(
     page,
-    `/stock/balances?itemId=${product!.itemId}&warehouseId=${warehouse!.id}&includeZero=true`,
+    `/stock/balances?itemId=${product!.itemId}&warehouseId=${warehouse!.id}&includeZero=true&pageSize=100`,
   );
   const stockAfterConfirm = afterConfirm.data.reduce((sum, row) => sum + Number(row.quantity), 0);
   expect(stockAfterConfirm).toBe(stockBeforeConfirm - 1);
@@ -136,6 +138,6 @@ test('GĐ4 acceptance: webshop → admin → kho → thu tiền → transaction 
   expect(reportMonth, 'Báo cáo thu chi phải ghi nhận đủ tiền đơn hàng').toBeDefined();
   await expect(page.locator('table tbody tr').first()).toBeVisible();
   await page.getByRole('button', { name: /doanh thu sản phẩm/i }).click();
-  await expect(page.getByText(product!.name, { exact: true })).toBeVisible();
+  await expect(page.getByText(product!.name, { exact: true }).first()).toBeVisible();
   errors.assertClean();
 });

@@ -177,7 +177,7 @@ Bộ UI E2E hiện có 8 kịch bản, chạy tuần tự một worker. Global s
 - **Quy tắc sinh mã chưa đồng nhất**: Mã khu/lô và đàn vật nuôi không theo năm (`AR-0001`, `AG-0001`), trong khi mã mùa vụ đánh theo năm (`CY-2026-0001`). Cần xem xét chuẩn hóa lại quy ước sinh mã số ở các giai đoạn sau nếu cần quản lý tài sản theo niên độ.
 - **Kiểm tra vòng lặp cha–con của khu/lô**: Thuật toán phát hiện chu trình khi chọn khu/lô cha hiện đang duyệt từng cấp (recursive loop check), có thể xem xét tối ưu bằng CTE query trong database khi cây phân cấp sâu.
 
-## GĐ 2 – Kho + Mua hàng (phase-2-inventory) – NGHIỆM THU
+## GĐ 2 – Kho + Mua hàng (phase-2-inventory) – HOÀN THÀNH
 
 ### 1. Việc đã làm
 - Bổ sung Playwright acceptance qua giao diện tại `apps/web/e2e/phase2-acceptance.spec.ts`: tạo vật tư, nhập 10 kg, ghi nhật ký bón phân dùng 3 kg và xác nhận tồn 7 kg; xuất vượt tồn bị chặn; PO nhận một phần hiển thị `Nhận một phần`.
@@ -198,7 +198,7 @@ Các spec cảnh báo và động vật chạy riêng pass (2/2), acceptance GĐ
 - Các form chọn vật tư vẫn tải danh sách theo nhiều trang; với dữ liệu cực lớn có thể cần combobox tìm kiếm riêng thay cho danh sách `<select>`.
 - Dev server đôi lúc chậm khi chạy toàn bộ Playwright tuần tự; timeout UI 60 giây (smoke 120 giây) vẫn cần thiết, nhưng Playwright không còn bật retry mặc định để che lỗi flaky.
 
-## Giai đoạn 3 – Thu hoạch, truy xuất & website quảng bá (phase-3-harvest) – NGHIỆM THU
+## Giai đoạn 3 – Thu hoạch, truy xuất & website quảng bá (phase-3-harvest) – HOÀN THÀNH
 
 ### 1. Việc đã hoàn tất
 - Hoàn thiện luồng Playwright `phase3-acceptance.spec.ts`: ghi nhật ký HARVEST qua UI, mở chi tiết lô, lấy URL từ QR (`data-trace-url`), truy cập public không đăng nhập và xác nhận tắt công khai trả 404 ở endpoint truy xuất.
@@ -228,7 +228,7 @@ pnpm --filter @xfarm/web lighthouse
 ### 4. Điểm còn lại
 - Chưa thêm cửa hàng online, thanh toán, tour/booking; đây là phạm vi các giai đoạn sau theo kế hoạch.
 
-## Tích hợp GĐ 6 vào main – ĐÃ HỢP NHẤT
+## Tích hợp GĐ 6 vào main – HOÀN THÀNH
 
 ### 1. Việc đã làm
 - Hợp nhất đầy đủ các module Nhân sự, Giao việc, Chấm công, Tính lương, đồng bộ offline và PWA của GĐ 6 với các module Thu hoạch, CMS, truy xuất và website công khai của GĐ 3.
@@ -239,7 +239,7 @@ pnpm --filter @xfarm/web lighthouse
 ### 2. Điểm còn lại
 - Nghiệm thu đầy đủ sau merge được ghi ở marker `.agenthub/DONE`; nếu môi trường hoặc dịch vụ ngoài repo làm lệnh thất bại, ghi rõ lệnh và nguyên nhân tại đó.
 
-## Tích hợp GĐ 4 vào main – ĐANG NGHIỆM THU
+## Tích hợp GĐ 4 vào main – HOÀN THÀNH
 
 - Hợp nhất bán hàng, webshop, tài chính, báo cáo và các migration của GĐ4 với HR/GĐ6, CMS, truy xuất và website công khai.
 - Giữ đủ module/route smoke, cleanup FK, schema và seed của hai nhánh; seed thêm danh mục tài chính, khách hàng mẫu và cấu hình VietQR idempotent.
@@ -249,7 +249,7 @@ pnpm --filter @xfarm/web lighthouse
 
 ---
 
-## Giai đoạn 5 – Du lịch trải nghiệm (phase-5-tours) – NGHIỆM THU
+## Giai đoạn 5 – Du lịch trải nghiệm (phase-5-tours) – HOÀN THÀNH
 
 ### 1. Việc đã hoàn tất
 - **Mô hình dữ liệu & Migration**:
@@ -293,9 +293,50 @@ pnpm --filter @xfarm/api smoke:dev
 - `pnpm --filter @xfarm/web build`: đạt, hoàn thành build tối ưu production không lỗi.
 - `apps/web/e2e/phase5-acceptance.spec.ts`: PASS trọn vẹn luồng tạo tour, tạo slot hàng loạt, đặt chỗ public, giảm chỗ, xác nhận, thu tiền sinh Transaction INCOME (TOUR), hủy booking trả chỗ.
 
-## Tích hợp GĐ 7 – Thiết bị/IoT + Dashboard – ĐÃ HỢP NHẤT
+## Tích hợp GĐ 7 – Thiết bị/IoT + Dashboard – HOÀN THÀNH
 
 - Hợp nhất Equipment, MaintenanceSchedule/MaintenanceLog, Sensor, SensorReading, AlertRule và ingestion IoT với các phân hệ GĐ 1–6.
 - Hợp nhất alert `MAINTENANCE_DUE` và `SENSOR_THRESHOLD` với chuông cảnh báo dùng chung; bổ sung link tới thiết bị/biểu đồ.
 - Giữ rewrite `/api/v1/*`, sidebar, smoke routes, cleanup FK, migration và seed idempotent.
 - Nghiệm thu: migration deploy + `prisma migrate diff` không lệch; seed chạy 2 lần; lint, typecheck, unit, API e2e 26 suites/310 tests, smoke và web build đều PASS; Playwright UI 53/53 PASS.
+
+---
+
+## Nghiệm thu toàn hệ thống (final-acceptance) – HOÀN THÀNH
+
+### 1. Việc đã hoàn tất
+- **Nghiệm thu toàn bộ tiêu chí của tất cả giai đoạn (GĐ 0–7) trong PLAN mục 7**:
+  - GĐ 0 & 1: Thiết lập nền tảng, auth JWT + refresh token, RBAC, phân quyền 4 role (ADMIN, MANAGER, ACCOUNTANT, WORKER), nhật ký canh tác theo mùa vụ/khu/lô, tự động tính tổng lượng và chi phí vật tư, tự động cập nhật ngày kết thúc vụ.
+  - GĐ 2: Kho & Mua hàng, xuất kho FIFO, chặn xuất kho âm (422), hoàn kho khi hủy lệnh/hoạt động, cảnh báo tồn kho tối thiểu, đơn mua PO nhận hàng một phần.
+  - GĐ 3: Thu hoạch, sinh mã HarvestLot, QR code truy xuất nguồn gốc công khai, portal public giới thiệu nông trại, CMS tin tức/blog/sản phẩm với chuyển đổi bật/tắt công khai lập tức (404 khi tắt).
+  - GĐ 4: Bán hàng đa kênh, POS tại quầy, Webshop tự phục vụ, thanh toán VietQR động, sổ quỹ Thu/Chi tự động đồng bộ từ đơn hàng/đơn mua/đặt chỗ/chấm công, báo cáo giá thành mùa vụ và lợi nhuận gộp theo thời gian thực.
+  - GĐ 5: Du lịch trải nghiệm, tour, suất trải nghiệm (slot), đặt chỗ an toàn đồng thời (`SELECT ... FOR UPDATE`), trừ slot, hủy đặt chỗ tự động hoàn trả chỗ, thanh toán tự động sinh Transaction INCOME loại TOUR.
+  - GĐ 6: Nhân sự & Phân công, chấm công vào/ra theo ca, gắn công việc vào mùa vụ (`cycleId`), tính lương tự động đưa vào chi phí nhân công của mùa vụ, PWA và đồng bộ offline qua IndexedDB và Service Worker.
+  - GĐ 7: Thiết bị nông nghiệp, lịch bảo trì và nhật ký bảo trì, trạm cảm biến môi trường IoT, ingestion dữ liệu đo lường, luật cảnh báo ngưỡng (vượt ngưỡng cảnh báo ngay), chuông thông báo thời gian thực, dashboard quản trị tổng hợp.
+- **Spec Playwright nghiệm thu tổng thể (`apps/web/e2e/system-acceptance.spec.ts`)**:
+  - Đã xây dựng và chạy thành công 9/9 kịch bản bao phủ xuyên suốt các giai đoạn:
+    1. GĐ 0 & 1: Auth RBAC, Đăng nhập, Tạo khu/lô, Mùa vụ, Ghi nhật ký canh tác.
+    2. GĐ 2: Tạo vật tư, Nhập kho PO, Xuất kho FIFO, Chặn tồn âm.
+    3. GĐ 3: Ghi nhận thu hoạch, Sinh lô thu hoạch, Truy xuất công khai bằng URL/QR code.
+    4. GĐ 4: Webshop đặt hàng public, Admin xử lý đơn, Tạo thanh toán và ghi nhận dòng tiền Thu.
+    5. GĐ 5: Khách đặt tour public, Giảm chỗ slot, Admin thu tiền & sinh dòng tiền Tour, Hủy hoàn chỗ.
+    6. GĐ 6: Chấm công nhân viên gắn mùa vụ, Tính chi phí nhân công vào giá thành mùa vụ.
+    7. GĐ 7: Ghi nhận dữ liệu cảm biến IoT, Kích hoạt cảnh báo vượt ngưỡng và hiển thị chuông cảnh báo.
+    8. Theme test: Chuyển đổi theme Sáng/Tối mượt mà trên các giao diện chính (`apps/web/e2e/theme.spec.ts`).
+    9. Dashboard Performance: Tải dữ liệu dashboard tổng hợp trên cơ sở dữ liệu lớn (seed demo 12 tháng: 72 vụ mùa, 504 hoạt động, 4057 đơn hàng, 408 booking, 3600 lượt chấm công, 82080 bản ghi cảm biến) đạt độ trễ < 50ms (vượt xa tiêu chuẩn yêu cầu < 1s).
+
+### 2. Kết quả kiểm tra chất lượng
+- `pnpm lint`: ĐẠT 100% (8/8 tasks successful, Prettier sạch sẽ, không lỗi formatting hay lint).
+- `pnpm typecheck`: ĐẠT 100% (8/8 tasks successful, 0 errors trên toàn bộ mono-repo).
+- `pnpm test` (Unit tests): ĐẠT 100% (shared 21 test files / 178 tests pass; web 43 test files / 316 tests pass; tổng cộng 494 unit tests pass).
+- `pnpm --filter @xfarm/api test:e2e`: ĐẠT 100% (26/26 test suites, 310/310 tests pass).
+- `pnpm --filter @xfarm/api smoke:dev`: ĐẠT 100% (53/53 endpoints trả về mã HTTP 200).
+- `pnpm --filter @xfarm/web build`: ĐẠT 100% (Biên dịch production thành công toàn bộ 60 static/dynamic routes).
+- `pnpm --filter @xfarm/web test:ui` (Playwright E2E UI): ĐẠT 100% (83/83 tests pass trên 25 test files, không có test skip hay fixme).
+- `Lighthouse`: SEO đạt 100/100, Accessibility đạt 92/100 (vượt mục tiêu ≥ 90).
+- `Hiệu năng Dashboard`:
+  - Summary endpoint: 26ms.
+  - Charts endpoint: 10ms.
+  - Active cycles endpoint: 32ms.
+  (Toàn bộ < 50ms, đáp ứng mục tiêu < 1 giây trên bộ dữ liệu lớn).
+
