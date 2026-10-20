@@ -6,8 +6,22 @@ import { prisma } from '@xfarm/db';
 import { getEnv } from '../../config/env.config';
 import { LoginDto } from './auth.dto';
 
+interface RefreshSession {
+  accessToken: string;
+  refreshToken: string;
+  user: {
+    id: string;
+    email: string;
+    fullName: string;
+    role: string;
+    isActive: boolean;
+  };
+}
+
 @Injectable()
 export class AuthService {
+  private readonly refreshInFlight = new Map<string, Promise<RefreshSession>>();
+
   constructor(@Inject(JwtService) private jwtService: JwtService) {}
 
   private hashToken(token: string): string {
@@ -69,7 +83,25 @@ export class AuthService {
     };
   }
 
-  async refresh(rawRefreshToken: string) {
+  async refresh(rawRefreshToken: string): Promise<RefreshSession> {
+    const existingRefresh = this.refreshInFlight.get(rawRefreshToken);
+    if (existingRefresh) {
+      return existingRefresh;
+    }
+
+    const refreshPromise = this.rotateRefreshToken(rawRefreshToken);
+    this.refreshInFlight.set(rawRefreshToken, refreshPromise);
+
+    try {
+      return await refreshPromise;
+    } finally {
+      if (this.refreshInFlight.get(rawRefreshToken) === refreshPromise) {
+        this.refreshInFlight.delete(rawRefreshToken);
+      }
+    }
+  }
+
+  private async rotateRefreshToken(rawRefreshToken: string): Promise<RefreshSession> {
     const env = getEnv();
     const tokenHash = this.hashToken(rawRefreshToken);
 

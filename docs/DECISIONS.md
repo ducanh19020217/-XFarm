@@ -127,3 +127,9 @@ Tài liệu này ghi lại các quyết định thiết kế và kỹ thuật qu
   4. **Playwright**: Tiếp tục duy trì `workers: 1` (`apps/web/playwright.config.ts`) tránh tranh chấp cổng và tài nguyên DB.
 - **Hệ quả**: Giảm thiểu tải CPU đột ngột khi chạy kiểm thử đồng thời giữa các agent/worker, đảm bảo máy phát triển hoạt động ổn định và các lệnh kiểm thử hoàn thành tin cậy trong thời gian hợp lý.
 
+---
+
+### DECISION-016: Single-flight server cho refresh token
+- **Bối cảnh**: Client đã gom các request refresh trong cùng một bundle, nhưng nhiều tab, prefetch hoặc request tới nhiều instance API vẫn có thể gửi cùng refresh token đồng thời. Rotation khi đó chỉ cho một request thành công; request còn lại nhận 401 và có thể làm layout điều hướng sai về `/admin`.
+- **Quyết định**: Trong mỗi instance API, các request refresh đồng thời có cùng raw token dùng chung một Promise rotation. Tất cả request trong nhóm nhận cùng access/refresh token mới; token cũ vẫn được revoke một lần. Việc dùng lại token sau cửa sổ grace 30 giây vẫn kích hoạt cơ chế revoke toàn bộ phiên như DECISION-003.
+- **Hệ quả**: Refresh race trong một instance không làm mất phiên hoặc ghi đè cookie bằng kết quả lỗi. Với deployment nhiều instance, client single-flight vẫn là lớp chính; cần shared lock/cache nếu mở rộng theo chiều ngang.
