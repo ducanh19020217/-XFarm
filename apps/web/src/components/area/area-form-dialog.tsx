@@ -113,7 +113,7 @@ export function AreaFormDialog({
       {formError && (
         <div
           data-testid="form-error-alert"
-          className="mb-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-600 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-400"
+          className="mb-4 rounded-lg border border-crit/30 bg-crit-bg p-3 text-sm text-crit"
         >
           {formError}
         </div>
@@ -125,7 +125,7 @@ export function AreaFormDialog({
           <div className="space-y-1">
             <Label htmlFor="area-code">
               Mã khu/lô{' '}
-              <span className="text-xs text-slate-400 font-normal">(để trống tự sinh AR-xxxx)</span>
+              <span className="text-xs text-muted font-normal">(để trống tự sinh AR-xxxx)</span>
             </Label>
             <Input
               id="area-code"
@@ -134,13 +134,13 @@ export function AreaFormDialog({
               {...form.register('code')}
             />
             {form.formState.errors.code && (
-              <p className="text-xs text-red-600">{form.formState.errors.code.message}</p>
+              <p className="text-xs text-crit">{form.formState.errors.code.message}</p>
             )}
           </div>
 
           <div className="space-y-1">
             <Label htmlFor="area-name">
-              Tên khu/lô <span className="text-red-500">*</span>
+              Tên khu/lô <span className="text-crit">*</span>
             </Label>
             <Input
               id="area-name"
@@ -149,7 +149,7 @@ export function AreaFormDialog({
               {...form.register('name')}
             />
             {form.formState.errors.name && (
-              <p className="text-xs text-red-600">{form.formState.errors.name.message}</p>
+              <p className="text-xs text-crit">{form.formState.errors.name.message}</p>
             )}
           </div>
         </div>
@@ -158,7 +158,7 @@ export function AreaFormDialog({
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="space-y-1">
             <Label htmlFor="area-type">
-              Loại khu vực <span className="text-red-500">*</span>
+              Loại khu vực <span className="text-crit">*</span>
             </Label>
             <Select
               defaultValue={form.getValues('type')}
@@ -176,7 +176,7 @@ export function AreaFormDialog({
               </SelectContent>
             </Select>
             {form.formState.errors.type && (
-              <p className="text-xs text-red-600">{form.formState.errors.type.message}</p>
+              <p className="text-xs text-crit">{form.formState.errors.type.message}</p>
             )}
           </div>
 
@@ -201,35 +201,36 @@ export function AreaFormDialog({
           </div>
         </div>
 
-        {/* Diện tích m2 */}
-        <div className="space-y-1">
-          <Label htmlFor="area-m2">Diện tích (m²)</Label>
-          <Input
-            id="area-m2"
-            type="number"
-            step="0.01"
-            placeholder="VD: 500.5"
-            disabled={isSubmitting}
-            {...form.register('areaM2')}
-          />
-          {form.formState.errors.areaM2 && (
-            <p className="text-xs text-red-600">{form.formState.errors.areaM2.message}</p>
-          )}
-        </div>
+        {/* Diện tích m2 & Mô tả - 2 cột trên desktop */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="space-y-1">
+            <Label htmlFor="area-m2">Diện tích (m²)</Label>
+            <Input
+              id="area-m2"
+              type="number"
+              step="0.01"
+              placeholder="VD: 500.5"
+              disabled={isSubmitting}
+              {...form.register('areaM2')}
+            />
+            {form.formState.errors.areaM2 && (
+              <p className="text-xs text-crit">{form.formState.errors.areaM2.message}</p>
+            )}
+          </div>
 
-        {/* Mô tả */}
-        <div className="space-y-1">
-          <Label htmlFor="area-desc">Mô tả / Ghi chú</Label>
-          <Input
-            id="area-desc"
-            placeholder="Ghi chú về thổ nhưỡng, hệ thống tưới hoặc công năng"
-            disabled={isSubmitting}
-            {...form.register('description')}
-          />
+          <div className="space-y-1">
+            <Label htmlFor="area-desc">Mô tả / Ghi chú</Label>
+            <Input
+              id="area-desc"
+              placeholder="Ghi chú về thổ nhưỡng, hệ thống tưới hoặc công năng"
+              disabled={isSubmitting}
+              {...form.register('description')}
+            />
+          </div>
         </div>
 
         {/* Nút hành động */}
-        <div className="flex justify-end gap-2 pt-4 border-t border-slate-100 dark:border-slate-800">
+        <div className="flex justify-end gap-2 pt-4 border-t border-line">
           <Button
             type="button"
             variant="outline"
@@ -241,7 +242,6 @@ export function AreaFormDialog({
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white"
           >
             {isSubmitting ? (
               <>

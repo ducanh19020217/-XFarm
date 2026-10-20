@@ -258,7 +258,7 @@ export default function AreasPage() {
       accessorKey: 'code',
       header: 'Mã khu/lô',
       cell: ({ row }) => (
-        <span className="font-mono text-xs font-semibold text-slate-700 dark:text-slate-300">
+        <span className="font-mono text-xs font-semibold text-accent">
           {row.original.code}
         </span>
       ),
@@ -270,12 +270,12 @@ export default function AreasPage() {
         <div>
           <Link
             href={`/admin/areas/${row.original.id}`}
-            className="font-medium text-slate-900 hover:text-emerald-600 dark:text-slate-100 dark:hover:text-emerald-400"
+            className="font-medium text-fg hover:text-accent"
           >
             {row.original.name}
           </Link>
           {row.original.description && (
-            <span className="block truncate max-w-xs text-xs text-slate-400">
+            <span className="block truncate max-w-xs text-xs text-muted">
               {row.original.description}
             </span>
           )}
@@ -308,11 +308,11 @@ export default function AreasPage() {
       header: 'Khu cha',
       cell: ({ row }) => {
         const parent = row.original.parent;
-        if (!parent) return <span className="text-slate-400">—</span>;
+        if (!parent) return <span className="text-muted">—</span>;
         return (
           <div className="text-xs">
-            <span className="font-medium text-slate-700 dark:text-slate-300">{parent.name}</span>
-            <span className="block font-mono text-[11px] text-slate-400">({parent.code})</span>
+            <span className="font-medium text-fg">{parent.name}</span>
+            <span className="block font-mono text-[11px] text-muted">({parent.code})</span>
           </div>
         );
       },
@@ -322,9 +322,9 @@ export default function AreasPage() {
       header: 'Diện tích (m²)',
       cell: ({ row }) => {
         const val = row.original.areaM2;
-        if (val == null) return <span className="text-slate-400">—</span>;
+        if (val == null) return <span className="text-muted">—</span>;
         return (
-          <span className="font-medium text-slate-800 dark:text-slate-200">
+          <span className="font-medium text-fg">
             {Number(val).toLocaleString('vi-VN')} m²
           </span>
         );
@@ -336,11 +336,11 @@ export default function AreasPage() {
       cell: ({ row }) => {
         const count = row.original.activeCyclesCount ?? row.original._count?.cycles ?? 0;
         return count > 0 ? (
-          <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+          <span className="inline-flex items-center rounded-full bg-accent-bg px-2.5 py-0.5 text-xs font-semibold text-accent">
             {count} vụ
           </span>
         ) : (
-          <span className="text-xs text-slate-400">0</span>
+          <span className="text-xs text-muted">0</span>
         );
       },
     },
@@ -363,7 +363,7 @@ export default function AreasPage() {
                 className="h-8 w-8 p-0"
                 title="Xem chi tiết và bản đồ"
               >
-                <Eye className="h-3.5 w-3.5 text-slate-600" />
+                <Eye className="h-3.5 w-3.5 text-muted" />
               </Button>
             </Link>
 
@@ -380,7 +380,7 @@ export default function AreasPage() {
                   }}
                   title="Chỉnh sửa khu/lô"
                 >
-                  <Edit2 className="h-3.5 w-3.5 text-slate-600" />
+                  <Edit2 className="h-3.5 w-3.5 text-muted" />
                 </Button>
 
                 <Button
@@ -388,8 +388,8 @@ export default function AreasPage() {
                   size="sm"
                   className={`h-8 w-8 p-0 ${
                     area.isActive
-                      ? 'text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950'
-                      : 'bg-emerald-600 text-white hover:bg-emerald-700'
+                      ? 'text-crit hover:bg-crit-bg hover:text-crit'
+                      : ''
                   }`}
                   onClick={() => {
                     setStatusArea(area);
@@ -426,7 +426,6 @@ export default function AreasPage() {
                 setFormError(null);
                 setFormOpen(true);
               }}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white"
             >
               <Plus className="mr-1.5 h-4 w-4" />
               Thêm khu/lô mới
@@ -435,9 +434,35 @@ export default function AreasPage() {
         </div>
       </PageHeader>
 
+      {/* Thẻ thống kê nhỏ */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="rounded-lg border border-line bg-surface p-3.5 shadow-xs">
+          <div className="text-xs font-medium text-muted uppercase tracking-wider">Tổng số khu/lô</div>
+          <div className="mt-1 text-2xl font-bold text-fg">{total}</div>
+        </div>
+        <div className="rounded-lg border border-line bg-surface p-3.5 shadow-xs">
+          <div className="text-xs font-medium text-muted uppercase tracking-wider">Đang hoạt động</div>
+          <div className="mt-1 text-2xl font-bold text-ok">
+            {allAreas.filter((a) => a.isActive).length}
+          </div>
+        </div>
+        <div className="rounded-lg border border-line bg-surface p-3.5 shadow-xs">
+          <div className="text-xs font-medium text-muted uppercase tracking-wider">Đang canh tác</div>
+          <div className="mt-1 text-2xl font-bold text-accent">
+            {allAreas.filter((a) => (a.activeCyclesCount ?? a._count?.cycles ?? 0) > 0).length}
+          </div>
+        </div>
+        <div className="rounded-lg border border-line bg-surface p-3.5 shadow-xs">
+          <div className="text-xs font-medium text-muted uppercase tracking-wider">Có bản đồ polygon</div>
+          <div className="mt-1 text-2xl font-bold text-info">
+            {allAreas.filter((a) => Boolean(a.geojson)).length}
+          </div>
+        </div>
+      </div>
+
       {/* Thông báo cảnh báo nếu có */}
       {pageAlert && (
-        <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-300">
+        <div className="flex items-center gap-2 rounded-lg border border-warn/30 bg-warn-bg p-3 text-sm text-warn">
           <AlertCircle className="h-4 w-4 shrink-0" />
           <span>{pageAlert}</span>
           <Button
@@ -451,16 +476,16 @@ export default function AreasPage() {
         </div>
       )}
 
-      {/* Thanh điều hướng chế độ xem (Tabs) */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-3 dark:border-slate-800">
-        <div className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-100/80 p-1 dark:border-slate-800 dark:bg-slate-900">
+      {/* Thanh điều hướng chế độ xem (Tabs) và bộ lọc một hàng */}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-3">
+        <div className="flex items-center gap-1.5 rounded-lg border border-line bg-surface-2 p-1">
           <button
             type="button"
             onClick={() => handleTabChange('table')}
             className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all ${
               viewMode === 'table'
-                ? 'bg-white text-slate-900 shadow-xs dark:bg-slate-800 dark:text-slate-100 font-semibold'
-                : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
+                ? 'bg-surface text-fg shadow-xs font-semibold'
+                : 'text-muted hover:text-fg'
             }`}
           >
             <List className="h-3.5 w-3.5" />
@@ -472,8 +497,8 @@ export default function AreasPage() {
             onClick={() => handleTabChange('tree')}
             className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all ${
               viewMode === 'tree'
-                ? 'bg-white text-slate-900 shadow-xs dark:bg-slate-800 dark:text-slate-100 font-semibold'
-                : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
+                ? 'bg-surface text-fg shadow-xs font-semibold'
+                : 'text-muted hover:text-fg'
             }`}
           >
             <GitFork className="h-3.5 w-3.5" />
@@ -485,8 +510,8 @@ export default function AreasPage() {
             onClick={() => handleTabChange('map')}
             className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all ${
               viewMode === 'map'
-                ? 'bg-white text-slate-900 shadow-xs dark:bg-slate-800 dark:text-slate-100 font-semibold'
-                : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
+                ? 'bg-surface text-fg shadow-xs font-semibold'
+                : 'text-muted hover:text-fg'
             }`}
           >
             <MapIcon className="h-3.5 w-3.5" />
@@ -505,7 +530,7 @@ export default function AreasPage() {
                   setPage(1);
                 }}
               >
-                <SelectTrigger className="h-8 text-xs bg-white dark:bg-slate-900">
+                <SelectTrigger className="h-8 text-xs bg-surface text-fg border-line">
                   <SelectValue placeholder="Lọc theo loại" />
                 </SelectTrigger>
                 <SelectContent>
@@ -527,7 +552,7 @@ export default function AreasPage() {
                   setPage(1);
                 }}
               >
-                <SelectTrigger className="h-8 text-xs bg-white dark:bg-slate-900">
+                <SelectTrigger className="h-8 text-xs bg-surface text-fg border-line">
                   <SelectValue placeholder="Trạng thái" />
                 </SelectTrigger>
                 <SelectContent>
@@ -563,9 +588,9 @@ export default function AreasPage() {
       {viewMode === 'tree' && (
         <div>
           {isTreeLoading ? (
-            <div className="flex h-48 items-center justify-center rounded-lg border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
-              <div className="flex items-center gap-2 text-sm text-slate-500">
-                <RefreshCw className="h-4 w-4 animate-spin text-emerald-600" />
+            <div className="flex h-48 items-center justify-center rounded-lg border border-line bg-surface">
+              <div className="flex items-center gap-2 text-sm text-muted">
+                <RefreshCw className="h-4 w-4 animate-spin text-accent" />
                 <span>Đang tải cây phân cấp...</span>
               </div>
             </div>

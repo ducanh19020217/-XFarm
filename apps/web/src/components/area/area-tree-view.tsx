@@ -50,8 +50,8 @@ function TreeNode({
   return (
     <div className="select-none">
       <div
-        className={`flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 py-2.5 px-3 transition-colors hover:bg-slate-50 dark:border-slate-800/60 dark:hover:bg-slate-800/40 ${
-          level > 0 ? 'bg-slate-50/40 dark:bg-slate-900/30' : ''
+        className={`flex flex-wrap items-center justify-between gap-2 border-b border-line py-2.5 px-3 transition-colors hover:bg-hover ${
+          level > 0 ? 'bg-surface-2/40' : ''
         }`}
         style={{ paddingLeft: `${Math.max(12, level * 28 + 12)}px` }}
       >
@@ -61,7 +61,7 @@ function TreeNode({
             <button
               type="button"
               onClick={() => onToggleExpand(node.id)}
-              className="flex h-6 w-6 items-center justify-center rounded hover:bg-slate-200 text-slate-500 dark:hover:bg-slate-700"
+              className="flex h-6 w-6 items-center justify-center rounded hover:bg-hover text-muted"
               title={isExpanded ? 'Thu gọn' : 'Mở rộng'}
             >
               {isExpanded ? (
@@ -76,25 +76,24 @@ function TreeNode({
 
           {hasChildren ? (
             isExpanded ? (
-              <FolderOpen className="h-4 w-4 text-emerald-600 shrink-0" />
+              <FolderOpen className="h-4 w-4 text-accent shrink-0" />
             ) : (
-              <Folder className="h-4 w-4 text-amber-500 shrink-0" />
+              <Folder className="h-4 w-4 text-warn shrink-0" />
             )
           ) : (
             <MapPin
-              className="h-4 w-4 shrink-0"
-              style={{ color: typeStyle?.stroke || '#10b981' }}
+              className="h-4 w-4 shrink-0 text-accent"
             />
           )}
 
           <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
             <Link
               href={`/admin/areas/${node.id}`}
-              className="font-medium text-slate-900 hover:text-emerald-600 dark:text-slate-100 dark:hover:text-emerald-400"
+              className="font-medium text-fg hover:text-accent"
             >
               {node.name}
             </Link>
-            <span className="font-mono text-xs text-slate-400">({node.code})</span>
+            <span className="font-mono text-xs text-muted">({node.code})</span>
           </div>
 
           <Badge
@@ -111,18 +110,18 @@ function TreeNode({
         </div>
 
         {/* Thông tin phụ: Diện tích, Mùa vụ, Trạng thái */}
-        <div className="flex items-center gap-4 text-xs text-slate-600 dark:text-slate-400">
-          <div className="hidden sm:block w-28 text-right font-medium">
+        <div className="flex items-center gap-4 text-xs text-muted">
+          <div className="hidden sm:block w-28 text-right font-medium text-fg">
             {node.areaM2 != null ? `${Number(node.areaM2).toLocaleString('vi-VN')} m²` : '—'}
           </div>
 
           <div className="hidden md:flex items-center gap-1 w-24 justify-center">
             {cyclesCount > 0 ? (
-              <span className="rounded-full bg-emerald-100 px-2 py-0.5 font-medium text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+              <span className="rounded-full bg-accent-bg px-2 py-0.5 font-medium text-accent">
                 {cyclesCount} vụ
               </span>
             ) : (
-              <span className="text-slate-400">0 vụ</span>
+              <span className="text-muted">0 vụ</span>
             )}
           </div>
 
@@ -134,7 +133,7 @@ function TreeNode({
           <div className="flex items-center gap-1">
             <Link href={`/admin/areas/${node.id}`}>
               <Button variant="outline" size="sm" className="h-7 w-7 p-0" title="Xem chi tiết">
-                <ExternalLink className="h-3.5 w-3.5 text-slate-600" />
+                <ExternalLink className="h-3.5 w-3.5 text-muted" />
               </Button>
             </Link>
 
@@ -146,7 +145,7 @@ function TreeNode({
                 onClick={() => onEdit(node)}
                 title="Chỉnh sửa"
               >
-                <Edit2 className="h-3.5 w-3.5 text-slate-600" />
+                <Edit2 className="h-3.5 w-3.5 text-muted" />
               </Button>
             )}
 
@@ -156,8 +155,8 @@ function TreeNode({
                 size="sm"
                 className={`h-7 w-7 p-0 ${
                   node.isActive
-                    ? 'text-red-600 hover:bg-red-50 hover:text-red-700'
-                    : 'bg-emerald-600 text-white hover:bg-emerald-700'
+                    ? 'text-crit hover:bg-crit-bg hover:text-crit'
+                    : ''
                 }`}
                 onClick={() => onToggleStatus(node)}
                 title={node.isActive ? 'Khóa khu vực' : 'Mở khóa khu vực'}
@@ -236,17 +235,17 @@ export function AreaTreeView({
 
   if (!treeData || treeData.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-slate-200 bg-white p-8 text-center text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900">
+      <div className="rounded-lg border border-dashed border-line bg-surface p-8 text-center text-sm text-muted">
         Không có dữ liệu phân cấp khu/lô nào.
       </div>
     );
   }
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white shadow-xs overflow-hidden dark:border-slate-800 dark:bg-slate-950">
+    <div className="rounded-lg border border-line bg-surface shadow-xs overflow-hidden">
       {/* Controls Bar */}
-      <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-4 py-2.5 text-xs text-slate-600 dark:border-slate-800 dark:bg-slate-900">
-        <span className="font-semibold text-slate-800 dark:text-slate-200">
+      <div className="flex items-center justify-between border-b border-line bg-surface-2 px-4 py-2.5 text-xs text-muted">
+        <span className="font-semibold text-fg">
           Cây phân cấp Khu & Lô canh tác ({treeData.length} khu gốc)
         </span>
         <div className="flex items-center gap-2">
@@ -272,7 +271,7 @@ export function AreaTreeView({
       </div>
 
       {/* Header Columns */}
-      <div className="flex items-center justify-between border-b border-slate-200 bg-slate-100/70 px-4 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider dark:border-slate-800 dark:bg-slate-900/50">
+      <div className="flex items-center justify-between border-b border-line bg-surface-2/70 px-4 py-2 text-xs font-semibold text-muted uppercase tracking-wider">
         <div>Tên khu / Phân vùng</div>
         <div className="flex items-center gap-4">
           <div className="hidden sm:block w-28 text-right">Diện tích</div>
@@ -283,7 +282,7 @@ export function AreaTreeView({
       </div>
 
       {/* Tree Content */}
-      <div className="divide-y divide-slate-100 dark:divide-slate-800">
+      <div className="divide-y divide-line">
         {treeData.map((rootNode) => (
           <TreeNode
             key={rootNode.id}
