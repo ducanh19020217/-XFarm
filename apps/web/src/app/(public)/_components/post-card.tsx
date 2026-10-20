@@ -14,7 +14,10 @@ export function PostCard({ post }: PostCardProps) {
     <article className="group flex flex-col bg-white rounded-2xl border border-slate-200/80 hover:border-emerald-300 shadow-xs hover:shadow-md transition-all duration-200 overflow-hidden">
       {/* Cover visual */}
       <div className="relative aspect-16/9 w-full bg-slate-100 overflow-hidden">
-        {coverSrc && (coverSrc.startsWith('http://') || coverSrc.startsWith('https://')) ? (
+        {coverSrc &&
+        (coverSrc.startsWith('http://') ||
+          coverSrc.startsWith('https://') ||
+          coverSrc.startsWith('/')) ? (
           <Image
             src={coverSrc}
             alt={post.title}

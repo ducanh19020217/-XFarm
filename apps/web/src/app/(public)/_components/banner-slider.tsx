@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ChevronLeft, ChevronRight, ArrowRight, ShieldCheck } from 'lucide-react';
 
 interface BannerItem {
@@ -79,6 +80,23 @@ export function BannerSlider({ banners }: BannerSliderProps) {
       aria-label="Banner quảng bá trang trại"
       className="relative overflow-hidden bg-gradient-to-br from-emerald-900 via-emerald-800 to-slate-900 text-white min-h-[440px] sm:min-h-[500px] flex items-center"
     >
+      {/* Background visual image */}
+      {currentSlide.image &&
+        (currentSlide.image.startsWith('http://') ||
+          currentSlide.image.startsWith('https://') ||
+          currentSlide.image.startsWith('/')) && (
+          <div className="absolute inset-0 opacity-25 pointer-events-none">
+            <Image
+              src={currentSlide.image}
+              alt={currentSlide.title || 'Banner'}
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover"
+            />
+          </div>
+        )}
+
       {/* Background Decorative patterns */}
       <div className="absolute inset-0 opacity-15 pointer-events-none">
         <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-emerald-400 blur-3xl" />

@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+  <title>Cánh đồng rau hữu cơ bạt ngàn</title>
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0fdf4"/>
+      <stop offset="100%" stop-color="#dcfce7"/>
+    </linearGradient>
+    <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#e0f2fe"/>
+      <stop offset="100%" stop-color="#bae6fd"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#064e3b" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect width="800" height="600" fill="url(#bgGrad)" rx="24"/>
+
+  <rect width="800" height="300" fill="url(#skyGrad)"/>
+  <!-- Clouds -->
+  <circle cx="220" cy="100" r="40" fill="#ffffff" opacity="0.8"/>
+  <circle cx="260" cy="90" r="50" fill="#ffffff" opacity="0.8"/>
+  <circle cx="300" cy="100" r="40" fill="#ffffff" opacity="0.8"/>
+  <!-- Far mountain -->
+  <polygon points="400,300 550,160 700,300" fill="#93c5fd"/>
+  <polygon points="200,300 350,180 500,300" fill="#bfdbfe"/>
+  <!-- Field perspective strips -->
+  <polygon points="0,300 800,300 800,600 0,600" fill="#15803d"/>
+  <polygon points="400,300 440,300 540,600 460,600" fill="#22c55e"/>
+  <polygon points="480,300 520,300 720,600 620,600" fill="#16a34a"/>
+  <polygon points="320,300 360,300 260,600 180,600" fill="#22c55e"/>
+  <polygon points="240,300 280,300 80,600 -20,600" fill="#16a34a"/>
+  <!-- Small tractor in distance -->
+  <rect x="460" y="340" width="40" height="25" fill="#ef4444" rx="4"/>
+  <circle cx="470" cy="365" r="8" fill="#1e293b"/>
+  <circle cx="495" cy="365" r="10" fill="#1e293b"/>
+
+</svg>

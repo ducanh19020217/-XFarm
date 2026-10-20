@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="100%" height="100%">
+  <title>Banner tour trải nghiệm du lịch nông trại sinh thái</title>
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0fdf4"/>
+      <stop offset="100%" stop-color="#dcfce7"/>
+    </linearGradient>
+    <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#e0f2fe"/>
+      <stop offset="100%" stop-color="#bae6fd"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#064e3b" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bgGrad)" rx="24"/>
+
+  <defs>
+    <linearGradient id="b3Bg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e1b4b"/>
+      <stop offset="60%" stop-color="#4338ca"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#b3Bg)"/>
+  <!-- Sunset glow -->
+  <circle cx="800" cy="650" r="220" fill="#fbbf24" opacity="0.8"/>
+  <!-- Hills and pine trees of Da Lat -->
+  <path d="M 0 900 L 0 720 Q 300 620 600 700 Q 1000 580 1600 740 L 1600 900 Z" fill="#064e3b"/>
+  <path d="M 0 900 L 0 780 Q 500 700 900 780 Q 1300 720 1600 800 L 1600 900 Z" fill="#022c22"/>
+  <!-- Pine trees silhouettes -->
+  <polygon points="300,720 320,640 340,720" fill="#022c22"/>
+  <polygon points="360,740 385,650 410,740" fill="#022c22"/>
+  <polygon points="1200,750 1225,660 1250,750" fill="#022c22"/>
+  <polygon points="1270,760 1290,680 1310,760" fill="#022c22"/>
+  <!-- Camping Tent -->
+  <polygon points="720,850 800,730 880,850" fill="#f97316"/>
+  <polygon points="800,730 880,850 820,850" fill="#c2410c"/>
+  <!-- Campfire -->
+  <polygon points="940,850 955,815 970,850" fill="#ef4444"/>
+  <polygon points="950,850 958,825 965,850" fill="#fef08a"/>
+  <!-- Stars in sky -->
+  <circle cx="200" cy="200" r="3" fill="#ffffff"/>
+  <circle cx="350" cy="140" r="4" fill="#ffffff"/>
+  <circle cx="500" cy="250" r="2" fill="#ffffff"/>
+  <circle cx="1100" cy="180" r="3" fill="#ffffff"/>
+  <circle cx="1300" cy="120" r="4" fill="#ffffff"/>
+  <circle cx="1450" cy="220" r="2" fill="#ffffff"/>
+
+</svg>

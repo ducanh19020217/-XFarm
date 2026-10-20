@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+  <title>Trải nghiệm cho gà ăn & nhặt trứng cho gia đình</title>
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0fdf4"/>
+      <stop offset="100%" stop-color="#dcfce7"/>
+    </linearGradient>
+    <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#e0f2fe"/>
+      <stop offset="100%" stop-color="#bae6fd"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#064e3b" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect width="800" height="600" fill="url(#bgGrad)" rx="24"/>
+
+  <circle cx="400" cy="300" r="230" fill="#fef3c7" opacity="0.6"/>
+  <!-- Grain bowl / bucket -->
+  <path d="M 200 380 L 220 490 C 260 510 340 510 380 490 L 400 380 Z" fill="#0284c7" filter="url(#shadow)"/>
+  <ellipse cx="300" cy="380" rx="100" ry="25" fill="#fef08a"/>
+  <!-- Scattered grains -->
+  <circle cx="340" cy="460" r="4" fill="#d97706"/>
+  <circle cx="370" cy="480" r="4" fill="#d97706"/>
+  <circle cx="420" cy="450" r="5" fill="#d97706"/>
+  <circle cx="450" cy="470" r="4" fill="#d97706"/>
+  <circle cx="480" cy="440" r="5" fill="#d97706"/>
+  <!-- Happy chicken pecking -->
+  <ellipse cx="540" cy="420" rx="70" ry="50" fill="#b45309" filter="url(#shadow)"/>
+  <path d="M 500 420 L 440 450 L 470 410 Z" fill="#d97706"/>
+  <polygon points="440,450 410,460 435,440" fill="#f59e0b"/>
+  <path d="M 570 390 C 620 370 630 330 590 350 Z" fill="#1e293b"/>
+  <!-- Little chick -->
+  <circle cx="490" cy="480" r="20" fill="#fde047"/>
+  <circle cx="475" cy="475" r="14" fill="#fde047"/>
+  <polygon points="465,475 450,480 465,485" fill="#f97316"/>
+  <circle cx="472" cy="472" r="3" fill="#000000"/>
+
+</svg>

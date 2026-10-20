@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+  <title>Tour cắm trại dã ngoại picnic nông trại</title>
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0fdf4"/>
+      <stop offset="100%" stop-color="#dcfce7"/>
+    </linearGradient>
+    <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#e0f2fe"/>
+      <stop offset="100%" stop-color="#bae6fd"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#064e3b" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect width="800" height="600" fill="url(#bgGrad)" rx="24"/>
+
+  <defs>
+    <linearGradient id="duskGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#312e81"/>
+      <stop offset="60%" stop-color="#4f46e5"/>
+      <stop offset="100%" stop-color="#fb923c"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="400" fill="url(#duskGrad)"/>
+  <rect y="400" width="800" height="200" fill="#064e3b"/>
+  <!-- Crescent moon -->
+  <circle cx="650" cy="120" r="35" fill="#fef08a"/>
+  <circle cx="665" cy="110" r="32" fill="#312e81"/>
+  <!-- Camping Tent -->
+  <polygon points="250,520 400,340 550,520" fill="#ea580c" filter="url(#shadow)"/>
+  <polygon points="400,340 550,520 450,520" fill="#c2410c"/>
+  <polygon points="340,520 400,430 460,520" fill="#1e1b4b"/>
+  <!-- Campfire -->
+  <ellipse cx="620" cy="520" rx="30" ry="10" fill="#451a03"/>
+  <polygon points="605,520 620,460 635,520" fill="#ef4444"/>
+  <polygon points="612,520 620,480 628,520" fill="#fde047"/>
+
+</svg>

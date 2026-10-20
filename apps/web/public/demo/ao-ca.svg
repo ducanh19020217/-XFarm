@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+  <title>Ao cá sinh thái tuần hoàn nước</title>
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0fdf4"/>
+      <stop offset="100%" stop-color="#dcfce7"/>
+    </linearGradient>
+    <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#e0f2fe"/>
+      <stop offset="100%" stop-color="#bae6fd"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#064e3b" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect width="800" height="600" fill="url(#bgGrad)" rx="24"/>
+
+  <!-- Sky -->
+  <rect y="0" width="800" height="300" fill="url(#skyGrad)"/>
+  <!-- Sun -->
+  <circle cx="160" cy="120" r="50" fill="#fef08a"/>
+  <!-- Distant hills -->
+  <path d="M 0 300 Q 200 180 450 250 Q 650 190 800 270 L 800 300 Z" fill="#86efac"/>
+  <!-- Pond banks -->
+  <ellipse cx="400" cy="430" rx="350" ry="140" fill="#ca8a04"/>
+  <!-- Pond water -->
+  <ellipse cx="400" cy="425" rx="330" ry="120" fill="#0284c7" filter="url(#shadow)"/>
+  <ellipse cx="400" cy="420" rx="300" ry="100" fill="#38bdf8" opacity="0.6"/>
+  <!-- Water ripples -->
+  <ellipse cx="360" cy="410" rx="80" ry="20" stroke="#ffffff" stroke-width="3" fill="none" opacity="0.7"/>
+  <ellipse cx="460" cy="440" rx="100" ry="25" stroke="#ffffff" stroke-width="3" fill="none" opacity="0.7"/>
+  <!-- Aerator paddlewheel -->
+  <rect x="250" y="380" width="60" height="20" rx="6" fill="#e2e8f0"/>
+  <circle cx="280" cy="390" r="25" fill="none" stroke="#0284c7" stroke-width="6" stroke-dasharray="10 6"/>
+  <!-- Water splash -->
+  <path d="M 260 380 Q 250 350 270 370 Q 280 340 290 370 Q 310 350 300 380 Z" fill="#ffffff" opacity="0.8"/>
+  <!-- Coconut / green trees -->
+  <path d="M 660 320 Q 670 250 680 180" stroke="#78350f" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="680" cy="170" r="45" fill="#15803d"/>
+
+</svg>

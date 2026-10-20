@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+  <title>Lớp học thiên nhiên và nông nghiệp xanh cho bé</title>
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0fdf4"/>
+      <stop offset="100%" stop-color="#dcfce7"/>
+    </linearGradient>
+    <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#e0f2fe"/>
+      <stop offset="100%" stop-color="#bae6fd"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#064e3b" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect width="800" height="600" fill="url(#bgGrad)" rx="24"/>
+
+  <circle cx="400" cy="300" r="230" fill="#dcfce7" opacity="0.6"/>
+  <!-- Blackboard on easel -->
+  <line x1="280" y1="200" x2="250" y2="480" stroke="#78350f" stroke-width="8" stroke-linecap="round"/>
+  <line x1="520" y1="200" x2="550" y2="480" stroke="#78350f" stroke-width="8" stroke-linecap="round"/>
+  <line x1="400" y1="200" x2="400" y2="480" stroke="#78350f" stroke-width="6"/>
+  <rect x="250" y="200" width="300" height="200" fill="#064e3b" rx="10" stroke="#b45309" stroke-width="8" filter="url(#shadow)"/>
+  <!-- Chalk drawing on board -->
+  <circle cx="400" cy="270" r="30" fill="none" stroke="#ffffff" stroke-width="4"/>
+  <path d="M 400 300 L 400 350" stroke="#ffffff" stroke-width="4"/>
+  <path d="M 400 320 Q 370 310 380 330" stroke="#ffffff" stroke-width="3" fill="none"/>
+  <path d="M 400 330 Q 430 320 420 340" stroke="#ffffff" stroke-width="3" fill="none"/>
+  <!-- Little seedling pot on ground -->
+  <path d="M 360 480 L 440 480 L 430 530 L 370 530 Z" fill="#ea580c"/>
+  <path d="M 400 480 Q 400 450 420 450" stroke="#22c55e" stroke-width="6" fill="none"/>
+
+</svg>

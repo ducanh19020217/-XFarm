@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+  <title>Cá rô phi sông sinh thái tự nhiên</title>
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0fdf4"/>
+      <stop offset="100%" stop-color="#dcfce7"/>
+    </linearGradient>
+    <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#e0f2fe"/>
+      <stop offset="100%" stop-color="#bae6fd"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#064e3b" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect width="800" height="600" fill="url(#bgGrad)" rx="24"/>
+
+  <rect width="800" height="600" fill="#e0f2fe" rx="24"/>
+  <circle cx="400" cy="300" r="220" fill="#bae6fd" opacity="0.5"/>
+  <!-- Water bubbles -->
+  <circle cx="240" cy="220" r="14" fill="#ffffff" opacity="0.6"/>
+  <circle cx="210" cy="180" r="8" fill="#ffffff" opacity="0.6"/>
+  <circle cx="270" cy="150" r="20" fill="#ffffff" opacity="0.6"/>
+  <!-- Tail fin -->
+  <path d="M 520 300 L 610 220 C 580 300 580 300 610 380 Z" fill="#64748b" filter="url(#shadow)"/>
+  <!-- Dorsal fin -->
+  <path d="M 330 220 Q 440 180 500 240 L 490 260 Z" fill="#475569"/>
+  <!-- Ventral fin -->
+  <path d="M 370 375 L 430 420 L 440 370 Z" fill="#64748b"/>
+  <!-- Fish Body -->
+  <ellipse cx="390" cy="300" rx="150" ry="85" fill="#94a3b8" filter="url(#shadow)"/>
+  <path d="M 260 300 Q 390 390 520 300 Q 390 370 260 300 Z" fill="#cbd5e1"/>
+  <!-- Fish Head & Eye -->
+  <circle cx="310" cy="285" r="12" fill="#ffffff"/>
+  <circle cx="308" cy="285" r="7" fill="#0f172a"/>
+  <!-- Gill line -->
+  <path d="M 345 250 Q 360 300 345 350" stroke="#475569" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <!-- Pectoral fin -->
+  <path d="M 370 300 Q 420 320 400 345 Z" fill="#cbd5e1" stroke="#64748b" stroke-width="2"/>
+  <!-- Scales accent -->
+  <path d="M 410 270 Q 425 285 410 300" stroke="#64748b" stroke-width="3" fill="none"/>
+  <path d="M 440 280 Q 455 295 440 310" stroke="#64748b" stroke-width="3" fill="none"/>
+
+</svg>

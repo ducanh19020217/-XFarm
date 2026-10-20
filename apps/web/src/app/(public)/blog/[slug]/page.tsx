@@ -152,18 +152,21 @@ export default async function BlogPostDetailPage({ params }: BlogPostDetailPageP
         </header>
 
         {/* Cover Image */}
-        {coverSrc && (coverSrc.startsWith('http://') || coverSrc.startsWith('https://')) && (
-          <div className="relative aspect-16/9 w-full rounded-3xl overflow-hidden bg-slate-100 shadow-xs border border-slate-200">
-            <Image
-              src={coverSrc}
-              alt={post.title}
-              fill
-              priority
-              sizes="(max-width: 1024px) 100vw, 896px"
-              className="object-cover"
-            />
-          </div>
-        )}
+        {coverSrc &&
+          (coverSrc.startsWith('http://') ||
+            coverSrc.startsWith('https://') ||
+            coverSrc.startsWith('/')) && (
+            <div className="relative aspect-16/9 w-full rounded-3xl overflow-hidden bg-slate-100 shadow-xs border border-slate-200">
+              <Image
+                src={coverSrc}
+                alt={post.title}
+                fill
+                priority
+                sizes="(max-width: 1024px) 100vw, 896px"
+                className="object-cover"
+              />
+            </div>
+          )}
 
         {/* Sanitized HTML Content */}
         <div

@@ -122,7 +122,10 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 bg-white rounded-3xl p-6 sm:p-10 border border-slate-200/80 shadow-xs">
           {/* Left: Product Image */}
           <div className="relative aspect-4/3 sm:aspect-square w-full rounded-2xl bg-slate-100 overflow-hidden border border-slate-100">
-            {imageSrc && (imageSrc.startsWith('http://') || imageSrc.startsWith('https://')) ? (
+            {imageSrc &&
+            (imageSrc.startsWith('http://') ||
+              imageSrc.startsWith('https://') ||
+              imageSrc.startsWith('/')) ? (
               <Image
                 src={imageSrc}
                 alt={product.name}

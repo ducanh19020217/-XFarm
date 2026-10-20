@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+  <title>Trứng vịt sạch vỏ trắng tự nhiên</title>
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0fdf4"/>
+      <stop offset="100%" stop-color="#dcfce7"/>
+    </linearGradient>
+    <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#e0f2fe"/>
+      <stop offset="100%" stop-color="#bae6fd"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#064e3b" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect width="800" height="600" fill="url(#bgGrad)" rx="24"/>
+
+  <circle cx="400" cy="300" r="220" fill="#e0f2fe" opacity="0.5"/>
+  <!-- Bamboo plate -->
+  <ellipse cx="400" cy="380" rx="180" ry="70" fill="#ca8a04"/>
+  <ellipse cx="400" cy="375" rx="165" ry="58" fill="#eab308"/>
+  <!-- 3 Duck eggs (white, elongated) -->
+  <ellipse cx="340" cy="340" rx="50" ry="70" fill="#f8fafc" transform="rotate(-15 340 340)" filter="url(#shadow)"/>
+  <ellipse cx="330" cy="320" rx="12" ry="25" fill="#ffffff" transform="rotate(-15 330 320)"/>
+  <ellipse cx="460" cy="340" rx="50" ry="70" fill="#f1f5f9" transform="rotate(20 460 340)" filter="url(#shadow)"/>
+  <ellipse cx="470" cy="320" rx="12" ry="25" fill="#ffffff" transform="rotate(20 470 320)"/>
+  <ellipse cx="400" cy="320" rx="52" ry="72" fill="#ffffff" filter="url(#shadow)"/>
+
+</svg>
