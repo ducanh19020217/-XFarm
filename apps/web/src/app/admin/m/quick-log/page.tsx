@@ -343,10 +343,10 @@ function QuickLogContent() {
       {/* Header */}
       <div className="flex items-center justify-between pb-1">
         <div>
-          <h1 className="text-xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
+          <h1 className="text-xl font-extrabold text-fg tracking-tight">
             Ghi nhanh nhật ký
           </h1>
-          <p className="text-xs font-medium text-slate-500">
+          <p className="text-xs font-medium text-muted">
             Ghi chép hoạt động canh tác nhanh bằng 1 tay
           </p>
         </div>
@@ -354,7 +354,7 @@ function QuickLogContent() {
           <Button
             variant="outline"
             size="sm"
-            className="h-10 px-3 flex items-center gap-1.5 text-emerald-700 bg-emerald-50 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800 font-bold rounded-xl active:scale-95"
+            className="h-10 px-3 flex items-center gap-1.5 text-accent bg-accent-bg border border-accent-fade font-bold rounded-xl active:scale-95 hover:bg-accent-fade/30"
           >
             <QrCode className="h-4 w-4" />
             <span className="text-xs">Quét QR</span>
@@ -364,9 +364,9 @@ function QuickLogContent() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Chọn khu/lô & Quét QR */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-900 space-y-3">
-          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-            1. Khu/lô canh tác <span className="text-red-500">*</span>
+        <div className="rounded-2xl border border-line bg-surface p-4 shadow-xs space-y-3 text-fg">
+          <label className="block text-xs font-bold text-fg-2 uppercase tracking-wider">
+            1. Khu/lô canh tác <span className="text-crit">*</span>
           </label>
           <div className="flex items-center gap-2">
             <div className="flex-1">
@@ -380,10 +380,10 @@ function QuickLogContent() {
                 }}
                 disabled={loadingInitial}
               >
-                <SelectTrigger className="h-12 rounded-xl bg-slate-50 dark:bg-slate-800/80 text-sm font-semibold">
+                <SelectTrigger className="h-12 rounded-xl bg-surface-2 border-line text-sm font-semibold text-fg">
                   <SelectValue placeholder="Chọn khu / lô..." />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-surface border-line text-fg">
                   {areas.map((a) => (
                     <SelectItem key={a.id} value={a.id}>
                       {a.name} ({a.code})
@@ -393,11 +393,11 @@ function QuickLogContent() {
               </Select>
             </div>
           </div>
-          {fieldErrors.areaId && <p className="text-xs text-red-500 mt-1">{fieldErrors.areaId}</p>}
+          {fieldErrors.areaId && <p className="text-xs text-crit mt-1">{fieldErrors.areaId}</p>}
 
           {/* Mùa vụ liên quan (Tùy chọn) */}
           <div>
-            <label className="block text-[11px] font-semibold text-slate-500 mb-1">
+            <label className="block text-[11px] font-semibold text-muted mb-1">
               Mùa vụ liên quan (tùy chọn)
             </label>
             <Select
@@ -405,10 +405,10 @@ function QuickLogContent() {
               onValueChange={(val) => setSelectedCycleId(val)}
               disabled={loadingInitial}
             >
-              <SelectTrigger className="h-10 rounded-xl bg-slate-50 dark:bg-slate-800/80 text-xs font-medium">
+              <SelectTrigger className="h-10 rounded-xl bg-surface-2 border-line text-xs font-medium text-fg">
                 <SelectValue placeholder="Chọn mùa vụ (nếu có)..." />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-surface border-line text-fg">
                 <SelectItem value="NONE">— Không gắn mùa vụ —</SelectItem>
                 {cycles.map((c) => (
                   <SelectItem key={c.id} value={c.id}>
@@ -421,9 +421,9 @@ function QuickLogContent() {
         </div>
 
         {/* Chọn loại nhật ký */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-900 space-y-3">
-          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-            2. Loại hoạt động <span className="text-red-500">*</span>
+        <div className="rounded-2xl border border-line bg-surface p-4 shadow-xs space-y-3 text-fg">
+          <label className="block text-xs font-bold text-fg-2 uppercase tracking-wider">
+            2. Loại hoạt động <span className="text-crit">*</span>
           </label>
           <div className="grid grid-cols-4 gap-2">
             {popularActivityTypes.map((item) => {
@@ -435,8 +435,8 @@ function QuickLogContent() {
                   onClick={() => setSelectedType(item.type)}
                   className={`flex flex-col items-center justify-center p-2.5 rounded-xl border transition-all active:scale-95 ${
                     isSelected
-                      ? 'border-emerald-600 bg-emerald-50 text-emerald-800 font-bold shadow-xs dark:bg-emerald-950/60 dark:border-emerald-500 dark:text-emerald-300'
-                      : 'border-slate-200 hover:border-slate-300 text-slate-700 dark:border-slate-800 dark:text-slate-300'
+                      ? 'border-accent bg-selected text-accent font-bold shadow-xs'
+                      : 'border-line hover:border-line-strong text-fg-2 bg-surface hover:bg-hover'
                   }`}
                 >
                   <span className="text-xl mb-1">{item.icon}</span>
@@ -450,8 +450,8 @@ function QuickLogContent() {
         </div>
 
         {/* Số liệu chính & Ghi chú */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-900 space-y-3">
-          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+        <div className="rounded-2xl border border-line bg-surface p-4 shadow-xs space-y-3 text-fg">
+          <label className="block text-xs font-bold text-fg-2 uppercase tracking-wider">
             3. Số liệu & Ghi chú
           </label>
 
@@ -462,9 +462,9 @@ function QuickLogContent() {
                 <div>
                   <label
                     htmlFor="durationMin"
-                    className="block text-[11px] font-semibold text-slate-500 mb-1"
+                    className="block text-[11px] font-semibold text-muted mb-1"
                   >
-                    Thời gian tưới (phút) <span className="text-red-500">*</span>
+                    Thời gian tưới (phút) <span className="text-crit">*</span>
                   </label>
                   <Input
                     id="durationMin"
@@ -480,18 +480,18 @@ function QuickLogContent() {
                       }
                     }}
                     placeholder="VD: 20"
-                    className={`h-12 rounded-xl text-base font-bold ${
-                      fieldErrors.durationMin ? 'border-red-500 focus-visible:ring-red-500' : ''
+                    className={`h-12 rounded-xl text-base font-bold bg-surface border-line text-fg placeholder:text-muted ${
+                      fieldErrors.durationMin ? 'border-crit focus-visible:ring-crit' : 'focus-visible:ring-accent'
                     }`}
                   />
                   {fieldErrors.durationMin && (
-                    <p className="text-xs text-red-500 mt-1">{fieldErrors.durationMin}</p>
+                    <p className="text-xs text-crit mt-1">{fieldErrors.durationMin}</p>
                   )}
                 </div>
                 <div>
                   <label
                     htmlFor="volumeL"
-                    className="block text-[11px] font-semibold text-slate-500 mb-1"
+                    className="block text-[11px] font-semibold text-muted mb-1"
                   >
                     Lượng nước (lít - tùy chọn)
                   </label>
@@ -509,12 +509,12 @@ function QuickLogContent() {
                       }
                     }}
                     placeholder="VD: 100"
-                    className={`h-12 rounded-xl text-sm font-medium ${
-                      fieldErrors.volumeL ? 'border-red-500 focus-visible:ring-red-500' : ''
+                    className={`h-12 rounded-xl text-sm font-medium bg-surface border-line text-fg placeholder:text-muted ${
+                      fieldErrors.volumeL ? 'border-crit focus-visible:ring-crit' : 'focus-visible:ring-accent'
                     }`}
                   />
                   {fieldErrors.volumeL && (
-                    <p className="text-xs text-red-500 mt-1">{fieldErrors.volumeL}</p>
+                    <p className="text-xs text-crit mt-1">{fieldErrors.volumeL}</p>
                   )}
                 </div>
               </div>
@@ -525,9 +525,9 @@ function QuickLogContent() {
             <div>
               <label
                 htmlFor="feedKg"
-                className="block text-[11px] font-semibold text-slate-500 mb-1"
+                className="block text-[11px] font-semibold text-muted mb-1"
               >
-                Khối lượng thức ăn (kg) <span className="text-red-500">*</span>
+                Khối lượng thức ăn (kg) <span className="text-crit">*</span>
               </label>
               <Input
                 id="feedKg"
@@ -543,12 +543,12 @@ function QuickLogContent() {
                   }
                 }}
                 placeholder="VD: 5"
-                className={`h-12 rounded-xl text-base font-bold ${
-                  fieldErrors.feedKg ? 'border-red-500 focus-visible:ring-red-500' : ''
+                className={`h-12 rounded-xl text-base font-bold bg-surface border-line text-fg placeholder:text-muted ${
+                  fieldErrors.feedKg ? 'border-crit focus-visible:ring-crit' : 'focus-visible:ring-accent'
                 }`}
               />
               {fieldErrors.feedKg && (
-                <p className="text-xs text-red-500 mt-1">{fieldErrors.feedKg}</p>
+                <p className="text-xs text-crit mt-1">{fieldErrors.feedKg}</p>
               )}
             </div>
           )}
@@ -558,9 +558,9 @@ function QuickLogContent() {
               <div>
                 <label
                   htmlFor="avgWeightKg"
-                  className="block text-[11px] font-semibold text-slate-500 mb-1"
+                  className="block text-[11px] font-semibold text-muted mb-1"
                 >
-                  Khối lượng TB (kg) <span className="text-red-500">*</span>
+                  Khối lượng TB (kg) <span className="text-crit">*</span>
                 </label>
                 <Input
                   id="avgWeightKg"
@@ -576,20 +576,20 @@ function QuickLogContent() {
                     }
                   }}
                   placeholder="VD: 1.5"
-                  className={`h-12 rounded-xl text-base font-bold ${
-                    fieldErrors.avgWeightKg ? 'border-red-500 focus-visible:ring-red-500' : ''
+                  className={`h-12 rounded-xl text-base font-bold bg-surface border-line text-fg placeholder:text-muted ${
+                    fieldErrors.avgWeightKg ? 'border-crit focus-visible:ring-crit' : 'focus-visible:ring-accent'
                   }`}
                 />
                 {fieldErrors.avgWeightKg && (
-                  <p className="text-xs text-red-500 mt-1">{fieldErrors.avgWeightKg}</p>
+                  <p className="text-xs text-crit mt-1">{fieldErrors.avgWeightKg}</p>
                 )}
               </div>
               <div>
                 <label
                   htmlFor="sampleSize"
-                  className="block text-[11px] font-semibold text-slate-500 mb-1"
+                  className="block text-[11px] font-semibold text-muted mb-1"
                 >
-                  Cỡ mẫu (số con) <span className="text-red-500">*</span>
+                  Cỡ mẫu (số con) <span className="text-crit">*</span>
                 </label>
                 <Input
                   id="sampleSize"
@@ -605,12 +605,12 @@ function QuickLogContent() {
                     }
                   }}
                   placeholder="VD: 10"
-                  className={`h-12 rounded-xl text-sm font-medium ${
-                    fieldErrors.sampleSize ? 'border-red-500 focus-visible:ring-red-500' : ''
+                  className={`h-12 rounded-xl text-sm font-medium bg-surface border-line text-fg placeholder:text-muted ${
+                    fieldErrors.sampleSize ? 'border-crit focus-visible:ring-crit' : 'focus-visible:ring-accent'
                   }`}
                 />
                 {fieldErrors.sampleSize && (
-                  <p className="text-xs text-red-500 mt-1">{fieldErrors.sampleSize}</p>
+                  <p className="text-xs text-crit mt-1">{fieldErrors.sampleSize}</p>
                 )}
               </div>
             </div>
@@ -621,9 +621,9 @@ function QuickLogContent() {
               <div>
                 <label
                   htmlFor="mortalityCount"
-                  className="block text-[11px] font-semibold text-slate-500 mb-1"
+                  className="block text-[11px] font-semibold text-muted mb-1"
                 >
-                  Số lượng chết/hao hụt (con) <span className="text-red-500">*</span>
+                  Số lượng chết/hao hụt (con) <span className="text-crit">*</span>
                 </label>
                 <Input
                   id="mortalityCount"
@@ -639,18 +639,18 @@ function QuickLogContent() {
                     }
                   }}
                   placeholder="VD: 2"
-                  className={`h-12 rounded-xl text-base font-bold ${
-                    fieldErrors.count ? 'border-red-500 focus-visible:ring-red-500' : ''
+                  className={`h-12 rounded-xl text-base font-bold bg-surface border-line text-fg placeholder:text-muted ${
+                    fieldErrors.count ? 'border-crit focus-visible:ring-crit' : 'focus-visible:ring-accent'
                   }`}
                 />
                 {fieldErrors.count && (
-                  <p className="text-xs text-red-500 mt-1">{fieldErrors.count}</p>
+                  <p className="text-xs text-crit mt-1">{fieldErrors.count}</p>
                 )}
               </div>
               <div>
                 <label
                   htmlFor="mortalityCause"
-                  className="block text-[11px] font-semibold text-slate-500 mb-1"
+                  className="block text-[11px] font-semibold text-muted mb-1"
                 >
                   Nguyên nhân (tùy chọn)
                 </label>
@@ -661,7 +661,7 @@ function QuickLogContent() {
                   value={mortalityCause}
                   onChange={(e) => setMortalityCause(e.target.value)}
                   placeholder="VD: Sốc nhiệt, dịch bệnh..."
-                  className="h-12 rounded-xl text-sm font-medium"
+                  className="h-12 rounded-xl text-sm font-medium bg-surface border-line text-fg placeholder:text-muted focus-visible:ring-accent"
                 />
               </div>
             </div>
@@ -672,9 +672,9 @@ function QuickLogContent() {
               <div>
                 <label
                   htmlFor="stockingCount"
-                  className="block text-[11px] font-semibold text-slate-500 mb-1"
+                  className="block text-[11px] font-semibold text-muted mb-1"
                 >
-                  Số lượng thả giống (con) <span className="text-red-500">*</span>
+                  Số lượng thả giống (con) <span className="text-crit">*</span>
                 </label>
                 <Input
                   id="stockingCount"
@@ -690,18 +690,18 @@ function QuickLogContent() {
                     }
                   }}
                   placeholder="VD: 1000"
-                  className={`h-12 rounded-xl text-base font-bold ${
-                    fieldErrors.count ? 'border-red-500 focus-visible:ring-red-500' : ''
+                  className={`h-12 rounded-xl text-base font-bold bg-surface border-line text-fg placeholder:text-muted ${
+                    fieldErrors.count ? 'border-crit focus-visible:ring-crit' : 'focus-visible:ring-accent'
                   }`}
                 />
                 {fieldErrors.count && (
-                  <p className="text-xs text-red-500 mt-1">{fieldErrors.count}</p>
+                  <p className="text-xs text-crit mt-1">{fieldErrors.count}</p>
                 )}
               </div>
               <div>
                 <label
                   htmlFor="stockingAvgWeightG"
-                  className="block text-[11px] font-semibold text-slate-500 mb-1"
+                  className="block text-[11px] font-semibold text-muted mb-1"
                 >
                   Khối lượng TB (gam)
                 </label>
@@ -719,12 +719,12 @@ function QuickLogContent() {
                     }
                   }}
                   placeholder="VD: 50"
-                  className={`h-12 rounded-xl text-sm font-medium ${
-                    fieldErrors.avgWeightG ? 'border-red-500 focus-visible:ring-red-500' : ''
+                  className={`h-12 rounded-xl text-sm font-medium bg-surface border-line text-fg placeholder:text-muted ${
+                    fieldErrors.avgWeightG ? 'border-crit focus-visible:ring-crit' : 'focus-visible:ring-accent'
                   }`}
                 />
                 {fieldErrors.avgWeightG && (
-                  <p className="text-xs text-red-500 mt-1">{fieldErrors.avgWeightG}</p>
+                  <p className="text-xs text-crit mt-1">{fieldErrors.avgWeightG}</p>
                 )}
               </div>
             </div>
@@ -736,7 +736,7 @@ function QuickLogContent() {
               <div>
                 <label
                   htmlFor="chemicalProduct"
-                  className="block text-[11px] font-semibold text-slate-500 mb-1"
+                  className="block text-[11px] font-semibold text-muted mb-1"
                 >
                   Tên phân / thuốc
                 </label>
@@ -747,13 +747,13 @@ function QuickLogContent() {
                   value={chemicalProduct}
                   onChange={(e) => setChemicalProduct(e.target.value)}
                   placeholder="VD: NPK 16-16-8"
-                  className="h-12 rounded-xl text-sm font-medium"
+                  className="h-12 rounded-xl text-sm font-medium bg-surface border-line text-fg placeholder:text-muted focus-visible:ring-accent"
                 />
               </div>
               <div>
                 <label
                   htmlFor="chemicalDosage"
-                  className="block text-[11px] font-semibold text-slate-500 mb-1"
+                  className="block text-[11px] font-semibold text-muted mb-1"
                 >
                   Liều lượng
                 </label>
@@ -764,7 +764,7 @@ function QuickLogContent() {
                   value={chemicalDosage}
                   onChange={(e) => setChemicalDosage(e.target.value)}
                   placeholder="VD: 2kg / 10L nước"
-                  className="h-12 rounded-xl text-sm font-medium"
+                  className="h-12 rounded-xl text-sm font-medium bg-surface border-line text-fg placeholder:text-muted focus-visible:ring-accent"
                 />
               </div>
             </div>
@@ -784,7 +784,7 @@ function QuickLogContent() {
               <div>
                 <label
                   htmlFor="genericValue"
-                  className="block text-[11px] font-semibold text-slate-500 mb-1"
+                  className="block text-[11px] font-semibold text-muted mb-1"
                 >
                   Số lượng / Khối lượng
                 </label>
@@ -796,13 +796,13 @@ function QuickLogContent() {
                   value={genericValue}
                   onChange={(e) => setGenericValue(e.target.value)}
                   placeholder="VD: 50"
-                  className="h-12 rounded-xl text-base font-bold"
+                  className="h-12 rounded-xl text-base font-bold bg-surface border-line text-fg placeholder:text-muted focus-visible:ring-accent"
                 />
               </div>
               <div>
                 <label
                   htmlFor="genericUnit"
-                  className="block text-[11px] font-semibold text-slate-500 mb-1"
+                  className="block text-[11px] font-semibold text-muted mb-1"
                 >
                   Đơn vị tính
                 </label>
@@ -812,14 +812,14 @@ function QuickLogContent() {
                   value={genericUnit}
                   onChange={(e) => setGenericUnit(e.target.value)}
                   placeholder="lít, kg, cây..."
-                  className="h-12 rounded-xl text-sm font-medium"
+                  className="h-12 rounded-xl text-sm font-medium bg-surface border-line text-fg placeholder:text-muted focus-visible:ring-accent"
                 />
               </div>
             </div>
           )}
 
           <div>
-            <label htmlFor="notes" className="block text-[11px] font-semibold text-slate-500 mb-1">
+            <label htmlFor="notes" className="block text-[11px] font-semibold text-muted mb-1">
               Ghi chú thêm
             </label>
             <textarea
@@ -828,14 +828,14 @@ function QuickLogContent() {
               onChange={(e) => setNotes(e.target.value)}
               placeholder="VD: Tưới đẫm nước khu vực luống 1 đến 5..."
               rows={3}
-              className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full rounded-xl border border-line bg-surface p-3 text-sm text-fg placeholder:text-muted focus:outline-hidden focus:ring-2 focus:ring-accent"
             />
           </div>
         </div>
 
         {/* Chụp ảnh thực tế bằng camera */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-900 space-y-3">
-          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+        <div className="rounded-2xl border border-line bg-surface p-4 shadow-xs space-y-3 text-fg">
+          <label className="block text-xs font-bold text-fg-2 uppercase tracking-wider">
             4. Chụp ảnh hiện trường
           </label>
 
@@ -849,7 +849,7 @@ function QuickLogContent() {
           />
 
           {photoPreview ? (
-            <div className="relative rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-black aspect-video flex items-center justify-center">
+            <div className="relative rounded-xl overflow-hidden border border-line bg-black aspect-video flex items-center justify-center">
               <img
                 src={photoPreview}
                 alt="Ảnh hiện trường"
@@ -868,7 +868,7 @@ function QuickLogContent() {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="w-full h-20 border-2 border-dashed border-emerald-300 dark:border-emerald-800 rounded-xl bg-emerald-50/50 dark:bg-emerald-950/20 flex flex-col items-center justify-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-bold text-sm active:bg-emerald-100/50 transition-colors"
+              className="w-full h-20 border-2 border-dashed border-accent/40 rounded-xl bg-surface-2 flex flex-col items-center justify-center gap-1.5 text-accent font-bold text-sm active:bg-hover transition-colors"
             >
               <Camera className="h-6 w-6" />
               <span>Chụp ảnh bằng camera điện thoại</span>
@@ -876,13 +876,13 @@ function QuickLogContent() {
           )}
         </div>
 
-        {/* Nút lưu lớn, tối ưu thao tác 1 tay */}
+        {/* Nút lưu lớn, tối ưu thao tác 1 tay & rõ ngoài nắng */}
         <Button
           type="submit"
           variant="default"
           size="lg"
           disabled={isSubmitting}
-          className="w-full h-14 text-base font-extrabold bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl shadow-md flex items-center justify-center gap-2 active:scale-98"
+          className="w-full h-14 text-base font-extrabold bg-accent hover:bg-accent-hover text-surface rounded-2xl shadow-md flex items-center justify-center gap-2 active:scale-98"
         >
           {isSubmitting ? (
             <div className="flex items-center gap-2">
@@ -906,8 +906,8 @@ export default function QuickLogPage() {
     <React.Suspense
       fallback={
         <div className="flex flex-col items-center justify-center py-16 space-y-3">
-          <RefreshCw className="h-8 w-8 animate-spin text-emerald-600" />
-          <p className="text-sm font-medium text-slate-500">Đang tải...</p>
+          <RefreshCw className="h-8 w-8 animate-spin text-accent" />
+          <p className="text-sm font-medium text-muted">Đang tải...</p>
         </div>
       }
     >

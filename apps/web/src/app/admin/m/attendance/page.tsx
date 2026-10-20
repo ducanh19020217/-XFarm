@@ -118,10 +118,10 @@ export default function MobileAttendancePage() {
       {/* Header */}
       <div className="flex items-center justify-between pb-1">
         <div>
-          <h1 className="text-xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
+          <h1 className="text-xl font-extrabold text-fg tracking-tight">
             Chấm công vào / ra ca
           </h1>
-          <p className="text-xs font-medium text-slate-500">
+          <p className="text-xs font-medium text-muted">
             Ghi nhận giờ làm việc hằng ngày của bạn
           </p>
         </div>
@@ -130,23 +130,23 @@ export default function MobileAttendancePage() {
           size="sm"
           onClick={() => loadData()}
           disabled={loading || actionLoading}
-          className="h-10 px-3 flex items-center gap-1.5 text-slate-600 rounded-xl active:scale-95 transition-transform"
+          className="h-10 px-3 flex items-center gap-1.5 rounded-xl border-line bg-surface text-fg hover:bg-hover active:scale-95 transition-transform"
         >
-          <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin text-emerald-600' : ''}`} />
+          <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin text-accent' : ''}`} />
           <span className="text-xs font-semibold">Cập nhật</span>
         </Button>
       </div>
 
       {/* Card Trạng thái hôm nay */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900 space-y-4">
+      <div className="rounded-2xl border border-line bg-surface p-5 shadow-xs space-y-4 text-fg">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Timer className="h-5 w-5 text-emerald-600" />
-            <h2 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+            <Timer className="h-5 w-5 text-accent" />
+            <h2 className="text-sm font-bold text-fg-2 uppercase tracking-wider">
               Trạng thái hôm nay
             </h2>
           </div>
-          <span className="text-xs font-semibold text-slate-500">
+          <span className="text-xs font-semibold text-muted">
             {new Date().toLocaleDateString('vi-VN', {
               day: '2-digit',
               month: '2-digit',
@@ -157,20 +157,20 @@ export default function MobileAttendancePage() {
 
         {/* Live Status Banner */}
         <div
-          className={`p-4 rounded-xl flex items-center gap-3.5 transition-colors ${
+          className={`p-4 rounded-xl flex items-center gap-3.5 border transition-colors ${
             hasCheckedOut
-              ? 'bg-emerald-50 text-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300'
+              ? 'bg-ok-bg text-ok border-ok/20'
               : hasCheckedIn
-                ? 'bg-blue-50 text-blue-900 dark:bg-blue-950/40 dark:text-blue-300'
-                : 'bg-amber-50 text-amber-900 dark:bg-amber-950/40 dark:text-amber-300'
+                ? 'bg-info-bg text-info border-info/20'
+                : 'bg-warn-bg text-warn border-warn/20'
           }`}
         >
           {hasCheckedOut ? (
-            <CheckCircle2 className="h-8 w-8 text-emerald-600 shrink-0" />
+            <CheckCircle2 className="h-8 w-8 text-ok shrink-0" />
           ) : hasCheckedIn ? (
-            <Clock className="h-8 w-8 text-blue-600 shrink-0 animate-pulse" />
+            <Clock className="h-8 w-8 text-info shrink-0 animate-pulse" />
           ) : (
-            <AlertCircle className="h-8 w-8 text-amber-600 shrink-0" />
+            <AlertCircle className="h-8 w-8 text-warn shrink-0" />
           )}
 
           <div className="space-y-0.5">
@@ -183,7 +183,7 @@ export default function MobileAttendancePage() {
                     : 'Chưa chấm công vào ca'}
               </h3>
               {todayAttendance?.pendingSync && (
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-400">
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-warn-bg text-warn border border-warn/20">
                   Chờ đồng bộ
                 </span>
               )}
@@ -198,7 +198,7 @@ export default function MobileAttendancePage() {
           </div>
         </div>
 
-        {/* Big Action Buttons (Optimized for thumb tap) */}
+        {/* Big Action Buttons (Optimized for thumb tap & high contrast in sunlight) */}
         <div className="grid grid-cols-2 gap-3 pt-1">
           <Button
             type="button"
@@ -208,8 +208,8 @@ export default function MobileAttendancePage() {
             onClick={handleCheckIn}
             className={`h-16 text-base font-extrabold rounded-2xl flex flex-col items-center justify-center gap-1 active:scale-95 transition-all shadow-sm ${
               hasCheckedIn
-                ? 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-600 border border-slate-200 dark:border-slate-800 cursor-not-allowed'
-                : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                ? 'bg-surface-2 text-muted border border-line cursor-not-allowed opacity-60'
+                : 'bg-accent hover:bg-accent-hover text-surface shadow-md'
             }`}
           >
             <LogIn className="h-6 w-6" />
@@ -224,8 +224,8 @@ export default function MobileAttendancePage() {
             onClick={handleCheckOut}
             className={`h-16 text-base font-extrabold rounded-2xl flex flex-col items-center justify-center gap-1 active:scale-95 transition-all shadow-sm ${
               !hasCheckedIn || hasCheckedOut
-                ? 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-600 border border-slate-200 dark:border-slate-800 cursor-not-allowed'
-                : 'bg-amber-600 hover:bg-amber-700 text-white'
+                ? 'bg-surface-2 text-muted border border-line cursor-not-allowed opacity-60'
+                : 'bg-warn-fill hover:bg-warn text-surface shadow-md'
             }`}
           >
             <LogOut className="h-6 w-6" />
@@ -235,33 +235,33 @@ export default function MobileAttendancePage() {
       </div>
 
       {/* Lịch sử 7 ngày gần nhất */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900 space-y-3">
+      <div className="rounded-2xl border border-line bg-surface p-5 shadow-xs space-y-3 text-fg">
         <div className="flex items-center justify-between pb-1">
           <div className="flex items-center gap-2">
-            <History className="h-4 w-4 text-emerald-600" />
-            <h2 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+            <History className="h-4 w-4 text-accent" />
+            <h2 className="text-sm font-bold text-fg-2 uppercase tracking-wider">
               Lịch sử 7 ngày qua
             </h2>
           </div>
-          <span className="text-xs text-slate-500 font-medium">{history.length} bản ghi</span>
+          <span className="text-xs text-muted font-medium">{history.length} bản ghi</span>
         </div>
 
         {history.length === 0 ? (
-          <p className="text-xs text-slate-400 text-center py-6 italic">
+          <p className="text-xs text-muted text-center py-6 italic">
             Chưa có lịch sử chấm công trong 7 ngày gần đây.
           </p>
         ) : (
-          <div className="divide-y divide-slate-100 dark:divide-slate-800">
+          <div className="divide-y divide-line">
             {history.map((record) => (
               <div
                 key={record.id}
                 className="py-3 flex items-center justify-between gap-3 first:pt-1 last:pb-1"
               >
                 <div className="space-y-0.5">
-                  <div className="text-sm font-bold text-slate-800 dark:text-slate-200 capitalize">
+                  <div className="text-sm font-bold text-fg capitalize">
                     {formatDate(record.date || record.checkIn)}
                   </div>
-                  <div className="text-xs text-slate-500 flex items-center gap-2">
+                  <div className="text-xs text-muted flex items-center gap-2">
                     <span>Vào: {formatTime(record.checkIn)}</span>
                     <span>·</span>
                     <span>Ra: {formatTime(record.checkOut)}</span>
@@ -269,11 +269,11 @@ export default function MobileAttendancePage() {
                 </div>
 
                 <div className="text-right">
-                  <div className="text-sm font-extrabold text-emerald-700 dark:text-emerald-400 font-mono">
+                  <div className="text-sm font-extrabold text-accent font-mono">
                     {record.hours != null ? `${Number(record.hours).toFixed(2)}h` : '0h'}
                   </div>
                   {record.cycle?.name && (
-                    <div className="text-[11px] text-slate-400 max-w-[120px] truncate">
+                    <div className="text-[11px] text-muted max-w-[120px] truncate">
                       {record.cycle.name}
                     </div>
                   )}
