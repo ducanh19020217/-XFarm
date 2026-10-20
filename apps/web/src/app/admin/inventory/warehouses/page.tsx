@@ -175,9 +175,7 @@ export default function WarehousesPage() {
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
             <WarehouseIcon className="h-4 w-4 text-muted" />
-            <span className="font-medium text-fg">
-              {row.original.name}
-            </span>
+            <span className="font-medium text-fg">{row.original.name}</span>
           </div>
         ),
       },
@@ -225,11 +223,7 @@ export default function WarehousesPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className={
-                        isLocked
-                          ? 'text-ok hover:bg-ok-bg'
-                          : 'text-warn hover:bg-warn-bg'
-                      }
+                      className={isLocked ? 'text-ok hover:bg-ok-bg' : 'text-warn hover:bg-warn-bg'}
                       onClick={() => setConfirmLockWarehouse(wh)}
                       title={isLocked ? 'Mở khóa kho hàng' : 'Khóa kho hàng'}
                     >

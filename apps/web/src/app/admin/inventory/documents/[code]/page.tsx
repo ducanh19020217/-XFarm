@@ -186,9 +186,7 @@ export default function StockDocumentDetailPage() {
           {/* Lines Table */}
           <div className="rounded-lg border border-line bg-surface shadow-sm overflow-hidden">
             <div className="border-b border-line px-4 py-3 bg-surface-2">
-              <h2 className="text-sm font-semibold text-fg">
-                Chi tiết các dòng hàng
-              </h2>
+              <h2 className="text-sm font-semibold text-fg">Chi tiết các dòng hàng</h2>
             </div>
 
             <div className="overflow-x-auto">
@@ -234,10 +232,7 @@ export default function StockDocumentDetailPage() {
                       const diff = actualQty - bookQty;
 
                       return (
-                        <tr
-                          key={line.id || idx}
-                          className="hover:bg-hover"
-                        >
+                        <tr key={line.id || idx} className="hover:bg-hover">
                           <td className="px-4 py-3 text-muted font-mono text-xs">{idx + 1}</td>
                           <td className="px-4 py-3">
                             <span className="font-medium text-fg">
@@ -249,9 +244,7 @@ export default function StockDocumentDetailPage() {
                               </span>
                             )}
                           </td>
-                          <td className="px-4 py-3 text-fg-2">
-                            {line.unit || '—'}
-                          </td>
+                          <td className="px-4 py-3 text-fg-2">{line.unit || '—'}</td>
                           <td className="px-4 py-3 font-mono text-xs text-muted">
                             {line.lotCode || '—'}
                           </td>
@@ -259,7 +252,7 @@ export default function StockDocumentDetailPage() {
                             {expiry ? (
                               <Badge variant={expiry.variant}>
                                 {expiry.isExpired
-                                   ? 'Hết hạn'
+                                  ? 'Hết hạn'
                                   : expiry.isExpiringSoon
                                     ? expiry.label
                                     : expiry.formattedDate}
@@ -279,11 +272,7 @@ export default function StockDocumentDetailPage() {
                               <td className="px-4 py-3 text-right font-semibold">
                                 <span
                                   className={
-                                    diff === 0
-                                      ? 'text-muted'
-                                      : diff > 0
-                                        ? 'text-ok'
-                                        : 'text-crit'
+                                    diff === 0 ? 'text-muted' : diff > 0 ? 'text-ok' : 'text-crit'
                                   }
                                 >
                                   {diff > 0 ? `+${formatNumber(diff)}` : formatNumber(diff)}
@@ -314,12 +303,8 @@ export default function StockDocumentDetailPage() {
             {/* Total footer */}
             {!isCount && document.lines && document.lines.length > 0 && (
               <div className="flex items-center justify-end gap-6 bg-surface-2 px-6 py-4 border-t border-line">
-                <span className="text-sm font-medium text-muted">
-                  Tổng thành tiền phiếu:
-                </span>
-                <span className="text-xl font-bold text-ok">
-                  {formatCurrency(totalAmount)}
-                </span>
+                <span className="text-sm font-medium text-muted">Tổng thành tiền phiếu:</span>
+                <span className="text-xl font-bold text-ok">{formatCurrency(totalAmount)}</span>
               </div>
             )}
           </div>

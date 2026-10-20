@@ -26,9 +26,7 @@ export function POInfoCard({ po }: POInfoCardProps) {
           <p className="font-semibold text-fg">{po.supplier?.name || '-'}</p>
           {po.supplier?.code && <p className="text-xs text-muted">Mã: {po.supplier.code}</p>}
           {po.supplier?.phone && <p className="text-xs text-muted">SĐT: {po.supplier.phone}</p>}
-          {po.supplier?.address && (
-            <p className="text-xs text-muted">Đ/c: {po.supplier.address}</p>
-          )}
+          {po.supplier?.address && <p className="text-xs text-muted">Đ/c: {po.supplier.address}</p>}
         </div>
 
         <div>
@@ -41,9 +39,7 @@ export function POInfoCard({ po }: POInfoCardProps) {
           <div className="mt-2 grid grid-cols-2 gap-2">
             <div>
               <span className="text-xs font-medium text-muted block">Đã thanh toán</span>
-              <p className="text-sm font-semibold text-ok">
-                {formatCurrency(po.paidAmount || 0)}
-              </p>
+              <p className="text-sm font-semibold text-ok">{formatCurrency(po.paidAmount || 0)}</p>
             </div>
             <div>
               <span className="text-xs font-medium text-muted block">Còn lại</span>

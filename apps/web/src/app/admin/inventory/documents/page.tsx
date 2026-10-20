@@ -156,9 +156,7 @@ export default function StockDocumentsPage() {
       accessorKey: 'movedAt',
       header: 'Ngày lập / Ngày chuyển',
       cell: ({ row }) => (
-        <span className="text-xs font-mono text-muted">
-          {formatDateTime(row.original.movedAt)}
-        </span>
+        <span className="text-xs font-mono text-muted">{formatDateTime(row.original.movedAt)}</span>
       ),
     },
     {

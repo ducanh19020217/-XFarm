@@ -131,9 +131,7 @@ export default function StockMovesPage() {
           );
         }
 
-        return (
-          <span className="font-mono text-xs text-fg">{refId}</span>
-        );
+        return <span className="font-mono text-xs text-fg">{refId}</span>;
       },
     },
     {
@@ -145,9 +143,7 @@ export default function StockMovesPage() {
             {row.original.itemName || row.original.itemId}
           </span>
           {row.original.itemSku && (
-            <span className="block text-xs font-mono text-muted">
-              SKU: {row.original.itemSku}
-            </span>
+            <span className="block text-xs font-mono text-muted">SKU: {row.original.itemSku}</span>
           )}
         </div>
       ),
@@ -156,9 +152,7 @@ export default function StockMovesPage() {
       accessorKey: 'lotCode',
       header: 'Mã lô',
       cell: ({ row }) => (
-        <span className="font-mono text-xs text-muted">
-          {row.original.lotCode || '—'}
-        </span>
+        <span className="font-mono text-xs text-muted">{row.original.lotCode || '—'}</span>
       ),
     },
     {
@@ -180,9 +174,7 @@ export default function StockMovesPage() {
           );
         }
 
-        return (
-          <span className="text-xs text-fg-2">{to || from || '—'}</span>
-        );
+        return <span className="text-xs text-fg-2">{to || from || '—'}</span>;
       },
     },
     {
@@ -206,11 +198,7 @@ export default function StockMovesPage() {
         return (
           <span
             className={`font-semibold ${
-              isNegative
-                ? 'text-crit'
-                : isPositive
-                  ? 'text-ok'
-                  : 'text-fg'
+              isNegative ? 'text-crit' : isPositive ? 'text-ok' : 'text-fg'
             }`}
           >
             {isNegative ? `-${formatNumber(qty)}` : `+${formatNumber(qty)}`}{' '}
@@ -223,9 +211,7 @@ export default function StockMovesPage() {
       accessorKey: 'unitCost',
       header: 'Đơn giá vốn',
       cell: ({ row }) => (
-        <span className="text-xs text-fg-2">
-          {formatCurrency(row.original.unitCost)}
-        </span>
+        <span className="text-xs text-fg-2">{formatCurrency(row.original.unitCost)}</span>
       ),
     },
     {
@@ -256,10 +242,7 @@ export default function StockMovesPage() {
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 items-end">
           {/* Item Filter */}
           <div className="space-y-1">
-            <label
-              htmlFor="filter-item"
-              className="text-xs font-medium text-fg"
-            >
+            <label htmlFor="filter-item" className="text-xs font-medium text-fg">
               Vật tư
             </label>
             <select
@@ -282,10 +265,7 @@ export default function StockMovesPage() {
 
           {/* Warehouse Filter */}
           <div className="space-y-1">
-            <label
-              htmlFor="filter-warehouse"
-              className="text-xs font-medium text-fg"
-            >
+            <label htmlFor="filter-warehouse" className="text-xs font-medium text-fg">
               Kho hàng
             </label>
             <select
@@ -308,10 +288,7 @@ export default function StockMovesPage() {
 
           {/* Type Filter */}
           <div className="space-y-1">
-            <label
-              htmlFor="filter-type"
-              className="text-xs font-medium text-fg"
-            >
+            <label htmlFor="filter-type" className="text-xs font-medium text-fg">
               Loại biến động
             </label>
             <select
@@ -333,10 +310,7 @@ export default function StockMovesPage() {
 
           {/* From Date */}
           <div className="space-y-1">
-            <label
-              htmlFor="filter-from"
-              className="text-xs font-medium text-fg"
-            >
+            <label htmlFor="filter-from" className="text-xs font-medium text-fg">
               Từ ngày
             </label>
             <input
@@ -353,10 +327,7 @@ export default function StockMovesPage() {
 
           {/* To Date */}
           <div className="space-y-1">
-            <label
-              htmlFor="filter-to"
-              className="text-xs font-medium text-fg"
-            >
+            <label htmlFor="filter-to" className="text-xs font-medium text-fg">
               Đến ngày
             </label>
             <input

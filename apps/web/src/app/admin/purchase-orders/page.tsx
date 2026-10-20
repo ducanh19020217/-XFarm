@@ -123,7 +123,9 @@ export default function PurchaseOrdersPage() {
   const stats = React.useMemo(() => {
     const totalCount = total || orders.length;
     const draftCount = orders.filter((o) => o.status === 'DRAFT').length;
-    const orderedCount = orders.filter((o) => o.status === 'ORDERED' || o.status === 'PARTIAL').length;
+    const orderedCount = orders.filter(
+      (o) => o.status === 'ORDERED' || o.status === 'PARTIAL',
+    ).length;
     const receivedCount = orders.filter((o) => o.status === 'RECEIVED').length;
     return { totalCount, draftCount, orderedCount, receivedCount };
   }, [total, orders]);
@@ -146,7 +148,9 @@ export default function PurchaseOrdersPage() {
         accessorKey: 'supplier',
         header: 'Nhà cung cấp',
         cell: ({ row }) => (
-          <span className="text-fg">{row.original.supplier?.name || row.original.supplier?.code || '-'}</span>
+          <span className="text-fg">
+            {row.original.supplier?.name || row.original.supplier?.code || '-'}
+          </span>
         ),
       },
       {
@@ -157,7 +161,9 @@ export default function PurchaseOrdersPage() {
       {
         accessorKey: 'total',
         header: 'Tổng tiền',
-        cell: ({ row }) => <span className="font-semibold text-fg">{formatCurrency(row.original.total)}</span>,
+        cell: ({ row }) => (
+          <span className="font-semibold text-fg">{formatCurrency(row.original.total)}</span>
+        ),
       },
       {
         accessorKey: 'status',

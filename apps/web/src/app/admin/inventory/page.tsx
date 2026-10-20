@@ -242,9 +242,7 @@ export default function InventoryBalancesPage() {
       header: 'Tên vật tư',
       cell: ({ row }) => (
         <div>
-          <span className="font-medium text-fg">
-            {row.original.itemName}
-          </span>
+          <span className="font-medium text-fg">{row.original.itemName}</span>
           <span className="block text-xs text-muted">ĐVT: {row.original.unit}</span>
         </div>
       ),
@@ -262,18 +260,14 @@ export default function InventoryBalancesPage() {
       accessorKey: 'warehouseName',
       header: 'Kho',
       cell: ({ row }) => (
-        <span className="text-fg-2">
-          {row.original.warehouseName || row.original.warehouseId}
-        </span>
+        <span className="text-fg-2">{row.original.warehouseName || row.original.warehouseId}</span>
       ),
     },
     {
       accessorKey: 'lotCode',
       header: 'Mã lô',
       cell: ({ row }) => (
-        <span className="font-mono text-xs text-muted">
-          {row.original.lotCode || '—'}
-        </span>
+        <span className="font-mono text-xs text-muted">{row.original.lotCode || '—'}</span>
       ),
     },
     {
@@ -307,11 +301,7 @@ export default function InventoryBalancesPage() {
       cell: ({ row }) => {
         const qty = Number(row.original.quantity || 0);
         return (
-          <span
-            className={`font-semibold ${
-              qty <= 0 ? 'text-crit' : 'text-fg'
-            }`}
-          >
+          <span className={`font-semibold ${qty <= 0 ? 'text-crit' : 'text-fg'}`}>
             {formatNumber(qty)} {row.original.unit}
           </span>
         );
@@ -320,11 +310,7 @@ export default function InventoryBalancesPage() {
     {
       accessorKey: 'unitCost',
       header: 'Giá vốn',
-      cell: ({ row }) => (
-        <span className="text-fg-2">
-          {formatCurrency(row.original.unitCost)}
-        </span>
-      ),
+      cell: ({ row }) => <span className="text-fg-2">{formatCurrency(row.original.unitCost)}</span>,
     },
     {
       accessorKey: 'totalValue',
@@ -336,11 +322,7 @@ export default function InventoryBalancesPage() {
             : row.original.totalCost != null
               ? Number(row.original.totalCost)
               : Number(row.original.quantity || 0) * Number(row.original.unitCost || 0);
-        return (
-          <span className="font-semibold text-ok">
-            {formatCurrency(val)}
-          </span>
-        );
+        return <span className="font-semibold text-ok">{formatCurrency(val)}</span>;
       },
     },
   ];
@@ -358,27 +340,18 @@ export default function InventoryBalancesPage() {
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="rounded-lg border border-line bg-surface p-4 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-muted">
-              Tổng số mặt hàng / lô tồn
-            </span>
+            <span className="text-sm font-medium text-muted">Tổng số mặt hàng / lô tồn</span>
             <Package className="h-5 w-5 text-muted" />
           </div>
-          <div className="mt-2 text-2xl font-bold text-fg">
-            {formatNumber(total, 0)}
-          </div>
+          <div className="mt-2 text-2xl font-bold text-fg">{formatNumber(total, 0)}</div>
         </div>
 
         <div className="rounded-lg border border-line bg-surface p-4 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-muted">
-              Tổng giá trị thành tiền
-            </span>
+            <span className="text-sm font-medium text-muted">Tổng giá trị thành tiền</span>
             <DollarSign className="h-5 w-5 text-ok" />
           </div>
-          <div
-            data-testid="summary-total-value"
-            className="mt-2 text-2xl font-bold text-ok"
-          >
+          <div data-testid="summary-total-value" className="mt-2 text-2xl font-bold text-ok">
             {aggregatedTotalAmount != null ? (
               formatCurrency(aggregatedTotalAmount)
             ) : total <= balances.length ? (
@@ -400,15 +373,10 @@ export default function InventoryBalancesPage() {
 
         <div className="rounded-lg border border-line bg-surface p-4 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-muted">
-              Cảnh báo hạn dùng (≤ 30 ngày)
-            </span>
+            <span className="text-sm font-medium text-muted">Cảnh báo hạn dùng (≤ 30 ngày)</span>
             <AlertTriangle className="h-5 w-5 text-warn" />
           </div>
-          <div
-            data-testid="summary-expiring-count"
-            className="mt-2 text-2xl font-bold text-warn"
-          >
+          <div data-testid="summary-expiring-count" className="mt-2 text-2xl font-bold text-warn">
             {aggregatedExpiringCount != null ? (
               formatNumber(aggregatedExpiringCount, 0)
             ) : total <= balances.length ? (
@@ -434,10 +402,7 @@ export default function InventoryBalancesPage() {
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 items-end">
           {/* Warehouse Filter */}
           <div className="space-y-1">
-            <label
-              htmlFor="filter-warehouse"
-              className="text-xs font-medium text-fg"
-            >
+            <label htmlFor="filter-warehouse" className="text-xs font-medium text-fg">
               Kho hàng
             </label>
             <select
@@ -460,10 +425,7 @@ export default function InventoryBalancesPage() {
 
           {/* Category Filter */}
           <div className="space-y-1">
-            <label
-              htmlFor="filter-category"
-              className="text-xs font-medium text-fg"
-            >
+            <label htmlFor="filter-category" className="text-xs font-medium text-fg">
               Nhóm hàng
             </label>
             <select
@@ -486,10 +448,7 @@ export default function InventoryBalancesPage() {
 
           {/* Lot Code Filter */}
           <div className="space-y-1">
-            <label
-              htmlFor="filter-lot"
-              className="text-xs font-medium text-fg"
-            >
+            <label htmlFor="filter-lot" className="text-xs font-medium text-fg">
               Mã lô
             </label>
             <input

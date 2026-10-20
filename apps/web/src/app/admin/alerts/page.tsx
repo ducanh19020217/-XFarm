@@ -149,11 +149,7 @@ export default function AlertsPage() {
     {
       accessorKey: 'message',
       header: 'Nội dung',
-      cell: ({ row }) => (
-        <span className="font-medium text-fg">
-          {row.original.message}
-        </span>
-      ),
+      cell: ({ row }) => <span className="font-medium text-fg">{row.original.message}</span>,
     },
     {
       accessorKey: 'createdAt',
@@ -275,7 +271,12 @@ export default function AlertsPage() {
             </Button>
           )}
 
-          <Button variant="outline" onClick={handleMarkAllAsRead} disabled={isReadingAll} className="border-line">
+          <Button
+            variant="outline"
+            onClick={handleMarkAllAsRead}
+            disabled={isReadingAll}
+            className="border-line"
+          >
             {isReadingAll ? (
               <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
             ) : (

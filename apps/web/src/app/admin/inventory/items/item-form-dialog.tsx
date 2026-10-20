@@ -130,9 +130,7 @@ export function ItemFormDialog({
               disabled={isEdit || isLoading}
               {...form.register('sku')}
             />
-            {errors.sku && (
-              <p className="text-xs text-crit mt-1">{errors.sku.message}</p>
-            )}
+            {errors.sku && <p className="text-xs text-crit mt-1">{errors.sku.message}</p>}
           </div>
 
           <div className="space-y-1 sm:col-span-1">
@@ -151,11 +149,7 @@ export function ItemFormDialog({
                 </option>
               ))}
             </select>
-            {errors.category && (
-              <p className="text-xs text-crit mt-1">
-                {errors.category.message}
-              </p>
-            )}
+            {errors.category && <p className="text-xs text-crit mt-1">{errors.category.message}</p>}
           </div>
         </div>
 
@@ -169,9 +163,7 @@ export function ItemFormDialog({
             disabled={isLoading}
             {...form.register('name')}
           />
-          {errors.name && (
-            <p className="text-xs text-crit mt-1">{errors.name.message}</p>
-          )}
+          {errors.name && <p className="text-xs text-crit mt-1">{errors.name.message}</p>}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -185,9 +177,7 @@ export function ItemFormDialog({
               disabled={isLoading}
               {...form.register('unit')}
             />
-            {errors.unit && (
-              <p className="text-xs text-crit mt-1">{errors.unit.message}</p>
-            )}
+            {errors.unit && <p className="text-xs text-crit mt-1">{errors.unit.message}</p>}
           </div>
 
           <div className="space-y-1">
@@ -205,11 +195,7 @@ export function ItemFormDialog({
                 setValueAs: (v) => (v === '' || v === null ? undefined : Number(v)),
               })}
             />
-            {errors.minStock && (
-              <p className="text-xs text-crit mt-1">
-                {errors.minStock.message}
-              </p>
-            )}
+            {errors.minStock && <p className="text-xs text-crit mt-1">{errors.minStock.message}</p>}
           </div>
         </div>
 

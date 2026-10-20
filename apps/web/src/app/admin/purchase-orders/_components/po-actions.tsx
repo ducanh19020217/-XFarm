@@ -40,7 +40,11 @@ export function POActions({ status, role, onOrder, onCancel, onReceive, onPay }:
     return (
       <div className="flex items-center gap-2">
         {allowCancel && (
-          <Button variant="outline" onClick={onCancel} className="border-crit text-crit hover:bg-crit-bg">
+          <Button
+            variant="outline"
+            onClick={onCancel}
+            className="border-crit text-crit hover:bg-crit-bg"
+          >
             <XCircle className="mr-1.5 h-4 w-4" />
             Hủy
           </Button>
@@ -61,7 +65,11 @@ export function POActions({ status, role, onOrder, onCancel, onReceive, onPay }:
     return (
       <div className="flex items-center gap-2">
         {allowCancel && (
-          <Button variant="outline" onClick={onCancel} className="border-crit text-crit hover:bg-crit-bg">
+          <Button
+            variant="outline"
+            onClick={onCancel}
+            className="border-crit text-crit hover:bg-crit-bg"
+          >
             <XCircle className="mr-1.5 h-4 w-4" />
             Hủy
           </Button>

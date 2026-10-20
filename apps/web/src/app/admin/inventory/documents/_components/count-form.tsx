@@ -358,13 +358,7 @@ export function CountForm({ warehouses, items, onSuccess, onCancel }: CountFormP
                     </td>
                     <td className="px-3 py-2.5 text-right font-semibold">
                       <span
-                        className={
-                          diff === 0
-                            ? 'text-muted'
-                            : diff > 0
-                              ? 'text-ok'
-                              : 'text-crit'
-                        }
+                        className={diff === 0 ? 'text-muted' : diff > 0 ? 'text-ok' : 'text-crit'}
                       >
                         {diff > 0 ? `+${formatNumber(diff)}` : formatNumber(diff)}
                       </span>

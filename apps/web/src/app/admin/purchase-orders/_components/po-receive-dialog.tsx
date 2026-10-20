@@ -171,13 +171,18 @@ export function POReceiveDialog({
     >
       <form onSubmit={handleSubmit} noValidate className="space-y-4">
         {errors.general && (
-          <p role="alert" className="rounded-md border border-crit/30 bg-crit-bg p-3 text-sm text-crit">
+          <p
+            role="alert"
+            className="rounded-md border border-crit/30 bg-crit-bg p-3 text-sm text-crit"
+          >
             {errors.general}
           </p>
         )}
 
         <div className="space-y-1">
-          <Label htmlFor="receive-warehouse" className="text-fg">Kho nhận hàng *</Label>
+          <Label htmlFor="receive-warehouse" className="text-fg">
+            Kho nhận hàng *
+          </Label>
           <select
             id="receive-warehouse"
             value={warehouseId}

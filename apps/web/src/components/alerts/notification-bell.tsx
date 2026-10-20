@@ -201,9 +201,7 @@ export function NotificationBell() {
                             {formatAlertDate(alert.createdAt)}
                           </span>
                         </div>
-                        <p className="text-xs font-medium text-fg line-clamp-2">
-                          {alert.message}
-                        </p>
+                        <p className="text-xs font-medium text-fg line-clamp-2">{alert.message}</p>
                         <div className="pt-1">
                           <Link
                             href={inv.href}

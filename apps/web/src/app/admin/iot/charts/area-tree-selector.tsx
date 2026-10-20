@@ -36,9 +36,7 @@ function TreeNode({
     <div className="select-none">
       <div
         className={`flex items-center gap-1.5 py-1.5 px-2 rounded-lg cursor-pointer text-xs transition-colors ${
-          isSelected
-            ? 'bg-selected text-accent font-semibold'
-            : 'hover:bg-hover text-fg'
+          isSelected ? 'bg-selected text-accent font-semibold' : 'hover:bg-hover text-fg'
         }`}
         style={{ paddingLeft: `${Math.max(8, level * 16 + 8)}px` }}
         onClick={() => onSelectArea(node.id)}

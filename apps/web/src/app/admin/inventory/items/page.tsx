@@ -162,13 +162,9 @@ export default function ItemsPage() {
         header: 'Tên vật tư / hàng hóa',
         cell: ({ row }) => (
           <div className="flex flex-col">
-            <span className="font-medium text-fg">
-              {row.original.name}
-            </span>
+            <span className="font-medium text-fg">{row.original.name}</span>
             {row.original.isSellable && (
-              <span className="text-xs text-ok font-medium">
-                Được phép bán
-              </span>
+              <span className="text-xs text-ok font-medium">Được phép bán</span>
             )}
           </div>
         ),
@@ -213,11 +209,7 @@ export default function ItemsPage() {
 
           return (
             <div className="flex items-center gap-1.5">
-              <span
-                className={`text-sm font-semibold ${
-                  isBelow ? 'text-crit' : 'text-fg'
-                }`}
-              >
+              <span className={`text-sm font-semibold ${isBelow ? 'text-crit' : 'text-fg'}`}>
                 {formattedOnHand} {item.unit}
               </span>
               {isBelow && (
@@ -262,9 +254,7 @@ export default function ItemsPage() {
                       variant="ghost"
                       size="sm"
                       className={
-                        item.isActive
-                          ? 'text-warn hover:bg-warn-bg'
-                          : 'text-ok hover:bg-ok-bg'
+                        item.isActive ? 'text-warn hover:bg-warn-bg' : 'text-ok hover:bg-ok-bg'
                       }
                       onClick={() => setConfirmLockItem(item)}
                       title={item.isActive ? 'Khóa vật tư' : 'Mở khóa vật tư'}

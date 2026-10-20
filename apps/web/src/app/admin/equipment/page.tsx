@@ -158,11 +158,7 @@ export default function EquipmentPage() {
   const getStatusBadge = (status: EquipmentStatus) => {
     switch (status) {
       case EquipmentStatus.ACTIVE:
-        return (
-          <Badge variant="default">
-            {EQUIPMENT_STATUS_LABELS[status]}
-          </Badge>
-        );
+        return <Badge variant="default">{EQUIPMENT_STATUS_LABELS[status]}</Badge>;
       case EquipmentStatus.MAINTENANCE:
         return <Badge variant="warning">{EQUIPMENT_STATUS_LABELS[status]}</Badge>;
       case EquipmentStatus.BROKEN:
@@ -251,11 +247,7 @@ export default function EquipmentPage() {
               </Badge>
             )}
             {isDueSoon && (
-              <Badge
-                variant="warning"
-                data-testid="badge-due-soon"
-                className="text-xs"
-              >
+              <Badge variant="warning" data-testid="badge-due-soon" className="text-xs">
                 Đến hạn bảo trì
               </Badge>
             )}

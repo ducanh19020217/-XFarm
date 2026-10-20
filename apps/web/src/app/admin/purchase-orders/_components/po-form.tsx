@@ -163,14 +163,19 @@ export function POForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       {formError && (
-        <p role="alert" className="rounded-md border border-crit/30 bg-crit-bg p-3 text-sm text-crit">
+        <p
+          role="alert"
+          className="rounded-md border border-crit/30 bg-crit-bg p-3 text-sm text-crit"
+        >
           {formError}
         </p>
       )}
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1">
-          <Label htmlFor="po-supplier" className="text-fg">Nhà cung cấp *</Label>
+          <Label htmlFor="po-supplier" className="text-fg">
+            Nhà cung cấp *
+          </Label>
           <select
             id="po-supplier"
             value={supplierId}
@@ -193,7 +198,9 @@ export function POForm({
         </div>
 
         <div className="space-y-1">
-          <Label htmlFor="po-order-date" className="text-fg">Ngày đặt hàng</Label>
+          <Label htmlFor="po-order-date" className="text-fg">
+            Ngày đặt hàng
+          </Label>
           <Input
             id="po-order-date"
             type="date"
@@ -204,7 +211,9 @@ export function POForm({
       </div>
 
       <div className="space-y-1">
-        <Label htmlFor="po-notes" className="text-fg">Ghi chú</Label>
+        <Label htmlFor="po-notes" className="text-fg">
+          Ghi chú
+        </Label>
         <Input
           id="po-notes"
           value={notes}

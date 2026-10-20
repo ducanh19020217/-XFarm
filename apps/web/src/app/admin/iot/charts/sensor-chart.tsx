@@ -190,9 +190,7 @@ export function SensorChartCard({
             <span className="font-mono text-xs font-semibold text-accent bg-accent-bg px-2 py-0.5 rounded border border-line">
               {sensor.code}
             </span>
-            <h3 className="font-semibold text-fg text-base">
-              {sensor.name}
-            </h3>
+            <h3 className="font-semibold text-fg text-base">{sensor.name}</h3>
             {sensor.area && (
               <Badge variant="outline" className="text-xs">
                 {sensor.area.name} ({sensor.area.code})
@@ -203,9 +201,8 @@ export function SensorChartCard({
             </Badge>
           </div>
           <p className="text-xs text-muted">
-            Khoảng thời gian:{' '}
-            <span className="font-medium text-fg-2">{rangeLabel}</span> (Độ
-            gom: {bucket})
+            Khoảng thời gian: <span className="font-medium text-fg-2">{rangeLabel}</span> (Độ gom:{' '}
+            {bucket})
           </p>
         </div>
 

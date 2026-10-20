@@ -27,7 +27,9 @@ export function POFilters({
   return (
     <div className="flex flex-wrap items-end gap-4 rounded-lg border border-line bg-surface p-4 shadow-sm">
       <div className="space-y-1">
-        <Label htmlFor="filter-status" className="text-fg">Trạng thái</Label>
+        <Label htmlFor="filter-status" className="text-fg">
+          Trạng thái
+        </Label>
         <select
           id="filter-status"
           value={status}
@@ -44,7 +46,9 @@ export function POFilters({
       </div>
 
       <div className="space-y-1">
-        <Label htmlFor="filter-supplier" className="text-fg">Nhà cung cấp</Label>
+        <Label htmlFor="filter-supplier" className="text-fg">
+          Nhà cung cấp
+        </Label>
         <select
           id="filter-supplier"
           value={supplierId}

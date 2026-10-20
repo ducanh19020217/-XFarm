@@ -310,7 +310,10 @@ export function AlertRulesDialog({
                             Đang bật
                           </Badge>
                         ) : (
-                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0 bg-surface-2 text-muted border border-line">
+                          <Badge
+                            variant="secondary"
+                            className="text-[10px] px-1.5 py-0 bg-surface-2 text-muted border border-line"
+                          >
                             Đã tắt
                           </Badge>
                         )}
@@ -328,9 +331,7 @@ export function AlertRulesDialog({
                           size="sm"
                           onClick={() => handleToggleActive(rule)}
                           className={`h-7 w-7 p-0 ${
-                            rule.isActive
-                              ? 'text-ok hover:text-crit'
-                              : 'text-muted hover:text-ok'
+                            rule.isActive ? 'text-ok hover:text-crit' : 'text-muted hover:text-ok'
                           }`}
                           title={rule.isActive ? 'Tắt ngưỡng' : 'Bật ngưỡng'}
                           data-testid={`toggle-rule-btn-${rule.id}`}

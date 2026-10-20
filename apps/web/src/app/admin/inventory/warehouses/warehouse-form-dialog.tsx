@@ -128,9 +128,7 @@ export function WarehouseFormDialog({
             disabled={isEdit || isLoading}
             {...form.register('code')}
           />
-          {errors.code && (
-            <p className="text-xs text-crit mt-1">{errors.code.message}</p>
-          )}
+          {errors.code && <p className="text-xs text-crit mt-1">{errors.code.message}</p>}
         </div>
 
         <div className="space-y-1">
@@ -143,9 +141,7 @@ export function WarehouseFormDialog({
             disabled={isLoading}
             {...form.register('name')}
           />
-          {errors.name && (
-            <p className="text-xs text-crit mt-1">{errors.name.message}</p>
-          )}
+          {errors.name && <p className="text-xs text-crit mt-1">{errors.name.message}</p>}
         </div>
 
         <div className="space-y-1">
@@ -165,9 +161,7 @@ export function WarehouseFormDialog({
               </option>
             ))}
           </select>
-          {errors.areaId && (
-            <p className="text-xs text-crit mt-1">{errors.areaId.message}</p>
-          )}
+          {errors.areaId && <p className="text-xs text-crit mt-1">{errors.areaId.message}</p>}
         </div>
 
         <div className="flex justify-end gap-2 pt-4 border-t border-line">

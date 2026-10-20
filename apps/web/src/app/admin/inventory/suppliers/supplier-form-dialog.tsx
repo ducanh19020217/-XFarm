@@ -116,9 +116,7 @@ export function SupplierFormDialog({
             disabled={isEdit || isLoading}
             {...form.register('code')}
           />
-          {errors.code && (
-            <p className="text-xs text-crit mt-1">{errors.code.message}</p>
-          )}
+          {errors.code && <p className="text-xs text-crit mt-1">{errors.code.message}</p>}
         </div>
 
         <div className="space-y-1">
@@ -131,9 +129,7 @@ export function SupplierFormDialog({
             disabled={isLoading}
             {...form.register('name')}
           />
-          {errors.name && (
-            <p className="text-xs text-crit mt-1">{errors.name.message}</p>
-          )}
+          {errors.name && <p className="text-xs text-crit mt-1">{errors.name.message}</p>}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -147,9 +143,7 @@ export function SupplierFormDialog({
               disabled={isLoading}
               {...form.register('phone')}
             />
-            {errors.phone && (
-              <p className="text-xs text-crit mt-1">{errors.phone.message}</p>
-            )}
+            {errors.phone && <p className="text-xs text-crit mt-1">{errors.phone.message}</p>}
           </div>
 
           <div className="space-y-1">
@@ -162,11 +156,7 @@ export function SupplierFormDialog({
               disabled={isLoading}
               {...form.register('taxCode')}
             />
-            {errors.taxCode && (
-              <p className="text-xs text-crit mt-1">
-                {errors.taxCode.message}
-              </p>
-            )}
+            {errors.taxCode && <p className="text-xs text-crit mt-1">{errors.taxCode.message}</p>}
           </div>
         </div>
 
@@ -180,9 +170,7 @@ export function SupplierFormDialog({
             disabled={isLoading}
             {...form.register('address')}
           />
-          {errors.address && (
-            <p className="text-xs text-crit mt-1">{errors.address.message}</p>
-          )}
+          {errors.address && <p className="text-xs text-crit mt-1">{errors.address.message}</p>}
         </div>
 
         <div className="flex justify-end gap-2 pt-4 border-t border-line">

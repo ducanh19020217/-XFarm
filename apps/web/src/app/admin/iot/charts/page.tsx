@@ -207,9 +207,7 @@ function ChartsContent() {
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-line pb-4">
           {/* Mode Switcher */}
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-muted">
-              Xem theo:
-            </span>
+            <span className="text-xs font-semibold text-muted">Xem theo:</span>
             <div className="inline-flex rounded-lg border border-line bg-surface-2 p-0.5">
               <button
                 type="button"

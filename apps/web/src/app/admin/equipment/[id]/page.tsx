@@ -241,13 +241,8 @@ export default function EquipmentDetailPage() {
               <DollarSign className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-xs font-medium text-muted">
-                Tổng chi phí bảo trì
-              </p>
-              <p
-                data-testid="total-maintenance-cost"
-                className="text-xl font-bold text-fg"
-              >
+              <p className="text-xs font-medium text-muted">Tổng chi phí bảo trì</p>
+              <p data-testid="total-maintenance-cost" className="text-xl font-bold text-fg">
                 {formatCurrencyVN(equipment.totalMaintenanceCost ?? equipment.totalCost ?? 0)}
               </p>
             </div>
@@ -263,9 +258,7 @@ export default function EquipmentDetailPage() {
               <p className="text-xs font-medium text-muted">Lịch bảo trì</p>
               <p className="text-xl font-bold text-fg">
                 {activeSchedulesCount}{' '}
-                <span className="text-xs font-normal text-muted">
-                  / {schedules.length} lịch
-                </span>
+                <span className="text-xs font-normal text-muted">/ {schedules.length} lịch</span>
               </p>
             </div>
           </div>
@@ -277,9 +270,7 @@ export default function EquipmentDetailPage() {
               <Wrench className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-xs font-medium text-muted">
-                Lần ghi nhận bảo trì
-              </p>
+              <p className="text-xs font-medium text-muted">Lần ghi nhận bảo trì</p>
               <p className="text-xl font-bold text-fg">
                 {logs.length} <span className="text-xs font-normal text-muted">lần</span>
               </p>
@@ -290,9 +281,7 @@ export default function EquipmentDetailPage() {
 
       {/* Thông tin thiết bị */}
       <div className="rounded-lg border border-line bg-surface p-5 shadow-xs space-y-4">
-        <h3 className="text-base font-semibold text-fg">
-          Thông tin chi tiết
-        </h3>
+        <h3 className="text-base font-semibold text-fg">Thông tin chi tiết</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-sm">
           <div>
             <span className="text-xs text-muted block">Mã thiết bị</span>
@@ -318,16 +307,12 @@ export default function EquipmentDetailPage() {
 
           <div>
             <span className="text-xs text-muted block">Ngày mua</span>
-            <span className="font-medium text-fg">
-              {formatVNDate(equipment.purchaseDate)}
-            </span>
+            <span className="font-medium text-fg">{formatVNDate(equipment.purchaseDate)}</span>
           </div>
 
           <div>
             <span className="text-xs text-muted block">Giá trị ban đầu</span>
-            <span className="font-medium text-fg">
-              {formatCurrencyVN(equipment.value)}
-            </span>
+            <span className="font-medium text-fg">{formatCurrencyVN(equipment.value)}</span>
           </div>
 
           <div>
@@ -353,9 +338,7 @@ export default function EquipmentDetailPage() {
             <span className="text-xs text-muted block">Kích hoạt</span>
             <div className="pt-0.5">
               {equipment.isActive ? (
-                <Badge variant="default">
-                  Hoạt động
-                </Badge>
+                <Badge variant="default">Hoạt động</Badge>
               ) : (
                 <Badge variant="secondary">Đã khóa</Badge>
               )}
@@ -375,9 +358,7 @@ export default function EquipmentDetailPage() {
       <div className="rounded-lg border border-line bg-surface p-5 shadow-xs space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-base font-semibold text-fg">
-              Lịch bảo trì định kỳ
-            </h3>
+            <h3 className="text-base font-semibold text-fg">Lịch bảo trì định kỳ</h3>
             <p className="text-xs text-muted">
               Tự động nhắc lịch và cập nhật chu kỳ mỗi khi ghi nhận bảo trì
             </p>
@@ -396,10 +377,7 @@ export default function EquipmentDetailPage() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table
-              data-testid="schedules-table"
-              className="w-full text-left text-sm text-fg"
-            >
+            <table data-testid="schedules-table" className="w-full text-left text-sm text-fg">
               <thead className="border-b border-line bg-surface-2 text-xs text-muted">
                 <tr>
                   <th className="py-2.5 px-3">Tên lịch</th>
@@ -422,11 +400,12 @@ export default function EquipmentDetailPage() {
 
                   return (
                     <tr key={s.id} className="hover:bg-hover transition-colors">
-                      <td className="py-2.5 px-3 font-medium text-fg">
-                        {s.name}
-                      </td>
+                      <td className="py-2.5 px-3 font-medium text-fg">{s.name}</td>
                       <td className="py-2.5 px-3">{s.intervalDays} ngày</td>
-                      <td data-testid={`schedule-due-${s.id}`} className="py-2.5 px-3 font-medium text-fg">
+                      <td
+                        data-testid={`schedule-due-${s.id}`}
+                        className="py-2.5 px-3 font-medium text-fg"
+                      >
                         {formatVNDate(s.nextDueDate)}
                       </td>
                       <td className="py-2.5 px-3">
@@ -436,10 +415,7 @@ export default function EquipmentDetailPage() {
                           </Badge>
                         )}
                         {isDueSoon && (
-                          <Badge
-                            variant="warning"
-                            className="text-xs"
-                          >
+                          <Badge variant="warning" className="text-xs">
                             Đến hạn bảo trì
                           </Badge>
                         )}
@@ -500,9 +476,7 @@ export default function EquipmentDetailPage() {
       <div className="rounded-lg border border-line bg-surface p-5 shadow-xs space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-base font-semibold text-fg">
-              Nhật ký bảo trì
-            </h3>
+            <h3 className="text-base font-semibold text-fg">Nhật ký bảo trì</h3>
             <p className="text-xs text-muted">
               Lịch sử các lần bảo dưỡng, sửa chữa và chi phí phát sinh
             </p>
@@ -521,10 +495,7 @@ export default function EquipmentDetailPage() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table
-              data-testid="logs-table"
-              className="w-full text-left text-sm text-fg"
-            >
+            <table data-testid="logs-table" className="w-full text-left text-sm text-fg">
               <thead className="border-b border-line bg-surface-2 text-xs text-muted">
                 <tr>
                   <th className="py-2.5 px-3">Ngày</th>
@@ -546,18 +517,14 @@ export default function EquipmentDetailPage() {
                         {MAINTENANCE_TYPE_LABELS[log.type] || log.type}
                       </Badge>
                     </td>
-                    <td className="py-2.5 px-3 text-fg-2">
-                      {log.schedule?.name || '—'}
-                    </td>
+                    <td className="py-2.5 px-3 text-fg-2">{log.schedule?.name || '—'}</td>
                     <td className="py-2.5 px-3 font-medium whitespace-nowrap">
                       {formatCurrencyVN(log.cost)}
                     </td>
                     <td className="py-2.5 px-3 text-fg-2 whitespace-nowrap">
                       {log.performedBy?.fullName || '—'}
                     </td>
-                    <td className="py-2.5 px-3 text-muted max-w-xs truncate">
-                      {log.notes || '—'}
-                    </td>
+                    <td className="py-2.5 px-3 text-muted max-w-xs truncate">{log.notes || '—'}</td>
                   </tr>
                 ))}
               </tbody>

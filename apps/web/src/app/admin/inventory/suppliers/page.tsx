@@ -179,9 +179,7 @@ export default function SuppliersPage() {
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
             <Truck className="h-4 w-4 text-muted" />
-            <span className="font-medium text-fg">
-              {row.original.name}
-            </span>
+            <span className="font-medium text-fg">{row.original.name}</span>
           </div>
         ),
       },
@@ -258,11 +256,7 @@ export default function SuppliersPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className={
-                        isLocked
-                          ? 'text-ok hover:bg-ok-bg'
-                          : 'text-warn hover:bg-warn-bg'
-                      }
+                      className={isLocked ? 'text-ok hover:bg-ok-bg' : 'text-warn hover:bg-warn-bg'}
                       onClick={() => setConfirmLockSupplier(sup)}
                       title={isLocked ? 'Mở khóa nhà cung cấp' : 'Khóa nhà cung cấp'}
                     >

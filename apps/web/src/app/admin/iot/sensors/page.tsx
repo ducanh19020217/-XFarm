@@ -432,10 +432,7 @@ export default function SensorsPage() {
       >
         <div className="flex flex-wrap items-center gap-2">
           <Link href="/admin/iot/charts">
-            <Button
-              variant="outline"
-              className="text-accent border-line hover:bg-accent-bg"
-            >
+            <Button variant="outline" className="text-accent border-line hover:bg-accent-bg">
               <LineChart className="h-4 w-4 mr-1.5" />
               Biểu đồ trực quan
             </Button>
