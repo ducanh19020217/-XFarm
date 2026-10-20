@@ -230,9 +230,7 @@ export default function FinanceReportsPage() {
         <PageHeader title="Báo cáo tài chính" description="Phân hệ báo cáo tài chính" />
         <div className="rounded-lg border border-crit/30 bg-crit-bg/20 p-12 text-center text-crit">
           <ShieldAlert className="mx-auto h-12 w-12 text-crit mb-3" />
-          <h2 className="text-lg font-bold text-crit">
-            Không có quyền truy cập
-          </h2>
+          <h2 className="text-lg font-bold text-crit">Không có quyền truy cập</h2>
           <p className="mt-1 text-sm text-crit/80 max-w-md mx-auto">
             Báo cáo tài chính, giá thành và lãi lỗ mùa vụ bị ẩn đối với nhân viên bán hàng (SALES)
             và công nhân (WORKER).
@@ -275,9 +273,7 @@ export default function FinanceReportsPage() {
     {
       header: 'Khu/lô',
       accessorKey: 'area',
-      cell: ({ row }) => (
-        <span className="text-fg">{row.original.area?.name || '-'}</span>
-      ),
+      cell: ({ row }) => <span className="text-fg">{row.original.area?.name || '-'}</span>,
     },
     {
       header: 'Trạng thái',
@@ -288,45 +284,31 @@ export default function FinanceReportsPage() {
       header: 'Sản lượng',
       accessorKey: 'outputQuantity',
       cell: ({ row }) => (
-        <span className="font-semibold text-fg">
-          {row.original.outputQuantity}
-        </span>
+        <span className="font-semibold text-fg">{row.original.outputQuantity}</span>
       ),
     },
     {
       header: 'Chi phí vật tư',
       accessorKey: 'materialCost',
-      cell: ({ row }) => (
-        <span className="text-fg">
-          {formatVND(row.original.materialCost)}
-        </span>
-      ),
+      cell: ({ row }) => <span className="text-fg">{formatVND(row.original.materialCost)}</span>,
     },
     {
       header: 'Chi phí khác',
       accessorKey: 'expenseCost',
-      cell: ({ row }) => (
-        <span className="text-fg">
-          {formatVND(row.original.expenseCost)}
-        </span>
-      ),
+      cell: ({ row }) => <span className="text-fg">{formatVND(row.original.expenseCost)}</span>,
     },
     {
       header: 'Tổng chi phí',
       accessorKey: 'totalCost',
       cell: ({ row }) => (
-        <span className="font-bold text-crit">
-          {formatVND(row.original.totalCost)}
-        </span>
+        <span className="font-bold text-crit">{formatVND(row.original.totalCost)}</span>
       ),
     },
     {
       header: 'Doanh thu',
       accessorKey: 'revenue',
       cell: ({ row }) => (
-        <span className="font-semibold text-ok">
-          {formatVND(row.original.revenue)}
-        </span>
+        <span className="font-semibold text-ok">{formatVND(row.original.revenue)}</span>
       ),
     },
     {
@@ -335,13 +317,7 @@ export default function FinanceReportsPage() {
       cell: ({ row }) => {
         const val = Number(row.original.profit) || 0;
         return (
-          <span
-            className={`font-bold ${
-              val >= 0
-                ? 'text-ok'
-                : 'text-crit'
-            }`}
-          >
+          <span className={`font-bold ${val >= 0 ? 'text-ok' : 'text-crit'}`}>
             {val >= 0 ? '+' : ''}
             {formatVND(val)}
           </span>
@@ -352,9 +328,7 @@ export default function FinanceReportsPage() {
       header: 'Giá thành/ĐV',
       accessorKey: 'costPerUnit',
       cell: ({ row }) => (
-        <span className="text-muted text-xs font-mono">
-          {formatVND(row.original.costPerUnit)}
-        </span>
+        <span className="text-muted text-xs font-mono">{formatVND(row.original.costPerUnit)}</span>
       ),
     },
     {
@@ -459,18 +433,14 @@ export default function FinanceReportsPage() {
               <span className="text-xs font-semibold uppercase tracking-wider">
                 Tổng thu cả năm
               </span>
-              <p className="text-2xl font-bold mt-2">
-                {formatVND(totalYearIncome)}
-              </p>
+              <p className="text-2xl font-bold mt-2">{formatVND(totalYearIncome)}</p>
             </div>
 
             <div className="rounded-lg border border-crit/30 bg-crit-bg/20 p-4 shadow-xs text-crit">
               <span className="text-xs font-semibold uppercase tracking-wider">
                 Tổng chi cả năm
               </span>
-              <p className="text-2xl font-bold mt-2">
-                {formatVND(totalYearExpense)}
-              </p>
+              <p className="text-2xl font-bold mt-2">{formatVND(totalYearExpense)}</p>
             </div>
 
             <div className="rounded-lg border border-line bg-surface p-4 shadow-xs text-fg">
@@ -478,11 +448,7 @@ export default function FinanceReportsPage() {
                 Lãi thuần năm {cashflowYear}
               </span>
               <p
-                className={`text-2xl font-bold mt-2 ${
-                  totalYearNet >= 0
-                    ? 'text-ok'
-                    : 'text-crit'
-                }`}
+                className={`text-2xl font-bold mt-2 ${totalYearNet >= 0 ? 'text-ok' : 'text-crit'}`}
               >
                 {formatVND(totalYearNet)}
               </p>
@@ -601,13 +567,8 @@ export default function FinanceReportsPage() {
                   {cashflowData.map((row) => {
                     const netVal = Number(row.net) || 0;
                     return (
-                      <tr
-                        key={row.month}
-                        className="hover:bg-hover transition-colors"
-                      >
-                        <td className="py-2.5 px-3 font-medium text-fg">
-                          Tháng {row.month}
-                        </td>
+                      <tr key={row.month} className="hover:bg-hover transition-colors">
+                        <td className="py-2.5 px-3 font-medium text-fg">Tháng {row.month}</td>
                         <td className="py-2.5 px-3 text-right font-semibold text-ok">
                           {formatVND(row.income)}
                         </td>
@@ -616,9 +577,7 @@ export default function FinanceReportsPage() {
                         </td>
                         <td
                           className={`py-2.5 px-3 text-right font-bold ${
-                            netVal >= 0
-                              ? 'text-ok'
-                              : 'text-crit'
+                            netVal >= 0 ? 'text-ok' : 'text-crit'
                           }`}
                         >
                           {netVal >= 0 ? '+' : ''}
@@ -741,9 +700,7 @@ export default function FinanceReportsPage() {
                       </div>
 
                       <div>
-                        <h4 className="font-semibold text-fg">
-                          {prod.productName}
-                        </h4>
+                        <h4 className="font-semibold text-fg">{prod.productName}</h4>
                         <p className="text-xs text-muted">
                           Đã bán:{' '}
                           <span className="font-semibold text-fg">
@@ -774,7 +731,9 @@ export default function FinanceReportsPage() {
       >
         <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto bg-surface border-line text-fg">
           <DialogHeader>
-            <DialogTitle className="text-fg">Chi tiết giá thành &amp; Lãi lỗ mùa vụ: {selectedCycle?.name}</DialogTitle>
+            <DialogTitle className="text-fg">
+              Chi tiết giá thành &amp; Lãi lỗ mùa vụ: {selectedCycle?.name}
+            </DialogTitle>
             <DialogDescription className="text-muted">
               Mã vụ: {selectedCycle?.code} · Khu vực: {selectedCycle?.area?.name || '-'}
             </DialogDescription>
@@ -786,36 +745,22 @@ export default function FinanceReportsPage() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div className="rounded-lg bg-surface-2 p-3 border border-line text-fg">
                   <span className="text-xs text-muted block">Sản lượng</span>
-                  <p className="font-bold text-fg mt-1">
-                    {selectedCycle.outputQuantity}
-                  </p>
+                  <p className="font-bold text-fg mt-1">{selectedCycle.outputQuantity}</p>
                 </div>
 
                 <div className="rounded-lg bg-crit-bg/20 p-3 border border-crit/30 text-crit">
-                  <span className="text-xs uppercase font-semibold block">
-                    Tổng chi phí
-                  </span>
-                  <p className="font-bold text-crit mt-1">
-                    {formatVND(selectedCycle.totalCost)}
-                  </p>
+                  <span className="text-xs uppercase font-semibold block">Tổng chi phí</span>
+                  <p className="font-bold text-crit mt-1">{formatVND(selectedCycle.totalCost)}</p>
                 </div>
 
                 <div className="rounded-lg bg-ok-bg/20 p-3 border border-ok/30 text-ok">
-                  <span className="text-xs uppercase font-semibold block">
-                    Doanh thu
-                  </span>
-                  <p className="font-bold text-ok mt-1">
-                    {formatVND(selectedCycle.revenue)}
-                  </p>
+                  <span className="text-xs uppercase font-semibold block">Doanh thu</span>
+                  <p className="font-bold text-ok mt-1">{formatVND(selectedCycle.revenue)}</p>
                 </div>
 
                 <div className="rounded-lg bg-info-bg/20 p-3 border border-info/30 text-info">
-                  <span className="text-xs uppercase font-semibold block">
-                    Lãi thuần
-                  </span>
-                  <p className="font-bold text-info mt-1">
-                    {formatVND(selectedCycle.profit)}
-                  </p>
+                  <span className="text-xs uppercase font-semibold block">Lãi thuần</span>
+                  <p className="font-bold text-info mt-1">{formatVND(selectedCycle.profit)}</p>
                 </div>
               </div>
 
@@ -860,9 +805,7 @@ export default function FinanceReportsPage() {
                                 {item.type === 'MATERIAL' ? 'Vật tư' : 'Giao dịch'}
                               </span>
                             </td>
-                            <td className="py-2 px-2.5 font-medium text-fg">
-                              {item.description}
-                            </td>
+                            <td className="py-2 px-2.5 font-medium text-fg">{item.description}</td>
                             <td className="py-2 px-2.5 text-right text-muted">
                               {item.quantity ? `${item.quantity} ${item.unit || ''}` : '-'}
                             </td>

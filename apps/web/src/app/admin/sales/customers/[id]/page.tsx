@@ -92,9 +92,7 @@ export default function CustomerDetailPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 rounded-lg border border-line p-5 bg-surface shadow-xs text-fg">
         <div className="space-y-2 text-sm">
           <div className="flex items-center gap-2">
-            <span className="text-lg font-bold text-fg">
-              {customer.name}
-            </span>
+            <span className="text-lg font-bold text-fg">{customer.name}</span>
             <CustomerTypeBadge type={customer.type} />
             <StatusBadge status={customer.isActive} />
           </div>
@@ -133,11 +131,7 @@ export default function CustomerDetailPage() {
               <span>Công nợ hiện tại</span>
             </div>
             <div
-              className={`text-xl font-bold ${
-                Number(customer.debt) > 0
-                  ? 'text-crit'
-                  : 'text-fg'
-              }`}
+              className={`text-xl font-bold ${Number(customer.debt) > 0 ? 'text-crit' : 'text-fg'}`}
             >
               {formatCurrency(customer.debt)}
             </div>
@@ -146,9 +140,7 @@ export default function CustomerDetailPage() {
       </div>
 
       <div className="space-y-4">
-        <h3 className="text-base font-semibold text-fg">
-          Lịch sử đơn hàng ({orders.length})
-        </h3>
+        <h3 className="text-base font-semibold text-fg">Lịch sử đơn hàng ({orders.length})</h3>
 
         {orders.length === 0 ? (
           <div className="rounded-lg border border-dashed border-line p-8 text-center text-sm text-muted">
@@ -178,9 +170,7 @@ export default function CustomerDetailPage() {
                         {order.code}
                       </Link>
                     </td>
-                    <td className="py-3 px-4 text-xs text-muted">
-                      {formatDate(order.createdAt)}
-                    </td>
+                    <td className="py-3 px-4 text-xs text-muted">{formatDate(order.createdAt)}</td>
                     <td className="py-3 px-4">
                       <ChannelBadge channel={order.channel} status={order.status} />
                     </td>

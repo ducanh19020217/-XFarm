@@ -27,7 +27,17 @@ import {
   SelectContent,
   SelectItem,
 } from '@xfarm/ui';
-import { Plus, Edit2, Lock, Unlock, Loader2, Users as UsersIcon, UserCheck, UserX, Shield } from 'lucide-react';
+import {
+  Plus,
+  Edit2,
+  Lock,
+  Unlock,
+  Loader2,
+  Users as UsersIcon,
+  UserCheck,
+  UserX,
+  Shield,
+} from 'lucide-react';
 import { apiFetch, ApiError, isAbortError } from '@/lib/api';
 
 interface UserItem {
@@ -186,9 +196,7 @@ export default function UsersPage() {
       header: 'Họ và tên',
       cell: ({ row }) => (
         <div>
-          <span className="font-medium text-fg">
-            {row.original.fullName}
-          </span>
+          <span className="font-medium text-fg">{row.original.fullName}</span>
           <span className="block text-xs text-muted">{row.original.email}</span>
         </div>
       ),
@@ -196,9 +204,7 @@ export default function UsersPage() {
     {
       accessorKey: 'phone',
       header: 'Số điện thoại',
-      cell: ({ row }) => (
-        <span className="text-fg">{row.original.phone || '—'}</span>
-      ),
+      cell: ({ row }) => <span className="text-fg">{row.original.phone || '—'}</span>,
     },
     {
       accessorKey: 'role',
@@ -307,9 +313,7 @@ export default function UsersPage() {
 
         <div className="rounded-lg border border-ok/30 bg-ok-bg/20 p-4 shadow-xs text-ok">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider">
-              Đang hoạt động
-            </span>
+            <span className="text-xs font-semibold uppercase tracking-wider">Đang hoạt động</span>
             <UserCheck className="h-4 w-4" />
           </div>
           <p className="text-2xl font-bold mt-2">{activeCount}</p>
@@ -317,9 +321,7 @@ export default function UsersPage() {
 
         <div className="rounded-lg border border-crit/30 bg-crit-bg/20 p-4 shadow-xs text-crit">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider">
-              Đã khóa
-            </span>
+            <span className="text-xs font-semibold uppercase tracking-wider">Đã khóa</span>
             <UserX className="h-4 w-4" />
           </div>
           <p className="text-2xl font-bold mt-2">{lockedCount}</p>
@@ -369,7 +371,9 @@ export default function UsersPage() {
         <form onSubmit={createForm.handleSubmit(handleCreateSubmit)} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div className="space-y-1">
-              <Label htmlFor="create-email" className="text-fg">Email *</Label>
+              <Label htmlFor="create-email" className="text-fg">
+                Email *
+              </Label>
               <Input
                 id="create-email"
                 type="email"
@@ -384,7 +388,9 @@ export default function UsersPage() {
             </div>
 
             <div className="space-y-1">
-              <Label htmlFor="create-password" className="text-fg">Mật khẩu *</Label>
+              <Label htmlFor="create-password" className="text-fg">
+                Mật khẩu *
+              </Label>
               <Input
                 id="create-password"
                 type="password"
@@ -401,7 +407,9 @@ export default function UsersPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div className="space-y-1">
-              <Label htmlFor="create-fullname" className="text-fg">Họ và tên *</Label>
+              <Label htmlFor="create-fullname" className="text-fg">
+                Họ và tên *
+              </Label>
               <Input
                 id="create-fullname"
                 placeholder="Nguyễn Văn A"
@@ -415,7 +423,9 @@ export default function UsersPage() {
             </div>
 
             <div className="space-y-1">
-              <Label htmlFor="create-phone" className="text-fg">Số điện thoại</Label>
+              <Label htmlFor="create-phone" className="text-fg">
+                Số điện thoại
+              </Label>
               <Input
                 id="create-phone"
                 placeholder="0912345678"
@@ -488,7 +498,9 @@ export default function UsersPage() {
         <form onSubmit={editForm.handleSubmit(handleEditSubmit)} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div className="space-y-1">
-              <Label htmlFor="edit-email" className="text-fg">Địa chỉ Email</Label>
+              <Label htmlFor="edit-email" className="text-fg">
+                Địa chỉ Email
+              </Label>
               <Input
                 id="edit-email"
                 type="email"
@@ -499,7 +511,9 @@ export default function UsersPage() {
             </div>
 
             <div className="space-y-1">
-              <Label htmlFor="edit-password" className="text-fg">Mật khẩu mới (để trống nếu không đổi)</Label>
+              <Label htmlFor="edit-password" className="text-fg">
+                Mật khẩu mới (để trống nếu không đổi)
+              </Label>
               <Input
                 id="edit-password"
                 type="password"
@@ -513,7 +527,9 @@ export default function UsersPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div className="space-y-1">
-              <Label htmlFor="edit-fullname" className="text-fg">Họ và tên *</Label>
+              <Label htmlFor="edit-fullname" className="text-fg">
+                Họ và tên *
+              </Label>
               <Input
                 id="edit-fullname"
                 disabled={isSubmitting}
@@ -526,7 +542,9 @@ export default function UsersPage() {
             </div>
 
             <div className="space-y-1">
-              <Label htmlFor="edit-phone" className="text-fg">Số điện thoại</Label>
+              <Label htmlFor="edit-phone" className="text-fg">
+                Số điện thoại
+              </Label>
               <Input
                 id="edit-phone"
                 disabled={isSubmitting}

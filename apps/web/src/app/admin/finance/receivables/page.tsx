@@ -139,9 +139,7 @@ export default function ReceivablesPage() {
       header: 'Mã KH',
       accessorKey: 'customerCode',
       cell: ({ row }) => (
-        <span className="font-mono text-xs font-semibold text-fg">
-          {row.original.customerCode}
-        </span>
+        <span className="font-mono text-xs font-semibold text-fg">{row.original.customerCode}</span>
       ),
     },
     {
@@ -149,9 +147,7 @@ export default function ReceivablesPage() {
       accessorKey: 'customerName',
       cell: ({ row }) => (
         <div>
-          <div className="font-medium text-fg">
-            {row.original.customerName}
-          </div>
+          <div className="font-medium text-fg">{row.original.customerName}</div>
           <div className="text-xs text-muted">{row.original.customerPhone}</div>
         </div>
       ),
@@ -159,39 +155,25 @@ export default function ReceivablesPage() {
     {
       header: 'Số đơn nợ',
       accessorKey: 'orderCount',
-      cell: ({ row }) => (
-        <span className="font-medium text-fg">
-          {row.original.orderCount} đơn
-        </span>
-      ),
+      cell: ({ row }) => <span className="font-medium text-fg">{row.original.orderCount} đơn</span>,
     },
     {
       header: 'Tổng tiền mua',
       accessorKey: 'totalOrders',
-      cell: ({ row }) => (
-        <span className="text-fg">
-          {formatVND(row.original.totalOrders)}
-        </span>
-      ),
+      cell: ({ row }) => <span className="text-fg">{formatVND(row.original.totalOrders)}</span>,
     },
     {
       header: 'Đã thanh toán',
       accessorKey: 'totalPaid',
       cell: ({ row }) => (
-        <span className="text-ok font-medium">
-          {formatVND(row.original.totalPaid)}
-        </span>
+        <span className="text-ok font-medium">{formatVND(row.original.totalPaid)}</span>
       ),
     },
     {
       header: 'Còn nợ phải thu',
       accessorKey: 'debt',
       cell: ({ row }) => (
-        <span
-          className={`font-bold ${
-            row.original.debt > 0 ? 'text-warn' : 'text-muted'
-          }`}
-        >
+        <span className={`font-bold ${row.original.debt > 0 ? 'text-warn' : 'text-muted'}`}>
           {formatVND(row.original.debt)}
         </span>
       ),
@@ -235,9 +217,7 @@ export default function ReceivablesPage() {
       accessorKey: 'customerName',
       cell: ({ row }) => (
         <div>
-          <div className="font-medium text-fg">
-            {row.original.customerName}
-          </div>
+          <div className="font-medium text-fg">{row.original.customerName}</div>
           <div className="text-xs text-muted">{row.original.customerPhone}</div>
         </div>
       ),
@@ -262,26 +242,20 @@ export default function ReceivablesPage() {
     {
       header: 'Tổng tiền',
       accessorKey: 'total',
-      cell: ({ row }) => (
-        <span className="text-fg">{formatVND(row.original.total)}</span>
-      ),
+      cell: ({ row }) => <span className="text-fg">{formatVND(row.original.total)}</span>,
     },
     {
       header: 'Đã trả',
       accessorKey: 'paid',
       cell: ({ row }) => (
-        <span className="text-ok font-medium">
-          {formatVND(row.original.paid)}
-        </span>
+        <span className="text-ok font-medium">{formatVND(row.original.paid)}</span>
       ),
     },
     {
       header: 'Còn nợ',
       accessorKey: 'remaining',
       cell: ({ row }) => (
-        <span className="font-bold text-warn">
-          {formatVND(row.original.remaining)}
-        </span>
+        <span className="font-bold text-warn">{formatVND(row.original.remaining)}</span>
       ),
     },
     {
@@ -333,14 +307,10 @@ export default function ReceivablesPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="rounded-lg border border-warn/30 bg-warn-bg/20 p-4 shadow-xs text-warn">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider">
-              Tổng nợ phải thu
-            </span>
+            <span className="text-xs font-semibold uppercase tracking-wider">Tổng nợ phải thu</span>
             <DollarSign className="h-4 w-4" />
           </div>
-          <p className="text-2xl font-bold mt-2">
-            {formatVND(summary.totalReceivable)}
-          </p>
+          <p className="text-2xl font-bold mt-2">{formatVND(summary.totalReceivable)}</p>
         </div>
 
         <div className="rounded-lg border border-crit/30 bg-crit-bg/20 p-4 shadow-xs text-crit">
@@ -350,9 +320,7 @@ export default function ReceivablesPage() {
             </span>
             <AlertTriangle className="h-4 w-4" />
           </div>
-          <p className="text-2xl font-bold mt-2">
-            {formatVND(summary.totalOverdue)}
-          </p>
+          <p className="text-2xl font-bold mt-2">{formatVND(summary.totalOverdue)}</p>
         </div>
 
         <div className="rounded-lg border border-line bg-surface p-4 shadow-xs text-fg">
@@ -362,9 +330,7 @@ export default function ReceivablesPage() {
             </span>
             <Users className="h-4 w-4 text-muted" />
           </div>
-          <p className="text-2xl font-bold text-fg mt-2">
-            {summary.customerCount}
-          </p>
+          <p className="text-2xl font-bold text-fg mt-2">{summary.customerCount}</p>
         </div>
 
         <div className="rounded-lg border border-line bg-surface p-4 shadow-xs text-fg">
@@ -374,9 +340,7 @@ export default function ReceivablesPage() {
             </span>
             <Clock className="h-4 w-4 text-muted" />
           </div>
-          <p className="text-2xl font-bold text-fg mt-2">
-            {summary.orderCount}
-          </p>
+          <p className="text-2xl font-bold text-fg mt-2">{summary.orderCount}</p>
         </div>
       </div>
 
@@ -418,9 +382,7 @@ export default function ReceivablesPage() {
                 onChange={(e) => setOnlyOverdue(e.target.checked)}
                 className="h-4 w-4 rounded border-line text-crit focus:ring-crit"
               />
-              <span className="font-medium text-crit">
-                Chỉ hiện đơn quá hạn
-              </span>
+              <span className="font-medium text-crit">Chỉ hiện đơn quá hạn</span>
             </label>
           )}
 

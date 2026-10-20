@@ -112,9 +112,7 @@ export default function SalesOrderPrintPage() {
   };
 
   if (loading) {
-    return (
-      <div className="py-12 text-center text-sm text-muted">Đang chuẩn bị trang in...</div>
-    );
+    return <div className="py-12 text-center text-sm text-muted">Đang chuẩn bị trang in...</div>;
   }
 
   if (error || !data?.order) {
@@ -198,7 +196,9 @@ export default function SalesOrderPrintPage() {
             </p>
           </div>
           <div className="text-right">
-            <div className="text-sm font-semibold font-mono text-fg print:text-black">{order.code}</div>
+            <div className="text-sm font-semibold font-mono text-fg print:text-black">
+              {order.code}
+            </div>
             <div className="text-xs text-muted print:text-black">{formatDate(order.createdAt)}</div>
           </div>
         </div>
@@ -330,7 +330,9 @@ export default function SalesOrderPrintPage() {
               </p>
               <p>
                 <span className="font-semibold">Số tiền:</span>{' '}
-                <span className="font-bold text-accent print:text-black">{formatCurrency(order.total)}</span>
+                <span className="font-bold text-accent print:text-black">
+                  {formatCurrency(order.total)}
+                </span>
               </p>
               <p>
                 <span className="font-semibold">Nội dung chuyển khoản:</span>{' '}

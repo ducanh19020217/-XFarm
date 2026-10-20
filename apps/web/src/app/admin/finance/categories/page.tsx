@@ -293,9 +293,7 @@ export default function FinanceCategoriesPage() {
             <div className="flex items-center gap-1.5 ml-2">
               <span
                 className={`inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold ${
-                  node.type === TransactionType.INCOME
-                    ? 'bg-ok-bg text-ok'
-                    : 'bg-crit-bg text-crit'
+                  node.type === TransactionType.INCOME ? 'bg-ok-bg text-ok' : 'bg-crit-bg text-crit'
                 }`}
               >
                 {node.type === TransactionType.INCOME ? 'Thu' : 'Chi'}
@@ -430,9 +428,7 @@ export default function FinanceCategoriesPage() {
             Đang tải cây danh mục...
           </div>
         ) : filteredCategories.length === 0 ? (
-          <div className="p-12 text-center text-sm text-muted">
-            Chưa có danh mục nào phù hợp
-          </div>
+          <div className="p-12 text-center text-sm text-muted">Chưa có danh mục nào phù hợp</div>
         ) : (
           <div className="divide-y divide-line">
             {filteredCategories.map((node) => renderTreeNode(node))}
@@ -456,7 +452,9 @@ export default function FinanceCategoriesPage() {
 
           <form onSubmit={handleFormSubmit} className="space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="cat-name" className="text-fg">Tên danh mục *</Label>
+              <Label htmlFor="cat-name" className="text-fg">
+                Tên danh mục *
+              </Label>
               <Input
                 id="cat-name"
                 value={formName}
@@ -467,7 +465,9 @@ export default function FinanceCategoriesPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="cat-type" className="text-fg">Loại giao dịch *</Label>
+              <Label htmlFor="cat-type" className="text-fg">
+                Loại giao dịch *
+              </Label>
               <select
                 id="cat-type"
                 className="flex h-9 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm shadow-xs text-fg focus:outline-none focus:ring-1 focus:ring-accent disabled:opacity-50"
@@ -491,7 +491,9 @@ export default function FinanceCategoriesPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="cat-parent" className="text-fg">Danh mục cha (tùy chọn)</Label>
+              <Label htmlFor="cat-parent" className="text-fg">
+                Danh mục cha (tùy chọn)
+              </Label>
               <select
                 id="cat-parent"
                 className="flex h-9 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm shadow-xs text-fg focus:outline-none focus:ring-1 focus:ring-accent"

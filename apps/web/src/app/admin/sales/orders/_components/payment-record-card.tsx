@@ -79,22 +79,14 @@ export function PaymentRecordCard({ order, onPaymentSuccess, userRole }: Payment
       <div className="flex items-center justify-between border-b border-line pb-3">
         <div className="flex items-center gap-2">
           <CreditCard className="h-5 w-5 text-accent" />
-          <h2 className="text-base font-semibold text-fg">
-            Thanh toán & Thu tiền
-          </h2>
+          <h2 className="text-base font-semibold text-fg">Thanh toán & Thu tiền</h2>
         </div>
         <div className="text-xs">
           <span className="text-muted">Đã thu: </span>
-          <span className="font-semibold text-fg">
-            {formatCurrency(totalPaid)}
-          </span>
+          <span className="font-semibold text-fg">{formatCurrency(totalPaid)}</span>
           <span className="text-muted mx-1">/</span>
           <span className="text-muted">Còn lại: </span>
-          <span
-            className={`font-semibold ${
-              remaining > 0 ? 'text-crit' : 'text-ok'
-            }`}
-          >
+          <span className={`font-semibold ${remaining > 0 ? 'text-crit' : 'text-ok'}`}>
             {formatCurrency(remaining)}
           </span>
         </div>
@@ -123,9 +115,7 @@ export function PaymentRecordCard({ order, onPaymentSuccess, userRole }: Payment
               <tbody className="divide-y divide-line">
                 {order.payments.map((p, idx) => (
                   <tr key={p.id || idx} className="hover:bg-hover">
-                    <td className="py-2 px-3 text-muted">
-                      {formatDate(p.paidAt)}
-                    </td>
+                    <td className="py-2 px-3 text-muted">{formatDate(p.paidAt)}</td>
                     <td className="py-2 px-3 font-medium text-fg">
                       {paymentMethodLabels[p.method] || p.method}
                     </td>
@@ -171,10 +161,7 @@ export function PaymentRecordCard({ order, onPaymentSuccess, userRole }: Payment
 
       {/* Form ghi thu tiền */}
       {canRecordPayment && order.status !== 'CANCELLED' && remaining > 0 && (
-        <form
-          onSubmit={handleSubmit}
-          className="pt-4 border-t border-line space-y-3"
-        >
+        <form onSubmit={handleSubmit} className="pt-4 border-t border-line space-y-3">
           <h3 className="text-xs font-semibold uppercase text-muted tracking-wider">
             Ghi nhận thu tiền mới
           </h3>
@@ -242,7 +229,12 @@ export function PaymentRecordCard({ order, onPaymentSuccess, userRole }: Payment
           </div>
 
           <div className="flex justify-end pt-1">
-            <Button type="submit" size="sm" disabled={isSubmitting} className="bg-accent hover:bg-accent-hover text-white">
+            <Button
+              type="submit"
+              size="sm"
+              disabled={isSubmitting}
+              className="bg-accent hover:bg-accent-hover text-white"
+            >
               {isSubmitting ? 'Đang ghi nhận...' : 'Ghi nhận thanh toán'}
             </Button>
           </div>

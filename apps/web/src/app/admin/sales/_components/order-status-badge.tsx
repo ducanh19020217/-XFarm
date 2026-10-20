@@ -27,7 +27,10 @@ export function OrderStatusBadge({ status }: { status: SalesOrderStatus | string
       );
     case SalesOrderStatus.PACKING:
       return (
-        <Badge variant="secondary" className="bg-accent-bg text-accent border-transparent font-medium">
+        <Badge
+          variant="secondary"
+          className="bg-accent-bg text-accent border-transparent font-medium"
+        >
           {label}
         </Badge>
       );
@@ -45,7 +48,10 @@ export function OrderStatusBadge({ status }: { status: SalesOrderStatus | string
       );
     case SalesOrderStatus.CANCELLED:
       return (
-        <Badge variant="destructive" className="bg-crit-bg text-crit border-transparent font-medium">
+        <Badge
+          variant="destructive"
+          className="bg-crit-bg text-crit border-transparent font-medium"
+        >
           {label}
         </Badge>
       );
@@ -72,7 +78,10 @@ export function PaymentStatusBadge({ status }: { status: PaymentStatus | string 
     case PaymentStatus.UNPAID:
     default:
       return (
-        <Badge variant="destructive" className="bg-crit-bg text-crit border-transparent font-medium">
+        <Badge
+          variant="destructive"
+          className="bg-crit-bg text-crit border-transparent font-medium"
+        >
           {label}
         </Badge>
       );
@@ -104,20 +113,14 @@ export function ChannelBadge({
 
   if (isWebshop) {
     return (
-      <Badge
-        variant="secondary"
-        className="bg-warn-bg text-warn font-medium border border-line"
-      >
+      <Badge variant="secondary" className="bg-warn-bg text-warn font-medium border border-line">
         {channelLabels[SalesChannel.WEBSHOP]}
       </Badge>
     );
   }
 
   return (
-    <Badge
-      variant="outline"
-      className="bg-surface-2 text-fg font-medium border border-line"
-    >
+    <Badge variant="outline" className="bg-surface-2 text-fg font-medium border border-line">
       {channelLabels[SalesChannel.ADMIN] || channel}
     </Badge>
   );
@@ -128,29 +131,20 @@ export function CustomerTypeBadge({ type }: { type: CustomerType | string }) {
   switch (type) {
     case CustomerType.WHOLESALE:
       return (
-        <Badge
-          variant="info"
-          className="bg-info-bg text-info border-transparent"
-        >
+        <Badge variant="info" className="bg-info-bg text-info border-transparent">
           {label}
         </Badge>
       );
     case CustomerType.AGENT:
       return (
-        <Badge
-          variant="secondary"
-          className="bg-accent-bg text-accent border-transparent"
-        >
+        <Badge variant="secondary" className="bg-accent-bg text-accent border-transparent">
           {label}
         </Badge>
       );
     case CustomerType.RETAIL:
     default:
       return (
-        <Badge
-          variant="outline"
-          className="bg-surface-2 text-fg border border-line"
-        >
+        <Badge variant="outline" className="bg-surface-2 text-fg border border-line">
           {label}
         </Badge>
       );

@@ -341,18 +341,14 @@ export default function TransactionsPage() {
       header: 'Mã GD',
       accessorKey: 'code',
       cell: ({ row }) => (
-        <span className="font-mono text-xs font-semibold text-fg">
-          {row.original.code}
-        </span>
+        <span className="font-mono text-xs font-semibold text-fg">{row.original.code}</span>
       ),
     },
     {
       header: 'Ngày',
       accessorKey: 'date',
       cell: ({ row }) => (
-        <span className="text-xs text-muted">
-          {formatDate(row.original.date)}
-        </span>
+        <span className="text-xs text-muted">{formatDate(row.original.date)}</span>
       ),
     },
     {
@@ -363,9 +359,7 @@ export default function TransactionsPage() {
         return (
           <span
             className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-semibold ${
-              isIncome
-                ? 'bg-ok-bg text-ok'
-                : 'bg-crit-bg text-crit'
+              isIncome ? 'bg-ok-bg text-ok' : 'bg-crit-bg text-crit'
             }`}
           >
             {isIncome ? (
@@ -382,9 +376,7 @@ export default function TransactionsPage() {
       header: 'Danh mục',
       accessorKey: 'category',
       cell: ({ row }) => (
-        <span className="font-medium text-fg">
-          {row.original.category?.name || '-'}
-        </span>
+        <span className="font-medium text-fg">{row.original.category?.name || '-'}</span>
       ),
     },
     {
@@ -406,13 +398,7 @@ export default function TransactionsPage() {
       cell: ({ row }) => {
         const isIncome = row.original.type === TransactionType.INCOME;
         return (
-          <span
-            className={`font-semibold ${
-              isIncome
-                ? 'text-ok'
-                : 'text-crit'
-            }`}
-          >
+          <span className={`font-semibold ${isIncome ? 'text-ok' : 'text-crit'}`}>
             {isIncome ? '+' : '-'}
             {formatVND(row.original.amount)}
           </span>
@@ -554,9 +540,7 @@ export default function TransactionsPage() {
             </span>
             <ArrowDownRight className="h-4 w-4" />
           </div>
-          <p className="text-2xl font-bold mt-2">
-            {formatVND(totalIncome)}
-          </p>
+          <p className="text-2xl font-bold mt-2">{formatVND(totalIncome)}</p>
         </div>
 
         <div className="rounded-lg border border-crit/30 bg-crit-bg/20 p-4 shadow-xs text-crit">
@@ -566,9 +550,7 @@ export default function TransactionsPage() {
             </span>
             <ArrowUpRight className="h-4 w-4" />
           </div>
-          <p className="text-2xl font-bold mt-2">
-            {formatVND(totalExpense)}
-          </p>
+          <p className="text-2xl font-bold mt-2">{formatVND(totalExpense)}</p>
         </div>
 
         <div className="rounded-lg border border-line bg-surface p-4 shadow-xs text-fg">
@@ -578,13 +560,7 @@ export default function TransactionsPage() {
             </span>
             <DollarSign className="h-4 w-4 text-muted" />
           </div>
-          <p
-            className={`text-2xl font-bold mt-2 ${
-              netBalance >= 0
-                ? 'text-ok'
-                : 'text-crit'
-            }`}
-          >
+          <p className={`text-2xl font-bold mt-2 ${netBalance >= 0 ? 'text-ok' : 'text-crit'}`}>
             {formatVND(netBalance)}
           </p>
         </div>
@@ -711,7 +687,9 @@ export default function TransactionsPage() {
           <form onSubmit={handleFormSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="tx-type" className="text-fg">Loại giao dịch *</Label>
+                <Label htmlFor="tx-type" className="text-fg">
+                  Loại giao dịch *
+                </Label>
                 <select
                   id="tx-type"
                   className="flex h-9 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm shadow-xs text-fg focus:outline-none focus:ring-1 focus:ring-accent"
@@ -728,7 +706,9 @@ export default function TransactionsPage() {
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="tx-category" className="text-fg">Danh mục thu/chi *</Label>
+                <Label htmlFor="tx-category" className="text-fg">
+                  Danh mục thu/chi *
+                </Label>
                 <select
                   id="tx-category"
                   className="flex h-9 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm shadow-xs text-fg focus:outline-none focus:ring-1 focus:ring-accent"
@@ -747,7 +727,9 @@ export default function TransactionsPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="tx-amount" className="text-fg">Số tiền (₫) *</Label>
+                <Label htmlFor="tx-amount" className="text-fg">
+                  Số tiền (₫) *
+                </Label>
                 <MoneyInput
                   id="tx-amount"
                   value={formAmount}
@@ -758,7 +740,9 @@ export default function TransactionsPage() {
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="tx-date" className="text-fg">Ngày giao dịch *</Label>
+                <Label htmlFor="tx-date" className="text-fg">
+                  Ngày giao dịch *
+                </Label>
                 <Input
                   id="tx-date"
                   type="date"
@@ -771,7 +755,9 @@ export default function TransactionsPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="tx-cycle" className="text-fg">Mùa vụ (tùy chọn)</Label>
+                <Label htmlFor="tx-cycle" className="text-fg">
+                  Mùa vụ (tùy chọn)
+                </Label>
                 <select
                   id="tx-cycle"
                   className="flex h-9 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm shadow-xs text-fg focus:outline-none focus:ring-1 focus:ring-accent"
@@ -788,7 +774,9 @@ export default function TransactionsPage() {
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="tx-method" className="text-fg">Phương thức *</Label>
+                <Label htmlFor="tx-method" className="text-fg">
+                  Phương thức *
+                </Label>
                 <select
                   id="tx-method"
                   className="flex h-9 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm shadow-xs text-fg focus:outline-none focus:ring-1 focus:ring-accent"
@@ -804,7 +792,9 @@ export default function TransactionsPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="tx-notes" className="text-fg">Ghi chú diễn giải</Label>
+              <Label htmlFor="tx-notes" className="text-fg">
+                Ghi chú diễn giải
+              </Label>
               <Input
                 id="tx-notes"
                 value={formNotes}

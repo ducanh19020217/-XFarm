@@ -83,9 +83,7 @@ export default function SalesOrdersPage() {
         header: 'Khách hàng',
         cell: ({ row }) => (
           <div>
-            <div className="font-medium text-fg">
-              {row.original.customer?.name}
-            </div>
+            <div className="font-medium text-fg">{row.original.customer?.name}</div>
             <div className="text-xs text-muted">{row.original.customer?.phone}</div>
           </div>
         ),
@@ -101,9 +99,7 @@ export default function SalesOrdersPage() {
         accessorKey: 'createdAt',
         header: 'Ngày tạo',
         cell: ({ row }) => (
-          <span className="text-xs text-muted">
-            {formatDate(row.original.createdAt)}
-          </span>
+          <span className="text-xs text-muted">{formatDate(row.original.createdAt)}</span>
         ),
       },
       {
@@ -120,9 +116,7 @@ export default function SalesOrdersPage() {
         accessorKey: 'total',
         header: 'Tổng tiền',
         cell: ({ row }) => (
-          <span className="font-semibold text-fg">
-            {formatCurrency(row.original.total)}
-          </span>
+          <span className="font-semibold text-fg">{formatCurrency(row.original.total)}</span>
         ),
       },
       {
@@ -190,15 +184,11 @@ export default function SalesOrdersPage() {
           <p className="text-2xl font-bold mt-1 text-fg">{total}</p>
         </div>
         <div className="rounded-lg border border-warn/30 bg-warn-bg/20 p-4 shadow-xs text-warn">
-          <div className="text-xs font-semibold uppercase tracking-wider">
-            Chờ xác nhận
-          </div>
+          <div className="text-xs font-semibold uppercase tracking-wider">Chờ xác nhận</div>
           <p className="text-2xl font-bold mt-1 text-warn">{pendingCount}</p>
         </div>
         <div className="rounded-lg border border-ok/30 bg-ok-bg/20 p-4 shadow-xs text-ok">
-          <div className="text-xs font-semibold uppercase tracking-wider">
-            Đã thanh toán đủ
-          </div>
+          <div className="text-xs font-semibold uppercase tracking-wider">Đã thanh toán đủ</div>
           <p className="text-2xl font-bold mt-1 text-ok">{paidCount}</p>
         </div>
       </div>

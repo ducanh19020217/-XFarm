@@ -239,7 +239,11 @@ export function CustomerFormDialog({
           >
             Hủy
           </Button>
-          <Button type="submit" disabled={isSubmitting} className="bg-accent hover:bg-accent-hover text-white">
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            className="bg-accent hover:bg-accent-hover text-white"
+          >
             {isSubmitting ? 'Đang lưu...' : isEdit ? 'Cập nhật' : 'Tạo khách hàng'}
           </Button>
         </div>

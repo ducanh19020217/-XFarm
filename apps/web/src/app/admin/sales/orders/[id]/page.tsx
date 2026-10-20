@@ -160,13 +160,21 @@ export default function SalesOrderDetailPage() {
         <div className="flex flex-wrap items-center gap-2">
           {/* Nút in */}
           <Link href={`/admin/sales/orders/${order.id}/print?type=invoice`}>
-            <Button variant="outline" size="sm" className="flex items-center gap-1.5 border-line text-fg">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-1.5 border-line text-fg"
+            >
               <Printer className="h-4 w-4" />
               <span>In hóa đơn</span>
             </Button>
           </Link>
           <Link href={`/admin/sales/orders/${order.id}/print?type=delivery`}>
-            <Button variant="outline" size="sm" className="flex items-center gap-1.5 border-line text-fg">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-1.5 border-line text-fg"
+            >
               <Printer className="h-4 w-4" />
               <span>Phiếu giao hàng</span>
             </Button>
@@ -273,10 +281,7 @@ export default function SalesOrderDetailPage() {
               </Link>
             </div>
             <div className="text-muted">
-              Số điện thoại:{' '}
-              <span className="font-medium text-fg">
-                {order.customer.phone}
-              </span>
+              Số điện thoại: <span className="font-medium text-fg">{order.customer.phone}</span>
             </div>
             {order.customer.email && (
               <div className="text-muted">
@@ -293,10 +298,7 @@ export default function SalesOrderDetailPage() {
           </div>
           <div className="space-y-1.5 text-sm">
             <div className="text-muted">
-              Địa chỉ:{' '}
-              <span className="font-medium text-fg">
-                {order.shippingAddress}
-              </span>
+              Địa chỉ: <span className="font-medium text-fg">{order.shippingAddress}</span>
             </div>
             <div className="text-muted">
               Kho xuất:{' '}
@@ -323,10 +325,7 @@ export default function SalesOrderDetailPage() {
           </div>
           <div className="space-y-1.5 text-sm">
             <div className="text-muted">
-              Ngày tạo:{' '}
-              <span className="font-medium text-fg">
-                {formatDate(order.createdAt)}
-              </span>
+              Ngày tạo: <span className="font-medium text-fg">{formatDate(order.createdAt)}</span>
             </div>
             {order.confirmedAt && (
               <div className="text-muted">
@@ -380,9 +379,7 @@ export default function SalesOrderDetailPage() {
                       {line.item?.unit || line.product?.unit || '—'}
                     </td>
                     <td className="py-3 px-4 text-right font-medium text-fg">{qty}</td>
-                    <td className="py-3 px-4 text-right text-muted">
-                      {formatCurrency(price)}
-                    </td>
+                    <td className="py-3 px-4 text-right text-muted">{formatCurrency(price)}</td>
                     <td className="py-3 px-4 text-right font-semibold text-fg">
                       {formatCurrency(lineTotal)}
                     </td>
@@ -398,9 +395,7 @@ export default function SalesOrderDetailPage() {
           <div className="w-72 space-y-2 text-sm">
             <div className="flex justify-between text-muted">
               <span>Tạm tính:</span>
-              <span className="font-medium text-fg">
-                {formatCurrency(order.subtotal)}
-              </span>
+              <span className="font-medium text-fg">{formatCurrency(order.subtotal)}</span>
             </div>
             {Number(order.discount) > 0 && (
               <div className="flex justify-between text-muted">
@@ -411,16 +406,12 @@ export default function SalesOrderDetailPage() {
             {Number(order.shippingFee) > 0 && (
               <div className="flex justify-between text-muted">
                 <span>Phí vận chuyển:</span>
-                <span className="font-medium text-fg">
-                  +{formatCurrency(order.shippingFee)}
-                </span>
+                <span className="font-medium text-fg">+{formatCurrency(order.shippingFee)}</span>
               </div>
             )}
             <div className="pt-2 border-t border-line flex justify-between text-base font-bold">
               <span className="text-fg">Tổng thanh toán:</span>
-              <span className="text-accent">
-                {formatCurrency(order.total)}
-              </span>
+              <span className="text-accent">{formatCurrency(order.total)}</span>
             </div>
           </div>
         </div>

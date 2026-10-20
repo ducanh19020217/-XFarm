@@ -85,16 +85,16 @@ export function CustomerDetailDialog({
       {loading ? (
         <div className="py-12 text-center text-sm text-muted">Đang tải thông tin...</div>
       ) : error ? (
-        <div className="p-4 text-center text-sm text-crit bg-crit-bg border border-crit/20 rounded-lg">{error}</div>
+        <div className="p-4 text-center text-sm text-crit bg-crit-bg border border-crit/20 rounded-lg">
+          {error}
+        </div>
       ) : customer ? (
         <div className="space-y-6 text-fg">
           {/* Thông tin cơ bản */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 rounded-lg border border-line p-4 bg-surface-2 text-fg">
             <div className="space-y-2 text-sm">
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-fg">
-                  {customer.name}
-                </span>
+                <span className="font-semibold text-fg">{customer.name}</span>
                 <CustomerTypeBadge type={customer.type} />
                 <StatusBadge status={customer.isActive} />
               </div>
@@ -135,9 +135,7 @@ export function CustomerDetailDialog({
                 </div>
                 <div
                   className={`text-base font-bold ${
-                    Number(customer.debt) > 0
-                      ? 'text-crit'
-                      : 'text-fg'
+                    Number(customer.debt) > 0 ? 'text-crit' : 'text-fg'
                   }`}
                 >
                   {formatCurrency(customer.debt)}
@@ -149,9 +147,7 @@ export function CustomerDetailDialog({
           {/* Đơn hàng đã mua */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-fg">
-                Lịch sử đơn hàng ({orders.length})
-              </h3>
+              <h3 className="text-sm font-semibold text-fg">Lịch sử đơn hàng ({orders.length})</h3>
             </div>
 
             {orders.length === 0 ? (
@@ -174,13 +170,8 @@ export function CustomerDetailDialog({
                   </thead>
                   <tbody className="divide-y divide-line">
                     {orders.map((order) => (
-                      <tr
-                        key={order.id}
-                        className="hover:bg-hover"
-                      >
-                        <td className="py-2.5 px-3 font-medium text-fg">
-                          {order.code}
-                        </td>
+                      <tr key={order.id} className="hover:bg-hover">
+                        <td className="py-2.5 px-3 font-medium text-fg">{order.code}</td>
                         <td className="py-2.5 px-3 text-xs text-muted">
                           {formatDate(order.createdAt)}
                         </td>
@@ -214,7 +205,11 @@ export function CustomerDetailDialog({
           </div>
 
           <div className="flex justify-end pt-4 border-t border-line">
-            <Button variant="outline" onClick={() => onOpenChange(false)} className="border-line text-fg">
+            <Button
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              className="border-line text-fg"
+            >
               Đóng
             </Button>
           </div>

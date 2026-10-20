@@ -241,9 +241,7 @@ export default function NewSalesOrderPage() {
         {/* Khối chọn khách hàng */}
         <div className="rounded-lg border border-line bg-surface p-5 shadow-xs text-fg space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-line pb-3">
-            <h2 className="text-base font-semibold text-fg">
-              Thông tin khách hàng
-            </h2>
+            <h2 className="text-base font-semibold text-fg">Thông tin khách hàng</h2>
             <Button
               type="button"
               variant="outline"
@@ -316,9 +314,7 @@ export default function NewSalesOrderPage() {
         {/* Khối chọn sản phẩm */}
         <div className="rounded-lg border border-line bg-surface p-5 shadow-xs text-fg space-y-4">
           <div className="flex items-center justify-between border-b border-line pb-3">
-            <h2 className="text-base font-semibold text-fg">
-              Chi tiết mặt hàng ({lines.length})
-            </h2>
+            <h2 className="text-base font-semibold text-fg">Chi tiết mặt hàng ({lines.length})</h2>
             <Button
               type="button"
               variant="outline"
@@ -467,9 +463,7 @@ export default function NewSalesOrderPage() {
             <div className="space-y-3 text-sm">
               <div className="flex justify-between items-center text-muted">
                 <span>Tạm tính (tiền hàng):</span>
-                <span className="font-semibold text-fg">
-                  {formatCurrency(subtotal)}
-                </span>
+                <span className="font-semibold text-fg">{formatCurrency(subtotal)}</span>
               </div>
 
               <div className="flex justify-between items-center gap-4">
@@ -497,12 +491,8 @@ export default function NewSalesOrderPage() {
               </div>
 
               <div className="pt-3 border-t border-line flex justify-between items-center text-base">
-                <span className="font-bold text-fg">
-                  Tổng thanh toán:
-                </span>
-                <span className="text-xl font-bold text-accent">
-                  {formatCurrency(total)}
-                </span>
+                <span className="font-bold text-fg">Tổng thanh toán:</span>
+                <span className="text-xl font-bold text-accent">{formatCurrency(total)}</span>
               </div>
             </div>
           </div>
@@ -510,11 +500,20 @@ export default function NewSalesOrderPage() {
 
         <div className="flex justify-end gap-3 pt-4 border-t border-line">
           <Link href="/admin/sales/orders">
-            <Button type="button" variant="outline" disabled={isSubmitting} className="border-line text-fg">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={isSubmitting}
+              className="border-line text-fg"
+            >
               Hủy
             </Button>
           </Link>
-          <Button type="submit" disabled={isSubmitting} className="min-w-32 bg-accent hover:bg-accent-hover text-white">
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            className="min-w-32 bg-accent hover:bg-accent-hover text-white"
+          >
             {isSubmitting ? 'Đang tạo đơn...' : 'Tạo đơn hàng'}
           </Button>
         </div>

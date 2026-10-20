@@ -246,14 +246,14 @@ export default function SettingsCmsPage() {
         <div className="rounded-lg border border-line bg-surface p-5 shadow-xs space-y-4 text-fg">
           <div className="flex items-center gap-2 border-b border-line pb-3">
             <Building className="h-5 w-5 text-accent" />
-            <h3 className="font-semibold text-fg">
-              Thông tin nhận diện nông trại
-            </h3>
+            <h3 className="font-semibold text-fg">Thông tin nhận diện nông trại</h3>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <Label htmlFor="farm-name" className="text-fg">Tên nông trại (farm.name) *</Label>
+              <Label htmlFor="farm-name" className="text-fg">
+                Tên nông trại (farm.name) *
+              </Label>
               <Input
                 id="farm-name"
                 value={settings['farm.name']}
@@ -264,7 +264,9 @@ export default function SettingsCmsPage() {
             </div>
 
             <div className="space-y-1">
-              <Label htmlFor="farm-slogan" className="text-fg">Khẩu hiệu / Slogan (farm.slogan)</Label>
+              <Label htmlFor="farm-slogan" className="text-fg">
+                Khẩu hiệu / Slogan (farm.slogan)
+              </Label>
               <Input
                 id="farm-slogan"
                 value={settings['farm.slogan']}
@@ -276,7 +278,9 @@ export default function SettingsCmsPage() {
           </div>
 
           <div className="space-y-1">
-            <Label htmlFor="farm-about" className="text-fg">Giới thiệu ngắn (farm.about)</Label>
+            <Label htmlFor="farm-about" className="text-fg">
+              Giới thiệu ngắn (farm.about)
+            </Label>
             <textarea
               id="farm-about"
               rows={3}
@@ -292,14 +296,14 @@ export default function SettingsCmsPage() {
         <div className="rounded-lg border border-line bg-surface p-5 shadow-xs space-y-4 text-fg">
           <div className="flex items-center gap-2 border-b border-line pb-3">
             <Phone className="h-5 w-5 text-accent" />
-            <h3 className="font-semibold text-fg">
-              Kênh liên hệ công khai
-            </h3>
+            <h3 className="font-semibold text-fg">Kênh liên hệ công khai</h3>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <Label htmlFor="contact-phone" className="text-fg">Số điện thoại hotline (contact.phone) *</Label>
+              <Label htmlFor="contact-phone" className="text-fg">
+                Số điện thoại hotline (contact.phone) *
+              </Label>
               <Input
                 id="contact-phone"
                 value={settings['contact.phone']}
@@ -310,7 +314,9 @@ export default function SettingsCmsPage() {
             </div>
 
             <div className="space-y-1">
-              <Label htmlFor="contact-email" className="text-fg">Email tiếp nhận (contact.email) *</Label>
+              <Label htmlFor="contact-email" className="text-fg">
+                Email tiếp nhận (contact.email) *
+              </Label>
               <Input
                 id="contact-email"
                 type="email"
@@ -323,7 +329,9 @@ export default function SettingsCmsPage() {
           </div>
 
           <div className="space-y-1">
-            <Label htmlFor="contact-address" className="text-fg">Địa chỉ nông trại (contact.address)</Label>
+            <Label htmlFor="contact-address" className="text-fg">
+              Địa chỉ nông trại (contact.address)
+            </Label>
             <Input
               id="contact-address"
               value={settings['contact.address']}
@@ -338,14 +346,14 @@ export default function SettingsCmsPage() {
         <div className="rounded-lg border border-line bg-surface p-5 shadow-xs space-y-4 text-fg">
           <div className="flex items-center gap-2 border-b border-line pb-3">
             <Share2 className="h-5 w-5 text-accent" />
-            <h3 className="font-semibold text-fg">
-              Liên kết Mạng xã hội
-            </h3>
+            <h3 className="font-semibold text-fg">Liên kết Mạng xã hội</h3>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-1">
-              <Label htmlFor="social-fb" className="text-fg">Facebook URL (social.facebook)</Label>
+              <Label htmlFor="social-fb" className="text-fg">
+                Facebook URL (social.facebook)
+              </Label>
               <Input
                 id="social-fb"
                 placeholder="https://facebook.com/..."
@@ -357,7 +365,9 @@ export default function SettingsCmsPage() {
             </div>
 
             <div className="space-y-1">
-              <Label htmlFor="social-zl" className="text-fg">Zalo link / SĐT (social.zalo)</Label>
+              <Label htmlFor="social-zl" className="text-fg">
+                Zalo link / SĐT (social.zalo)
+              </Label>
               <Input
                 id="social-zl"
                 placeholder="https://zalo.me/..."
@@ -369,7 +379,9 @@ export default function SettingsCmsPage() {
             </div>
 
             <div className="space-y-1">
-              <Label htmlFor="social-yt" className="text-fg">Youtube URL (social.youtube)</Label>
+              <Label htmlFor="social-yt" className="text-fg">
+                Youtube URL (social.youtube)
+              </Label>
               <Input
                 id="social-yt"
                 placeholder="https://youtube.com/@..."
@@ -387,9 +399,7 @@ export default function SettingsCmsPage() {
           <div className="flex items-center justify-between border-b border-line pb-3">
             <div className="flex items-center gap-2">
               <ImageIcon className="h-5 w-5 text-accent" />
-              <h3 className="font-semibold text-fg">
-                Banner quảng bá trang chủ (home.banners)
-              </h3>
+              <h3 className="font-semibold text-fg">Banner quảng bá trang chủ (home.banners)</h3>
             </div>
             {canEdit && (
               <Button
@@ -408,14 +418,9 @@ export default function SettingsCmsPage() {
 
           <div className="space-y-4">
             {settings['home.banners'].map((banner, index) => (
-              <div
-                key={index}
-                className="rounded-md border border-line p-4 bg-surface-2 space-y-3"
-              >
+              <div key={index} className="rounded-md border border-line p-4 bg-surface-2 space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold text-fg">
-                    Banner #{index + 1}
-                  </span>
+                  <span className="text-sm font-semibold text-fg">Banner #{index + 1}</span>
                   {canEdit && (
                     <Button
                       type="button"
@@ -479,14 +484,14 @@ export default function SettingsCmsPage() {
         <div className="rounded-lg border border-line bg-surface p-5 shadow-xs space-y-4 text-fg">
           <div className="flex items-center gap-2 border-b border-line pb-3">
             <CreditCard className="h-5 w-5 text-accent" />
-            <h3 className="font-semibold text-fg">
-              Cấu hình thanh toán VietQR (bank.vietqr)
-            </h3>
+            <h3 className="font-semibold text-fg">Cấu hình thanh toán VietQR (bank.vietqr)</h3>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-1">
-              <Label htmlFor="bank-id" className="text-fg">Ngân hàng (Mã hoặc tên viết tắt) *</Label>
+              <Label htmlFor="bank-id" className="text-fg">
+                Ngân hàng (Mã hoặc tên viết tắt) *
+              </Label>
               <Input
                 id="bank-id"
                 placeholder="VD: VCB, MB, TCB, ACB, BIDV"
@@ -498,7 +503,9 @@ export default function SettingsCmsPage() {
             </div>
 
             <div className="space-y-1">
-              <Label htmlFor="bank-no" className="text-fg">Số tài khoản nhận tiền *</Label>
+              <Label htmlFor="bank-no" className="text-fg">
+                Số tài khoản nhận tiền *
+              </Label>
               <Input
                 id="bank-no"
                 placeholder="VD: 1029384756"
@@ -510,7 +517,9 @@ export default function SettingsCmsPage() {
             </div>
 
             <div className="space-y-1">
-              <Label htmlFor="bank-name" className="text-fg">Tên chủ tài khoản (in hoa) *</Label>
+              <Label htmlFor="bank-name" className="text-fg">
+                Tên chủ tài khoản (in hoa) *
+              </Label>
               <Input
                 id="bank-name"
                 placeholder="VD: NGUYEN VAN A"

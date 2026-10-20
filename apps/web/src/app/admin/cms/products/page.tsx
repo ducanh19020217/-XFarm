@@ -284,9 +284,7 @@ export default function ProductsCmsPage() {
       header: 'Tên sản phẩm',
       cell: ({ row }) => (
         <div>
-          <span className="font-medium text-fg">
-            {row.original.name}
-          </span>
+          <span className="font-medium text-fg">{row.original.name}</span>
           <span className="block text-xs text-muted">/{row.original.slug}</span>
         </div>
       ),
@@ -405,7 +403,9 @@ export default function ProductsCmsPage() {
         >
           {/* Select Sellable Item */}
           <div className="space-y-1">
-            <Label htmlFor="item-select" className="text-fg">Vật tư / nông sản kho bán được *</Label>
+            <Label htmlFor="item-select" className="text-fg">
+              Vật tư / nông sản kho bán được *
+            </Label>
             <Select
               defaultValue={form.getValues('itemId')}
               onValueChange={handleItemSelect}
@@ -430,7 +430,9 @@ export default function ProductsCmsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Name */}
             <div className="space-y-1">
-              <Label htmlFor="product-name" className="text-fg">Tên sản phẩm *</Label>
+              <Label htmlFor="product-name" className="text-fg">
+                Tên sản phẩm *
+              </Label>
               <Input
                 id="product-name"
                 placeholder="VD: Rau muống hữu cơ"
@@ -446,7 +448,9 @@ export default function ProductsCmsPage() {
 
             {/* Slug */}
             <div className="space-y-1">
-              <Label htmlFor="product-slug" className="text-fg">Đường dẫn tĩnh (Slug)</Label>
+              <Label htmlFor="product-slug" className="text-fg">
+                Đường dẫn tĩnh (Slug)
+              </Label>
               <Input
                 id="product-slug"
                 placeholder="VD: rau-muong-huu-co"
@@ -464,7 +468,9 @@ export default function ProductsCmsPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Price with MoneyInput */}
             <div className="space-y-1">
-              <Label htmlFor="product-price" className="text-fg">Giá bán (VNĐ) *</Label>
+              <Label htmlFor="product-price" className="text-fg">
+                Giá bán (VNĐ) *
+              </Label>
               <Controller
                 control={form.control}
                 name="price"
@@ -485,7 +491,9 @@ export default function ProductsCmsPage() {
 
             {/* Unit */}
             <div className="space-y-1">
-              <Label htmlFor="product-unit" className="text-fg">Đơn vị tính *</Label>
+              <Label htmlFor="product-unit" className="text-fg">
+                Đơn vị tính *
+              </Label>
               <Input
                 id="product-unit"
                 placeholder="VD: kg, bó, túi"
@@ -500,7 +508,9 @@ export default function ProductsCmsPage() {
 
             {/* Sort Order */}
             <div className="space-y-1">
-              <Label htmlFor="product-sort" className="text-fg">Thứ tự hiển thị</Label>
+              <Label htmlFor="product-sort" className="text-fg">
+                Thứ tự hiển thị
+              </Label>
               <Input
                 id="product-sort"
                 type="number"
@@ -556,10 +566,7 @@ export default function ProductsCmsPage() {
               disabled={isSubmitting}
               {...form.register('isPublished')}
             />
-            <Label
-              htmlFor="product-published"
-              className="cursor-pointer font-medium text-fg"
-            >
+            <Label htmlFor="product-published" className="cursor-pointer font-medium text-fg">
               Xuất bản ngay (hiển thị trên trang chủ và danh mục sản phẩm)
             </Label>
           </div>

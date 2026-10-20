@@ -114,9 +114,7 @@ export default function CustomersPage() {
       {
         accessorKey: 'name',
         header: 'Tên khách hàng',
-        cell: ({ row }) => (
-          <div className="font-medium text-fg">{row.original.name}</div>
-        ),
+        cell: ({ row }) => <div className="font-medium text-fg">{row.original.name}</div>,
       },
       {
         accessorKey: 'phone',
@@ -170,9 +168,7 @@ export default function CustomersPage() {
                     onClick={() => setToggleCustomer(item)}
                     title={item.isActive ? 'Khóa khách hàng' : 'Mở khóa khách hàng'}
                     className={`h-8 w-8 p-0 ${
-                      item.isActive
-                        ? 'text-crit hover:text-crit/80'
-                        : 'text-ok hover:text-ok/80'
+                      item.isActive ? 'text-crit hover:text-crit/80' : 'text-ok hover:text-ok/80'
                     }`}
                   >
                     {item.isActive ? <Lock className="h-4 w-4" /> : <Unlock className="h-4 w-4" />}
@@ -218,15 +214,11 @@ export default function CustomersPage() {
           <p className="text-2xl font-bold mt-1 text-fg">{total}</p>
         </div>
         <div className="rounded-lg border border-ok/30 bg-ok-bg/20 p-4 shadow-xs text-ok">
-          <div className="text-xs font-semibold uppercase tracking-wider">
-            Đang hoạt động
-          </div>
+          <div className="text-xs font-semibold uppercase tracking-wider">Đang hoạt động</div>
           <p className="text-2xl font-bold mt-1 text-ok">{activeCount}</p>
         </div>
         <div className="rounded-lg border border-crit/30 bg-crit-bg/20 p-4 shadow-xs text-crit">
-          <div className="text-xs font-semibold uppercase tracking-wider">
-            Tạm khóa
-          </div>
+          <div className="text-xs font-semibold uppercase tracking-wider">Tạm khóa</div>
           <p className="text-2xl font-bold mt-1 text-crit">{lockedCount}</p>
         </div>
       </div>

@@ -193,9 +193,7 @@ export default function StaticPagesCmsPage() {
       header: 'Tiêu đề trang',
       cell: ({ row }) => (
         <div>
-          <span className="font-medium text-fg">
-            {row.original.title}
-          </span>
+          <span className="font-medium text-fg">{row.original.title}</span>
           <span className="block text-xs text-muted">/{row.original.slug}</span>
         </div>
       ),
@@ -205,7 +203,9 @@ export default function StaticPagesCmsPage() {
       header: 'Cập nhật lần cuối',
       cell: ({ row }) => (
         <span className="text-muted text-xs">
-          {row.original.updatedAt ? new Date(row.original.updatedAt).toLocaleDateString('vi-VN') : '—'}
+          {row.original.updatedAt
+            ? new Date(row.original.updatedAt).toLocaleDateString('vi-VN')
+            : '—'}
         </span>
       ),
     },
@@ -319,7 +319,9 @@ export default function StaticPagesCmsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Title */}
             <div className="space-y-1">
-              <Label htmlFor="page-title" className="text-fg">Tiêu đề trang *</Label>
+              <Label htmlFor="page-title" className="text-fg">
+                Tiêu đề trang *
+              </Label>
               <Input
                 id="page-title"
                 placeholder="VD: Giới thiệu XFarm"
@@ -335,7 +337,9 @@ export default function StaticPagesCmsPage() {
 
             {/* Slug */}
             <div className="space-y-1">
-              <Label htmlFor="page-slug" className="text-fg">Đường dẫn tĩnh (Slug)</Label>
+              <Label htmlFor="page-slug" className="text-fg">
+                Đường dẫn tĩnh (Slug)
+              </Label>
               <Input
                 id="page-slug"
                 placeholder="VD: gioi-thieu"

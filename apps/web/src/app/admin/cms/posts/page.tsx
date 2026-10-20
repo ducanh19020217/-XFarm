@@ -222,9 +222,7 @@ export default function PostsCmsPage() {
       header: 'Tiêu đề bài viết',
       cell: ({ row }) => (
         <div className="max-w-md">
-          <span className="font-medium text-fg block truncate">
-            {row.original.title}
-          </span>
+          <span className="font-medium text-fg block truncate">{row.original.title}</span>
           <span className="block text-xs text-muted truncate">/{row.original.slug}</span>
         </div>
       ),
@@ -348,7 +346,9 @@ export default function PostsCmsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Title */}
             <div className="space-y-1">
-              <Label htmlFor="post-title" className="text-fg">Tiêu đề bài viết *</Label>
+              <Label htmlFor="post-title" className="text-fg">
+                Tiêu đề bài viết *
+              </Label>
               <Input
                 id="post-title"
                 placeholder="VD: Kỹ thuật nuôi ong tự nhiên tại XFarm"
@@ -364,7 +364,9 @@ export default function PostsCmsPage() {
 
             {/* Slug */}
             <div className="space-y-1">
-              <Label htmlFor="post-slug" className="text-fg">Đường dẫn tĩnh (Slug)</Label>
+              <Label htmlFor="post-slug" className="text-fg">
+                Đường dẫn tĩnh (Slug)
+              </Label>
               <Input
                 id="post-slug"
                 placeholder="VD: ky-thuat-nuoi-ong-tu-nhien"
@@ -381,7 +383,9 @@ export default function PostsCmsPage() {
 
           {/* Excerpt */}
           <div className="space-y-1">
-            <Label htmlFor="post-excerpt" className="text-fg">Tóm tắt ngắn *</Label>
+            <Label htmlFor="post-excerpt" className="text-fg">
+              Tóm tắt ngắn *
+            </Label>
             <textarea
               id="post-excerpt"
               rows={2}
