@@ -37,6 +37,7 @@ import {
   Users,
   Search,
   Plus,
+  Ticket,
 } from 'lucide-react';
 import { apiFetch, ApiError, isAbortError } from '@/lib/api';
 import { useAdminUser } from '../../admin-user-context';
@@ -102,18 +103,19 @@ function formatVietnamDateTime(dateStr: string | Date): string {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
+    hour12: false,
     timeZone: 'Asia/Ho_Chi_Minh',
   }).format(d);
 }
 
 const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
   [PaymentMethod.CASH]: 'Tiền mặt',
-  [PaymentMethod.BANK_TRANSFER]: 'Chuyển khoản',
+  [PaymentMethod.BANK_TRANSFER]: 'Chuyển khoản ngân hàng',
   [PaymentMethod.VNPAY]: 'VNPay',
-  [PaymentMethod.COD]: 'Thu khi đến',
+  [PaymentMethod.COD]: 'Thu tiền khi đến (COD)',
 };
 
-export default function AdminTourBookingsPage() {
+export default function AdminBookingsPage() {
   const searchParams = useSearchParams();
   const initialSlotId = searchParams?.get('slotId') || '';
 
@@ -121,61 +123,45 @@ export default function AdminTourBookingsPage() {
   const canManageBookings =
     user?.role === Role.OWNER || user?.role === Role.MANAGER || user?.role === Role.SALES;
   const canRecordPayment =
-    user?.role === Role.OWNER ||
-    user?.role === Role.MANAGER ||
-    user?.role === Role.SALES ||
-    user?.role === Role.ACCOUNTANT;
+    user?.role === Role.OWNER || user?.role === Role.ACCOUNTANT || user?.role === Role.SALES;
 
-  // Filter states
-  const [tours, setTours] = React.useState<TourItem[]>([]);
-  const [selectedTourId, setSelectedTourId] = React.useState<string>('ALL');
-  const [slotIdFilter, setSlotIdFilter] = React.useState<string>(initialSlotId);
-  const [fromDate, setFromDate] = React.useState<string>('');
-  const [toDate, setToDate] = React.useState<string>('');
-  const [statusFilter, setStatusFilter] = React.useState<string>('ALL');
-  const [paymentStatusFilter, setPaymentStatusFilter] = React.useState<string>('ALL');
-  const [search, setSearch] = React.useState<string>('');
-
-  // Table pagination & data
   const [bookings, setBookings] = React.useState<BookingItem[]>([]);
   const [total, setTotal] = React.useState(0);
   const [page, setPage] = React.useState(1);
-  const [pageSize] = React.useState(10);
+  const [pageSize] = React.useState(15);
   const [isLoading, setIsLoading] = React.useState(true);
 
-  // Detail dialog
-  const [selectedBooking, setSelectedBooking] = React.useState<BookingItem | null>(null);
+  // Filters
+  const [search, setSearch] = React.useState('');
+  const [tours, setTours] = React.useState<TourItem[]>([]);
+  const [selectedTourId, setSelectedTourId] = React.useState<string>('ALL');
+  const [slotIdFilter, setSlotIdFilter] = React.useState<string>(initialSlotId);
+  const [statusFilter, setStatusFilter] = React.useState<string>('ALL');
+  const [paymentStatusFilter, setPaymentStatusFilter] = React.useState<string>('ALL');
+  const [fromDate, setFromDate] = React.useState<string>('');
+  const [toDate, setToDate] = React.useState<string>('');
 
-  // Confirm cancel dialog
+  // Dialogs
+  const [selectedBooking, setSelectedBooking] = React.useState<BookingItem | null>(null);
   const [cancellingBooking, setCancellingBooking] = React.useState<BookingItem | null>(null);
   const [isCancelling, setIsCancelling] = React.useState(false);
+  const [isActionLoading, setIsActionLoading] = React.useState(false);
 
-  // Payment dialog
+  // Record payment dialog
   const [paymentDialogOpen, setPaymentDialogOpen] = React.useState(false);
   const [paymentAmount, setPaymentAmount] = React.useState<number>(0);
   const [paymentMethod, setPaymentMethod] = React.useState<PaymentMethod>(
     PaymentMethod.BANK_TRANSFER,
   );
   const [paymentNotes, setPaymentNotes] = React.useState('');
-  const [paymentError, setPaymentError] = React.useState<string | null>(null);
   const [isSubmittingPayment, setIsSubmittingPayment] = React.useState(false);
+  const [paymentError, setPaymentError] = React.useState<string | null>(null);
 
-  // Action loading states
-  const [isActionLoading, setIsActionLoading] = React.useState(false);
-
-  // Fetch list of tours for filter
+  // Load tours for dropdown
   React.useEffect(() => {
-    let isMounted = true;
     apiFetch<Paginated<TourItem>>('/tours?pageSize=100')
-      .then((res) => {
-        if (isMounted) setTours(res.data);
-      })
-      .catch((err) => {
-        if (!isAbortError(err)) console.error('Lỗi khi tải danh sách tour:', err);
-      });
-    return () => {
-      isMounted = false;
-    };
+      .then((res) => setTours(res.data || []))
+      .catch(() => setTours([]));
   }, []);
 
   // Fetch bookings
@@ -183,27 +169,24 @@ export default function AdminTourBookingsPage() {
     async (signal?: AbortSignal) => {
       setIsLoading(true);
       try {
-        const queryParams = new URLSearchParams();
-        queryParams.set('page', page.toString());
-        queryParams.set('pageSize', pageSize.toString());
+        const queryParams = new URLSearchParams({
+          page: String(page),
+          pageSize: String(pageSize),
+        });
 
         if (search.trim()) queryParams.set('search', search.trim());
         if (selectedTourId !== 'ALL') queryParams.set('tourId', selectedTourId);
         if (slotIdFilter) queryParams.set('slotId', slotIdFilter);
         if (statusFilter !== 'ALL') queryParams.set('status', statusFilter);
         if (paymentStatusFilter !== 'ALL') queryParams.set('paymentStatus', paymentStatusFilter);
-        if (fromDate) queryParams.set('from', new Date(fromDate).toISOString());
-        if (toDate) {
-          const end = new Date(toDate);
-          end.setHours(23, 59, 59, 999);
-          queryParams.set('to', end.toISOString());
-        }
+        if (fromDate) queryParams.set('from', `${fromDate}T00:00:00+07:00`);
+        if (toDate) queryParams.set('to', `${toDate}T23:59:59+07:00`);
 
         const res = await apiFetch<Paginated<BookingItem>>(`/bookings?${queryParams.toString()}`, {
           signal,
         });
-        setBookings(res.data);
-        setTotal(res.total);
+        setBookings(res.data || []);
+        setTotal(res.total || 0);
       } catch (err) {
         if (!isAbortError(err)) {
           if (!(err instanceof ApiError && err.statusCode === 404)) {
@@ -351,32 +334,34 @@ export default function AdminTourBookingsPage() {
     switch (status) {
       case BookingStatus.PENDING:
         return (
-          <Badge
-            variant="outline"
-            className="border-amber-400 bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300"
-          >
+          <Badge variant="outline" className="border-warn/30 bg-warn-bg text-warn">
             Chờ xác nhận
           </Badge>
         );
       case BookingStatus.CONFIRMED:
         return (
-          <Badge
-            variant="outline"
-            className="border-sky-400 bg-sky-50 text-sky-700 dark:bg-sky-950 dark:text-sky-300"
-          >
+          <Badge variant="outline" className="border-info/30 bg-info-bg text-info">
             Đã xác nhận
           </Badge>
         );
       case BookingStatus.COMPLETED:
         return (
-          <Badge variant="default" className="bg-emerald-600 text-white">
+          <Badge variant="default" className="bg-ok-bg text-ok border-ok/20">
             Đã hoàn tất
           </Badge>
         );
       case BookingStatus.CANCELLED:
-        return <Badge variant="destructive">Đã hủy</Badge>;
+        return (
+          <Badge variant="destructive" className="bg-crit-bg text-crit border-crit/20">
+            Đã hủy
+          </Badge>
+        );
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return (
+          <Badge variant="outline" className="border-line text-muted">
+            {status}
+          </Badge>
+        );
     }
   };
 
@@ -384,32 +369,43 @@ export default function AdminTourBookingsPage() {
     switch (status) {
       case PaymentStatus.UNPAID:
         return (
-          <Badge
-            variant="outline"
-            className="border-red-300 bg-red-50 text-red-600 dark:bg-red-950 dark:text-red-400"
-          >
+          <Badge variant="outline" className="border-crit/30 bg-crit-bg text-crit">
             Chưa thanh toán
           </Badge>
         );
       case PaymentStatus.PARTIAL:
         return (
-          <Badge
-            variant="outline"
-            className="border-amber-400 bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300"
-          >
+          <Badge variant="outline" className="border-warn/30 bg-warn-bg text-warn">
             Một phần
           </Badge>
         );
       case PaymentStatus.PAID:
         return (
-          <Badge variant="default" className="bg-emerald-600 text-white">
+          <Badge variant="default" className="bg-ok-bg text-ok border-ok/20">
             Đã thanh toán đủ
           </Badge>
         );
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return (
+          <Badge variant="outline" className="border-line text-muted">
+            {status}
+          </Badge>
+        );
     }
   };
+
+  const pendingCount = React.useMemo(
+    () => bookings.filter((b) => b.status === BookingStatus.PENDING).length,
+    [bookings],
+  );
+  const confirmedCount = React.useMemo(
+    () => bookings.filter((b) => b.status === BookingStatus.CONFIRMED).length,
+    [bookings],
+  );
+  const paidCount = React.useMemo(
+    () => bookings.filter((b) => b.paymentStatus === PaymentStatus.PAID).length,
+    [bookings],
+  );
 
   // Table Columns
   const columns = React.useMemo<ColumnDef<BookingItem>[]>(
@@ -423,7 +419,7 @@ export default function AdminTourBookingsPage() {
             <button
               type="button"
               onClick={() => setSelectedBooking(item)}
-              className="font-mono text-xs font-bold text-emerald-600 hover:underline dark:text-emerald-400"
+              className="font-mono text-xs font-bold text-accent hover:underline"
             >
               {item.code}
             </button>
@@ -439,10 +435,8 @@ export default function AdminTourBookingsPage() {
           const startAt = item.slot?.startAt;
           return (
             <div className="space-y-0.5">
-              <span className="font-medium text-slate-900 dark:text-slate-100 block">
-                {tourName}
-              </span>
-              <span className="flex items-center gap-1 text-xs text-slate-500">
+              <span className="font-medium text-fg block">{tourName}</span>
+              <span className="flex items-center gap-1 text-xs text-muted">
                 <Calendar className="h-3 w-3" />
                 {startAt ? toVietnamDateString(startAt) : ''} lúc{' '}
                 {startAt ? formatVietnamTime(startAt) : ''}
@@ -458,10 +452,8 @@ export default function AdminTourBookingsPage() {
           const item = row.original;
           return (
             <div className="space-y-0.5">
-              <span className="font-medium text-slate-900 dark:text-slate-100 block">
-                {item.customerName}
-              </span>
-              <span className="text-xs text-slate-500 block">{item.phone}</span>
+              <span className="font-medium text-fg block">{item.customerName}</span>
+              <span className="text-xs text-muted block">{item.phone}</span>
             </div>
           );
         },
@@ -472,11 +464,11 @@ export default function AdminTourBookingsPage() {
         cell: ({ row }) => {
           const item = row.original;
           return (
-            <span className="text-xs text-slate-700 dark:text-slate-300">
-              <b>{item.adults}</b> người lớn
+            <span className="text-xs text-fg-2">
+              <b className="text-fg">{item.adults}</b> người lớn
               {item.children > 0 && (
                 <>
-                  , <b>{item.children}</b> trẻ em
+                  , <b className="text-fg">{item.children}</b> trẻ em
                 </>
               )}
             </span>
@@ -487,7 +479,7 @@ export default function AdminTourBookingsPage() {
         accessorKey: 'total',
         header: 'Tổng tiền',
         cell: ({ row }) => (
-          <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+          <span className="text-sm font-semibold text-accent">
             {formatMoney(row.original.total)}
           </span>
         ),
@@ -512,7 +504,7 @@ export default function AdminTourBookingsPage() {
               variant="outline"
               size="sm"
               onClick={() => setSelectedBooking(item)}
-              className="h-8 gap-1 px-2.5 text-xs text-slate-700 hover:text-emerald-600"
+              className="h-8 gap-1 px-2.5 text-xs border-line text-fg hover:bg-hover hover:text-accent"
             >
               <Eye className="h-3.5 w-3.5" />
               Chi tiết
@@ -531,14 +523,57 @@ export default function AdminTourBookingsPage() {
         description="Danh sách và quản lý thông tin đặt chỗ trải nghiệm du lịch nông trại"
       />
 
+      {/* Summary KPI Cards */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="flex items-center gap-3.5 rounded-xl border border-line bg-surface p-4 shadow-xs text-fg">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent-bg text-accent">
+            <Ticket className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-xs font-medium text-muted">Tổng đặt chỗ</p>
+            <p className="text-xl font-bold text-fg">{total} lượt</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3.5 rounded-xl border border-line bg-surface p-4 shadow-xs text-fg">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-warn-bg text-warn">
+            <Calendar className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-xs font-medium text-muted">Chờ xác nhận</p>
+            <p className="text-xl font-bold text-fg">{pendingCount} lượt</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3.5 rounded-xl border border-line bg-surface p-4 shadow-xs text-fg">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-info-bg text-info">
+            <CheckCircle2 className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-xs font-medium text-muted">Đã xác nhận</p>
+            <p className="text-xl font-bold text-fg">{confirmedCount} lượt</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3.5 rounded-xl border border-line bg-surface p-4 shadow-xs text-fg">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-ok-bg text-ok">
+            <DollarSign className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-xs font-medium text-muted">Đã thanh toán đủ</p>
+            <p className="text-xl font-bold text-fg">{paidCount} lượt</p>
+          </div>
+        </div>
+      </div>
+
       {/* Filter Bar */}
-      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950 space-y-3">
+      <div className="rounded-xl border border-line bg-surface p-4 shadow-xs text-fg space-y-3">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
           {/* Search */}
           <div className="space-y-1">
-            <Label className="text-xs">Tìm kiếm</Label>
+            <Label className="text-xs text-fg-2">Tìm kiếm</Label>
             <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-slate-400" />
+              <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted" />
               <Input
                 placeholder="Mã, tên, số ĐT..."
                 value={search}
@@ -553,7 +588,7 @@ export default function AdminTourBookingsPage() {
 
           {/* Tour filter */}
           <div className="space-y-1">
-            <Label className="text-xs">Tour du lịch</Label>
+            <Label className="text-xs text-fg-2">Tour du lịch</Label>
             <Select
               value={selectedTourId}
               onValueChange={(val) => {
@@ -578,7 +613,7 @@ export default function AdminTourBookingsPage() {
 
           {/* Booking status filter */}
           <div className="space-y-1">
-            <Label className="text-xs">Trạng thái đặt chỗ</Label>
+            <Label className="text-xs text-fg-2">Trạng thái đặt chỗ</Label>
             <Select
               value={statusFilter}
               onValueChange={(val) => {
@@ -601,7 +636,7 @@ export default function AdminTourBookingsPage() {
 
           {/* Payment status filter */}
           <div className="space-y-1">
-            <Label className="text-xs">Trạng thái thanh toán</Label>
+            <Label className="text-xs text-fg-2">Trạng thái thanh toán</Label>
             <Select
               value={paymentStatusFilter}
               onValueChange={(val) => {
@@ -623,7 +658,7 @@ export default function AdminTourBookingsPage() {
 
           {/* Dates */}
           <div className="space-y-1">
-            <Label className="text-xs">Khoảng ngày suất</Label>
+            <Label className="text-xs text-fg-2">Khoảng ngày suất</Label>
             <div className="flex items-center gap-1.5">
               <Input
                 type="date"
@@ -635,7 +670,7 @@ export default function AdminTourBookingsPage() {
                 className="h-9 text-xs p-1.5"
                 title="Từ ngày"
               />
-              <span className="text-slate-400 text-xs">-</span>
+              <span className="text-muted text-xs">-</span>
               <Input
                 type="date"
                 value={toDate}
@@ -651,7 +686,7 @@ export default function AdminTourBookingsPage() {
         </div>
 
         {slotIdFilter && (
-          <div className="flex items-center justify-between rounded bg-emerald-50 px-3 py-1.5 text-xs text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+          <div className="flex items-center justify-between rounded bg-accent-bg px-3 py-1.5 text-xs text-accent border border-accent/20">
             <span>Đang lọc theo một suất trải nghiệm cụ thể</span>
             <button
               type="button"
@@ -659,7 +694,7 @@ export default function AdminTourBookingsPage() {
                 setSlotIdFilter('');
                 setPage(1);
               }}
-              className="font-semibold text-emerald-700 underline hover:text-emerald-900"
+              className="font-semibold text-accent underline hover:opacity-80"
             >
               Bỏ lọc suất
             </button>
@@ -689,14 +724,14 @@ export default function AdminTourBookingsPage() {
         {selectedBooking && (
           <div className="space-y-6 py-2">
             {/* Status Summary & Quick Actions */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-xl border border-line bg-surface-2 p-4 text-fg">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-slate-500">Trạng thái đặt chỗ:</span>
+                  <span className="text-xs text-muted">Trạng thái đặt chỗ:</span>
                   {renderBookingStatusBadge(selectedBooking.status)}
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-slate-500">Trạng thái thanh toán:</span>
+                  <span className="text-xs text-muted">Trạng thái thanh toán:</span>
                   {renderPaymentStatusBadge(selectedBooking.paymentStatus)}
                 </div>
               </div>
@@ -708,7 +743,7 @@ export default function AdminTourBookingsPage() {
                     size="sm"
                     onClick={() => handleConfirmBooking(selectedBooking)}
                     disabled={isActionLoading}
-                    className="bg-sky-600 hover:bg-sky-700 text-white text-xs gap-1.5"
+                    className="text-xs gap-1.5"
                   >
                     <CheckCircle2 className="h-3.5 w-3.5" />
                     Xác nhận đặt chỗ
@@ -720,7 +755,7 @@ export default function AdminTourBookingsPage() {
                     size="sm"
                     onClick={() => handleCompleteBooking(selectedBooking)}
                     disabled={isActionLoading}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs gap-1.5"
+                    className="text-xs gap-1.5"
                   >
                     <CheckCircle2 className="h-3.5 w-3.5" />
                     Hoàn tất tham quan
@@ -731,7 +766,7 @@ export default function AdminTourBookingsPage() {
                   <Button
                     size="sm"
                     onClick={() => openPaymentDialog(selectedBooking)}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs gap-1.5"
+                    className="text-xs gap-1.5"
                   >
                     <DollarSign className="h-3.5 w-3.5" />
                     Ghi thu tiền
@@ -746,7 +781,7 @@ export default function AdminTourBookingsPage() {
                       size="sm"
                       onClick={() => setCancellingBooking(selectedBooking)}
                       disabled={isActionLoading}
-                      className="border-red-200 text-red-600 hover:bg-red-50 text-xs gap-1.5"
+                      className="border-crit/30 text-crit hover:bg-crit-bg text-xs gap-1.5"
                     >
                       <XCircle className="h-3.5 w-3.5" />
                       Hủy đặt chỗ
@@ -758,57 +793,55 @@ export default function AdminTourBookingsPage() {
             {/* Info Grid */}
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
               {/* Tour info */}
-              <div className="space-y-3 rounded-lg border border-slate-200 p-4 dark:border-slate-800">
-                <h4 className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500">
+              <div className="space-y-3 rounded-lg border border-line p-4 bg-surface text-fg">
+                <h4 className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-muted">
                   <Calendar className="h-3.5 w-3.5" />
                   Thông tin tour & Suất trải nghiệm
                 </h4>
-                <div className="space-y-1.5 text-xs text-slate-700 dark:text-slate-300">
+                <div className="space-y-1.5 text-xs text-fg-2">
                   <div>
-                    <span className="text-slate-500">Tour:</span>{' '}
-                    <span className="font-semibold text-slate-900 dark:text-slate-100">
+                    <span className="text-muted">Tour:</span>{' '}
+                    <span className="font-semibold text-fg">
                       {selectedBooking.slot?.tour?.name}
                     </span>
                   </div>
                   <div>
-                    <span className="text-slate-500">Thời gian bắt đầu:</span>{' '}
-                    <span className="font-semibold">
+                    <span className="text-muted">Thời gian bắt đầu:</span>{' '}
+                    <span className="font-semibold text-fg">
                       {formatVietnamDateTime(selectedBooking.slot?.startAt)}
                     </span>
                   </div>
                   <div>
-                    <span className="text-slate-500">Thời lượng:</span>{' '}
+                    <span className="text-muted">Thời lượng:</span>{' '}
                     <span>{selectedBooking.slot?.tour?.durationMinutes} phút</span>
                   </div>
                 </div>
               </div>
 
               {/* Customer info */}
-              <div className="space-y-3 rounded-lg border border-slate-200 p-4 dark:border-slate-800">
-                <h4 className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500">
+              <div className="space-y-3 rounded-lg border border-line p-4 bg-surface text-fg">
+                <h4 className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-muted">
                   <User className="h-3.5 w-3.5" />
                   Thông tin khách hàng
                 </h4>
-                <div className="space-y-1.5 text-xs text-slate-700 dark:text-slate-300">
+                <div className="space-y-1.5 text-xs text-fg-2">
                   <div>
-                    <span className="text-slate-500">Họ và tên:</span>{' '}
-                    <span className="font-semibold text-slate-900 dark:text-slate-100">
-                      {selectedBooking.customerName}
-                    </span>
+                    <span className="text-muted">Họ và tên:</span>{' '}
+                    <span className="font-semibold text-fg">{selectedBooking.customerName}</span>
                   </div>
                   <div>
-                    <span className="text-slate-500">Số điện thoại:</span>{' '}
-                    <span className="font-mono">{selectedBooking.phone}</span>
+                    <span className="text-muted">Số điện thoại:</span>{' '}
+                    <span className="font-mono text-fg">{selectedBooking.phone}</span>
                   </div>
                   {selectedBooking.email && (
                     <div>
-                      <span className="text-slate-500">Email:</span>{' '}
+                      <span className="text-muted">Email:</span>{' '}
                       <span>{selectedBooking.email}</span>
                     </div>
                   )}
                   {selectedBooking.notes && (
-                    <div className="border-t border-slate-100 pt-1.5 mt-1.5">
-                      <span className="text-slate-500">Ghi chú:</span>{' '}
+                    <div className="border-t border-line/60 pt-1.5 mt-1.5">
+                      <span className="text-muted">Ghi chú:</span>{' '}
                       <span className="italic">{selectedBooking.notes}</span>
                     </div>
                   )}
@@ -817,32 +850,28 @@ export default function AdminTourBookingsPage() {
             </div>
 
             {/* Financial & Guest summary */}
-            <div className="rounded-lg border border-slate-200 p-4 dark:border-slate-800">
-              <h4 className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">
+            <div className="rounded-lg border border-line p-4 bg-surface text-fg">
+              <h4 className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-muted mb-3">
                 <Users className="h-3.5 w-3.5" />
                 Số lượng khách & Chi phí
               </h4>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-                <div className="rounded-md bg-slate-50 p-3 dark:bg-slate-900">
-                  <span className="text-xs text-slate-500 block">Số người lớn</span>
-                  <span className="text-lg font-bold text-slate-900 dark:text-slate-100">
-                    {selectedBooking.adults}
-                  </span>
+                <div className="rounded-md bg-surface-2 p-3 border border-line">
+                  <span className="text-xs text-muted block">Số người lớn</span>
+                  <span className="text-lg font-bold text-fg">{selectedBooking.adults}</span>
                 </div>
-                <div className="rounded-md bg-slate-50 p-3 dark:bg-slate-900">
-                  <span className="text-xs text-slate-500 block">Số trẻ em</span>
-                  <span className="text-lg font-bold text-slate-900 dark:text-slate-100">
-                    {selectedBooking.children}
-                  </span>
+                <div className="rounded-md bg-surface-2 p-3 border border-line">
+                  <span className="text-xs text-muted block">Số trẻ em</span>
+                  <span className="text-lg font-bold text-fg">{selectedBooking.children}</span>
                 </div>
-                <div className="rounded-md bg-slate-50 p-3 dark:bg-slate-900">
-                  <span className="text-xs text-slate-500 block">Tổng tiền</span>
-                  <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
+                <div className="rounded-md bg-surface-2 p-3 border border-line">
+                  <span className="text-xs text-muted block">Tổng tiền</span>
+                  <span className="text-lg font-bold text-accent">
                     {formatMoney(selectedBooking.total)}
                   </span>
                 </div>
-                <div className="rounded-md bg-slate-50 p-3 dark:bg-slate-900">
-                  <span className="text-xs text-slate-500 block">Còn lại cần thu</span>
+                <div className="rounded-md bg-surface-2 p-3 border border-line">
+                  <span className="text-xs text-muted block">Còn lại cần thu</span>
                   {(() => {
                     const paid = (selectedBooking.payments || []).reduce(
                       (s, p) => s + (Number(p.amount) || 0),
@@ -851,9 +880,7 @@ export default function AdminTourBookingsPage() {
                     const remaining = Math.max(0, Number(selectedBooking.total) - paid);
                     return (
                       <span
-                        className={`text-lg font-bold ${
-                          remaining > 0 ? 'text-amber-600' : 'text-emerald-600'
-                        }`}
+                        className={`text-lg font-bold ${remaining > 0 ? 'text-warn' : 'text-ok'}`}
                       >
                         {formatMoney(remaining)}
                       </span>
@@ -864,9 +891,9 @@ export default function AdminTourBookingsPage() {
             </div>
 
             {/* Payment history */}
-            <div className="space-y-3 rounded-lg border border-slate-200 p-4 dark:border-slate-800">
+            <div className="space-y-3 rounded-lg border border-line p-4 bg-surface text-fg">
               <div className="flex items-center justify-between">
-                <h4 className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500">
+                <h4 className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-muted">
                   <CreditCard className="h-3.5 w-3.5" />
                   Lịch sử thanh toán ({selectedBooking.payments?.length || 0})
                 </h4>
@@ -875,7 +902,7 @@ export default function AdminTourBookingsPage() {
                     size="sm"
                     variant="outline"
                     onClick={() => openPaymentDialog(selectedBooking)}
-                    className="h-7 text-xs gap-1"
+                    className="h-7 text-xs gap-1 border-accent/30 text-accent hover:bg-accent-bg"
                   >
                     <Plus className="h-3 w-3" />
                     Thêm khoản thu
@@ -884,8 +911,8 @@ export default function AdminTourBookingsPage() {
               </div>
 
               {selectedBooking.payments && selectedBooking.payments.length > 0 ? (
-                <div className="divide-y divide-slate-100 overflow-hidden rounded-md border border-slate-200 text-xs dark:divide-slate-800 dark:border-slate-800">
-                  <div className="grid grid-cols-4 bg-slate-50 p-2 font-semibold text-slate-600 dark:bg-slate-900 dark:text-slate-400">
+                <div className="divide-y divide-line/60 overflow-hidden rounded-md border border-line text-xs">
+                  <div className="grid grid-cols-4 bg-surface-2 p-2 font-semibold text-fg-2">
                     <span>Mã thanh toán</span>
                     <span>Số tiền</span>
                     <span>Phương thức</span>
@@ -894,27 +921,23 @@ export default function AdminTourBookingsPage() {
                   {selectedBooking.payments.map((p) => (
                     <div
                       key={p.id}
-                      className="grid grid-cols-4 p-2 items-center text-slate-700 dark:text-slate-300"
+                      className="grid grid-cols-4 p-2 items-center text-fg hover:bg-hover/30"
                     >
-                      <span className="font-mono font-medium text-emerald-600 dark:text-emerald-400">
-                        {p.code}
-                      </span>
-                      <span className="font-semibold text-slate-900 dark:text-slate-100">
-                        {formatMoney(p.amount)}
-                      </span>
+                      <span className="font-mono font-medium text-accent">{p.code}</span>
+                      <span className="font-semibold text-fg">{formatMoney(p.amount)}</span>
                       <span>{PAYMENT_METHOD_LABELS[p.method] || p.method}</span>
-                      <span className="text-slate-500">{formatVietnamDateTime(p.createdAt)}</span>
+                      <span className="text-muted">{formatVietnamDateTime(p.createdAt)}</span>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-center py-4 text-xs text-slate-400 italic">
+                <p className="text-center py-4 text-xs text-muted italic">
                   Chưa có giao dịch thu tiền nào cho đặt chỗ này.
                 </p>
               )}
             </div>
 
-            <div className="flex justify-end pt-4 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex justify-end pt-4 border-t border-line">
               <Button type="button" variant="outline" onClick={() => setSelectedBooking(null)}>
                 Đóng
               </Button>
@@ -936,14 +959,14 @@ export default function AdminTourBookingsPage() {
       >
         <form onSubmit={handlePaymentSubmit} className="space-y-4 py-2">
           {paymentError && (
-            <div className="rounded-md bg-red-50 p-3 text-xs text-red-600 dark:bg-red-950/50 dark:text-red-400">
+            <div className="rounded-md border border-crit/20 bg-crit-bg p-3 text-xs text-crit">
               {paymentError}
             </div>
           )}
 
           <div className="space-y-1">
             <Label htmlFor="pay-amount">
-              Số tiền thu <span className="text-red-500">*</span>
+              Số tiền thu <span className="text-crit">*</span>
             </Label>
             <MoneyInput
               id="pay-amount"
@@ -955,7 +978,7 @@ export default function AdminTourBookingsPage() {
 
           <div className="space-y-1">
             <Label htmlFor="pay-method">
-              Hình thức thanh toán <span className="text-red-500">*</span>
+              Hình thức thanh toán <span className="text-crit">*</span>
             </Label>
             <Select
               value={paymentMethod}
@@ -983,7 +1006,7 @@ export default function AdminTourBookingsPage() {
             />
           </div>
 
-          <div className="flex justify-end gap-2 pt-4 border-t border-slate-100 dark:border-slate-800">
+          <div className="flex justify-end gap-2 pt-4 border-t border-line">
             <Button
               type="button"
               variant="outline"
@@ -992,11 +1015,7 @@ export default function AdminTourBookingsPage() {
             >
               Hủy
             </Button>
-            <Button
-              type="submit"
-              disabled={isSubmittingPayment}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white"
-            >
+            <Button type="submit" disabled={isSubmittingPayment}>
               {isSubmittingPayment ? 'Đang xử lý...' : 'Xác nhận thu tiền'}
             </Button>
           </div>

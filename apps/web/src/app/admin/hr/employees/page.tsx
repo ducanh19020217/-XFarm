@@ -17,7 +17,7 @@ import {
   SelectValue,
   Badge,
 } from '@xfarm/ui';
-import { Plus, Edit2, Lock, Unlock, Link2, UserCheck } from 'lucide-react';
+import { Plus, Edit2, Lock, Unlock, Link2, UserCheck, Users } from 'lucide-react';
 import { PayType, PAY_TYPE_LABELS, type CreateEmployeeInput, type Paginated } from '@xfarm/shared';
 import { apiFetch, ApiError, isAbortError } from '@/lib/api';
 import { useAdminUser } from '../../admin-user-context';
@@ -124,41 +124,39 @@ export default function EmployeesPage() {
     }
   };
 
+  const activeCount = React.useMemo(() => employees.filter((e) => e.isActive).length, [employees]);
+  const inactiveCount = React.useMemo(
+    () => employees.filter((e) => !e.isActive).length,
+    [employees],
+  );
+
   const columns: ColumnDef<EmployeeItem>[] = React.useMemo(
     () => [
       {
         accessorKey: 'code',
         header: 'Mã NV',
-        cell: ({ row }) => (
-          <span className="font-semibold text-emerald-700 dark:text-emerald-400">
-            {row.original.code}
-          </span>
-        ),
+        cell: ({ row }) => <span className="font-semibold text-accent">{row.original.code}</span>,
       },
       {
         accessorKey: 'fullName',
         header: 'Họ và tên',
         cell: ({ row }) => (
           <div>
-            <div className="font-medium text-slate-900 dark:text-slate-100">
-              {row.original.fullName}
-            </div>
-            {row.original.phone && (
-              <div className="text-xs text-slate-500">{row.original.phone}</div>
-            )}
+            <div className="font-medium text-fg">{row.original.fullName}</div>
+            {row.original.phone && <div className="text-xs text-muted">{row.original.phone}</div>}
           </div>
         ),
       },
       {
         accessorKey: 'position',
         header: 'Vị trí',
-        cell: ({ row }) => row.original.position,
+        cell: ({ row }) => <span className="text-fg">{row.original.position}</span>,
       },
       {
         accessorKey: 'payType',
         header: 'Hình thức lương',
         cell: ({ row }) => (
-          <Badge variant="outline" className="font-normal">
+          <Badge variant="outline" className="font-normal border-line text-fg-2">
             {PAY_TYPE_LABELS[row.original.payType] || row.original.payType}
           </Badge>
         ),
@@ -167,9 +165,7 @@ export default function EmployeesPage() {
         accessorKey: 'baseRate',
         header: 'Lương cơ bản',
         cell: ({ row }) => (
-          <span className="font-medium text-slate-800 dark:text-slate-200">
-            {formatCurrency(row.original.baseRate)}
-          </span>
+          <span className="font-medium text-fg">{formatCurrency(row.original.baseRate)}</span>
         ),
       },
       {
@@ -178,10 +174,10 @@ export default function EmployeesPage() {
         cell: ({ row }) => {
           const linked = row.original.users?.[0];
           if (!linked) {
-            return <span className="text-xs text-slate-400">Chưa liên kết</span>;
+            return <span className="text-xs text-muted">Chưa liên kết</span>;
           }
           return (
-            <div className="flex items-center gap-1.5 text-xs text-emerald-700 dark:text-emerald-400">
+            <div className="flex items-center gap-1.5 text-xs text-accent">
               <UserCheck className="h-3.5 w-3.5" />
               <span>{linked.email}</span>
             </div>
@@ -210,6 +206,7 @@ export default function EmployeesPage() {
                         setFormOpen(true);
                       }}
                       title="Chỉnh sửa"
+                      className="text-muted hover:text-fg hover:bg-hover"
                     >
                       <Edit2 className="h-4 w-4" />
                     </Button>
@@ -218,6 +215,7 @@ export default function EmployeesPage() {
                       size="sm"
                       onClick={() => setLinkEmployee(emp)}
                       title="Liên kết tài khoản người dùng"
+                      className="text-muted hover:text-fg hover:bg-hover"
                     >
                       <Link2 className="h-4 w-4" />
                     </Button>
@@ -226,7 +224,9 @@ export default function EmployeesPage() {
                       size="sm"
                       onClick={() => setLockEmployee(emp)}
                       title={emp.isActive ? 'Khóa nhân viên' : 'Mở khóa nhân viên'}
-                      className={emp.isActive ? 'text-amber-600' : 'text-emerald-600'}
+                      className={
+                        emp.isActive ? 'text-warn hover:bg-warn-bg' : 'text-ok hover:bg-ok-bg'
+                      }
                     >
                       {emp.isActive ? <Lock className="h-4 w-4" /> : <Unlock className="h-4 w-4" />}
                     </Button>
@@ -261,6 +261,40 @@ export default function EmployeesPage() {
         )}
       </PageHeader>
 
+      {/* KPI Stats Cards */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="flex items-center gap-3.5 rounded-xl border border-line bg-surface p-4 shadow-xs text-fg">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent-bg text-accent">
+            <Users className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-xs font-medium text-muted">Tổng nhân viên</p>
+            <p className="text-xl font-bold text-fg">{total} người</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3.5 rounded-xl border border-line bg-surface p-4 shadow-xs text-fg">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-ok-bg text-ok">
+            <UserCheck className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-xs font-medium text-muted">Đang hoạt động</p>
+            <p className="text-xl font-bold text-fg">{activeCount} người</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3.5 rounded-xl border border-line bg-surface p-4 shadow-xs text-fg">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-warn-bg text-warn">
+            <Lock className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-xs font-medium text-muted">Tạm khóa</p>
+            <p className="text-xl font-bold text-fg">{inactiveCount} người</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Compact Filters Bar */}
       <div className="flex flex-wrap items-center gap-3">
         <div className="w-48">
           <Select

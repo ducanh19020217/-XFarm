@@ -124,14 +124,14 @@ export function TaskFormDialog({
     >
       <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
         {formError && (
-          <div className="rounded-md bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/50 dark:text-red-400">
+          <div className="rounded-md border border-crit/20 bg-crit-bg p-3 text-sm text-crit">
             {formError}
           </div>
         )}
 
         <div className="space-y-1">
           <Label htmlFor="title">
-            Tiêu đề công việc <span className="text-red-500">*</span>
+            Tiêu đề công việc <span className="text-crit">*</span>
           </Label>
           <Input
             id="title"
@@ -139,7 +139,7 @@ export function TaskFormDialog({
             disabled={submitting}
             {...register('title')}
           />
-          {errors.title && <p className="text-xs text-red-500">{errors.title.message}</p>}
+          {errors.title && <p className="text-xs text-crit">{errors.title.message}</p>}
         </div>
 
         <div className="space-y-1">
@@ -149,18 +149,16 @@ export function TaskFormDialog({
             rows={3}
             placeholder="Mô tả công việc, lưu ý an toàn, vật tư cần dùng..."
             disabled={submitting}
-            className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex w-full rounded-md border border-line bg-surface px-3 py-2 text-sm text-fg shadow-xs transition-colors placeholder:text-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent disabled:cursor-not-allowed disabled:opacity-50"
             {...register('description')}
           />
-          {errors.description && (
-            <p className="text-xs text-red-500">{errors.description.message}</p>
-          )}
+          {errors.description && <p className="text-xs text-crit">{errors.description.message}</p>}
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="space-y-1">
             <Label htmlFor="assigneeId">
-              Nhân viên thực hiện <span className="text-red-500">*</span>
+              Nhân viên thực hiện <span className="text-crit">*</span>
             </Label>
             <Controller
               name="assigneeId"
@@ -180,14 +178,12 @@ export function TaskFormDialog({
                 </Select>
               )}
             />
-            {errors.assigneeId && (
-              <p className="text-xs text-red-500">{errors.assigneeId.message}</p>
-            )}
+            {errors.assigneeId && <p className="text-xs text-crit">{errors.assigneeId.message}</p>}
           </div>
 
           <div className="space-y-1">
             <Label htmlFor="dueDate">
-              Hạn hoàn thành <span className="text-red-500">*</span>
+              Hạn hoàn thành <span className="text-crit">*</span>
             </Label>
             <Controller
               name="dueDate"
@@ -205,13 +201,13 @@ export function TaskFormDialog({
                 />
               )}
             />
-            {errors.dueDate && <p className="text-xs text-red-500">{errors.dueDate.message}</p>}
+            {errors.dueDate && <p className="text-xs text-crit">{errors.dueDate.message}</p>}
           </div>
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="space-y-1">
-            <Label htmlFor="areaId">Khu / Lô</Label>
+            <Label htmlFor="areaId">Khu/lô nông trại (nếu có)</Label>
             <Controller
               name="areaId"
               control={control}
@@ -222,10 +218,12 @@ export function TaskFormDialog({
                   disabled={submitting}
                 >
                   <SelectTrigger id="areaId">
-                    <SelectValue placeholder="Chọn khu / lô (tùy chọn)" />
+                    <SelectValue placeholder="Chọn khu/lô..." />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">-- Không chọn --</SelectItem>
+                    <SelectItem value="none">
+                      <span className="text-muted">(Không gắn khu/lô)</span>
+                    </SelectItem>
                     {areas.map((a) => (
                       <SelectItem key={a.id} value={a.id}>
                         {a.name}
@@ -235,11 +233,10 @@ export function TaskFormDialog({
                 </Select>
               )}
             />
-            {errors.areaId && <p className="text-xs text-red-500">{errors.areaId.message}</p>}
           </div>
 
           <div className="space-y-1">
-            <Label htmlFor="cycleId">Mùa vụ</Label>
+            <Label htmlFor="cycleId">Mùa vụ (nếu có)</Label>
             <Controller
               name="cycleId"
               control={control}
@@ -250,10 +247,12 @@ export function TaskFormDialog({
                   disabled={submitting}
                 >
                   <SelectTrigger id="cycleId">
-                    <SelectValue placeholder="Chọn mùa vụ (tùy chọn)" />
+                    <SelectValue placeholder="Chọn mùa vụ..." />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">-- Không chọn --</SelectItem>
+                    <SelectItem value="none">
+                      <span className="text-muted">(Không gắn mùa vụ)</span>
+                    </SelectItem>
                     {cycles.map((c) => (
                       <SelectItem key={c.id} value={c.id}>
                         {c.name}
@@ -263,7 +262,6 @@ export function TaskFormDialog({
                 </Select>
               )}
             />
-            {errors.cycleId && <p className="text-xs text-red-500">{errors.cycleId.message}</p>}
           </div>
         </div>
 

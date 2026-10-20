@@ -42,11 +42,9 @@ export function TaskTable({
         header: 'Công việc',
         cell: ({ row }) => (
           <div>
-            <div className="font-semibold text-slate-900 dark:text-slate-100">
-              {row.original.title}
-            </div>
+            <div className="font-semibold text-fg">{row.original.title}</div>
             {row.original.description && (
-              <div className="text-xs text-slate-500 line-clamp-1">{row.original.description}</div>
+              <div className="text-xs text-muted line-clamp-1">{row.original.description}</div>
             )}
           </div>
         ),
@@ -56,11 +54,11 @@ export function TaskTable({
         header: 'Người thực hiện',
         cell: ({ row }) => {
           const emp = row.original.assignee;
-          if (!emp) return '-';
+          if (!emp) return <span className="text-muted">-</span>;
           return (
             <div>
-              <span className="font-medium text-slate-800 dark:text-slate-200">{emp.fullName}</span>
-              <span className="ml-1 text-xs text-slate-400">({emp.code})</span>
+              <span className="font-medium text-fg">{emp.fullName}</span>
+              <span className="ml-1 text-xs text-muted">({emp.code})</span>
             </div>
           );
         },
@@ -74,18 +72,18 @@ export function TaskTable({
           return (
             <div className="flex flex-col gap-1 text-xs">
               {area && (
-                <div className="flex items-center gap-1 text-slate-600 dark:text-slate-300">
-                  <MapPin className="h-3 w-3 text-slate-400" />
+                <div className="flex items-center gap-1 text-fg-2">
+                  <MapPin className="h-3 w-3 text-muted" />
                   <span>{area.name}</span>
                 </div>
               )}
               {cycle && (
-                <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+                <div className="flex items-center gap-1 text-accent">
                   <Sprout className="h-3 w-3" />
                   <span>{cycle.name}</span>
                 </div>
               )}
-              {!area && !cycle && <span className="text-slate-400">-</span>}
+              {!area && !cycle && <span className="text-muted">-</span>}
             </div>
           );
         },
@@ -102,14 +100,15 @@ export function TaskTable({
 
           return (
             <div className="flex items-center gap-1.5">
-              <Clock className={`h-3.5 w-3.5 ${isOverdue ? 'text-red-500' : 'text-slate-400'}`} />
-              <span
-                className={`text-xs ${isOverdue ? 'font-semibold text-red-600' : 'text-slate-600 dark:text-slate-300'}`}
-              >
+              <Clock className={`h-3.5 w-3.5 ${isOverdue ? 'text-crit' : 'text-muted'}`} />
+              <span className={`text-xs ${isOverdue ? 'font-semibold text-crit' : 'text-muted'}`}>
                 {formatDateTime(row.original.dueDate)}
               </span>
               {isOverdue && (
-                <Badge variant="destructive" className="text-[10px] px-1 py-0">
+                <Badge
+                  variant="destructive"
+                  className="text-[10px] px-1 py-0 bg-crit-bg text-crit border-crit/20"
+                >
                   Quá hạn
                 </Badge>
               )}
@@ -136,7 +135,7 @@ export function TaskTable({
                         variant="outline"
                         size="sm"
                         onClick={() => onStatusChange(t, TaskStatus.IN_PROGRESS)}
-                        className="h-7 text-xs"
+                        className="h-7 text-xs border-info/30 text-info hover:bg-info-bg"
                       >
                         Bắt đầu
                       </Button>
@@ -146,7 +145,7 @@ export function TaskTable({
                         variant="outline"
                         size="sm"
                         onClick={() => onStatusChange(t, TaskStatus.DONE)}
-                        className="h-7 text-xs text-emerald-600 hover:text-emerald-700"
+                        className="h-7 text-xs border-ok/30 text-ok hover:bg-ok-bg"
                       >
                         <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
                         Xong
@@ -156,7 +155,7 @@ export function TaskTable({
                       variant="ghost"
                       size="sm"
                       onClick={() => onEdit(t)}
-                      className="h-7 w-7 p-0"
+                      className="h-7 w-7 p-0 text-muted hover:text-fg hover:bg-hover"
                       title="Sửa"
                     >
                       <Edit2 className="h-4 w-4" />

@@ -48,25 +48,21 @@ export function PayrollDetailsDialog({ open, onOpenChange, payroll }: PayrollDet
     >
       <div className="space-y-4">
         {/* Info summary */}
-        <div className="grid grid-cols-2 gap-4 rounded-lg bg-slate-50 p-3 text-sm dark:bg-slate-900 sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 rounded-lg bg-surface-2 p-3 text-sm text-fg border border-line sm:grid-cols-4">
           <div>
-            <span className="text-xs text-slate-500">Mã NV:</span>
-            <p className="font-semibold text-slate-800 dark:text-slate-200">{emp?.code}</p>
+            <span className="text-xs text-muted">Mã NV:</span>
+            <p className="font-semibold text-fg">{emp?.code}</p>
           </div>
           <div>
-            <span className="text-xs text-slate-500">Hình thức:</span>
-            <p className="font-semibold text-slate-800 dark:text-slate-200">
-              {getPayTypeLabel(emp?.payType || '')}
-            </p>
+            <span className="text-xs text-muted">Hình thức:</span>
+            <p className="font-semibold text-fg">{getPayTypeLabel(emp?.payType || '')}</p>
           </div>
           <div>
-            <span className="text-xs text-slate-500">Lương cơ sở:</span>
-            <p className="font-semibold text-slate-800 dark:text-slate-200">
-              {formatCurrency(emp?.baseRate)}
-            </p>
+            <span className="text-xs text-muted">Lương cơ sở:</span>
+            <p className="font-semibold text-fg">{formatCurrency(emp?.baseRate)}</p>
           </div>
           <div>
-            <span className="text-xs text-slate-500">Trạng thái:</span>
+            <span className="text-xs text-muted">Trạng thái:</span>
             <div>
               <StatusBadge status={payroll.status} />
             </div>
@@ -74,46 +70,38 @@ export function PayrollDetailsDialog({ open, onOpenChange, payroll }: PayrollDet
         </div>
 
         {/* Calculation summary */}
-        <div className="rounded-lg border border-slate-200 p-3 text-sm dark:border-slate-800">
-          <h4 className="font-semibold text-slate-800 dark:text-slate-200 mb-2">
-            Công thức & Tổng hợp kỳ:
-          </h4>
+        <div className="rounded-lg border border-line p-3 text-sm text-fg bg-surface">
+          <h4 className="font-semibold text-fg mb-2">Công thức & Tổng hợp kỳ:</h4>
           <div className="grid grid-cols-1 gap-2 text-xs sm:grid-cols-3">
             {details.days !== undefined && (
               <div>
-                <span className="text-slate-500">Số ngày công: </span>
-                <span className="font-semibold text-slate-900 dark:text-slate-100">
-                  {details.days} ngày
-                </span>
+                <span className="text-muted">Số ngày công: </span>
+                <span className="font-semibold text-fg">{details.days} ngày</span>
               </div>
             )}
             {details.actualDays !== undefined && (
               <div>
-                <span className="text-slate-500">Ngày công thực tế: </span>
-                <span className="font-semibold text-slate-900 dark:text-slate-100">
+                <span className="text-muted">Ngày công thực tế: </span>
+                <span className="font-semibold text-fg">
                   {details.actualDays} / {details.standardDays || 26} ngày chuẩn
                 </span>
               </div>
             )}
             {details.hours !== undefined && (
               <div>
-                <span className="text-slate-500">Tổng số giờ làm: </span>
-                <span className="font-semibold text-slate-900 dark:text-slate-100">
-                  {details.hours} giờ
-                </span>
+                <span className="text-muted">Tổng số giờ làm: </span>
+                <span className="font-semibold text-fg">{details.hours} giờ</span>
               </div>
             )}
             {details.pieceQty !== undefined && (
               <div>
-                <span className="text-slate-500">Số lượng sản phẩm: </span>
-                <span className="font-semibold text-slate-900 dark:text-slate-100">
-                  {details.pieceQty} SP
-                </span>
+                <span className="text-muted">Số lượng sản phẩm: </span>
+                <span className="font-semibold text-fg">{details.pieceQty} SP</span>
               </div>
             )}
             <div>
-              <span className="text-slate-500">Tổng thành tiền: </span>
-              <span className="font-bold text-emerald-700 dark:text-emerald-400 text-sm">
+              <span className="text-muted">Tổng thành tiền: </span>
+              <span className="font-bold text-accent text-sm">
                 {formatCurrency(payroll.amount)}
               </span>
             </div>
@@ -122,18 +110,18 @@ export function PayrollDetailsDialog({ open, onOpenChange, payroll }: PayrollDet
 
         {/* Breakdown table */}
         <div>
-          <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-2">
+          <h4 className="font-semibold text-sm text-fg mb-2">
             Chi tiết từng ngày ({breakdown.length} ngày ghi nhận):
           </h4>
 
           {breakdown.length === 0 ? (
-            <p className="text-xs text-slate-500 italic py-2">
+            <p className="text-xs text-muted italic py-2">
               Không có dữ liệu chi tiết từng ngày hoặc bảng lương được tính gộp.
             </p>
           ) : (
-            <div className="max-h-60 overflow-y-auto rounded-lg border border-slate-200 dark:border-slate-800">
+            <div className="max-h-60 overflow-y-auto rounded-lg border border-line bg-surface">
               <table className="w-full text-left text-xs">
-                <thead className="bg-slate-50 text-slate-700 dark:bg-slate-900 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800 sticky top-0">
+                <thead className="bg-surface-2 text-fg-2 border-b border-line sticky top-0">
                   <tr>
                     <th className="p-2 font-semibold">Ngày</th>
                     <th className="p-2 font-semibold">Mùa vụ</th>
@@ -142,20 +130,20 @@ export function PayrollDetailsDialog({ open, onOpenChange, payroll }: PayrollDet
                     <th className="p-2 text-right font-semibold">Thành tiền</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                <tbody className="divide-y divide-line/60">
                   {breakdown.map((row, idx) => (
-                    <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/40">
-                      <td className="p-2 font-medium">{formatDate(row.date)}</td>
-                      <td className="p-2 text-slate-500">
+                    <tr key={idx} className="hover:bg-hover/30">
+                      <td className="p-2 font-medium text-fg">{formatDate(row.date)}</td>
+                      <td className="p-2 text-muted">
                         {row.cycle || row.cycleName || row.cycleId || '-'}
                       </td>
-                      <td className="p-2 text-center">
+                      <td className="p-2 text-center text-fg">
                         {row.hours !== undefined ? `${row.hours}h` : '-'}
                       </td>
-                      <td className="p-2 text-center">
+                      <td className="p-2 text-center text-fg">
                         {row.pieceQty !== undefined ? row.pieceQty : '-'}
                       </td>
-                      <td className="p-2 text-right font-semibold text-emerald-700 dark:text-emerald-400">
+                      <td className="p-2 text-right font-semibold text-accent">
                         {formatCurrency(row.amount)}
                       </td>
                     </tr>

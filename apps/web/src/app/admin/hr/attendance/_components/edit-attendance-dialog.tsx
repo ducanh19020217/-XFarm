@@ -181,7 +181,7 @@ export function EditAttendanceDialog({
     >
       <form noValidate onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div className="rounded-md bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/50 dark:text-red-400">
+          <div className="rounded-md border border-crit/20 bg-crit-bg p-3 text-sm text-crit">
             {error}
           </div>
         )}
@@ -189,7 +189,7 @@ export function EditAttendanceDialog({
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div className="space-y-1">
             <Label htmlFor="hours">
-              Số giờ công <span className="text-red-500">*</span>
+              Số giờ công <span className="text-crit">*</span>
             </Label>
             <Input
               id="hours"
@@ -206,7 +206,7 @@ export function EditAttendanceDialog({
               required
             />
             {fieldErrors.hours && (
-              <p className="text-xs text-red-500 font-medium">{fieldErrors.hours}</p>
+              <p className="text-xs text-crit font-medium">{fieldErrors.hours}</p>
             )}
           </div>
 
@@ -220,7 +220,7 @@ export function EditAttendanceDialog({
               disabled={submitting}
             />
             {fieldErrors.checkIn && (
-              <p className="text-xs text-red-500 font-medium">{fieldErrors.checkIn}</p>
+              <p className="text-xs text-crit font-medium">{fieldErrors.checkIn}</p>
             )}
           </div>
 
@@ -234,7 +234,7 @@ export function EditAttendanceDialog({
               disabled={submitting}
             />
             {fieldErrors.checkOut && (
-              <p className="text-xs text-red-500 font-medium">{fieldErrors.checkOut}</p>
+              <p className="text-xs text-crit font-medium">{fieldErrors.checkOut}</p>
             )}
           </div>
         </div>
@@ -255,9 +255,9 @@ export function EditAttendanceDialog({
                 ))}
               </SelectContent>
             </Select>
-            <p className="text-[11px] text-slate-400">Gắn vào mùa vụ để tính chi phí công</p>
+            <p className="text-[11px] text-muted">Gắn vào mùa vụ để tính chi phí công</p>
             {fieldErrors.cycleId && (
-              <p className="text-xs text-red-500 font-medium">{fieldErrors.cycleId}</p>
+              <p className="text-xs text-crit font-medium">{fieldErrors.cycleId}</p>
             )}
           </div>
 
@@ -276,11 +276,9 @@ export function EditAttendanceDialog({
               }}
               disabled={submitting}
             />
-            <p className="text-[11px] text-slate-400">
-              Dành cho nhân viên hưởng lương theo sản phẩm
-            </p>
+            <p className="text-[11px] text-muted">Dành cho nhân viên hưởng lương theo sản phẩm</p>
             {fieldErrors.pieceQty && (
-              <p className="text-xs text-red-500 font-medium">{fieldErrors.pieceQty}</p>
+              <p className="text-xs text-crit font-medium">{fieldErrors.pieceQty}</p>
             )}
           </div>
         </div>
@@ -295,7 +293,7 @@ export function EditAttendanceDialog({
             disabled={submitting}
           />
           {fieldErrors.notes && (
-            <p className="text-xs text-red-500 font-medium">{fieldErrors.notes}</p>
+            <p className="text-xs text-crit font-medium">{fieldErrors.notes}</p>
           )}
         </div>
 

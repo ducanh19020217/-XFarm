@@ -64,13 +64,13 @@ export const MoneyInput = React.forwardRef<HTMLInputElement, MoneyInputProps>(
           disabled={disabled}
           placeholder={placeholder}
           className={cn(
-            'flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 pr-8 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 text-right',
-            error && 'border-red-500 focus-visible:ring-red-500',
+            'flex h-9 w-full rounded-md border border-line bg-surface px-3 py-1 pr-8 text-sm text-fg shadow-xs transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent disabled:cursor-not-allowed disabled:opacity-50 text-right',
+            error && 'border-crit focus-visible:ring-crit',
             className,
           )}
           {...props}
         />
-        <span className="pointer-events-none absolute right-3 text-sm text-slate-500 dark:text-slate-400">
+        <span className="pointer-events-none absolute right-3 text-sm text-muted">
           {currencySuffix}
         </span>
       </div>

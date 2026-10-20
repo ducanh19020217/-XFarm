@@ -11,6 +11,9 @@ import {
   Loader2,
   PackageSearch,
   Sprout,
+  TrendingDown,
+  TrendingUp,
+  Minus,
 } from 'lucide-react';
 import {
   Bar,
@@ -26,6 +29,7 @@ import {
 } from 'recharts';
 import { PageHeader } from '@xfarm/ui';
 import { apiFetch, isAbortError } from '@/lib/api';
+import { useChartColors } from '@/lib/chart-colors';
 import { useAdminUser } from './admin-user-context';
 
 type Summary = {
@@ -37,6 +41,7 @@ type Summary = {
   overdueTasks: number;
   unreadAlerts: number;
 };
+
 type Charts = {
   months: Array<{ month: string; revenue: string; expense: string }>;
   production: Array<{
@@ -47,6 +52,7 @@ type Charts = {
     unit: string;
   }>;
 };
+
 const emptySummary: Summary = {
   activeCycles: 0,
   lowStockItems: 0,
@@ -56,45 +62,104 @@ const emptySummary: Summary = {
   overdueTasks: 0,
   unreadAlerts: 0,
 };
+
 const money = new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 0 });
 const quantity = new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 3 });
+const compactCurrency = new Intl.NumberFormat('vi-VN', {
+  notation: 'compact',
+  maximumFractionDigits: 1,
+});
 
-function KpiCard({
-  href,
-  label,
-  value,
-  icon: Icon,
-  tone,
-}: {
+interface KpiCardProps {
   href: string;
   label: string;
   value: string | number;
   icon: React.ElementType;
   tone: string;
-}) {
+  trend?: {
+    label: string;
+    direction?: 'up' | 'down' | 'neutral';
+    isGood?: boolean;
+  };
+}
+
+function KpiCard({ href, label, value, icon: Icon, tone, trend }: KpiCardProps) {
   return (
     <Link
       href={href}
-      className="group rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-950"
+      className="group flex flex-col justify-between rounded-xl border border-line bg-surface p-5 shadow-xs transition hover:-translate-y-0.5 hover:border-accent hover:bg-hover/30"
     >
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-sm text-slate-500 dark:text-slate-400">{label}</p>
-          <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-slate-100">{value}</p>
+      <div>
+        <div className="flex items-start justify-between gap-3">
+          <p className="text-sm font-medium text-muted">{label}</p>
+          <span className={`rounded-lg p-2.5 ${tone}`}>
+            <Icon className="h-5 w-5" />
+          </span>
         </div>
-        <span className={`rounded-lg p-2.5 ${tone}`}>
-          <Icon className="h-5 w-5" />
+        <p className="mt-2 text-2xl font-bold tracking-tight text-fg">{value}</p>
+      </div>
+
+      <div className="mt-4 flex items-center justify-between border-t border-line/60 pt-3">
+        {trend ? (
+          <div className="flex items-center gap-1.5 text-xs">
+            {trend.direction === 'up' && (
+              <span
+                className={`inline-flex items-center gap-0.5 font-medium ${
+                  trend.isGood ? 'text-ok' : 'text-crit'
+                }`}
+              >
+                <TrendingUp className="h-3.5 w-3.5" />
+                {trend.label}
+              </span>
+            )}
+            {trend.direction === 'down' && (
+              <span
+                className={`inline-flex items-center gap-0.5 font-medium ${
+                  trend.isGood ? 'text-ok' : 'text-crit'
+                }`}
+              >
+                <TrendingDown className="h-3.5 w-3.5" />
+                {trend.label}
+              </span>
+            )}
+            {trend.direction === 'neutral' && (
+              <span
+                className={`inline-flex items-center gap-0.5 font-medium ${
+                  trend.isGood ? 'text-ok' : 'text-muted'
+                }`}
+              >
+                <Minus className="h-3.5 w-3.5" />
+                {trend.label}
+              </span>
+            )}
+            {!trend.direction && (
+              <span
+                className={`inline-flex items-center gap-0.5 font-medium ${
+                  trend.isGood === true
+                    ? 'text-ok'
+                    : trend.isGood === false
+                      ? 'text-crit'
+                      : 'text-muted'
+                }`}
+              >
+                {trend.label}
+              </span>
+            )}
+          </div>
+        ) : (
+          <span />
+        )}
+        <span className="text-xs font-medium text-accent opacity-0 transition group-hover:opacity-100">
+          Chi tiết →
         </span>
       </div>
-      <p className="mt-4 text-xs font-medium text-emerald-600 opacity-0 transition group-hover:opacity-100">
-        Xem chi tiết →
-      </p>
     </Link>
   );
 }
 
 export default function AdminDashboardPage() {
   const user = useAdminUser();
+  const colors = useChartColors();
   const [summary, setSummary] = React.useState<Summary>(emptySummary);
   const [charts, setCharts] = React.useState<Charts>({ months: [], production: [] });
   const [loading, setLoading] = React.useState(true);
@@ -129,6 +194,46 @@ export default function AdminDashboardPage() {
     quantityValue: Number(item.quantity),
   }));
 
+  const revenueTrend = React.useMemo(() => {
+    if (!charts.months || charts.months.length < 2) {
+      return { label: 'Chưa có dữ liệu tháng trước', direction: 'neutral' as const };
+    }
+    const currentMonthItem = charts.months[charts.months.length - 1];
+    const prevMonthItem = charts.months[charts.months.length - 2];
+
+    const currentRevenue = Number(summary.revenueThisMonth || currentMonthItem?.revenue || 0);
+    const prevRevenue = Number(prevMonthItem?.revenue || 0);
+
+    if (prevRevenue <= 0) {
+      return { label: 'Chưa có dữ liệu tháng trước', direction: 'neutral' as const };
+    }
+
+    const diff = currentRevenue - prevRevenue;
+    const pct = (diff / prevRevenue) * 100;
+    const formattedPct = `${pct > 0 ? '+' : ''}${pct.toLocaleString('vi-VN', {
+      maximumFractionDigits: 1,
+    })}%`;
+
+    if (pct > 0) {
+      return {
+        label: `${formattedPct} so với tháng trước`,
+        direction: 'up' as const,
+        isGood: true,
+      };
+    } else if (pct < 0) {
+      return {
+        label: `${formattedPct} so với tháng trước`,
+        direction: 'down' as const,
+        isGood: false,
+      };
+    } else {
+      return {
+        label: '0% so với tháng trước',
+        direction: 'neutral' as const,
+      };
+    }
+  }, [charts.months, summary.revenueThisMonth]);
+
   return (
     <div className="space-y-6" data-testid="dashboard-page">
       <PageHeader
@@ -136,24 +241,25 @@ export default function AdminDashboardPage() {
         description="Theo dõi nhanh hoạt động và hiệu quả vận hành trang trại"
       />
       {loading ? (
-        <div className="flex items-center justify-center rounded-xl border border-slate-200 bg-white py-20 text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-950">
-          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+        <div className="flex items-center justify-center rounded-xl border border-line bg-surface py-20 text-sm text-muted shadow-xs">
+          <Loader2 className="mr-2 h-5 w-5 animate-spin text-accent" />
           Đang tải dashboard...
         </div>
       ) : error ? (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-5 text-sm text-red-700">
+        <div className="rounded-xl border border-crit/20 bg-crit-bg p-5 text-sm text-crit">
           {error}
         </div>
       ) : (
         <>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {/* KPI Grid: 1 col on mobile, 2 cols on tablet, 4 cols on desktop */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {!isSales && (
               <KpiCard
                 href="/admin/cycles"
                 label="Mùa vụ đang chạy"
                 value={summary.activeCycles}
                 icon={Sprout}
-                tone="bg-emerald-100 text-emerald-600"
+                tone="bg-accent-bg text-accent"
               />
             )}
             <KpiCard
@@ -161,14 +267,15 @@ export default function AdminDashboardPage() {
               label="Doanh thu tháng này"
               value={`${money.format(Number(summary.revenueThisMonth))} ₫`}
               icon={CircleDollarSign}
-              tone="bg-blue-100 text-blue-600"
+              tone="bg-info-bg text-info"
+              trend={revenueTrend}
             />
             <KpiCard
               href="/admin/tours/bookings"
               label="Booking 7 ngày tới"
               value={summary.upcomingBookings}
               icon={CalendarDays}
-              tone="bg-violet-100 text-violet-600"
+              tone="bg-chip text-chip-text"
             />
             {!isSales && (
               <KpiCard
@@ -176,7 +283,12 @@ export default function AdminDashboardPage() {
                 label="Mặt hàng dưới minStock"
                 value={summary.lowStockItems}
                 icon={PackageSearch}
-                tone="bg-amber-100 text-amber-600"
+                tone="bg-warn-bg text-warn"
+                trend={
+                  summary.lowStockItems > 0
+                    ? { label: 'Cần bổ sung kho', isGood: false }
+                    : { label: 'Kho ổn định', direction: 'neutral', isGood: true }
+                }
               />
             )}
             {!isSales && (
@@ -185,7 +297,12 @@ export default function AdminDashboardPage() {
                 label="Lô sắp hết hạn"
                 value={summary.expiringLots}
                 icon={Clock3}
-                tone="bg-orange-100 text-orange-600"
+                tone="bg-warn-bg text-warn"
+                trend={
+                  summary.expiringLots > 0
+                    ? { label: 'Hết hạn trong 7 ngày', isGood: false }
+                    : undefined
+                }
               />
             )}
             {!isSales && (
@@ -194,7 +311,12 @@ export default function AdminDashboardPage() {
                 label="Task quá hạn"
                 value={summary.overdueTasks}
                 icon={CheckSquare}
-                tone="bg-red-100 text-red-600"
+                tone="bg-crit-bg text-crit"
+                trend={
+                  summary.overdueTasks > 0
+                    ? { label: 'Cần xử lý gấp', isGood: false }
+                    : { label: 'Đúng tiến độ', direction: 'neutral', isGood: true }
+                }
               />
             )}
             <KpiCard
@@ -202,34 +324,54 @@ export default function AdminDashboardPage() {
               label="Cảnh báo chưa đọc"
               value={summary.unreadAlerts}
               icon={AlertTriangle}
-              tone="bg-pink-100 text-pink-600"
+              tone="bg-crit-bg text-crit"
+              trend={
+                summary.unreadAlerts > 0
+                  ? { label: 'Cần kiểm tra thiết bị', isGood: false }
+                  : { label: 'Hệ thống an toàn', direction: 'neutral', isGood: true }
+              }
             />
           </div>
-          <div className="grid gap-6 lg:grid-cols-2">
+
+          {/* Charts Grid: 1 col on mobile, 2 cols on desktop */}
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <section
-              className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950"
+              className="rounded-xl border border-line bg-surface p-5 shadow-xs text-fg"
               data-testid="revenue-chart"
             >
-              <h2 className="font-semibold text-slate-900 dark:text-slate-100">
-                Doanh thu và chi phí
-              </h2>
-              <p className="mb-4 text-sm text-slate-500">12 tháng gần nhất</p>
+              <h2 className="font-semibold text-fg">Doanh thu và chi phí</h2>
+              <p className="mb-4 text-sm text-muted">12 tháng gần nhất</p>
               <div className="h-72">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={revenueData} margin={{ left: 8, right: 8, top: 8 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                    <XAxis dataKey="monthLabel" tick={{ fontSize: 12 }} />
-                    <YAxis
-                      tick={{ fontSize: 12 }}
-                      tickFormatter={(value) => `${Math.round(value / 1000000)}tr`}
+                    <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} />
+                    <XAxis
+                      dataKey="monthLabel"
+                      stroke={colors.axis}
+                      tick={{ fill: colors.axis, fontSize: 12 }}
                     />
-                    <Tooltip formatter={(value) => `${money.format(Number(value))} ₫`} />
-                    <Legend />
+                    <YAxis
+                      stroke={colors.axis}
+                      tick={{ fill: colors.axis, fontSize: 12 }}
+                      tickFormatter={(val) => compactCurrency.format(Number(val))}
+                    />
+                    <Tooltip
+                      formatter={(val) => `${money.format(Number(val))} ₫`}
+                      contentStyle={{
+                        backgroundColor: colors.tooltipBg,
+                        borderColor: colors.tooltipBorder,
+                        color: colors.tooltipText,
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                      }}
+                      itemStyle={{ color: colors.tooltipText }}
+                    />
+                    <Legend wrapperStyle={{ color: colors.text }} />
                     <Line
                       name="Doanh thu"
                       type="monotone"
                       dataKey="revenueValue"
-                      stroke="#059669"
+                      stroke={colors.accent}
                       strokeWidth={2}
                       dot={false}
                     />
@@ -237,7 +379,7 @@ export default function AdminDashboardPage() {
                       name="Chi phí"
                       type="monotone"
                       dataKey="expenseValue"
-                      stroke="#f97316"
+                      stroke="var(--t-warn)"
                       strokeWidth={2}
                       dot={false}
                     />
@@ -245,31 +387,43 @@ export default function AdminDashboardPage() {
                 </ResponsiveContainer>
               </div>
             </section>
+
             {!isSales && (
               <section
-                className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950"
+                className="rounded-xl border border-line bg-surface p-5 shadow-xs text-fg"
                 data-testid="production-chart"
               >
-                <h2 className="font-semibold text-slate-900 dark:text-slate-100">
-                  Sản lượng theo mùa vụ
-                </h2>
-                <p className="mb-4 text-sm text-slate-500">
-                  Tổng sản lượng thu hoạch trong 12 tháng
-                </p>
+                <h2 className="font-semibold text-fg">Sản lượng theo mùa vụ</h2>
+                <p className="mb-4 text-sm text-muted">Tổng sản lượng thu hoạch trong 12 tháng</p>
                 <div className="h-72">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={productionData} margin={{ left: 8, right: 8, top: 8 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                      <XAxis dataKey="cycleCode" tick={{ fontSize: 12 }} />
-                      <YAxis
-                        tick={{ fontSize: 12 }}
-                        tickFormatter={(value) => quantity.format(Number(value))}
+                      <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} />
+                      <XAxis
+                        dataKey="cycleCode"
+                        stroke={colors.axis}
+                        tick={{ fill: colors.axis, fontSize: 12 }}
                       />
-                      <Tooltip formatter={(value) => quantity.format(Number(value))} />
+                      <YAxis
+                        stroke={colors.axis}
+                        tick={{ fill: colors.axis, fontSize: 12 }}
+                        tickFormatter={(val) => quantity.format(Number(val))}
+                      />
+                      <Tooltip
+                        formatter={(val) => quantity.format(Number(val))}
+                        contentStyle={{
+                          backgroundColor: colors.tooltipBg,
+                          borderColor: colors.tooltipBorder,
+                          color: colors.tooltipText,
+                          borderRadius: '8px',
+                          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                        }}
+                        itemStyle={{ color: colors.tooltipText }}
+                      />
                       <Bar
                         name="Sản lượng"
                         dataKey="quantityValue"
-                        fill="#10b981"
+                        fill={colors.accent}
                         radius={[4, 4, 0, 0]}
                       />
                     </BarChart>
