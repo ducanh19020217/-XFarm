@@ -4,7 +4,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ClipboardCheck, Edit3, Clock, QrCode, LogOut, Sprout, Wifi, WifiOff } from 'lucide-react';
-import { Button, StatusBadge } from '@xfarm/ui';
+import { Button, StatusBadge, ThemeToggle } from '@xfarm/ui';
 import { apiFetch } from '@/lib/api';
 import { useAdminUser } from '../admin-user-context';
 import { RegisterServiceWorker } from './_components/register-sw';
@@ -79,25 +79,25 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col justify-between">
+    <div className="min-h-screen bg-app text-fg flex flex-col justify-between">
       <RegisterServiceWorker />
 
       {/* Top Mobile Bar */}
-      <header className="sticky top-0 z-30 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-xs">
+      <header className="sticky top-0 z-30 bg-surface border-b border-line shadow-xs">
         <div className="px-4 py-3">
           <div className="max-w-md mx-auto flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-600 text-white shadow-xs">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-surface shadow-xs">
                 <Sprout className="h-5 w-5" />
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-base font-bold text-slate-900 dark:text-slate-100">
+                  <span className="text-base font-bold text-fg">
                     XFarm Công nhân
                   </span>
                   {isOnline ? (
                     <span
-                      className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full text-[10px] font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-400"
+                      className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full text-[10px] font-medium bg-ok-bg text-ok"
                       title="Đang có kết nối mạng"
                     >
                       <Wifi className="h-2.5 w-2.5" />
@@ -105,7 +105,7 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
                     </span>
                   ) : (
                     <span
-                      className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full text-[10px] font-medium bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-400"
+                      className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full text-[10px] font-medium bg-warn-bg text-warn"
                       title="Chế độ ngoại tuyến"
                     >
                       <WifiOff className="h-2.5 w-2.5" />
@@ -114,7 +114,7 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
                   )}
                 </div>
                 {user && (
-                  <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                  <div className="flex items-center gap-1.5 text-xs text-muted">
                     <span className="font-medium truncate max-w-[140px]">{user.fullName}</span>
                     <span>•</span>
                     <StatusBadge status={user.role} />
@@ -123,15 +123,18 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
               </div>
             </div>
 
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleLogout}
-              className="h-9 w-9 p-0 text-slate-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/50"
-              title="Đăng xuất"
-            >
-              <LogOut className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center gap-1.5">
+              <ThemeToggle align="right" />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleLogout}
+                className="h-9 w-9 p-0 text-muted hover:text-crit hover:bg-crit-bg"
+                title="Đăng xuất"
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
         <div className="max-w-md mx-auto">
@@ -145,7 +148,7 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
       {/* Bottom Navigation Bar */}
       <nav
         aria-label="Thanh điều hướng PWA"
-        className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 shadow-lg"
+        className="fixed bottom-0 left-0 right-0 z-40 bg-surface/95 backdrop-blur-md border-t border-line shadow-lg"
       >
         <div className="max-w-md mx-auto grid grid-cols-4 h-16">
           {mobileTabs.map((tab) => {
@@ -157,13 +160,13 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
                 href={tab.href}
                 className={`flex flex-col items-center justify-center gap-1 transition-colors touch-manipulation select-none ${
                   active
-                    ? 'text-emerald-600 dark:text-emerald-400 font-bold'
-                    : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 font-medium'
+                    ? 'text-accent font-bold'
+                    : 'text-muted hover:text-fg font-medium'
                 }`}
               >
                 <div
                   className={`flex items-center justify-center h-8 w-12 rounded-full transition-colors ${
-                    active ? 'bg-emerald-100/70 dark:bg-emerald-950/70' : ''
+                    active ? 'bg-selected' : ''
                   }`}
                 >
                   <Icon className="h-5 w-5" />
@@ -176,4 +179,5 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
       </nav>
     </div>
   );
+
 }
