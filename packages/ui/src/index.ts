@@ -12,3 +12,4 @@ export * from './components/page-header';
 export * from './components/status-badge';
 export * from './components/confirm-dialog';
 export * from './components/toast';
+export * from './components/theme';
