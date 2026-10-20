@@ -15,6 +15,7 @@ const NAV_ITEMS = [
   { label: 'Trang chủ', href: '/' },
   { label: 'Giới thiệu', href: '/gioi-thieu' },
   { label: 'Sản phẩm', href: '/san-pham' },
+  { label: 'Tour trải nghiệm', href: '/tour' },
   { label: 'Tin tức', href: '/blog' },
   { label: 'Liên hệ', href: '/lien-he' },
 ];

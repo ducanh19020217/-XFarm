@@ -8,6 +8,8 @@ import {
   getPublicPostBySlug,
   getPublicPageBySlug,
   getSiteSettings,
+  getPublicTours,
+  getPublicTourBySlug,
 } from './public-api';
 
 describe('public-api helpers', () => {
@@ -108,5 +110,19 @@ describe('public-api fetch functions (with fallback)', () => {
     const settings = await getSiteSettings();
     expect(settings['farm.name']).toBe('XFarm Sinh Thái Mới');
     expect(settings['contact.phone']).toBe('0901 234 567');
+  });
+
+  it('returns fallback tours when API fails', async () => {
+    vi.spyOn(globalThis, 'fetch').mockRejectedValueOnce(new Error('Network error'));
+    const tours = await getPublicTours();
+    expect(tours.length).toBeGreaterThanOrEqual(1);
+    expect(tours[0].slug).toBe('mot-ngay-lam-nong-dan');
+  });
+
+  it('queries public tour by slug with fallback', async () => {
+    vi.spyOn(globalThis, 'fetch').mockRejectedValueOnce(new Error('Network error'));
+    const tour = await getPublicTourBySlug('mot-ngay-lam-nong-dan');
+    expect(tour).not.toBeNull();
+    expect(tour?.name).toBe('Một ngày làm nông dân nhí & gia đình');
   });
 });

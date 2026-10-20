@@ -12,6 +12,7 @@ describe('sitemap()', () => {
 
     // Có trang tĩnh
     expect(urls.some((u) => u.endsWith('/san-pham'))).toBe(true);
+    expect(urls.some((u) => u.endsWith('/tour'))).toBe(true);
     expect(urls.some((u) => u.endsWith('/blog'))).toBe(true);
     expect(urls.some((u) => u.endsWith('/gioi-thieu'))).toBe(true);
     expect(urls.some((u) => u.endsWith('/lien-he'))).toBe(true);
@@ -20,13 +21,19 @@ describe('sitemap()', () => {
     const productUrls = urls.filter((u) => u.includes('/san-pham/'));
     expect(productUrls.length).toBeGreaterThan(0);
 
+    // Có tour
+    const tourUrls = urls.filter((u) => u.includes('/tour/'));
+    expect(tourUrls.length).toBeGreaterThan(0);
+
     // Có bài viết
     const blogUrls = urls.filter((u) => u.includes('/blog/'));
     expect(blogUrls.length).toBeGreaterThan(0);
 
-    // Tuyệt đối không chứa admin, login, hoặc api
+    // Tuyệt đối không chứa admin, login, api hoặc trang không index (thành công, tra cứu)
     expect(urls.some((u) => u.includes('/admin'))).toBe(false);
     expect(urls.some((u) => u.includes('/login'))).toBe(false);
     expect(urls.some((u) => u.includes('/api'))).toBe(false);
+    expect(urls.some((u) => u.includes('/tour/dat-cho-thanh-cong'))).toBe(false);
+    expect(urls.some((u) => u.includes('/tour/tra-cuu'))).toBe(false);
   });
 });

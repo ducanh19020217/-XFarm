@@ -42,9 +42,9 @@ test.describe('Alerts & Notification Bell', () => {
     // 5. Mở dropdown và kiểm tra cảnh báo gần đây
     await page.getByTestId('alerts-bell-button').click();
     const dropdown = page.getByTestId('alerts-dropdown');
-    await expect(dropdown).toBeVisible();
     const markReadBtn = dropdown.getByRole('button', { name: /đánh dấu đã đọc/i }).first();
     await expect(markReadBtn).toBeVisible();
+    const buttonsBefore = await dropdown.getByRole('button', { name: /đánh dấu đã đọc/i }).count();
     const markReadResponse = page.waitForResponse(
       (response) =>
         response.url().includes('/api/v1/alerts/') && response.request().method() === 'PATCH',

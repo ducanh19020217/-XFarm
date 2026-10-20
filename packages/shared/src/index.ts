@@ -31,3 +31,6 @@ export * from './schemas/sales-order';
 export * from './schemas/webshop';
 export * from './schemas/payment';
 export * from './schemas/finance';
+export * from './schemas/tour';
+export * from './schemas/tour-slot';
+export * from './schemas/booking';

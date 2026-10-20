@@ -13,6 +13,9 @@ import {
   PayrollStatus,
   CustomerType,
   TransactionType,
+  BookingStatus,
+  PaymentStatus,
+  PaymentMethod,
 } from '@prisma/client';
 import * as argon2 from 'argon2';
 import { Prisma } from '@prisma/client';
@@ -963,6 +966,11 @@ async function main() {
       create: { ...customer, isActive: true },
     });
   }
+  const customerIds = new Map<string, string>();
+  for (const customer of customers) {
+    const saved = await prisma.customer.findUniqueOrThrow({ where: { code: customer.code } });
+    customerIds.set(customer.code, saved.id);
+  }
   const highestCustomer = await prisma.customer.findFirst({
     where: { code: { startsWith: 'CU-' } },
     orderBy: { code: 'desc' },
@@ -1066,7 +1074,6 @@ async function main() {
     });
     console.log(`Seeded task: ${t.title} (${t.status})`);
   }
-
   // Chấm công 5 ngày gần nhất cho các nhân viên DAILY
   const dailyEmployees = [employees['NV-0001'], employees['NV-0002']];
   for (let i = 4; i >= 0; i--) {
@@ -1105,6 +1112,280 @@ async function main() {
     }
   }
   console.log('Seeded 5-day attendance for DAILY employees');
+  await ensureSequence('CU', 0, 4);
+  await ensureSequence('SO', currentYear, 2);
+  await ensureSequence('PM', currentYear, 2);
+  await ensureSequence('TX', currentYear, 3);
+
+  // 8. Seed Phase 5: Tours, TourSlots, and Bookings
+  const existingMedia = await prisma.media.findMany({ take: 3, select: { id: true } });
+  const mediaIds = existingMedia.map((m) => m.id);
+
+  const toursData = [
+    {
+      slug: 'trai-nghiem-thu-hoach-rau',
+      name: 'Trải nghiệm thu hoạch rau',
+      description:
+        '<p>Tham quan vườn rau hữu cơ đạt chuẩn sinh thái, tìm hiểu quy trình canh tác thuận tự nhiên và tự tay thu hoạch những bó rau tươi ngon nhất mang về cho gia đình.</p>',
+      durationMinutes: 120,
+      priceAdult: new Prisma.Decimal(150000),
+      priceChild: new Prisma.Decimal(80000),
+      capacity: 20,
+      mediaIds: mediaIds.slice(0, 1),
+      isPublished: true,
+      sortOrder: 1,
+    },
+    {
+      slug: 'cau-ca-ao',
+      name: 'Câu cá ao',
+      description:
+        '<p>Trải nghiệm câu cá giải trí thư giãn bên bờ ao sinh thái thoáng mát, tận hưởng không gian trong lành vùng ngoại ô và chế biến cá tươi tại chỗ.</p>',
+      durationMinutes: 180,
+      priceAdult: new Prisma.Decimal(200000),
+      priceChild: new Prisma.Decimal(100000),
+      capacity: 15,
+      mediaIds: mediaIds.slice(1, 2),
+      isPublished: true,
+      sortOrder: 2,
+    },
+    {
+      slug: 'cho-ga-an-nhat-trung',
+      name: 'Cho gà ăn & nhặt trứng',
+      description:
+        '<p>Hoạt động giáo dục nông nghiệp bổ ích cho trẻ em và gia đình: vào chuồng gà an toàn sinh học, tìm hiểu tập tính đàn gà, cho gà ăn và tự tay nhặt những quả trứng ấm nóng.</p>',
+      durationMinutes: 90,
+      priceAdult: new Prisma.Decimal(120000),
+      priceChild: new Prisma.Decimal(80000),
+      capacity: 10,
+      mediaIds: mediaIds.slice(2, 3),
+      isPublished: true,
+      sortOrder: 3,
+    },
+  ];
+
+  const savedTours = new Map<string, { id: string; capacity: number }>();
+  for (const tour of toursData) {
+    const saved = await prisma.tour.upsert({
+      where: { slug: tour.slug },
+      update: {
+        name: tour.name,
+        description: tour.description,
+        durationMinutes: tour.durationMinutes,
+        priceAdult: tour.priceAdult,
+        priceChild: tour.priceChild,
+        capacity: tour.capacity,
+        mediaIds: tour.mediaIds,
+        isPublished: tour.isPublished,
+        sortOrder: tour.sortOrder,
+      },
+      create: {
+        ...tour,
+        createdById: admin.id,
+      },
+    });
+    savedTours.set(tour.slug, { id: saved.id, capacity: saved.capacity });
+  }
+
+  // Generate slots for Saturdays (6) and Sundays (0) at 08:00 and 14:00 for the next 4 weeks
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const weekendSlotDates: Date[] = [];
+  for (let i = 1; i <= 28; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    const dayOfWeek = d.getDay();
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      weekendSlotDates.push(new Date(`${yyyy}-${mm}-${dd}T08:00:00+07:00`));
+      weekendSlotDates.push(new Date(`${yyyy}-${mm}-${dd}T14:00:00+07:00`));
+    }
+  }
+
+  const tourSlotsByTourSlug = new Map<string, string[]>();
+  for (const [slug, tourInfo] of savedTours.entries()) {
+    const slotIds: string[] = [];
+    for (const slotDate of weekendSlotDates) {
+      const savedSlot = await prisma.tourSlot.upsert({
+        where: {
+          tourId_startAt: {
+            tourId: tourInfo.id,
+            startAt: slotDate,
+          },
+        },
+        update: {
+          capacity: tourInfo.capacity,
+          isActive: true,
+        },
+        create: {
+          tourId: tourInfo.id,
+          startAt: slotDate,
+          capacity: tourInfo.capacity,
+          bookedCount: 0,
+          isActive: true,
+          createdById: admin.id,
+        },
+        select: { id: true },
+      });
+      slotIds.push(savedSlot.id);
+    }
+    tourSlotsByTourSlug.set(slug, slotIds);
+  }
+
+  // 3 sample bookings:
+  // 1 slot only has 1 spot left (Tour 3 capacity 10 -> booking has 4 adults + 5 children = 9 guests -> bookedCount = 9, 1 spot left)
+  const tour1Slots = tourSlotsByTourSlug.get('trai-nghiem-thu-hoach-rau') ?? [];
+  const tour2Slots = tourSlotsByTourSlug.get('cau-ca-ao') ?? [];
+  const tour3Slots = tourSlotsByTourSlug.get('cho-ga-an-nhat-trung') ?? [];
+
+  const slot1Id = tour1Slots[0];
+  const slot2Id = tour2Slots[0];
+  const slot3Id = tour3Slots[0];
+
+  if (slot1Id && slot2Id && slot3Id) {
+    // Booking 1: Confirmed and paid
+    const booking1 = await prisma.booking.upsert({
+      where: { code: 'BK-2026-0001' },
+      update: {
+        slotId: slot1Id,
+        customerName: 'Nguyễn Minh Anh',
+        phone: '0909000001',
+        email: 'minhanh.nguyen@example.com',
+        adults: 2,
+        children: 1,
+        total: new Prisma.Decimal(380000),
+        status: BookingStatus.CONFIRMED,
+        paymentStatus: PaymentStatus.PAID,
+        paymentMethod: PaymentMethod.BANK_TRANSFER,
+        customerId: customerIds.get('CU-0001'),
+        confirmedAt: new Date('2026-10-18T10:00:00Z'),
+        notes: 'Gia đình có bé 5 tuổi',
+      },
+      create: {
+        code: 'BK-2026-0001',
+        slotId: slot1Id,
+        customerName: 'Nguyễn Minh Anh',
+        phone: '0909000001',
+        email: 'minhanh.nguyen@example.com',
+        adults: 2,
+        children: 1,
+        total: new Prisma.Decimal(380000),
+        status: BookingStatus.CONFIRMED,
+        paymentStatus: PaymentStatus.PAID,
+        paymentMethod: PaymentMethod.BANK_TRANSFER,
+        customerId: customerIds.get('CU-0001'),
+        confirmedAt: new Date('2026-10-18T10:00:00Z'),
+        notes: 'Gia đình có bé 5 tuổi',
+        createdById: admin.id,
+      },
+    });
+
+    await prisma.tourSlot.update({
+      where: { id: slot1Id },
+      data: { bookedCount: 3 },
+    });
+
+    // Payment for booking 1
+    await prisma.payment.upsert({
+      where: { code: 'PM-2026-0002' },
+      update: {
+        bookingId: booking1.id,
+        amount: new Prisma.Decimal(380000),
+        method: PaymentMethod.BANK_TRANSFER,
+      },
+      create: {
+        code: 'PM-2026-0002',
+        bookingId: booking1.id,
+        amount: new Prisma.Decimal(380000),
+        method: PaymentMethod.BANK_TRANSFER,
+        createdById: admin.id,
+      },
+    });
+
+    // Booking 2: Pending booking
+    await prisma.booking.upsert({
+      where: { code: 'BK-2026-0002' },
+      update: {
+        slotId: slot2Id,
+        customerName: 'Trần Thu Hà',
+        phone: '0909000002',
+        email: 'thuha.tran@example.com',
+        adults: 1,
+        children: 0,
+        total: new Prisma.Decimal(200000),
+        status: BookingStatus.PENDING,
+        paymentStatus: PaymentStatus.UNPAID,
+        paymentMethod: PaymentMethod.COD,
+        customerId: customerIds.get('CU-0002'),
+        notes: 'Cần mượn thêm cần câu đơn',
+      },
+      create: {
+        code: 'BK-2026-0002',
+        slotId: slot2Id,
+        customerName: 'Trần Thu Hà',
+        phone: '0909000002',
+        email: 'thuha.tran@example.com',
+        adults: 1,
+        children: 0,
+        total: new Prisma.Decimal(200000),
+        status: BookingStatus.PENDING,
+        paymentStatus: PaymentStatus.UNPAID,
+        paymentMethod: PaymentMethod.COD,
+        customerId: customerIds.get('CU-0002'),
+        notes: 'Cần mượn thêm cần câu đơn',
+        createdById: admin.id,
+      },
+    });
+
+    await prisma.tourSlot.update({
+      where: { id: slot2Id },
+      data: { bookedCount: 1 },
+    });
+
+    // Booking 3: Slot 3 has capacity 10; booked 9 guests (4 adults + 5 children) => exactly 1 spot left for concurrency test!
+    await prisma.booking.upsert({
+      where: { code: 'BK-2026-0003' },
+      update: {
+        slotId: slot3Id,
+        customerName: 'Đoàn trường Mầm non Ánh Sao',
+        phone: '0912345678',
+        email: 'anhsao.edu@example.com',
+        adults: 4,
+        children: 5,
+        total: new Prisma.Decimal(880000),
+        status: BookingStatus.CONFIRMED,
+        paymentStatus: PaymentStatus.PAID,
+        paymentMethod: PaymentMethod.BANK_TRANSFER,
+        confirmedAt: new Date('2026-10-18T14:30:00Z'),
+        notes: 'Đoàn thực tế ngoại khóa cho các bé lớp lá',
+      },
+      create: {
+        code: 'BK-2026-0003',
+        slotId: slot3Id,
+        customerName: 'Đoàn trường Mầm non Ánh Sao',
+        phone: '0912345678',
+        email: 'anhsao.edu@example.com',
+        adults: 4,
+        children: 5,
+        total: new Prisma.Decimal(880000),
+        status: BookingStatus.CONFIRMED,
+        paymentStatus: PaymentStatus.PAID,
+        paymentMethod: PaymentMethod.BANK_TRANSFER,
+        confirmedAt: new Date('2026-10-18T14:30:00Z'),
+        notes: 'Đoàn thực tế ngoại khóa cho các bé lớp lá',
+        createdById: admin.id,
+      },
+    });
+
+    await prisma.tourSlot.update({
+      where: { id: slot3Id },
+      data: { bookedCount: 9 }, // capacity 10, bookedCount 9 => exactly 1 spot left!
+    });
+  }
+
+  await ensureSequence('BK', currentYear, 3);
   console.log('Seed completed successfully!');
 }
 

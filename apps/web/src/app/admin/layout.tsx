@@ -23,6 +23,7 @@ import {
   X,
   Bell,
   Smartphone,
+  Ticket,
 } from 'lucide-react';
 import { Button, StatusBadge, Badge } from '@xfarm/ui';
 import { apiFetch, isAbortError } from '@/lib/api';
@@ -43,6 +44,7 @@ interface NavItem {
   icon: React.ElementType;
   isReady?: boolean;
   children?: SubNavItem[];
+  exact?: boolean;
 }
 
 const navItems: NavItem[] = [
@@ -51,6 +53,7 @@ const navItems: NavItem[] = [
     href: '/admin',
     icon: LayoutDashboard,
     isReady: true,
+    exact: true,
   },
   {
     title: 'Người dùng & Phân quyền',
@@ -105,13 +108,13 @@ const navItems: NavItem[] = [
     title: 'Bán hàng',
     href: '/admin/sales/orders',
     icon: ShoppingCart,
-    isReady: true,
+    isReady: false,
   },
   {
     title: 'Khách hàng',
     href: '/admin/sales/customers',
     icon: Users,
-    isReady: true,
+    isReady: false,
   },
   {
     title: 'Tài chính',
@@ -138,10 +141,17 @@ const navItems: NavItem[] = [
     isReady: false,
   },
   {
-    title: 'Du lịch trải nghiệm',
+    title: 'Du lịch',
     href: '/admin/tours',
     icon: Compass,
-    isReady: false,
+    isReady: true,
+    exact: true,
+  },
+  {
+    title: 'Đặt chỗ tour',
+    href: '/admin/tours/bookings',
+    icon: Ticket,
+    isReady: true,
   },
   {
     title: 'Nhân sự & Chấm công',
@@ -264,10 +274,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             const isChildActive = item.children?.some(
               (c) => pathname === c.href || pathname?.startsWith(`${c.href}/`),
             );
-            const isActive =
-              pathname === item.href ||
-              pathname?.startsWith(`${item.href}/`) ||
-              Boolean(isChildActive);
+            const isActive = item.exact
+              ? pathname === item.href
+              : pathname === item.href ||
+                pathname?.startsWith(`${item.href}/`) ||
+                Boolean(isChildActive);
 
             if (!item.isReady) {
               return (
