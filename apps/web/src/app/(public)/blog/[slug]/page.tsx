@@ -94,21 +94,21 @@ export default async function BlogPostDetailPage({ params }: BlogPostDetailPageP
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
       />
-      <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+      <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10 text-fg">
         {/* Breadcrumb */}
         <nav
           aria-label="Breadcrumb"
-          className="flex items-center gap-2 text-xs sm:text-sm text-slate-700"
+          className="flex items-center gap-2 text-xs sm:text-sm text-muted"
         >
-          <Link href="/" className="hover:text-emerald-700 transition-colors">
+          <Link href="/" className="hover:text-accent transition-colors">
             Trang chủ
           </Link>
-          <ChevronRight className="w-3.5 h-3.5 text-slate-400" aria-hidden="true" />
-          <Link href="/blog" className="hover:text-emerald-700 transition-colors">
+          <ChevronRight className="w-3.5 h-3.5 text-muted" aria-hidden="true" />
+          <Link href="/blog" className="hover:text-accent transition-colors">
             Tin tức & Cẩm nang
           </Link>
-          <ChevronRight className="w-3.5 h-3.5 text-slate-400" aria-hidden="true" />
-          <span className="text-slate-900 font-semibold truncate max-w-xs" aria-current="page">
+          <ChevronRight className="w-3.5 h-3.5 text-muted" aria-hidden="true" />
+          <span className="text-fg font-semibold truncate max-w-xs" aria-current="page">
             {post.title}
           </span>
         </nav>
@@ -117,7 +117,7 @@ export default async function BlogPostDetailPage({ params }: BlogPostDetailPageP
         <div>
           <Link
             href="/blog"
-            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-emerald-700 hover:text-emerald-800 transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-accent hover:text-accent-hover transition-colors"
           >
             <ArrowLeft className="w-4 h-4" aria-hidden="true" />
             <span>Quay lại chuyên mục tin tức</span>
@@ -125,10 +125,10 @@ export default async function BlogPostDetailPage({ params }: BlogPostDetailPageP
         </div>
 
         {/* Post Header */}
-        <header className="space-y-4 border-b border-slate-200 pb-8">
-          <div className="flex items-center gap-3 text-xs sm:text-sm text-slate-700">
+        <header className="space-y-4 border-b border-line pb-8">
+          <div className="flex items-center gap-3 text-xs sm:text-sm text-muted">
             <span className="inline-flex items-center gap-1.5 font-medium">
-              <Calendar className="w-4 h-4 text-emerald-600" aria-hidden="true" />
+              <Calendar className="w-4 h-4 text-accent" aria-hidden="true" />
               <time
                 dateTime={post.publishedAt ? new Date(post.publishedAt).toISOString() : undefined}
               >
@@ -137,16 +137,16 @@ export default async function BlogPostDetailPage({ params }: BlogPostDetailPageP
             </span>
             <span aria-hidden="true">•</span>
             <span className="inline-flex items-center gap-1.5 font-medium">
-              <User className="w-4 h-4 text-emerald-600" aria-hidden="true" />
+              <User className="w-4 h-4 text-accent" aria-hidden="true" />
               <span>Ban Biên Tập XFarm</span>
             </span>
           </div>
 
-          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
+          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-fg tracking-tight leading-tight">
             {post.title}
           </h1>
 
-          <p className="text-base sm:text-lg text-slate-700 font-medium leading-relaxed italic border-l-4 border-emerald-500 pl-4 py-1">
+          <p className="text-base sm:text-lg text-fg-2 font-medium leading-relaxed italic border-l-4 border-accent pl-4 py-1">
             {post.excerpt}
           </p>
         </header>
@@ -156,7 +156,7 @@ export default async function BlogPostDetailPage({ params }: BlogPostDetailPageP
           (coverSrc.startsWith('http://') ||
             coverSrc.startsWith('https://') ||
             coverSrc.startsWith('/')) && (
-            <div className="relative aspect-16/9 w-full rounded-3xl overflow-hidden bg-slate-100 shadow-xs border border-slate-200">
+            <div className="relative aspect-16/9 w-full rounded-3xl overflow-hidden bg-surface-2 shadow-xs border border-line">
               <Image
                 src={coverSrc}
                 alt={post.title}
@@ -170,16 +170,16 @@ export default async function BlogPostDetailPage({ params }: BlogPostDetailPageP
 
         {/* Sanitized HTML Content */}
         <div
-          className="prose prose-slate prose-emerald sm:prose-lg max-w-none bg-white p-8 sm:p-12 rounded-3xl border border-slate-200/80 shadow-xs leading-relaxed"
+          className="prose prose-slate dark:prose-invert sm:prose-lg max-w-none bg-surface p-8 sm:p-12 rounded-3xl border border-line shadow-xs leading-relaxed text-fg"
           dangerouslySetInnerHTML={{ __html: sanitizedContent }}
         />
 
         {/* Footer info of post */}
-        <div className="pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs sm:text-sm text-slate-700">
+        <div className="pt-6 border-t border-line flex flex-col sm:flex-row items-center justify-between gap-4 text-xs sm:text-sm text-muted">
           <p>Chủ đề: Nông nghiệp sinh thái tuần hoàn & Sống xanh</p>
           <Link
             href="/blog"
-            className="font-semibold text-emerald-700 hover:text-emerald-800 transition-colors"
+            className="font-semibold text-accent hover:text-accent-hover transition-colors"
           >
             ← Khám phá thêm bài viết khác
           </Link>

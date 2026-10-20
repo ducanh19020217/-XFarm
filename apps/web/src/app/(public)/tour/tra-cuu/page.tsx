@@ -26,17 +26,17 @@ export default function TourLookupPage() {
         {/* Breadcrumb */}
         <nav
           aria-label="Breadcrumb"
-          className="flex items-center gap-2 text-xs sm:text-sm text-slate-700 max-w-4xl mx-auto"
+          className="flex items-center gap-2 text-xs sm:text-sm text-muted max-w-4xl mx-auto"
         >
-          <Link href="/" className="hover:text-emerald-700 transition-colors">
+          <Link href="/" className="hover:text-accent transition-colors">
             Trang chủ
           </Link>
-          <ChevronRight className="w-3.5 h-3.5 text-slate-400" aria-hidden="true" />
-          <Link href="/tour" className="hover:text-emerald-700 transition-colors">
+          <ChevronRight className="w-3.5 h-3.5 text-muted" aria-hidden="true" />
+          <Link href="/tour" className="hover:text-accent transition-colors">
             Tour trải nghiệm
           </Link>
-          <ChevronRight className="w-3.5 h-3.5 text-slate-400" aria-hidden="true" />
-          <span className="text-slate-900 font-semibold" aria-current="page">
+          <ChevronRight className="w-3.5 h-3.5 text-muted" aria-hidden="true" />
+          <span className="text-fg font-semibold" aria-current="page">
             Tra cứu đặt chỗ
           </span>
         </nav>
@@ -44,7 +44,7 @@ export default function TourLookupPage() {
         {/* Client form wrapped in Suspense for useSearchParams */}
         <React.Suspense
           fallback={
-            <div className="max-w-4xl mx-auto p-12 bg-white rounded-3xl border border-slate-200 text-center text-slate-500">
+            <div className="max-w-4xl mx-auto p-12 bg-surface rounded-3xl border border-line text-center text-muted">
               Đang tải biểu mẫu tra cứu...
             </div>
           }

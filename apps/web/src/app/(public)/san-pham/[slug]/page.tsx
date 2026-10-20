@@ -92,17 +92,17 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
         {/* Breadcrumb */}
         <nav
           aria-label="Breadcrumb"
-          className="flex items-center gap-2 text-xs sm:text-sm text-slate-700"
+          className="flex items-center gap-2 text-xs sm:text-sm text-muted"
         >
-          <Link href="/" className="hover:text-emerald-700 transition-colors">
+          <Link href="/" className="hover:text-accent transition-colors">
             Trang chủ
           </Link>
-          <ChevronRight className="w-3.5 h-3.5 text-slate-400" aria-hidden="true" />
-          <Link href="/san-pham" className="hover:text-emerald-700 transition-colors">
+          <ChevronRight className="w-3.5 h-3.5 text-muted" aria-hidden="true" />
+          <Link href="/san-pham" className="hover:text-accent transition-colors">
             Sản phẩm
           </Link>
-          <ChevronRight className="w-3.5 h-3.5 text-slate-400" aria-hidden="true" />
-          <span className="text-slate-900 font-semibold truncate max-w-xs" aria-current="page">
+          <ChevronRight className="w-3.5 h-3.5 text-muted" aria-hidden="true" />
+          <span className="text-fg font-semibold truncate max-w-xs" aria-current="page">
             {product.name}
           </span>
         </nav>
@@ -111,7 +111,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
         <div>
           <Link
             href="/san-pham"
-            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-emerald-700 hover:text-emerald-800 transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-accent hover:text-accent-hover transition-colors"
           >
             <ArrowLeft className="w-4 h-4" aria-hidden="true" />
             <span>Quay lại danh sách sản phẩm</span>
@@ -119,9 +119,9 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
         </div>
 
         {/* Product Details Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 bg-white rounded-3xl p-6 sm:p-10 border border-slate-200/80 shadow-xs">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 bg-surface rounded-3xl p-6 sm:p-10 border border-line shadow-xs text-fg">
           {/* Left: Product Image */}
-          <div className="relative aspect-4/3 sm:aspect-square w-full rounded-2xl bg-slate-100 overflow-hidden border border-slate-100">
+          <div className="relative aspect-4/3 sm:aspect-square w-full rounded-2xl bg-surface-2 overflow-hidden border border-line">
             {imageSrc &&
             (imageSrc.startsWith('http://') ||
               imageSrc.startsWith('https://') ||
@@ -135,9 +135,9 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                 className="object-cover"
               />
             ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-emerald-50 via-teal-50 to-slate-100 text-emerald-800 p-8 text-center">
-                <span className="text-lg font-bold text-emerald-900 mb-2">{product.name}</span>
-                <span className="text-xs font-semibold uppercase tracking-wider text-emerald-700">
+              <div className="w-full h-full flex flex-col items-center justify-center bg-surface-2 text-accent p-8 text-center">
+                <span className="text-lg font-bold text-fg mb-2">{product.name}</span>
+                <span className="text-xs font-semibold uppercase tracking-wider text-accent">
                   Nông sản sạch XFarm
                 </span>
               </div>
@@ -149,61 +149,61 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 {inStock ? (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
-                    <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-ok-bg text-ok border border-ok/20">
+                    <span className="w-2 h-2 rounded-full bg-ok animate-pulse" />
                     Còn hàng
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">
-                    <span className="w-2 h-2 rounded-full bg-slate-400" />
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-surface-2 text-muted border border-line">
+                    <span className="w-2 h-2 rounded-full bg-muted" />
                     Tạm hết hàng
                   </span>
                 )}
-                <span className="text-xs text-slate-700 font-medium">Mã SP: {product.slug}</span>
+                <span className="text-xs text-muted font-medium">Mã SP: {product.slug}</span>
               </div>
 
-              <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+              <h1 className="text-2xl sm:text-4xl font-extrabold text-fg tracking-tight leading-tight">
                 {product.name}
               </h1>
 
               {/* Price */}
-              <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-100/80 flex items-baseline gap-2">
-                <span className="text-3xl sm:text-4xl font-extrabold text-emerald-800">
+              <div className="p-4 rounded-2xl bg-surface-2 border border-line flex items-baseline gap-2">
+                <span className="text-3xl sm:text-4xl font-extrabold text-accent">
                   {formatCurrency(product.price)}
                 </span>
-                <span className="text-sm font-semibold text-slate-700">/ {product.unit}</span>
+                <span className="text-sm font-semibold text-muted">/ {product.unit}</span>
               </div>
 
               {/* Sanitized HTML Description */}
               <div className="pt-2">
-                <h2 className="text-sm font-bold uppercase tracking-wider text-slate-700 mb-2">
+                <h2 className="text-sm font-bold uppercase tracking-wider text-muted mb-2">
                   Mô tả sản phẩm
                 </h2>
                 <div
-                  className="prose prose-sm prose-slate text-slate-700 leading-relaxed max-w-none"
+                  className="prose prose-sm prose-slate dark:prose-invert text-fg-2 leading-relaxed max-w-none"
                   dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
                 />
               </div>
 
               {/* Quality Highlights */}
-              <div className="pt-4 space-y-2.5 border-t border-slate-100 text-xs sm:text-sm text-slate-700">
+              <div className="pt-4 space-y-2.5 border-t border-line text-xs sm:text-sm text-muted">
                 <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" aria-hidden="true" />
+                  <ShieldCheck className="w-4 h-4 text-accent shrink-0" aria-hidden="true" />
                   <span>Tiêu chuẩn VietGAP, an toàn cho sức khỏe</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Truck className="w-4 h-4 text-emerald-600 shrink-0" aria-hidden="true" />
+                  <Truck className="w-4 h-4 text-accent shrink-0" aria-hidden="true" />
                   <span>Thu hoạch tươi trong ngày, bảo quản tự nhiên</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <RefreshCw className="w-4 h-4 text-emerald-600 shrink-0" aria-hidden="true" />
+                  <RefreshCw className="w-4 h-4 text-accent shrink-0" aria-hidden="true" />
                   <span>Mã QR truy xuất nguồn gốc minh bạch đến từng lô</span>
                 </div>
               </div>
             </div>
 
             {/* Order Action Buttons */}
-            <div className="pt-6 border-t border-slate-100 space-y-4">
+            <div className="pt-6 border-t border-line space-y-4">
               <AddToCartButton
                 productId={product.id}
                 productName={product.name}

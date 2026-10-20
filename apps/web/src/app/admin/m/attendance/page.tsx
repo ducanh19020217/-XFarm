@@ -118,12 +118,8 @@ export default function MobileAttendancePage() {
       {/* Header */}
       <div className="flex items-center justify-between pb-1">
         <div>
-          <h1 className="text-xl font-extrabold text-fg tracking-tight">
-            Chấm công vào / ra ca
-          </h1>
-          <p className="text-xs font-medium text-muted">
-            Ghi nhận giờ làm việc hằng ngày của bạn
-          </p>
+          <h1 className="text-xl font-extrabold text-fg tracking-tight">Chấm công vào / ra ca</h1>
+          <p className="text-xs font-medium text-muted">Ghi nhận giờ làm việc hằng ngày của bạn</p>
         </div>
         <Button
           variant="outline"

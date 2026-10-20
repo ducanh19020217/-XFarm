@@ -226,9 +226,7 @@ export default function TodayTasksPage() {
       {/* Header Info */}
       <div className="flex items-center justify-between pb-1">
         <div>
-          <h1 className="text-xl font-extrabold text-fg tracking-tight">
-            Việc hôm nay
-          </h1>
+          <h1 className="text-xl font-extrabold text-fg tracking-tight">Việc hôm nay</h1>
           <p className="text-xs font-medium text-muted capitalize">{todayStr}</p>
         </div>
         <Button
@@ -272,9 +270,7 @@ export default function TodayTasksPage() {
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-accent-bg text-accent">
             <CheckCircle2 className="h-8 w-8" />
           </div>
-          <h3 className="mt-4 text-base font-bold text-fg">
-            Không có công việc nào
-          </h3>
+          <h3 className="mt-4 text-base font-bold text-fg">Không có công việc nào</h3>
           <p className="mt-1 text-xs text-muted leading-relaxed max-w-xs mx-auto">
             Hôm nay bạn chưa có công việc nào được giao hoặc đã hoàn thành hết. Chúc bạn một ngày
             làm việc hiệu quả!
@@ -305,9 +301,7 @@ export default function TodayTasksPage() {
                 {/* Title & Status */}
                 <div className="flex items-start justify-between gap-2">
                   <div className="space-y-1">
-                    <h3 className="text-base font-bold text-fg leading-snug">
-                      {task.title}
-                    </h3>
+                    <h3 className="text-base font-bold text-fg leading-snug">{task.title}</h3>
                     {task.description && (
                       <p className="text-xs text-muted line-clamp-2 leading-relaxed">
                         {task.description}
@@ -441,9 +435,7 @@ export default function TodayTasksPage() {
                 className="h-5 w-5 rounded text-accent focus:ring-accent cursor-pointer"
               />
               <div className="flex-1">
-                <span className="text-sm font-bold text-fg">
-                  Ghi nhật ký canh tác kèm theo
-                </span>
+                <span className="text-sm font-bold text-fg">Ghi nhật ký canh tác kèm theo</span>
                 <p className="text-[11px] text-muted mt-0.5">
                   Tự động tạo bản ghi nhật ký gắn với công việc này
                 </p>
@@ -454,9 +446,7 @@ export default function TodayTasksPage() {
             {withActivity && (
               <div className="space-y-3 p-3 rounded-xl border border-line bg-surface-2">
                 <div>
-                  <label className="block text-xs font-bold text-fg-2 mb-1">
-                    Loại nhật ký
-                  </label>
+                  <label className="block text-xs font-bold text-fg-2 mb-1">Loại nhật ký</label>
                   <Select
                     value={activityType}
                     onValueChange={(val) => setActivityType(val as ActivityType)}
@@ -475,9 +465,7 @@ export default function TodayTasksPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-fg-2 mb-1">
-                    Chụp ảnh thực tế
-                  </label>
+                  <label className="block text-xs font-bold text-fg-2 mb-1">Chụp ảnh thực tế</label>
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -518,9 +506,7 @@ export default function TodayTasksPage() {
 
             {/* Ghi chú */}
             <div>
-              <label className="block text-xs font-bold text-fg-2 mb-1">
-                Ghi chú thực hiện
-              </label>
+              <label className="block text-xs font-bold text-fg-2 mb-1">Ghi chú thực hiện</label>
               <textarea
                 value={completionNotes}
                 onChange={(e) => setCompletionNotes(e.target.value)}

@@ -223,9 +223,7 @@ export default function MobileScanPage() {
       {/* Header */}
       <div className="flex items-center justify-between pb-1">
         <div>
-          <h1 className="text-xl font-extrabold text-fg tracking-tight">
-            Quét mã QR khu/lô
-          </h1>
+          <h1 className="text-xl font-extrabold text-fg tracking-tight">Quét mã QR khu/lô</h1>
           <p className="text-xs font-medium text-muted">
             Đọc mã tem dán tại ruộng, luống hoặc chuồng nuôi
           </p>
@@ -344,9 +342,7 @@ export default function MobileScanPage() {
               <div className="p-4 rounded-2xl bg-ok-bg border border-ok/20 space-y-1 text-ok">
                 <div className="flex items-center gap-2">
                   <MapPin className="h-5 w-5 text-ok" />
-                  <h3 className="text-lg font-bold">
-                    {matchedArea.name}
-                  </h3>
+                  <h3 className="text-lg font-bold">{matchedArea.name}</h3>
                 </div>
                 <div className="flex items-center gap-2 text-xs font-medium pl-7">
                   <span className="font-mono bg-surface px-2 py-0.5 rounded border border-ok/30 text-fg">

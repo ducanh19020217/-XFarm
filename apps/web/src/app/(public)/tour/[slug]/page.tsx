@@ -120,21 +120,21 @@ export default async function TourDetailPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-12 text-fg">
         {/* Breadcrumb */}
         <nav
           aria-label="Breadcrumb"
-          className="flex items-center gap-2 text-xs sm:text-sm text-slate-700 overflow-x-auto whitespace-nowrap"
+          className="flex items-center gap-2 text-xs sm:text-sm text-muted overflow-x-auto whitespace-nowrap"
         >
-          <Link href="/" className="hover:text-emerald-700 transition-colors">
+          <Link href="/" className="hover:text-accent transition-colors">
             Trang chủ
           </Link>
-          <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" aria-hidden="true" />
-          <Link href="/tour" className="hover:text-emerald-700 transition-colors">
+          <ChevronRight className="w-3.5 h-3.5 text-muted shrink-0" aria-hidden="true" />
+          <Link href="/tour" className="hover:text-accent transition-colors">
             Tour trải nghiệm
           </Link>
-          <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" aria-hidden="true" />
-          <span className="text-slate-900 font-semibold truncate" aria-current="page">
+          <ChevronRight className="w-3.5 h-3.5 text-muted shrink-0" aria-hidden="true" />
+          <span className="text-fg font-semibold truncate" aria-current="page">
             {tour.name}
           </span>
         </nav>
@@ -142,31 +142,31 @@ export default async function TourDetailPage({ params }: Props) {
         {/* Hero Header */}
         <div className="space-y-4">
           <div className="flex flex-wrap items-center gap-2.5">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide bg-emerald-100 text-emerald-800">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide bg-accent-bg text-accent border border-accent/20">
               <Compass className="w-3.5 h-3.5" aria-hidden="true" />
               <span>Tour sinh thái</span>
             </span>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
-              <Clock className="w-3.5 h-3.5 text-slate-500" aria-hidden="true" />
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-surface-2 text-muted border border-line">
+              <Clock className="w-3.5 h-3.5 text-muted" aria-hidden="true" />
               <span>Thời lượng: {tour.durationMinutes} phút</span>
             </span>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
-              <Users className="w-3.5 h-3.5 text-slate-500" aria-hidden="true" />
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-surface-2 text-muted border border-line">
+              <Users className="w-3.5 h-3.5 text-muted" aria-hidden="true" />
               <span>Sức chứa: {tour.capacity} khách / suất</span>
             </span>
           </div>
 
-          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-fg tracking-tight leading-tight">
             {tour.name}
           </h1>
 
-          <div className="flex flex-wrap items-center gap-4 text-xs sm:text-sm text-slate-700">
+          <div className="flex flex-wrap items-center gap-4 text-xs sm:text-sm text-muted">
             <span className="flex items-center gap-1">
-              <MapPin className="w-4 h-4 text-emerald-600 shrink-0" aria-hidden="true" />
+              <MapPin className="w-4 h-4 text-accent shrink-0" aria-hidden="true" />
               <span>{address}</span>
             </span>
-            <span className="text-slate-300">•</span>
-            <span className="flex items-center gap-1 text-emerald-700 font-semibold">
+            <span className="text-muted">•</span>
+            <span className="flex items-center gap-1 text-accent font-semibold">
               <ShieldCheck className="w-4 h-4 shrink-0" aria-hidden="true" />
               <span>Bảo hiểm trải nghiệm đầy đủ</span>
             </span>
@@ -174,7 +174,7 @@ export default async function TourDetailPage({ params }: Props) {
         </div>
 
         {/* Tour Visual & Gallery */}
-        <div className="relative aspect-16/9 sm:aspect-21/9 w-full rounded-3xl bg-slate-100 overflow-hidden shadow-lg border border-slate-200">
+        <div className="relative aspect-16/9 sm:aspect-21/9 w-full rounded-3xl bg-surface-2 overflow-hidden shadow-lg border border-line">
           {coverImage &&
           (coverImage.startsWith('http://') ||
             coverImage.startsWith('https://') ||
@@ -188,10 +188,10 @@ export default async function TourDetailPage({ params }: Props) {
               className="object-cover"
             />
           ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-r from-emerald-800 via-teal-900 to-slate-950 text-white p-6 text-center">
-              <Compass className="w-16 h-16 text-emerald-300 mb-3" aria-hidden="true" />
-              <span className="text-xl sm:text-2xl font-black">{tour.name}</span>
-              <span className="text-sm text-emerald-200 mt-1">
+            <div className="w-full h-full flex flex-col items-center justify-center bg-surface-2 text-accent p-6 text-center">
+              <Compass className="w-16 h-16 text-accent mb-3" aria-hidden="true" />
+              <span className="text-xl sm:text-2xl font-black text-fg">{tour.name}</span>
+              <span className="text-sm text-accent mt-1">
                 Trải nghiệm xanh giữa lòng thiên nhiên
               </span>
             </div>
@@ -203,80 +203,80 @@ export default async function TourDetailPage({ params }: Props) {
           {/* Main Info Column */}
           <div className="lg:col-span-7 space-y-8">
             {/* Price Cards Overview */}
-            <div className="grid grid-cols-2 gap-4 bg-emerald-50/60 rounded-2xl p-5 border border-emerald-100">
+            <div className="grid grid-cols-2 gap-4 bg-surface-2 rounded-2xl p-5 border border-line">
               <div className="space-y-1">
-                <span className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                <span className="text-xs font-semibold text-muted uppercase tracking-wider">
                   Vé người lớn
                 </span>
-                <div className="text-xl sm:text-2xl font-black text-emerald-800">
+                <div className="text-xl sm:text-2xl font-black text-accent">
                   {formatCurrency(tour.priceAdult)}
                 </div>
-                <p className="text-[11px] text-slate-700">Bao gồm toàn bộ hoạt động</p>
+                <p className="text-[11px] text-muted">Bao gồm toàn bộ hoạt động</p>
               </div>
 
-              <div className="space-y-1 border-l border-emerald-200 pl-4">
-                <span className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+              <div className="space-y-1 border-l border-line pl-4">
+                <span className="text-xs font-semibold text-muted uppercase tracking-wider">
                   Vé trẻ em (dưới 12 tuổi)
                 </span>
-                <div className="text-xl sm:text-2xl font-black text-emerald-800">
+                <div className="text-xl sm:text-2xl font-black text-accent">
                   {formatCurrency(tour.priceChild)}
                 </div>
-                <p className="text-[11px] text-slate-700">Ưu đãi cho học sinh & trẻ nhỏ</p>
+                <p className="text-[11px] text-muted">Ưu đãi cho học sinh & trẻ nhỏ</p>
               </div>
             </div>
 
             {/* Description & Detailed content */}
-            <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 space-y-6 shadow-xs">
-              <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 border-b border-slate-100 pb-4">
+            <div className="bg-surface rounded-3xl border border-line p-6 sm:p-8 space-y-6 shadow-xs text-fg">
+              <h2 className="text-xl sm:text-2xl font-extrabold text-fg border-b border-line pb-4">
                 Giới Thiệu Chuyến Đi
               </h2>
 
               <div
-                className="prose prose-emerald max-w-none text-slate-700 leading-relaxed space-y-4"
+                className="prose prose-emerald dark:prose-invert max-w-none text-fg-2 leading-relaxed space-y-4"
                 dangerouslySetInnerHTML={{ __html: sanitizedContent }}
               />
             </div>
 
             {/* What's included & Important notes */}
-            <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 space-y-6 shadow-xs">
-              <h3 className="text-lg sm:text-xl font-bold text-slate-900">
+            <div className="bg-surface rounded-3xl border border-line p-6 sm:p-8 space-y-6 shadow-xs text-fg">
+              <h3 className="text-lg sm:text-xl font-bold text-fg">
                 Lợi Ích & Trải Nghiệm Đáng Nhớ
               </h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex items-start gap-3">
                   <CheckCircle2
-                    className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5"
+                    className="w-5 h-5 text-accent shrink-0 mt-0.5"
                     aria-hidden="true"
                   />
-                  <span className="text-sm text-slate-700">
+                  <span className="text-sm text-fg-2">
                     Hướng dẫn viên nông dân bản địa nhiệt tình
                   </span>
                 </div>
                 <div className="flex items-start gap-3">
                   <CheckCircle2
-                    className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5"
+                    className="w-5 h-5 text-accent shrink-0 mt-0.5"
                     aria-hidden="true"
                   />
-                  <span className="text-sm text-slate-700">
+                  <span className="text-sm text-fg-2">
                     Trải nghiệm tự tay thu hoạch nông sản tươi
                   </span>
                 </div>
                 <div className="flex items-start gap-3">
                   <CheckCircle2
-                    className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5"
+                    className="w-5 h-5 text-accent shrink-0 mt-0.5"
                     aria-hidden="true"
                   />
-                  <span className="text-sm text-slate-700">
+                  <span className="text-sm text-fg-2">
                     Dụng cụ bảo hộ, nón lá, ủng lội nước đầy đủ
                   </span>
                 </div>
                 <div className="flex items-start gap-3">
                   <CheckCircle2
-                    className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5"
+                    className="w-5 h-5 text-accent shrink-0 mt-0.5"
                     aria-hidden="true"
                   />
-                  <span className="text-sm text-slate-700">
+                  <span className="text-sm text-fg-2">
                     Nước giải khát thảo mộc hữu cơ phục vụ suốt chuyến
                   </span>
                 </div>

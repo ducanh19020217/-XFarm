@@ -256,33 +256,30 @@ export function BookingSection({ tour, initialSlots }: BookingSectionProps) {
     <section
       id="dat-cho"
       aria-labelledby="booking-heading"
-      className="bg-white rounded-3xl border border-slate-200/90 shadow-md p-6 sm:p-8 lg:p-10 space-y-8"
+      className="bg-surface rounded-3xl border border-line shadow-md p-6 sm:p-8 lg:p-10 space-y-8 text-fg"
     >
-      <div className="border-b border-slate-100 pb-5 flex items-center justify-between gap-4">
+      <div className="border-b border-line pb-5 flex items-center justify-between gap-4">
         <div>
-          <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+          <span className="text-xs font-bold uppercase tracking-wider text-accent bg-accent-bg px-2.5 py-1 rounded-full border border-accent/20">
             Đặt vé trực tuyến
           </span>
-          <h2
-            id="booking-heading"
-            className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2"
-          >
+          <h2 id="booking-heading" className="text-2xl sm:text-3xl font-extrabold text-fg mt-2">
             Chọn Ngày & Đặt Chỗ
           </h2>
         </div>
         {refreshingSlots && (
-          <span className="inline-flex items-center gap-1.5 text-xs text-slate-700">
-            <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-600" />
+          <span className="inline-flex items-center gap-1.5 text-xs text-muted">
+            <Loader2 className="w-3.5 h-3.5 animate-spin text-accent" />
             <span>Đang cập nhật chỗ...</span>
           </span>
         )}
       </div>
 
       {slots.length === 0 ? (
-        <div className="rounded-2xl bg-amber-50 border border-amber-200 p-6 text-center space-y-2">
-          <Calendar className="w-8 h-8 text-amber-700 mx-auto" aria-hidden="true" />
-          <h3 className="font-bold text-amber-900 text-base">Hiện chưa có lịch khởi hành</h3>
-          <p className="text-sm text-amber-800">
+        <div className="rounded-2xl bg-warn-bg border border-warn/20 p-6 text-center space-y-2 text-warn">
+          <Calendar className="w-8 h-8 text-warn mx-auto" aria-hidden="true" />
+          <h3 className="font-bold text-base">Hiện chưa có lịch khởi hành</h3>
+          <p className="text-sm opacity-90">
             Các suất trải nghiệm cho tour này đang được sắp xếp. Vui lòng liên hệ hotline nông trại
             để được hỗ trợ!
           </p>
@@ -291,17 +288,17 @@ export function BookingSection({ tour, initialSlots }: BookingSectionProps) {
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* 1. LỊCH CHỌN NGÀY (chỉ ngày có slot còn chỗ) */}
           <div className="space-y-3">
-            <label className="block text-sm font-bold text-slate-900 flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-emerald-600" aria-hidden="true" />
+            <label className="block text-sm font-bold text-fg flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-accent" aria-hidden="true" />
               <span>1. Chọn ngày trải nghiệm:</span>
             </label>
-            <p className="text-xs text-slate-700">
+            <p className="text-xs text-muted">
               Chỉ các ngày có suất trải nghiệm còn chỗ mới có thể lựa chọn.
             </p>
 
             <div
               data-testid="date-picker-list"
-              className="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-slate-200"
+              className="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-line"
             >
               {dateKeys.map((dateKey) => {
                 const sampleSlot = slotsByDate.get(dateKey)?.[0];
@@ -323,10 +320,10 @@ export function BookingSection({ tour, initialSlots }: BookingSectionProps) {
                     }}
                     className={`shrink-0 flex flex-col items-center justify-center px-4 py-3 rounded-2xl border text-center transition-all ${
                       isSelected
-                        ? 'border-emerald-600 bg-emerald-600 text-white shadow-sm ring-2 ring-emerald-500/30'
+                        ? 'border-accent bg-accent text-surface shadow-sm ring-2 ring-accent/30'
                         : isAvailable
-                          ? 'border-slate-200 bg-white hover:border-emerald-400 hover:bg-emerald-50/40 text-slate-800 cursor-pointer'
-                          : 'border-slate-100 bg-slate-50 text-slate-400 cursor-not-allowed opacity-50'
+                          ? 'border-line bg-surface hover:border-accent hover:bg-hover text-fg cursor-pointer'
+                          : 'border-line bg-surface-2 text-muted cursor-not-allowed opacity-50'
                     }`}
                   >
                     <span className="text-xs font-semibold uppercase tracking-wider">
@@ -346,13 +343,13 @@ export function BookingSection({ tour, initialSlots }: BookingSectionProps) {
 
           {/* 2. CHỌN GIỜ (hiện số chỗ còn, slot đầy không chọn được) */}
           <div className="space-y-3">
-            <label className="block text-sm font-bold text-slate-900 flex items-center gap-2">
-              <Clock className="w-4 h-4 text-emerald-600" aria-hidden="true" />
+            <label className="block text-sm font-bold text-fg flex items-center gap-2">
+              <Clock className="w-4 h-4 text-accent" aria-hidden="true" />
               <span>2. Chọn khung giờ khởi hành:</span>
             </label>
 
             {slotsForSelectedDate.length === 0 ? (
-              <p className="text-sm text-slate-700 italic">Vui lòng chọn ngày trước.</p>
+              <p className="text-sm text-muted italic">Vui lòng chọn ngày trước.</p>
             ) : (
               <div
                 data-testid="time-slot-list"
@@ -377,17 +374,17 @@ export function BookingSection({ tour, initialSlots }: BookingSectionProps) {
                       }}
                       className={`flex items-center justify-between p-3.5 rounded-xl border text-left transition-all ${
                         isSelected
-                          ? 'border-emerald-600 bg-emerald-50 text-emerald-950 ring-2 ring-emerald-500/20 font-bold'
+                          ? 'border-accent bg-accent-bg text-accent ring-2 ring-accent/20 font-bold'
                           : isFull
-                            ? 'border-slate-200 bg-slate-100/80 text-slate-700 cursor-not-allowed opacity-60'
-                            : 'border-slate-200 bg-white hover:border-emerald-400 hover:bg-emerald-50/30 text-slate-800 cursor-pointer'
+                            ? 'border-line bg-surface-2 text-muted cursor-not-allowed opacity-60'
+                            : 'border-line bg-surface hover:border-accent hover:bg-hover text-fg cursor-pointer'
                       }`}
                     >
                       <div className="flex flex-col">
                         <span className="text-base font-extrabold">{timeDisplay}</span>
-                        <span className="text-xs text-slate-700 mt-0.5">
+                        <span className="text-xs text-muted mt-0.5">
                           {isFull ? (
-                            <span className="text-rose-600 font-semibold">Hết chỗ</span>
+                            <span className="text-crit font-semibold">Hết chỗ</span>
                           ) : (
                             <span>Còn {slot.remaining} chỗ</span>
                           )}
@@ -395,7 +392,7 @@ export function BookingSection({ tour, initialSlots }: BookingSectionProps) {
                       </div>
 
                       {isSelected && (
-                        <div className="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
+                        <div className="w-6 h-6 rounded-full bg-accent text-surface flex items-center justify-center shrink-0">
                           <Check className="w-4 h-4" />
                         </div>
                       )}
@@ -407,14 +404,14 @@ export function BookingSection({ tour, initialSlots }: BookingSectionProps) {
           </div>
 
           {/* 3. SỐ NGƯỜI LỚN & TRẺ EM (không vượt số chỗ còn) */}
-          <div className="space-y-4 bg-slate-50/80 rounded-2xl p-5 sm:p-6 border border-slate-200/80">
+          <div className="space-y-4 bg-surface-2 rounded-2xl p-5 sm:p-6 border border-line">
             <div className="flex items-center justify-between">
-              <label className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                <Users className="w-4 h-4 text-emerald-600" aria-hidden="true" />
+              <label className="text-sm font-bold text-fg flex items-center gap-2">
+                <Users className="w-4 h-4 text-accent" aria-hidden="true" />
                 <span>3. Số lượng khách:</span>
               </label>
               {selectedSlot && (
-                <span className="text-xs font-semibold text-emerald-800 bg-emerald-100/70 px-2.5 py-1 rounded-full">
+                <span className="text-xs font-semibold text-accent bg-accent-bg border border-accent/20 px-2.5 py-1 rounded-full">
                   Khung giờ này còn: {maxAvailable} chỗ
                 </span>
               )}
@@ -422,10 +419,10 @@ export function BookingSection({ tour, initialSlots }: BookingSectionProps) {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Người lớn */}
-              <div className="bg-white rounded-xl p-4 border border-slate-200 flex items-center justify-between">
+              <div className="bg-surface rounded-xl p-4 border border-line flex items-center justify-between text-fg">
                 <div>
-                  <div className="font-bold text-slate-900 text-sm">Người lớn</div>
-                  <div className="text-xs text-emerald-700 font-semibold mt-0.5">
+                  <div className="font-bold text-fg text-sm">Người lớn</div>
+                  <div className="text-xs text-accent font-semibold mt-0.5">
                     {formatCurrency(tour.priceAdult)} / vé
                   </div>
                 </div>
@@ -436,7 +433,7 @@ export function BookingSection({ tour, initialSlots }: BookingSectionProps) {
                     data-testid="decrease-adults-button"
                     disabled={adults <= 1}
                     onClick={() => setAdults((prev) => Math.max(1, prev - 1))}
-                    className="w-8 h-8 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed font-bold flex items-center justify-center transition-colors"
+                    className="w-8 h-8 rounded-lg border border-line text-fg hover:bg-hover disabled:opacity-30 disabled:cursor-not-allowed font-bold flex items-center justify-center transition-colors"
                     aria-label="Giảm người lớn"
                   >
                     -
@@ -456,7 +453,7 @@ export function BookingSection({ tour, initialSlots }: BookingSectionProps) {
                       );
                       setAdults(clamped);
                     }}
-                    className="w-12 text-center font-bold text-base text-slate-900 focus:outline-hidden"
+                    className="w-12 text-center font-bold text-base text-fg bg-transparent focus:outline-hidden"
                   />
                   <button
                     type="button"
@@ -467,7 +464,7 @@ export function BookingSection({ tour, initialSlots }: BookingSectionProps) {
                         setAdults((prev) => prev + 1);
                       }
                     }}
-                    className="w-8 h-8 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed font-bold flex items-center justify-center transition-colors"
+                    className="w-8 h-8 rounded-lg border border-line text-fg hover:bg-hover disabled:opacity-30 disabled:cursor-not-allowed font-bold flex items-center justify-center transition-colors"
                     aria-label="Tăng người lớn"
                   >
                     +
@@ -476,10 +473,10 @@ export function BookingSection({ tour, initialSlots }: BookingSectionProps) {
               </div>
 
               {/* Trẻ em */}
-              <div className="bg-white rounded-xl p-4 border border-slate-200 flex items-center justify-between">
+              <div className="bg-surface rounded-xl p-4 border border-line flex items-center justify-between text-fg">
                 <div>
-                  <div className="font-bold text-slate-900 text-sm">Trẻ em</div>
-                  <div className="text-xs text-emerald-700 font-semibold mt-0.5">
+                  <div className="font-bold text-fg text-sm">Trẻ em</div>
+                  <div className="text-xs text-accent font-semibold mt-0.5">
                     {formatCurrency(tour.priceChild)} / vé
                   </div>
                 </div>
@@ -490,7 +487,7 @@ export function BookingSection({ tour, initialSlots }: BookingSectionProps) {
                     data-testid="decrease-children-button"
                     disabled={children <= 0}
                     onClick={() => setChildren((prev) => Math.max(0, prev - 1))}
-                    className="w-8 h-8 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed font-bold flex items-center justify-center transition-colors"
+                    className="w-8 h-8 rounded-lg border border-line text-fg hover:bg-hover disabled:opacity-30 disabled:cursor-not-allowed font-bold flex items-center justify-center transition-colors"
                     aria-label="Giảm trẻ em"
                   >
                     -
@@ -508,7 +505,7 @@ export function BookingSection({ tour, initialSlots }: BookingSectionProps) {
                       const clamped = Math.min(nonNeg, Math.max(0, maxAvailable - adults));
                       setChildren(clamped);
                     }}
-                    className="w-12 text-center font-bold text-base text-slate-900 focus:outline-hidden"
+                    className="w-12 text-center font-bold text-base text-fg bg-transparent focus:outline-hidden"
                   />
                   <button
                     type="button"
@@ -519,7 +516,7 @@ export function BookingSection({ tour, initialSlots }: BookingSectionProps) {
                         setChildren((prev) => prev + 1);
                       }
                     }}
-                    className="w-8 h-8 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed font-bold flex items-center justify-center transition-colors"
+                    className="w-8 h-8 rounded-lg border border-line text-fg hover:bg-hover disabled:opacity-30 disabled:cursor-not-allowed font-bold flex items-center justify-center transition-colors"
                     aria-label="Tăng trẻ em"
                   >
                     +
@@ -529,13 +526,13 @@ export function BookingSection({ tour, initialSlots }: BookingSectionProps) {
             </div>
 
             {/* 4. TỔNG TIỀN TẠM TÍNH */}
-            <div className="border-t border-slate-200 pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <span className="text-sm text-slate-700 font-medium">
+            <div className="border-t border-line pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <span className="text-sm text-muted font-medium">
                 Tổng tiền tạm tính ({adults} người lớn, {children} trẻ em):
               </span>
               <span
                 data-testid="estimated-total"
-                className="text-xl sm:text-2xl font-black text-emerald-800"
+                className="text-xl sm:text-2xl font-black text-accent"
               >
                 {formatCurrency(estimatedTotal)}
               </span>
@@ -543,8 +540,8 @@ export function BookingSection({ tour, initialSlots }: BookingSectionProps) {
           </div>
 
           {/* 5. FORM THÔNG TIN KHÁCH HÀNG */}
-          <div className="space-y-4 pt-2 border-t border-slate-100">
-            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
+          <div className="space-y-4 pt-2 border-t border-line">
+            <h3 className="text-sm font-bold text-fg uppercase tracking-wider">
               4. Thông tin người đặt chỗ:
             </h3>
 
@@ -552,7 +549,7 @@ export function BookingSection({ tour, initialSlots }: BookingSectionProps) {
               <div>
                 <label
                   htmlFor="customerName"
-                  className="block text-xs font-semibold text-slate-700 mb-1"
+                  className="block text-xs font-semibold text-fg-2 mb-1"
                 >
                   Họ và tên *
                 </label>
@@ -564,12 +561,12 @@ export function BookingSection({ tour, initialSlots }: BookingSectionProps) {
                   placeholder="Ví dụ: Nguyễn Văn An"
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm text-slate-900"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-line bg-surface text-fg placeholder:text-muted focus:ring-2 focus:ring-accent focus:border-accent text-sm"
                 />
               </div>
 
               <div>
-                <label htmlFor="phone" className="block text-xs font-semibold text-slate-700 mb-1">
+                <label htmlFor="phone" className="block text-xs font-semibold text-fg-2 mb-1">
                   Số điện thoại *
                 </label>
                 <input
@@ -580,12 +577,12 @@ export function BookingSection({ tour, initialSlots }: BookingSectionProps) {
                   placeholder="Ví dụ: 0901234567"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm text-slate-900"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-line bg-surface text-fg placeholder:text-muted focus:ring-2 focus:ring-accent focus:border-accent text-sm"
                 />
               </div>
 
               <div>
-                <label htmlFor="email" className="block text-xs font-semibold text-slate-700 mb-1">
+                <label htmlFor="email" className="block text-xs font-semibold text-fg-2 mb-1">
                   Email (tùy chọn - nhận mã xác nhận)
                 </label>
                 <input
@@ -595,14 +592,14 @@ export function BookingSection({ tour, initialSlots }: BookingSectionProps) {
                   placeholder="ten@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm text-slate-900"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-line bg-surface text-fg placeholder:text-muted focus:ring-2 focus:ring-accent focus:border-accent text-sm"
                 />
               </div>
 
               <div>
                 <label
                   htmlFor="paymentMethod"
-                  className="block text-xs font-semibold text-slate-700 mb-1"
+                  className="block text-xs font-semibold text-fg-2 mb-1"
                 >
                   Phương thức thanh toán
                 </label>
@@ -611,7 +608,7 @@ export function BookingSection({ tour, initialSlots }: BookingSectionProps) {
                   data-testid="payment-method-select"
                   value={paymentMethod}
                   onChange={(e) => setPaymentMethod(e.target.value as 'BANK_TRANSFER' | 'CASH')}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm text-slate-900 bg-white"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-line bg-surface text-fg focus:ring-2 focus:ring-accent focus:border-accent text-sm"
                 >
                   <option value="BANK_TRANSFER">Chuyển khoản VietQR</option>
                   <option value="CASH">Tiền mặt tại nông trại</option>
@@ -619,7 +616,7 @@ export function BookingSection({ tour, initialSlots }: BookingSectionProps) {
               </div>
 
               <div className="sm:col-span-2">
-                <label htmlFor="notes" className="block text-xs font-semibold text-slate-700 mb-1">
+                <label htmlFor="notes" className="block text-xs font-semibold text-fg-2 mb-1">
                   Yêu cầu đặc biệt hoặc ghi chú (tùy chọn)
                 </label>
                 <textarea
@@ -629,7 +626,7 @@ export function BookingSection({ tour, initialSlots }: BookingSectionProps) {
                   placeholder="Ví dụ: Có xe đẩy em bé, chế độ ăn chay..."
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm text-slate-900"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-line bg-surface text-fg placeholder:text-muted focus:ring-2 focus:ring-accent focus:border-accent text-sm"
                 />
               </div>
             </div>
@@ -639,9 +636,9 @@ export function BookingSection({ tour, initialSlots }: BookingSectionProps) {
           {errorMessage && (
             <div
               data-testid="booking-error-alert"
-              className="rounded-xl bg-rose-50 border border-rose-200 p-4 flex items-start gap-3 text-rose-800 text-sm"
+              className="rounded-xl bg-crit-bg border border-crit/20 p-4 flex items-start gap-3 text-crit text-sm"
             >
-              <AlertCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" aria-hidden="true" />
+              <AlertCircle className="w-5 h-5 text-crit shrink-0 mt-0.5" aria-hidden="true" />
               <div>
                 <strong className="font-bold">Lỗi đặt chỗ: </strong>
                 <span>{errorMessage}</span>
@@ -655,7 +652,7 @@ export function BookingSection({ tour, initialSlots }: BookingSectionProps) {
               type="submit"
               data-testid="submit-booking-button"
               disabled={submitting || !selectedSlotId || maxAvailable <= 0}
-              className="w-full py-4 px-6 rounded-2xl bg-emerald-700 hover:bg-emerald-800 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-extrabold text-base sm:text-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-emerald-500"
+              className="w-full py-4 px-6 rounded-2xl bg-accent hover:bg-accent-hover disabled:bg-surface-2 disabled:text-muted disabled:cursor-not-allowed text-surface font-extrabold text-base sm:text-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
             >
               {submitting ? (
                 <>
@@ -664,12 +661,12 @@ export function BookingSection({ tour, initialSlots }: BookingSectionProps) {
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-5 h-5 text-emerald-200" />
+                  <Sparkles className="w-5 h-5 text-surface" />
                   <span>Xác Nhận Đặt Chỗ ({formatCurrency(estimatedTotal)})</span>
                 </>
               )}
             </button>
-            <p className="text-center text-xs text-slate-700 mt-2.5">
+            <p className="text-center text-xs text-muted mt-2.5">
               Sau khi đặt chỗ thành công, bạn sẽ nhận được mã đặt vé để tra cứu và thanh toán.
             </p>
           </div>

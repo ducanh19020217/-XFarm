@@ -172,9 +172,7 @@ export default function OutboxPage() {
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <div>
-            <h1 className="text-lg font-extrabold text-fg tracking-tight">
-              Hàng đợi ngoại tuyến
-            </h1>
+            <h1 className="text-lg font-extrabold text-fg tracking-tight">Hàng đợi ngoại tuyến</h1>
             <p className="text-xs font-medium text-muted">
               Quản lý các thao tác chưa đồng bộ lên máy chủ
             </p>
@@ -244,7 +242,11 @@ export default function OutboxPage() {
           </p>
           <div className="pt-2">
             <Link href="/admin/m">
-              <Button variant="outline" size="sm" className="h-10 rounded-xl text-xs font-bold border-line bg-surface text-fg hover:bg-hover">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-10 rounded-xl text-xs font-bold border-line bg-surface text-fg hover:bg-hover"
+              >
                 Quay về trang chính
               </Button>
             </Link>
@@ -281,9 +283,7 @@ export default function OutboxPage() {
                 {/* Details */}
                 <div className="text-xs space-y-1 text-muted">
                   {Boolean(payload.notes) && (
-                    <p className="font-medium text-fg">
-                      Ghi chú: {String(payload.notes)}
-                    </p>
+                    <p className="font-medium text-fg">Ghi chú: {String(payload.notes)}</p>
                   )}
                   {Boolean(payload.type) && (
                     <p>
@@ -293,7 +293,9 @@ export default function OutboxPage() {
                   {Boolean(payload.at) && (
                     <p>
                       Thời điểm:{' '}
-                      <span className="font-medium text-fg-2">{formatDateTime(String(payload.at))}</span>
+                      <span className="font-medium text-fg-2">
+                        {formatDateTime(String(payload.at))}
+                      </span>
                     </p>
                   )}
                   {Array.isArray(payload.mediaIds) && payload.mediaIds.length > 0 && (

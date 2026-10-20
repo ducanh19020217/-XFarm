@@ -107,62 +107,62 @@ export function SuccessView({ code }: { code: string }) {
   return (
     <div className="py-8 sm:py-16 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
       {/* Success Banner */}
-      <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200/80 shadow-xs text-center">
-        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4 text-emerald-600 shadow-xs">
+      <div className="bg-surface rounded-3xl p-6 sm:p-10 border border-line shadow-xs text-center">
+        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-ok-bg rounded-full flex items-center justify-center mx-auto mb-4 text-ok shadow-xs">
           <CheckCircle2 className="w-10 h-10 sm:w-12 sm:h-12" aria-hidden="true" />
         </div>
 
-        <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+        <h1 className="text-2xl sm:text-4xl font-extrabold text-fg tracking-tight">
           Đặt hàng thành công!
         </h1>
-        <p className="mt-2 text-slate-600 text-sm sm:text-base max-w-xl mx-auto">
+        <p className="mt-2 text-muted text-sm sm:text-base max-w-xl mx-auto">
           Cảm ơn bạn đã tin tưởng chọn mua nông sản tại XFarm. Đơn hàng của bạn đã được tiếp nhận và
           đang được xử lý.
         </p>
 
         {/* Order Details Badge */}
-        <div className="mt-6 inline-flex flex-wrap items-center justify-center gap-4 sm:gap-8 bg-slate-50 border border-slate-200/80 px-6 py-4 rounded-2xl text-left">
+        <div className="mt-6 inline-flex flex-wrap items-center justify-center gap-4 sm:gap-8 bg-surface-2 border border-line px-6 py-4 rounded-2xl text-left">
           <div>
-            <span className="block text-xs uppercase tracking-wider text-slate-500 font-semibold">
+            <span className="block text-xs uppercase tracking-wider text-muted font-semibold">
               Mã đơn hàng
             </span>
             <span
               data-testid="order-code-text"
-              className="font-mono text-base sm:text-lg font-bold text-slate-900"
+              className="font-mono text-base sm:text-lg font-bold text-fg"
             >
               {code}
             </span>
           </div>
 
-          <div className="h-8 w-px bg-slate-200 hidden sm:block" />
+          <div className="h-8 w-px bg-line hidden sm:block" />
 
           <div>
-            <span className="block text-xs uppercase tracking-wider text-slate-500 font-semibold">
+            <span className="block text-xs uppercase tracking-wider text-muted font-semibold">
               Tổng thanh toán
             </span>
             <span
               data-testid="order-total-text"
-              className="text-base sm:text-lg font-extrabold text-emerald-700"
+              className="text-base sm:text-lg font-extrabold text-accent"
             >
               {formatCurrency(order?.total ?? 0)}
             </span>
           </div>
 
-          <div className="h-8 w-px bg-slate-200 hidden sm:block" />
+          <div className="h-8 w-px bg-line hidden sm:block" />
 
           <div>
-            <span className="block text-xs uppercase tracking-wider text-slate-500 font-semibold">
+            <span className="block text-xs uppercase tracking-wider text-muted font-semibold">
               Hình thức
             </span>
-            <span className="text-sm sm:text-base font-semibold text-slate-800 flex items-center gap-1.5">
+            <span className="text-sm sm:text-base font-semibold text-fg-2 flex items-center gap-1.5">
               {isBankTransfer ? (
                 <>
-                  <CreditCard className="w-4 h-4 text-emerald-600" />
+                  <CreditCard className="w-4 h-4 text-accent" />
                   Chuyển khoản VietQR
                 </>
               ) : (
                 <>
-                  <Truck className="w-4 h-4 text-emerald-600" />
+                  <Truck className="w-4 h-4 text-accent" />
                   COD khi nhận hàng
                 </>
               )}
@@ -172,20 +172,20 @@ export function SuccessView({ code }: { code: string }) {
 
         {/* Bank Transfer QR section */}
         {isBankTransfer && order?.bankTransfer && (
-          <div className="mt-10 border-t border-slate-100 pt-8 text-left max-w-2xl mx-auto">
-            <div className="bg-emerald-50/50 rounded-2xl p-6 sm:p-8 border border-emerald-100">
-              <h2 className="text-lg sm:text-xl font-bold text-slate-900 mb-2 flex items-center gap-2">
-                <Building className="w-5 h-5 text-emerald-700" />
+          <div className="mt-10 border-t border-line pt-8 text-left max-w-2xl mx-auto">
+            <div className="bg-accent-bg/40 rounded-2xl p-6 sm:p-8 border border-accent/20">
+              <h2 className="text-lg sm:text-xl font-bold text-fg mb-2 flex items-center gap-2">
+                <Building className="w-5 h-5 text-accent" />
                 Thông tin thanh toán chuyển khoản
               </h2>
-              <p className="text-xs sm:text-sm text-slate-600 mb-6">
+              <p className="text-xs sm:text-sm text-muted mb-6">
                 Vui lòng quét mã QR qua ứng dụng ngân hàng hoặc chuyển khoản chính xác thông tin bên
                 dưới để đơn hàng được duyệt tự động.
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-                {/* QR Code Image */}
-                <div className="flex flex-col items-center justify-center p-4 bg-white rounded-2xl border border-emerald-200 shadow-xs">
+                {/* QR Code Image - keeps white bg for scanner contrast */}
+                <div className="flex flex-col items-center justify-center p-4 bg-white rounded-2xl border border-line shadow-xs">
                   <div className="relative w-48 h-48 sm:w-56 sm:h-56">
                     <img
                       src={order.bankTransfer.qrUrl}
@@ -194,7 +194,7 @@ export function SuccessView({ code }: { code: string }) {
                       className="w-full h-full object-contain rounded-lg"
                     />
                   </div>
-                  <span className="mt-2 text-[11px] text-slate-500 text-center font-medium">
+                  <span className="mt-2 text-[11px] text-slate-600 text-center font-medium">
                     Quét mã QR bằng ứng dụng ngân hàng bất kỳ
                   </span>
                 </div>
@@ -202,18 +202,18 @@ export function SuccessView({ code }: { code: string }) {
                 {/* Account Details & Copy buttons */}
                 <div className="space-y-3.5 text-xs sm:text-sm">
                   {/* Bank Name */}
-                  <div className="bg-white p-3 rounded-xl border border-slate-200">
-                    <span className="text-slate-500 block text-[11px]">Ngân hàng</span>
-                    <span className="font-bold text-slate-900">{order.bankTransfer.bank}</span>
+                  <div className="bg-surface p-3 rounded-xl border border-line">
+                    <span className="text-muted block text-[11px]">Ngân hàng</span>
+                    <span className="font-bold text-fg">{order.bankTransfer.bank}</span>
                   </div>
 
                   {/* Account Number */}
-                  <div className="bg-white p-3 rounded-xl border border-slate-200 flex items-center justify-between gap-2">
+                  <div className="bg-surface p-3 rounded-xl border border-line flex items-center justify-between gap-2">
                     <div>
-                      <span className="text-slate-500 block text-[11px]">Số tài khoản</span>
+                      <span className="text-muted block text-[11px]">Số tài khoản</span>
                       <span
                         data-testid="bank-account-number"
-                        className="font-mono font-bold text-slate-900 text-sm sm:text-base"
+                        className="font-mono font-bold text-fg text-sm sm:text-base"
                       >
                         {order.bankTransfer.accountNumber}
                       </span>
@@ -223,7 +223,7 @@ export function SuccessView({ code }: { code: string }) {
                       onClick={() =>
                         copyToClipboard(order.bankTransfer!.accountNumber, 'accountNumber')
                       }
-                      className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-colors"
+                      className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-accent bg-accent-bg hover:bg-hover transition-colors"
                       title="Sao chép số tài khoản"
                     >
                       {copiedKey === 'accountNumber' ? (
@@ -241,22 +241,20 @@ export function SuccessView({ code }: { code: string }) {
                   </div>
 
                   {/* Account Name */}
-                  <div className="bg-white p-3 rounded-xl border border-slate-200">
-                    <span className="text-slate-500 block text-[11px]">Chủ tài khoản</span>
-                    <span className="font-bold text-slate-900 uppercase">
+                  <div className="bg-surface p-3 rounded-xl border border-line">
+                    <span className="text-muted block text-[11px]">Chủ tài khoản</span>
+                    <span className="font-bold text-fg uppercase">
                       {order.bankTransfer.accountName}
                     </span>
                   </div>
 
                   {/* Content / Note */}
-                  <div className="bg-white p-3 rounded-xl border border-slate-200 flex items-center justify-between gap-2">
+                  <div className="bg-surface p-3 rounded-xl border border-line flex items-center justify-between gap-2">
                     <div>
-                      <span className="text-slate-500 block text-[11px]">
-                        Nội dung chuyển khoản
-                      </span>
+                      <span className="text-muted block text-[11px]">Nội dung chuyển khoản</span>
                       <span
                         data-testid="transfer-content"
-                        className="font-mono font-bold text-emerald-800 text-sm sm:text-base"
+                        className="font-mono font-bold text-accent text-sm sm:text-base"
                       >
                         {order.bankTransfer.content}
                       </span>
@@ -264,7 +262,7 @@ export function SuccessView({ code }: { code: string }) {
                     <button
                       type="button"
                       onClick={() => copyToClipboard(order.bankTransfer!.content, 'content')}
-                      className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-colors"
+                      className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-accent bg-accent-bg hover:bg-hover transition-colors"
                       title="Sao chép nội dung chuyển khoản"
                     >
                       {copiedKey === 'content' ? (
@@ -287,11 +285,11 @@ export function SuccessView({ code }: { code: string }) {
         )}
 
         {/* Action Buttons */}
-        <div className="mt-10 pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-center gap-4">
+        <div className="mt-10 pt-6 border-t border-line flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link
             href={`/tra-cuu-don?code=${encodeURIComponent(code)}`}
             data-testid="view-order-lookup"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-slate-900 text-white font-bold text-sm sm:text-base hover:bg-slate-800 shadow-sm transition-all"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-accent text-accent-contrast font-bold text-sm sm:text-base hover:bg-accent-hover shadow-xs transition-all"
           >
             <Search className="w-4 h-4" />
             <span>Tra cứu đơn hàng</span>
@@ -299,7 +297,7 @@ export function SuccessView({ code }: { code: string }) {
 
           <Link
             href="/san-pham"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-emerald-700 bg-emerald-50 hover:bg-emerald-100 font-bold text-sm sm:text-base transition-colors"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-fg-2 bg-surface-2 hover:bg-hover font-bold text-sm sm:text-base border border-line transition-colors"
           >
             <span>Tiếp tục mua hàng</span>
             <ArrowRight className="w-4 h-4" />

@@ -343,9 +343,7 @@ function QuickLogContent() {
       {/* Header */}
       <div className="flex items-center justify-between pb-1">
         <div>
-          <h1 className="text-xl font-extrabold text-fg tracking-tight">
-            Ghi nhanh nhật ký
-          </h1>
+          <h1 className="text-xl font-extrabold text-fg tracking-tight">Ghi nhanh nhật ký</h1>
           <p className="text-xs font-medium text-muted">
             Ghi chép hoạt động canh tác nhanh bằng 1 tay
           </p>
@@ -481,7 +479,9 @@ function QuickLogContent() {
                     }}
                     placeholder="VD: 20"
                     className={`h-12 rounded-xl text-base font-bold bg-surface border-line text-fg placeholder:text-muted ${
-                      fieldErrors.durationMin ? 'border-crit focus-visible:ring-crit' : 'focus-visible:ring-accent'
+                      fieldErrors.durationMin
+                        ? 'border-crit focus-visible:ring-crit'
+                        : 'focus-visible:ring-accent'
                     }`}
                   />
                   {fieldErrors.durationMin && (
@@ -510,7 +510,9 @@ function QuickLogContent() {
                     }}
                     placeholder="VD: 100"
                     className={`h-12 rounded-xl text-sm font-medium bg-surface border-line text-fg placeholder:text-muted ${
-                      fieldErrors.volumeL ? 'border-crit focus-visible:ring-crit' : 'focus-visible:ring-accent'
+                      fieldErrors.volumeL
+                        ? 'border-crit focus-visible:ring-crit'
+                        : 'focus-visible:ring-accent'
                     }`}
                   />
                   {fieldErrors.volumeL && (
@@ -523,10 +525,7 @@ function QuickLogContent() {
 
           {selectedType === ActivityType.FEEDING && (
             <div>
-              <label
-                htmlFor="feedKg"
-                className="block text-[11px] font-semibold text-muted mb-1"
-              >
+              <label htmlFor="feedKg" className="block text-[11px] font-semibold text-muted mb-1">
                 Khối lượng thức ăn (kg) <span className="text-crit">*</span>
               </label>
               <Input
@@ -544,12 +543,12 @@ function QuickLogContent() {
                 }}
                 placeholder="VD: 5"
                 className={`h-12 rounded-xl text-base font-bold bg-surface border-line text-fg placeholder:text-muted ${
-                  fieldErrors.feedKg ? 'border-crit focus-visible:ring-crit' : 'focus-visible:ring-accent'
+                  fieldErrors.feedKg
+                    ? 'border-crit focus-visible:ring-crit'
+                    : 'focus-visible:ring-accent'
                 }`}
               />
-              {fieldErrors.feedKg && (
-                <p className="text-xs text-crit mt-1">{fieldErrors.feedKg}</p>
-              )}
+              {fieldErrors.feedKg && <p className="text-xs text-crit mt-1">{fieldErrors.feedKg}</p>}
             </div>
           )}
 
@@ -577,7 +576,9 @@ function QuickLogContent() {
                   }}
                   placeholder="VD: 1.5"
                   className={`h-12 rounded-xl text-base font-bold bg-surface border-line text-fg placeholder:text-muted ${
-                    fieldErrors.avgWeightKg ? 'border-crit focus-visible:ring-crit' : 'focus-visible:ring-accent'
+                    fieldErrors.avgWeightKg
+                      ? 'border-crit focus-visible:ring-crit'
+                      : 'focus-visible:ring-accent'
                   }`}
                 />
                 {fieldErrors.avgWeightKg && (
@@ -606,7 +607,9 @@ function QuickLogContent() {
                   }}
                   placeholder="VD: 10"
                   className={`h-12 rounded-xl text-sm font-medium bg-surface border-line text-fg placeholder:text-muted ${
-                    fieldErrors.sampleSize ? 'border-crit focus-visible:ring-crit' : 'focus-visible:ring-accent'
+                    fieldErrors.sampleSize
+                      ? 'border-crit focus-visible:ring-crit'
+                      : 'focus-visible:ring-accent'
                   }`}
                 />
                 {fieldErrors.sampleSize && (
@@ -640,12 +643,12 @@ function QuickLogContent() {
                   }}
                   placeholder="VD: 2"
                   className={`h-12 rounded-xl text-base font-bold bg-surface border-line text-fg placeholder:text-muted ${
-                    fieldErrors.count ? 'border-crit focus-visible:ring-crit' : 'focus-visible:ring-accent'
+                    fieldErrors.count
+                      ? 'border-crit focus-visible:ring-crit'
+                      : 'focus-visible:ring-accent'
                   }`}
                 />
-                {fieldErrors.count && (
-                  <p className="text-xs text-crit mt-1">{fieldErrors.count}</p>
-                )}
+                {fieldErrors.count && <p className="text-xs text-crit mt-1">{fieldErrors.count}</p>}
               </div>
               <div>
                 <label
@@ -691,12 +694,12 @@ function QuickLogContent() {
                   }}
                   placeholder="VD: 1000"
                   className={`h-12 rounded-xl text-base font-bold bg-surface border-line text-fg placeholder:text-muted ${
-                    fieldErrors.count ? 'border-crit focus-visible:ring-crit' : 'focus-visible:ring-accent'
+                    fieldErrors.count
+                      ? 'border-crit focus-visible:ring-crit'
+                      : 'focus-visible:ring-accent'
                   }`}
                 />
-                {fieldErrors.count && (
-                  <p className="text-xs text-crit mt-1">{fieldErrors.count}</p>
-                )}
+                {fieldErrors.count && <p className="text-xs text-crit mt-1">{fieldErrors.count}</p>}
               </div>
               <div>
                 <label
@@ -720,7 +723,9 @@ function QuickLogContent() {
                   }}
                   placeholder="VD: 50"
                   className={`h-12 rounded-xl text-sm font-medium bg-surface border-line text-fg placeholder:text-muted ${
-                    fieldErrors.avgWeightG ? 'border-crit focus-visible:ring-crit' : 'focus-visible:ring-accent'
+                    fieldErrors.avgWeightG
+                      ? 'border-crit focus-visible:ring-crit'
+                      : 'focus-visible:ring-accent'
                   }`}
                 />
                 {fieldErrors.avgWeightG && (
