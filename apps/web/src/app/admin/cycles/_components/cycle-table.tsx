@@ -40,7 +40,7 @@ export function CycleTable({
       header: 'Mã',
       cell: ({ row }) => (
         <Link
-          className="font-medium text-emerald-700 hover:underline"
+          className="font-medium text-accent hover:underline"
           href={`/admin/cycles/${row.original.id}`}
         >
           {row.original.code}

@@ -74,7 +74,7 @@ export default function CycleDetailPage() {
 
   if (loading)
     return (
-      <div className="flex items-center justify-center p-12 text-slate-500">
+      <div className="flex items-center justify-center p-12 text-muted">
         <Loader2 className="mr-2 h-5 w-5 animate-spin" />
         Đang tải...
       </div>
@@ -110,9 +110,9 @@ export default function CycleDetailPage() {
         <CycleInfoCard cycle={cycle} />
         <section
           id="cycle-timeline-slot"
-          className="min-h-52 rounded-lg border bg-white p-5 shadow-sm"
+          className="min-h-52 rounded-lg border border-line bg-surface p-5 shadow-sm"
         >
-          <h2 className="mb-2 font-semibold">Nhật ký</h2>
+          <h2 className="mb-2 font-semibold text-fg">Nhật ký</h2>
           <ActivityTimeline activities={timeline} />
         </section>
       </div>
