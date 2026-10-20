@@ -245,7 +245,7 @@ export function EventForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4" data-testid="event-form">
       {formError && (
-        <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md dark:bg-red-950/50 dark:border-red-900">
+        <div className="p-3 text-sm text-crit bg-crit-bg border border-crit/20 rounded-md">
           {formError}
         </div>
       )}
@@ -287,10 +287,10 @@ export function EventForm({
       {/* Các trường động theo loại sự kiện */}
       {eventType === AnimalEventType.VACCINATION && (
         <div
-          className="space-y-3 rounded-lg border border-zinc-200 bg-zinc-50/50 p-3 dark:border-zinc-800 dark:bg-zinc-900/50"
+          className="space-y-3 rounded-lg border border-line bg-surface-2 p-3"
           data-testid="fields-vaccination"
         >
-          <h4 className="text-xs font-semibold uppercase text-zinc-500">Thông tin tiêm phòng</h4>
+          <h4 className="text-xs font-semibold uppercase text-muted">Thông tin tiêm phòng</h4>
           <div className="space-y-1">
             <Label htmlFor="vaccine-name">Tên vắc-xin *</Label>
             <Input
@@ -329,10 +329,10 @@ export function EventForm({
 
       {eventType === AnimalEventType.TREATMENT && (
         <div
-          className="space-y-3 rounded-lg border border-zinc-200 bg-zinc-50/50 p-3 dark:border-zinc-800 dark:bg-zinc-900/50"
+          className="space-y-3 rounded-lg border border-line bg-surface-2 p-3"
           data-testid="fields-treatment"
         >
-          <h4 className="text-xs font-semibold uppercase text-zinc-500">
+          <h4 className="text-xs font-semibold uppercase text-muted">
             Thông tin điều trị & Dùng thuốc
           </h4>
           <div className="space-y-1">
@@ -373,10 +373,10 @@ export function EventForm({
 
       {eventType === AnimalEventType.WEIGHING && (
         <div
-          className="space-y-3 rounded-lg border border-zinc-200 bg-zinc-50/50 p-3 dark:border-zinc-800 dark:bg-zinc-900/50"
+          className="space-y-3 rounded-lg border border-line bg-surface-2 p-3"
           data-testid="fields-weighing"
         >
-          <h4 className="text-xs font-semibold uppercase text-zinc-500">Cân trọng lượng</h4>
+          <h4 className="text-xs font-semibold uppercase text-muted">Cân trọng lượng</h4>
           <div className="space-y-1">
             <Label htmlFor="weight-kg">Trọng lượng (kg) *</Label>
             <Input
@@ -396,10 +396,10 @@ export function EventForm({
 
       {eventType === AnimalEventType.BREEDING && (
         <div
-          className="space-y-3 rounded-lg border border-zinc-200 bg-zinc-50/50 p-3 dark:border-zinc-800 dark:bg-zinc-900/50"
+          className="space-y-3 rounded-lg border border-line bg-surface-2 p-3"
           data-testid="fields-breeding"
         >
-          <h4 className="text-xs font-semibold uppercase text-zinc-500">Phối giống</h4>
+          <h4 className="text-xs font-semibold uppercase text-muted">Phối giống</h4>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
               <Label htmlFor="mate-tag">Mã đực giống</Label>
@@ -427,15 +427,15 @@ export function EventForm({
 
       {eventType === AnimalEventType.BIRTH && (
         <div
-          className="space-y-3 rounded-lg border border-zinc-200 bg-zinc-50/50 p-3 dark:border-zinc-800 dark:bg-zinc-900/50"
+          className="space-y-3 rounded-lg border border-line bg-surface-2 p-3"
           data-testid="fields-birth"
         >
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="text-xs font-semibold uppercase text-zinc-500">
+              <h4 className="text-xs font-semibold uppercase text-muted">
                 Danh sách con non sinh ra ({offspringList.length} con)
               </h4>
-              <p className="text-xs text-zinc-500">
+              <p className="text-xs text-muted">
                 Hệ thống sẽ tự động tạo hồ sơ cá thể con non với mẹ là {animal.tag}
               </p>
             </div>
@@ -455,10 +455,10 @@ export function EventForm({
             {offspringList.map((offspring, index) => (
               <div
                 key={index}
-                className="rounded-md border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900 space-y-2"
+                className="rounded-md border border-line bg-surface p-3 space-y-2"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-emerald-700 dark:text-emerald-400">
+                  <span className="text-xs font-medium text-accent">
                     Con non #{index + 1}
                   </span>
                   {offspringList.length > 1 && (
@@ -467,7 +467,7 @@ export function EventForm({
                       variant="ghost"
                       size="sm"
                       onClick={() => handleRemoveOffspring(index)}
-                      className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                      className="h-6 w-6 p-0 text-crit hover:text-crit"
                       title="Xóa dòng này"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
@@ -553,10 +553,10 @@ export function EventForm({
 
       {eventType === AnimalEventType.DEATH && (
         <div
-          className="space-y-3 rounded-lg border border-red-200 bg-red-50/50 p-3 dark:border-red-900/40 dark:bg-red-950/20"
+          className="space-y-3 rounded-lg border border-crit/20 bg-crit-bg/40 p-3"
           data-testid="fields-death"
         >
-          <div className="flex items-start gap-2 text-amber-700 dark:text-amber-400">
+          <div className="flex items-start gap-2 text-warn">
             <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
             <p className="text-xs">
               <strong>Cảnh báo:</strong> Sau khi ghi sự kiện này, trạng thái của cá thể sẽ chuyển
@@ -580,10 +580,10 @@ export function EventForm({
 
       {eventType === AnimalEventType.SALE && (
         <div
-          className="space-y-3 rounded-lg border border-amber-200 bg-amber-50/50 p-3 dark:border-amber-900/40 dark:bg-amber-950/20"
+          className="space-y-3 rounded-lg border border-warn/20 bg-warn-bg/40 p-3"
           data-testid="fields-sale"
         >
-          <div className="flex items-start gap-2 text-amber-700 dark:text-amber-400">
+          <div className="flex items-start gap-2 text-warn">
             <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
             <p className="text-xs">
               <strong>Cảnh báo:</strong> Sau khi ghi sự kiện này, trạng thái của cá thể sẽ chuyển
@@ -650,7 +650,6 @@ export function EventForm({
         )}
         <Button
           type="submit"
-          className="bg-emerald-600 hover:bg-emerald-700"
           disabled={isSubmitting}
         >
           {isSubmitting ? 'Đang lưu...' : 'Lưu sự kiện'}
