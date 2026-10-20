@@ -7,6 +7,7 @@
   "scripts": {
     "db:migrate": "dotenv -e ../../.env -- prisma migrate dev",
     "db:seed": "dotenv -e ../../.env -- tsx prisma/seed.ts",
+    "db:seed:all": "dotenv -e ../../.env -- tsx prisma/seed.ts && dotenv -e ../../.env -- tsx prisma/seed-content.ts && dotenv -e ../../.env -- tsx prisma/seed-demo.ts",
     "db:seed:demo": "dotenv -e ../../.env -- tsx prisma/seed-demo.ts",
     "db:seed:content": "dotenv -e ../../.env -- tsx prisma/seed-content.ts",
     "db:studio": "dotenv -e ../../.env -- prisma studio",
