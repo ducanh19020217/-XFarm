@@ -117,7 +117,7 @@ export default function StockDocumentsPage() {
       cell: ({ row }) => (
         <Link
           href={`/admin/inventory/documents/${encodeURIComponent(row.original.code)}`}
-          className="font-mono text-xs font-semibold text-emerald-600 hover:underline dark:text-emerald-400"
+          className="font-mono text-xs font-semibold text-accent hover:underline"
         >
           {row.original.code}
         </Link>
@@ -139,14 +139,14 @@ export default function StockDocumentsPage() {
         if (doc.fromWarehouseName && doc.toWarehouseName) {
           return (
             <div className="text-xs">
-              <span>{doc.fromWarehouseName}</span>
-              <span className="text-slate-400 mx-1">➔</span>
-              <span>{doc.toWarehouseName}</span>
+              <span className="text-fg">{doc.fromWarehouseName}</span>
+              <span className="text-muted mx-1">➔</span>
+              <span className="text-fg">{doc.toWarehouseName}</span>
             </div>
           );
         }
         return (
-          <span className="text-xs text-slate-800 dark:text-slate-200">
+          <span className="text-xs text-fg-2">
             {doc.warehouseName || doc.toWarehouseName || doc.fromWarehouseName || '—'}
           </span>
         );
@@ -156,9 +156,7 @@ export default function StockDocumentsPage() {
       accessorKey: 'movedAt',
       header: 'Ngày lập / Ngày chuyển',
       cell: ({ row }) => (
-        <span className="text-xs font-mono text-slate-600 dark:text-slate-400">
-          {formatDateTime(row.original.movedAt)}
-        </span>
+        <span className="text-xs font-mono text-muted">{formatDateTime(row.original.movedAt)}</span>
       ),
     },
     {
@@ -166,7 +164,7 @@ export default function StockDocumentsPage() {
       header: 'Ghi chú',
       cell: ({ row }) => (
         <span
-          className="text-xs text-slate-500 italic max-w-xs truncate block"
+          className="text-xs text-muted italic max-w-xs truncate block"
           title={row.original.notes || ''}
         >
           {row.original.notes || '—'}
@@ -179,7 +177,7 @@ export default function StockDocumentsPage() {
       cell: ({ row }) => (
         <Link
           href={`/admin/inventory/documents/${encodeURIComponent(row.original.code)}`}
-          className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400"
+          className="inline-flex items-center gap-1 text-xs font-medium text-accent hover:text-accent/80"
         >
           <Eye className="h-3.5 w-3.5" />
           <span>Chi tiết</span>
@@ -201,7 +199,7 @@ export default function StockDocumentsPage() {
           <div className="flex flex-wrap items-center gap-2">
             <Button
               onClick={() => setReceiptOpen(true)}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm"
+              className="bg-accent hover:bg-accent/90 text-white text-xs sm:text-sm"
             >
               <ArrowDownLeft className="h-4 w-4 mr-1.5" />
               Phiếu nhập
@@ -210,27 +208,27 @@ export default function StockDocumentsPage() {
             <Button
               onClick={() => setIssueOpen(true)}
               variant="outline"
-              className="text-xs sm:text-sm border-slate-300 text-slate-800 hover:bg-slate-100"
+              className="text-xs sm:text-sm border-line text-fg hover:bg-surface-2"
             >
-              <ArrowUpRight className="h-4 w-4 mr-1.5 text-blue-600" />
+              <ArrowUpRight className="h-4 w-4 mr-1.5 text-accent" />
               Phiếu xuất
             </Button>
 
             <Button
               onClick={() => setTransferOpen(true)}
               variant="outline"
-              className="text-xs sm:text-sm border-slate-300 text-slate-800 hover:bg-slate-100"
+              className="text-xs sm:text-sm border-line text-fg hover:bg-surface-2"
             >
-              <ArrowLeftRight className="h-4 w-4 mr-1.5 text-purple-600" />
+              <ArrowLeftRight className="h-4 w-4 mr-1.5 text-accent" />
               Điều chuyển
             </Button>
 
             <Button
               onClick={() => setCountOpen(true)}
               variant="outline"
-              className="text-xs sm:text-sm border-slate-300 text-slate-800 hover:bg-slate-100"
+              className="text-xs sm:text-sm border-line text-fg hover:bg-surface-2"
             >
-              <ClipboardCheck className="h-4 w-4 mr-1.5 text-amber-600" />
+              <ClipboardCheck className="h-4 w-4 mr-1.5 text-warn" />
               Kiểm kê
             </Button>
           </div>

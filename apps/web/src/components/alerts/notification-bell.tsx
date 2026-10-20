@@ -126,13 +126,13 @@ export function NotificationBell() {
         aria-expanded={isOpen}
         data-testid="alerts-bell-button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="relative rounded-lg p-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+        className="relative rounded-lg p-2 text-fg-2 hover:bg-hover hover:text-fg focus:outline-none focus:ring-2 focus:ring-accent/20 transition-colors"
       >
         <Bell className="h-5 w-5" />
         {unreadCount > 0 && (
           <span
             data-testid="alerts-unread-badge"
-            className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-600 px-1 text-[11px] font-bold text-white shadow-sm ring-2 ring-white dark:ring-slate-950"
+            className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-crit px-1 text-[11px] font-bold text-white shadow-xs ring-2 ring-surface"
           >
             {unreadCount > 99 ? '99+' : unreadCount}
           </span>
@@ -142,11 +142,11 @@ export function NotificationBell() {
       {isOpen && (
         <div
           data-testid="alerts-dropdown"
-          className="absolute right-0 top-full z-50 mt-2 w-80 sm:w-96 rounded-xl border border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-900 overflow-hidden"
+          className="absolute right-0 top-full z-50 mt-2 w-80 sm:w-96 rounded-xl border border-line bg-surface shadow-xl text-fg overflow-hidden"
         >
-          <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3 dark:border-slate-800">
+          <div className="flex items-center justify-between border-b border-line px-4 py-3 bg-surface-2/50">
             <div className="flex items-center gap-2">
-              <span className="font-semibold text-slate-900 dark:text-slate-100">Cảnh báo</span>
+              <span className="font-semibold text-fg">Cảnh báo</span>
               {unreadCount > 0 ? (
                 <Badge variant="destructive" className="text-[10px] px-1.5 py-0">
                   {unreadCount} chưa đọc
@@ -160,20 +160,20 @@ export function NotificationBell() {
             <Link
               href="/admin/alerts"
               onClick={() => setIsOpen(false)}
-              className="text-xs text-emerald-600 hover:text-emerald-700 font-medium"
+              className="text-xs text-accent hover:text-accent-hover font-medium transition-colors"
             >
               Xem tất cả
             </Link>
           </div>
 
-          <div className="max-h-96 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800">
+          <div className="max-h-96 overflow-y-auto divide-y divide-line">
             {isLoading ? (
-              <div className="flex items-center justify-center py-8 text-sm text-slate-500">
+              <div className="flex items-center justify-center py-8 text-sm text-muted">
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
                 Đang tải cảnh báo...
               </div>
             ) : recentAlerts.length === 0 ? (
-              <div className="py-8 text-center text-sm text-slate-500">Không có cảnh báo nào</div>
+              <div className="py-8 text-center text-sm text-muted">Không có cảnh báo nào</div>
             ) : (
               recentAlerts.map((alert) => {
                 const typeInfo = getAlertTypeInfo(alert.type);
@@ -184,8 +184,8 @@ export function NotificationBell() {
                   <div
                     key={alert.id}
                     data-testid={`alert-item-${alert.id}`}
-                    className={`p-3 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/60 ${
-                      isUnread ? 'bg-amber-50/40 dark:bg-amber-950/20' : ''
+                    className={`p-3 transition-colors hover:bg-hover ${
+                      isUnread ? 'bg-warn-bg/40' : ''
                     }`}
                   >
                     <div className="flex items-start justify-between gap-2">
@@ -195,20 +195,18 @@ export function NotificationBell() {
                             {typeInfo.label}
                           </Badge>
                           {isUnread && (
-                            <span className="h-1.5 w-1.5 rounded-full bg-red-500 shrink-0" />
+                            <span className="h-1.5 w-1.5 rounded-full bg-crit shrink-0" />
                           )}
-                          <span className="text-[11px] text-slate-400">
+                          <span className="text-[11px] text-muted">
                             {formatAlertDate(alert.createdAt)}
                           </span>
                         </div>
-                        <p className="text-xs font-medium text-slate-800 dark:text-slate-200 line-clamp-2">
-                          {alert.message}
-                        </p>
+                        <p className="text-xs font-medium text-fg line-clamp-2">{alert.message}</p>
                         <div className="pt-1">
                           <Link
                             href={inv.href}
                             onClick={() => setIsOpen(false)}
-                            className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600 hover:text-emerald-700 hover:underline"
+                            className="inline-flex items-center gap-1 text-[11px] font-medium text-accent hover:text-accent-hover hover:underline"
                           >
                             {alert.refType === 'Sensor' ||
                             alert.refType === 'SENSOR' ||
@@ -233,7 +231,7 @@ export function NotificationBell() {
                           onClick={(e) => handleMarkAsRead(alert.id, e)}
                           title="Đánh dấu đã đọc"
                           aria-label="Đánh dấu đã đọc"
-                          className="h-7 w-7 p-0 shrink-0 text-slate-400 hover:text-emerald-600"
+                          className="h-7 w-7 p-0 shrink-0 text-muted hover:text-accent"
                         >
                           <Check className="h-3.5 w-3.5" />
                         </Button>
@@ -245,11 +243,11 @@ export function NotificationBell() {
             )}
           </div>
 
-          <div className="border-t border-slate-100 bg-slate-50/50 p-2 text-center dark:border-slate-800 dark:bg-slate-900/50">
+          <div className="border-t border-line bg-surface-2 p-2 text-center">
             <Link
               href="/admin/alerts"
               onClick={() => setIsOpen(false)}
-              className="block w-full py-1 text-center text-xs font-medium text-emerald-600 hover:text-emerald-700"
+              className="block w-full py-1 text-center text-xs font-medium text-accent hover:text-accent-hover"
             >
               Xem tất cả cảnh báo &rarr;
             </Link>

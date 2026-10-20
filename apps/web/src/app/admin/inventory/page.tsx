@@ -232,7 +232,7 @@ export default function InventoryBalancesPage() {
       accessorKey: 'itemSku',
       header: 'Mã SKU',
       cell: ({ row }) => (
-        <span className="font-mono text-xs font-semibold text-slate-700 dark:text-slate-300">
+        <span className="font-mono text-xs font-semibold text-fg">
           {row.original.itemSku || row.original.itemId || '—'}
         </span>
       ),
@@ -242,10 +242,8 @@ export default function InventoryBalancesPage() {
       header: 'Tên vật tư',
       cell: ({ row }) => (
         <div>
-          <span className="font-medium text-slate-900 dark:text-slate-100">
-            {row.original.itemName}
-          </span>
-          <span className="block text-xs text-slate-500">ĐVT: {row.original.unit}</span>
+          <span className="font-medium text-fg">{row.original.itemName}</span>
+          <span className="block text-xs text-muted">ĐVT: {row.original.unit}</span>
         </div>
       ),
     },
@@ -262,18 +260,14 @@ export default function InventoryBalancesPage() {
       accessorKey: 'warehouseName',
       header: 'Kho',
       cell: ({ row }) => (
-        <span className="text-slate-800 dark:text-slate-200">
-          {row.original.warehouseName || row.original.warehouseId}
-        </span>
+        <span className="text-fg-2">{row.original.warehouseName || row.original.warehouseId}</span>
       ),
     },
     {
       accessorKey: 'lotCode',
       header: 'Mã lô',
       cell: ({ row }) => (
-        <span className="font-mono text-xs text-slate-600 dark:text-slate-400">
-          {row.original.lotCode || '—'}
-        </span>
+        <span className="font-mono text-xs text-muted">{row.original.lotCode || '—'}</span>
       ),
     },
     {
@@ -282,7 +276,7 @@ export default function InventoryBalancesPage() {
       cell: ({ row }) => {
         const expiry = getExpiryStatus(row.original.expiryDate);
         if (!expiry) {
-          return <span className="text-slate-400 text-xs">—</span>;
+          return <span className="text-muted text-xs">—</span>;
         }
 
         return (
@@ -295,7 +289,7 @@ export default function InventoryBalancesPage() {
                   : expiry.formattedDate}
             </Badge>
             {(expiry.isExpired || expiry.isExpiringSoon) && (
-              <span className="text-xs text-slate-500">{expiry.formattedDate}</span>
+              <span className="text-xs text-muted">{expiry.formattedDate}</span>
             )}
           </div>
         );
@@ -307,11 +301,7 @@ export default function InventoryBalancesPage() {
       cell: ({ row }) => {
         const qty = Number(row.original.quantity || 0);
         return (
-          <span
-            className={`font-semibold ${
-              qty <= 0 ? 'text-red-600 dark:text-red-400' : 'text-slate-900 dark:text-slate-100'
-            }`}
-          >
+          <span className={`font-semibold ${qty <= 0 ? 'text-crit' : 'text-fg'}`}>
             {formatNumber(qty)} {row.original.unit}
           </span>
         );
@@ -320,11 +310,7 @@ export default function InventoryBalancesPage() {
     {
       accessorKey: 'unitCost',
       header: 'Giá vốn',
-      cell: ({ row }) => (
-        <span className="text-slate-600 dark:text-slate-300">
-          {formatCurrency(row.original.unitCost)}
-        </span>
-      ),
+      cell: ({ row }) => <span className="text-fg-2">{formatCurrency(row.original.unitCost)}</span>,
     },
     {
       accessorKey: 'totalValue',
@@ -336,11 +322,7 @@ export default function InventoryBalancesPage() {
             : row.original.totalCost != null
               ? Number(row.original.totalCost)
               : Number(row.original.quantity || 0) * Number(row.original.unitCost || 0);
-        return (
-          <span className="font-semibold text-emerald-700 dark:text-emerald-400">
-            {formatCurrency(val)}
-          </span>
-        );
+        return <span className="font-semibold text-ok">{formatCurrency(val)}</span>;
       },
     },
   ];
@@ -356,88 +338,71 @@ export default function InventoryBalancesPage() {
 
       {/* Summary Cards */}
       <div className="grid gap-4 sm:grid-cols-3">
-        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+        <div className="rounded-lg border border-line bg-surface p-4 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
-              Tổng số mặt hàng / lô tồn
-            </span>
-            <Package className="h-5 w-5 text-slate-400" />
+            <span className="text-sm font-medium text-muted">Tổng số mặt hàng / lô tồn</span>
+            <Package className="h-5 w-5 text-muted" />
           </div>
-          <div className="mt-2 text-2xl font-bold text-slate-900 dark:text-slate-100">
-            {formatNumber(total, 0)}
-          </div>
+          <div className="mt-2 text-2xl font-bold text-fg">{formatNumber(total, 0)}</div>
         </div>
 
-        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+        <div className="rounded-lg border border-line bg-surface p-4 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
-              Tổng giá trị thành tiền
-            </span>
-            <DollarSign className="h-5 w-5 text-emerald-600" />
+            <span className="text-sm font-medium text-muted">Tổng giá trị thành tiền</span>
+            <DollarSign className="h-5 w-5 text-ok" />
           </div>
-          <div
-            data-testid="summary-total-value"
-            className="mt-2 text-2xl font-bold text-emerald-600 dark:text-emerald-400"
-          >
+          <div data-testid="summary-total-value" className="mt-2 text-2xl font-bold text-ok">
             {aggregatedTotalAmount != null ? (
               formatCurrency(aggregatedTotalAmount)
             ) : total <= balances.length ? (
               formatCurrency(pageTotalValue)
             ) : isAggregating ? (
-              <span className="text-base font-normal text-slate-400">Đang tính...</span>
+              <span className="text-base font-normal text-muted">Đang tính...</span>
             ) : aggregationFailed ? (
               <span
-                className="text-base font-normal text-slate-400"
+                className="text-base font-normal text-muted"
                 title="Không thể tổng hợp toàn bộ các trang"
               >
                 —
               </span>
             ) : (
-              <span className="text-base font-normal text-slate-400">—</span>
+              <span className="text-base font-normal text-muted">—</span>
             )}
           </div>
         </div>
 
-        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+        <div className="rounded-lg border border-line bg-surface p-4 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
-              Cảnh báo hạn dùng (≤ 30 ngày)
-            </span>
-            <AlertTriangle className="h-5 w-5 text-amber-500" />
+            <span className="text-sm font-medium text-muted">Cảnh báo hạn dùng (≤ 30 ngày)</span>
+            <AlertTriangle className="h-5 w-5 text-warn" />
           </div>
-          <div
-            data-testid="summary-expiring-count"
-            className="mt-2 text-2xl font-bold text-amber-600 dark:text-amber-400"
-          >
+          <div data-testid="summary-expiring-count" className="mt-2 text-2xl font-bold text-warn">
             {aggregatedExpiringCount != null ? (
               formatNumber(aggregatedExpiringCount, 0)
             ) : total <= balances.length ? (
               formatNumber(pageExpiringCount, 0)
             ) : isAggregating ? (
-              <span className="text-base font-normal text-slate-400">...</span>
+              <span className="text-base font-normal text-muted">...</span>
             ) : aggregationFailed ? (
               <span
-                className="text-base font-normal text-slate-400"
+                className="text-base font-normal text-muted"
                 title="Không thể tổng hợp toàn bộ các trang"
               >
                 —
               </span>
             ) : (
-              <span className="text-base font-normal text-slate-400">—</span>
+              <span className="text-base font-normal text-muted">—</span>
             )}
           </div>
         </div>
       </div>
 
       {/* Filters Bar */}
-      <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+      <div className="rounded-lg border border-line bg-surface p-4 shadow-sm">
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 items-end">
           {/* Warehouse Filter */}
           <div className="space-y-1">
-            <label
-              htmlFor="filter-warehouse"
-              className="text-xs font-medium text-slate-700 dark:text-slate-300"
-            >
+            <label htmlFor="filter-warehouse" className="text-xs font-medium text-fg">
               Kho hàng
             </label>
             <select
@@ -447,7 +412,7 @@ export default function InventoryBalancesPage() {
                 setWarehouseId(e.target.value);
                 resetFiltersState();
               }}
-              className="flex h-9 w-full rounded-md border border-slate-300 bg-white px-3 py-1 text-sm shadow-sm transition-colors focus:border-emerald-600 focus:outline-none dark:border-slate-700 dark:bg-slate-900"
+              className="flex h-9 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm text-fg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-accent/20"
             >
               <option value="">Tất cả kho</option>
               {warehouses.map((w) => (
@@ -460,10 +425,7 @@ export default function InventoryBalancesPage() {
 
           {/* Category Filter */}
           <div className="space-y-1">
-            <label
-              htmlFor="filter-category"
-              className="text-xs font-medium text-slate-700 dark:text-slate-300"
-            >
+            <label htmlFor="filter-category" className="text-xs font-medium text-fg">
               Nhóm hàng
             </label>
             <select
@@ -473,7 +435,7 @@ export default function InventoryBalancesPage() {
                 setCategory(e.target.value);
                 resetFiltersState();
               }}
-              className="flex h-9 w-full rounded-md border border-slate-300 bg-white px-3 py-1 text-sm shadow-sm transition-colors focus:border-emerald-600 focus:outline-none dark:border-slate-700 dark:bg-slate-900"
+              className="flex h-9 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm text-fg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-accent/20"
             >
               <option value="">Tất cả nhóm</option>
               {Object.values(ItemCategory).map((cat) => (
@@ -486,10 +448,7 @@ export default function InventoryBalancesPage() {
 
           {/* Lot Code Filter */}
           <div className="space-y-1">
-            <label
-              htmlFor="filter-lot"
-              className="text-xs font-medium text-slate-700 dark:text-slate-300"
-            >
+            <label htmlFor="filter-lot" className="text-xs font-medium text-fg">
               Mã lô
             </label>
             <input
@@ -501,7 +460,7 @@ export default function InventoryBalancesPage() {
                 setLotCode(e.target.value);
                 resetFiltersState();
               }}
-              className="flex h-9 w-full rounded-md border border-slate-300 bg-white px-3 py-1 text-sm shadow-sm transition-colors focus:border-emerald-600 focus:outline-none dark:border-slate-700 dark:bg-slate-900"
+              className="flex h-9 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm text-fg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-accent/20"
             />
           </div>
 
@@ -515,11 +474,11 @@ export default function InventoryBalancesPage() {
                 setIncludeZero(e.target.checked);
                 resetFiltersState();
               }}
-              className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+              className="h-4 w-4 rounded border-line text-accent focus:ring-accent"
             />
             <label
               htmlFor="filter-include-zero"
-              className="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer select-none"
+              className="text-sm font-medium text-fg cursor-pointer select-none"
             >
               Hiện cả tồn 0
             </label>
@@ -538,7 +497,7 @@ export default function InventoryBalancesPage() {
                   setSearch('');
                   resetFiltersState();
                 }}
-                className="text-xs text-slate-500 hover:text-slate-800 underline pb-2"
+                className="text-xs text-muted hover:text-fg underline pb-2"
               >
                 Đặt lại bộ lọc
               </button>

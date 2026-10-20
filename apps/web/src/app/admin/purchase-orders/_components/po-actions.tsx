@@ -28,7 +28,7 @@ export function POActions({ status, role, onOrder, onCancel, onReceive, onPay }:
         type="button"
         variant="outline"
         onClick={onPay}
-        className="border-emerald-600 text-emerald-700 hover:bg-emerald-50"
+        className="border-accent text-accent hover:bg-accent-bg"
       >
         <DollarSign className="mr-1.5 h-4 w-4" />
         Trả tiền
@@ -40,13 +40,17 @@ export function POActions({ status, role, onOrder, onCancel, onReceive, onPay }:
     return (
       <div className="flex items-center gap-2">
         {allowCancel && (
-          <Button variant="outline" onClick={onCancel} className="text-red-600 hover:bg-red-50">
+          <Button
+            variant="outline"
+            onClick={onCancel}
+            className="border-crit text-crit hover:bg-crit-bg"
+          >
             <XCircle className="mr-1.5 h-4 w-4" />
             Hủy
           </Button>
         )}
         {allowOrder && (
-          <Button onClick={onOrder} className="bg-blue-600 hover:bg-blue-700 text-white">
+          <Button onClick={onOrder} className="bg-accent hover:bg-accent/90 text-white">
             <CheckCircle2 className="mr-1.5 h-4 w-4" />
             Đặt hàng
           </Button>
@@ -61,13 +65,17 @@ export function POActions({ status, role, onOrder, onCancel, onReceive, onPay }:
     return (
       <div className="flex items-center gap-2">
         {allowCancel && (
-          <Button variant="outline" onClick={onCancel} className="text-red-600 hover:bg-red-50">
+          <Button
+            variant="outline"
+            onClick={onCancel}
+            className="border-crit text-crit hover:bg-crit-bg"
+          >
             <XCircle className="mr-1.5 h-4 w-4" />
             Hủy
           </Button>
         )}
         {allowReceive && (
-          <Button onClick={onReceive} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+          <Button onClick={onReceive} className="bg-ok hover:bg-ok/90 text-white">
             <PackageCheck className="mr-1.5 h-4 w-4" />
             Nhận hàng
           </Button>
@@ -82,7 +90,7 @@ export function POActions({ status, role, onOrder, onCancel, onReceive, onPay }:
     return (
       <div className="flex items-center gap-2">
         {allowReceive && (
-          <Button onClick={onReceive} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+          <Button onClick={onReceive} className="bg-ok hover:bg-ok/90 text-white">
             <PackageCheck className="mr-1.5 h-4 w-4" />
             Nhận hàng
           </Button>

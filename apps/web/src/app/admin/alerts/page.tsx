@@ -149,17 +149,13 @@ export default function AlertsPage() {
     {
       accessorKey: 'message',
       header: 'Nội dung',
-      cell: ({ row }) => (
-        <span className="font-medium text-slate-900 dark:text-slate-100">
-          {row.original.message}
-        </span>
-      ),
+      cell: ({ row }) => <span className="font-medium text-fg">{row.original.message}</span>,
     },
     {
       accessorKey: 'createdAt',
       header: 'Thời gian',
       cell: ({ row }) => (
-        <span className="text-sm text-slate-500 whitespace-nowrap">
+        <span className="text-sm text-muted whitespace-nowrap">
           {formatAlertDate(row.original.createdAt)}
         </span>
       ),
@@ -172,7 +168,7 @@ export default function AlertsPage() {
         return isRead ? (
           <Badge variant="secondary">Đã đọc</Badge>
         ) : (
-          <Badge variant="default">Chưa đọc</Badge>
+          <Badge variant="destructive">Chưa đọc</Badge>
         );
       },
     },
@@ -190,7 +186,7 @@ export default function AlertsPage() {
         return (
           <Link
             href={inv.href}
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-600 hover:text-emerald-700 hover:underline"
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-accent hover:text-accent-hover hover:underline"
           >
             {isSensor ? (
               <Cpu className="h-3.5 w-3.5" />
@@ -211,16 +207,16 @@ export default function AlertsPage() {
       cell: ({ row }) => {
         const isRead = Boolean(row.original.readAt);
         if (isRead) {
-          return <span className="text-xs text-slate-400 italic">Đã xử lý</span>;
+          return <span className="text-xs text-muted italic">Đã xử lý</span>;
         }
         return (
           <Button
             variant="outline"
             size="sm"
             onClick={() => handleMarkAsRead(row.original.id)}
-            className="text-xs h-8"
+            className="text-xs h-8 border-line hover:bg-hover text-fg"
           >
-            <Check className="h-3.5 w-3.5 mr-1 text-emerald-600" />
+            <Check className="h-3.5 w-3.5 mr-1 text-accent" />
             Đánh dấu đã đọc
           </Button>
         );
@@ -229,7 +225,10 @@ export default function AlertsPage() {
   ];
 
   const selectClass =
-    'h-10 rounded-md border border-slate-300 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100';
+    'h-10 rounded-lg border border-line bg-surface px-3 text-sm text-fg focus:outline-none focus:ring-2 focus:ring-accent/20';
+
+  const unreadCount = alerts.filter((a) => !a.readAt).length;
+  const readCount = alerts.filter((a) => Boolean(a.readAt)).length;
 
   return (
     <div className="space-y-6">
@@ -245,12 +244,12 @@ export default function AlertsPage() {
               variant="outline"
               onClick={handleRunInventoryCheck}
               disabled={isChecking}
-              className="border-emerald-600 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+              className="border-line text-accent hover:bg-accent-bg"
             >
               {isChecking ? (
                 <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
               ) : (
-                <Play className="h-4 w-4 mr-1.5 fill-emerald-600" />
+                <Play className="h-4 w-4 mr-1.5 fill-accent text-accent" />
               )}
               Chạy kiểm tra
             </Button>
@@ -261,7 +260,7 @@ export default function AlertsPage() {
               variant="outline"
               onClick={handleRunMaintenanceCheck}
               disabled={isCheckingMaint}
-              className="border-emerald-600 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+              className="border-line text-accent hover:bg-accent-bg"
             >
               {isCheckingMaint ? (
                 <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
@@ -272,7 +271,12 @@ export default function AlertsPage() {
             </Button>
           )}
 
-          <Button variant="outline" onClick={handleMarkAllAsRead} disabled={isReadingAll}>
+          <Button
+            variant="outline"
+            onClick={handleMarkAllAsRead}
+            disabled={isReadingAll}
+            className="border-line"
+          >
             {isReadingAll ? (
               <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
             ) : (
@@ -293,8 +297,24 @@ export default function AlertsPage() {
         </div>
       </PageHeader>
 
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="rounded-lg border border-line bg-surface p-4 shadow-xs">
+          <span className="text-xs font-medium text-muted block">Tổng số cảnh báo</span>
+          <p className="text-2xl font-bold text-fg mt-1">{total}</p>
+        </div>
+        <div className="rounded-lg border border-line bg-surface p-4 shadow-xs">
+          <span className="text-xs font-medium text-muted block">Chưa xử lý trên trang</span>
+          <p className="text-2xl font-bold text-crit mt-1">{unreadCount}</p>
+        </div>
+        <div className="rounded-lg border border-line bg-surface p-4 shadow-xs">
+          <span className="text-xs font-medium text-muted block">Đã đọc trên trang</span>
+          <p className="text-2xl font-bold text-ok mt-1">{readCount}</p>
+        </div>
+      </div>
+
       {/* Filter Bar */}
-      <div className="flex flex-wrap items-end gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+      <div className="flex flex-wrap items-center gap-4 rounded-lg border border-line bg-surface p-4 shadow-xs">
         <div className="space-y-1.5">
           <Label htmlFor="filter-unread">Trạng thái đọc</Label>
           <select

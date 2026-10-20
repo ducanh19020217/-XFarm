@@ -184,7 +184,7 @@ export default function EquipmentDetailPage() {
       <div>
         <Link
           href="/admin/equipment"
-          className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-emerald-600 dark:text-slate-400"
+          className="inline-flex items-center text-sm font-medium text-muted hover:text-accent transition-colors"
         >
           <ArrowLeft className="mr-1.5 h-4 w-4" />
           Danh sách thiết bị
@@ -200,7 +200,7 @@ export default function EquipmentDetailPage() {
             <Button
               variant="outline"
               onClick={() => setLogDialogOpen(true)}
-              className="border-emerald-600 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+              className="border-line text-accent hover:bg-accent-bg"
             >
               <FileText className="mr-1.5 h-4 w-4" />
               Ghi nhận bảo trì
@@ -209,7 +209,7 @@ export default function EquipmentDetailPage() {
 
           {canManage && (
             <>
-              <Button variant="outline" onClick={handleOpenAddSchedule}>
+              <Button variant="outline" onClick={handleOpenAddSchedule} className="border-line">
                 <Calendar className="mr-1.5 h-4 w-4" />
                 Thêm lịch bảo trì
               </Button>
@@ -235,53 +235,44 @@ export default function EquipmentDetailPage() {
 
       {/* Stat Cards: Tổng chi phí & số lượng */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div className="rounded-lg border border-line bg-surface p-5 shadow-xs">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent-bg text-accent">
               <DollarSign className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                Tổng chi phí bảo trì
-              </p>
-              <p
-                data-testid="total-maintenance-cost"
-                className="text-xl font-bold text-slate-900 dark:text-slate-100"
-              >
+              <p className="text-xs font-medium text-muted">Tổng chi phí bảo trì</p>
+              <p data-testid="total-maintenance-cost" className="text-xl font-bold text-fg">
                 {formatCurrencyVN(equipment.totalMaintenanceCost ?? equipment.totalCost ?? 0)}
               </p>
             </div>
           </div>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div className="rounded-lg border border-line bg-surface p-5 shadow-xs">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-info-bg text-info">
               <Calendar className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Lịch bảo trì</p>
-              <p className="text-xl font-bold text-slate-900 dark:text-slate-100">
+              <p className="text-xs font-medium text-muted">Lịch bảo trì</p>
+              <p className="text-xl font-bold text-fg">
                 {activeSchedulesCount}{' '}
-                <span className="text-xs font-normal text-slate-400">
-                  / {schedules.length} lịch
-                </span>
+                <span className="text-xs font-normal text-muted">/ {schedules.length} lịch</span>
               </p>
             </div>
           </div>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div className="rounded-lg border border-line bg-surface p-5 shadow-xs">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-50 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-warn-bg text-warn">
               <Wrench className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                Lần ghi nhận bảo trì
-              </p>
-              <p className="text-xl font-bold text-slate-900 dark:text-slate-100">
-                {logs.length} <span className="text-xs font-normal text-slate-400">lần</span>
+              <p className="text-xs font-medium text-muted">Lần ghi nhận bảo trì</p>
+              <p className="text-xl font-bold text-fg">
+                {logs.length} <span className="text-xs font-normal text-muted">lần</span>
               </p>
             </div>
           </div>
@@ -289,49 +280,43 @@ export default function EquipmentDetailPage() {
       </div>
 
       {/* Thông tin thiết bị */}
-      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-4">
-        <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">
-          Thông tin chi tiết
-        </h3>
+      <div className="rounded-lg border border-line bg-surface p-5 shadow-xs space-y-4">
+        <h3 className="text-base font-semibold text-fg">Thông tin chi tiết</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-sm">
           <div>
-            <span className="text-xs text-slate-400 block">Mã thiết bị</span>
-            <span className="font-medium text-slate-800 dark:text-slate-200">{equipment.code}</span>
+            <span className="text-xs text-muted block">Mã thiết bị</span>
+            <span className="font-medium text-fg">{equipment.code}</span>
           </div>
 
           <div>
-            <span className="text-xs text-slate-400 block">Tên thiết bị</span>
-            <span className="font-medium text-slate-800 dark:text-slate-200">{equipment.name}</span>
+            <span className="text-xs text-muted block">Tên thiết bị</span>
+            <span className="font-medium text-fg">{equipment.name}</span>
           </div>
 
           <div>
-            <span className="text-xs text-slate-400 block">Loại thiết bị</span>
-            <span className="font-medium text-slate-800 dark:text-slate-200">{equipment.type}</span>
+            <span className="text-xs text-muted block">Loại thiết bị</span>
+            <span className="font-medium text-fg">{equipment.type}</span>
           </div>
 
           <div>
-            <span className="text-xs text-slate-400 block">Khu vực</span>
-            <span className="font-medium text-slate-800 dark:text-slate-200">
+            <span className="text-xs text-muted block">Khu vực</span>
+            <span className="font-medium text-fg">
               {equipment.area ? `${equipment.area.name} (${equipment.area.code})` : '—'}
             </span>
           </div>
 
           <div>
-            <span className="text-xs text-slate-400 block">Ngày mua</span>
-            <span className="font-medium text-slate-800 dark:text-slate-200">
-              {formatVNDate(equipment.purchaseDate)}
-            </span>
+            <span className="text-xs text-muted block">Ngày mua</span>
+            <span className="font-medium text-fg">{formatVNDate(equipment.purchaseDate)}</span>
           </div>
 
           <div>
-            <span className="text-xs text-slate-400 block">Giá trị ban đầu</span>
-            <span className="font-medium text-slate-800 dark:text-slate-200">
-              {formatCurrencyVN(equipment.value)}
-            </span>
+            <span className="text-xs text-muted block">Giá trị ban đầu</span>
+            <span className="font-medium text-fg">{formatCurrencyVN(equipment.value)}</span>
           </div>
 
           <div>
-            <span className="text-xs text-slate-400 block">Trạng thái thiết bị</span>
+            <span className="text-xs text-muted block">Trạng thái thiết bị</span>
             <div className="pt-0.5">
               <Badge
                 variant={
@@ -350,12 +335,10 @@ export default function EquipmentDetailPage() {
           </div>
 
           <div>
-            <span className="text-xs text-slate-400 block">Kích hoạt</span>
+            <span className="text-xs text-muted block">Kích hoạt</span>
             <div className="pt-0.5">
               {equipment.isActive ? (
-                <Badge variant="default" className="bg-emerald-600">
-                  Hoạt động
-                </Badge>
+                <Badge variant="default">Hoạt động</Badge>
               ) : (
                 <Badge variant="secondary">Đã khóa</Badge>
               )}
@@ -364,21 +347,19 @@ export default function EquipmentDetailPage() {
         </div>
 
         {equipment.notes && (
-          <div className="border-t border-slate-100 pt-3 dark:border-slate-800">
-            <span className="text-xs text-slate-400 block">Ghi chú</span>
-            <p className="text-sm text-slate-700 dark:text-slate-300 mt-0.5">{equipment.notes}</p>
+          <div className="border-t border-line pt-3">
+            <span className="text-xs text-muted block">Ghi chú</span>
+            <p className="text-sm text-fg-2 mt-0.5">{equipment.notes}</p>
           </div>
         )}
       </div>
 
       {/* Lịch bảo trì định kỳ */}
-      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-4">
+      <div className="rounded-lg border border-line bg-surface p-5 shadow-xs space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">
-              Lịch bảo trì định kỳ
-            </h3>
-            <p className="text-xs text-slate-500">
+            <h3 className="text-base font-semibold text-fg">Lịch bảo trì định kỳ</h3>
+            <p className="text-xs text-muted">
               Tự động nhắc lịch và cập nhật chu kỳ mỗi khi ghi nhận bảo trì
             </p>
           </div>
@@ -391,16 +372,13 @@ export default function EquipmentDetailPage() {
         </div>
 
         {schedules.length === 0 ? (
-          <div className="py-6 text-center text-sm text-slate-500">
+          <div className="py-6 text-center text-sm text-muted">
             Chưa có lịch bảo trì nào cho thiết bị này.
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table
-              data-testid="schedules-table"
-              className="w-full text-left text-sm text-slate-700 dark:text-slate-300"
-            >
-              <thead className="border-b border-slate-200 bg-slate-50/50 text-xs text-slate-500 dark:border-slate-800 dark:bg-slate-800/50">
+            <table data-testid="schedules-table" className="w-full text-left text-sm text-fg">
+              <thead className="border-b border-line bg-surface-2 text-xs text-muted">
                 <tr>
                   <th className="py-2.5 px-3">Tên lịch</th>
                   <th className="py-2.5 px-3">Chu kỳ</th>
@@ -410,7 +388,7 @@ export default function EquipmentDetailPage() {
                   {canManage && <th className="py-2.5 px-3 text-right">Thao tác</th>}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              <tbody className="divide-y divide-line">
                 {schedules.map((s) => {
                   const due = new Date(s.nextDueDate);
                   const startOfDueDay = new Date(due.getFullYear(), due.getMonth(), due.getDate());
@@ -421,12 +399,13 @@ export default function EquipmentDetailPage() {
                   const isDueSoon = s.isActive && diffDays >= 0 && diffDays <= 3;
 
                   return (
-                    <tr key={s.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
-                      <td className="py-2.5 px-3 font-medium text-slate-900 dark:text-slate-100">
-                        {s.name}
-                      </td>
+                    <tr key={s.id} className="hover:bg-hover transition-colors">
+                      <td className="py-2.5 px-3 font-medium text-fg">{s.name}</td>
                       <td className="py-2.5 px-3">{s.intervalDays} ngày</td>
-                      <td data-testid={`schedule-due-${s.id}`} className="py-2.5 px-3 font-medium">
+                      <td
+                        data-testid={`schedule-due-${s.id}`}
+                        className="py-2.5 px-3 font-medium text-fg"
+                      >
                         {formatVNDate(s.nextDueDate)}
                       </td>
                       <td className="py-2.5 px-3">
@@ -436,21 +415,18 @@ export default function EquipmentDetailPage() {
                           </Badge>
                         )}
                         {isDueSoon && (
-                          <Badge
-                            variant="warning"
-                            className="text-xs bg-amber-500 text-white hover:bg-amber-600"
-                          >
+                          <Badge variant="warning" className="text-xs">
                             Đến hạn bảo trì
                           </Badge>
                         )}
                         {!isOverdue && !isDueSoon && s.isActive && (
-                          <span className="text-xs text-slate-500">Còn {diffDays} ngày</span>
+                          <span className="text-xs text-muted">Còn {diffDays} ngày</span>
                         )}
-                        {!s.isActive && <span className="text-xs text-slate-400">Đã tắt lịch</span>}
+                        {!s.isActive && <span className="text-xs text-muted">Đã tắt lịch</span>}
                       </td>
                       <td className="py-2.5 px-3">
                         {s.isActive ? (
-                          <Badge variant="default" className="bg-emerald-600 text-xs">
+                          <Badge variant="default" className="text-xs">
                             Đang bật
                           </Badge>
                         ) : (
@@ -467,7 +443,7 @@ export default function EquipmentDetailPage() {
                               size="sm"
                               onClick={() => handleOpenEditSchedule(s)}
                               title="Sửa lịch"
-                              className="h-7 w-7 p-0 text-slate-500 hover:text-emerald-600"
+                              className="h-7 w-7 p-0 text-muted hover:text-accent"
                             >
                               <Edit2 className="h-3.5 w-3.5" />
                             </Button>
@@ -478,8 +454,8 @@ export default function EquipmentDetailPage() {
                               title={s.isActive ? 'Tắt lịch bảo trì' : 'Bật lại lịch'}
                               className={`h-7 w-7 p-0 ${
                                 s.isActive
-                                  ? 'text-slate-400 hover:text-red-600'
-                                  : 'text-slate-400 hover:text-emerald-600'
+                                  ? 'text-muted hover:text-crit'
+                                  : 'text-muted hover:text-accent'
                               }`}
                             >
                               <Power className="h-3.5 w-3.5" />
@@ -497,13 +473,11 @@ export default function EquipmentDetailPage() {
       </div>
 
       {/* Nhật ký bảo trì */}
-      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-4">
+      <div className="rounded-lg border border-line bg-surface p-5 shadow-xs space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">
-              Nhật ký bảo trì
-            </h3>
-            <p className="text-xs text-slate-500">
+            <h3 className="text-base font-semibold text-fg">Nhật ký bảo trì</h3>
+            <p className="text-xs text-muted">
               Lịch sử các lần bảo dưỡng, sửa chữa và chi phí phát sinh
             </p>
           </div>
@@ -516,16 +490,13 @@ export default function EquipmentDetailPage() {
         </div>
 
         {logs.length === 0 ? (
-          <div className="py-6 text-center text-sm text-slate-500">
+          <div className="py-6 text-center text-sm text-muted">
             Chưa có ghi nhận bảo trì nào cho thiết bị này.
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table
-              data-testid="logs-table"
-              className="w-full text-left text-sm text-slate-700 dark:text-slate-300"
-            >
-              <thead className="border-b border-slate-200 bg-slate-50/50 text-xs text-slate-500 dark:border-slate-800 dark:bg-slate-800/50">
+            <table data-testid="logs-table" className="w-full text-left text-sm text-fg">
+              <thead className="border-b border-line bg-surface-2 text-xs text-muted">
                 <tr>
                   <th className="py-2.5 px-3">Ngày</th>
                   <th className="py-2.5 px-3">Loại</th>
@@ -535,10 +506,10 @@ export default function EquipmentDetailPage() {
                   <th className="py-2.5 px-3">Ghi chú</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              <tbody className="divide-y divide-line">
                 {logs.map((log) => (
-                  <tr key={log.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
-                    <td className="py-2.5 px-3 font-medium text-slate-900 dark:text-slate-100 whitespace-nowrap">
+                  <tr key={log.id} className="hover:bg-hover transition-colors">
+                    <td className="py-2.5 px-3 font-medium text-fg whitespace-nowrap">
                       {formatVNDate(log.date)}
                     </td>
                     <td className="py-2.5 px-3 whitespace-nowrap">
@@ -546,18 +517,14 @@ export default function EquipmentDetailPage() {
                         {MAINTENANCE_TYPE_LABELS[log.type] || log.type}
                       </Badge>
                     </td>
-                    <td className="py-2.5 px-3 text-slate-600 dark:text-slate-300">
-                      {log.schedule?.name || '—'}
-                    </td>
+                    <td className="py-2.5 px-3 text-fg-2">{log.schedule?.name || '—'}</td>
                     <td className="py-2.5 px-3 font-medium whitespace-nowrap">
                       {formatCurrencyVN(log.cost)}
                     </td>
-                    <td className="py-2.5 px-3 text-slate-600 dark:text-slate-300 whitespace-nowrap">
+                    <td className="py-2.5 px-3 text-fg-2 whitespace-nowrap">
                       {log.performedBy?.fullName || '—'}
                     </td>
-                    <td className="py-2.5 px-3 text-slate-500 max-w-xs truncate">
-                      {log.notes || '—'}
-                    </td>
+                    <td className="py-2.5 px-3 text-muted max-w-xs truncate">{log.notes || '—'}</td>
                   </tr>
                 ))}
               </tbody>

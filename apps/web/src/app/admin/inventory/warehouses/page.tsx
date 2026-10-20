@@ -164,7 +164,7 @@ export default function WarehousesPage() {
         accessorKey: 'code',
         header: 'Mã kho',
         cell: ({ row }) => (
-          <span className="font-mono text-xs font-medium text-zinc-900 dark:text-zinc-100 bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded">
+          <span className="font-mono text-xs font-medium text-fg bg-surface-2 border border-line px-2 py-1 rounded">
             {row.original.code}
           </span>
         ),
@@ -174,10 +174,8 @@ export default function WarehousesPage() {
         header: 'Tên kho hàng',
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
-            <WarehouseIcon className="h-4 w-4 text-zinc-400" />
-            <span className="font-medium text-zinc-900 dark:text-zinc-100">
-              {row.original.name}
-            </span>
+            <WarehouseIcon className="h-4 w-4 text-muted" />
+            <span className="font-medium text-fg">{row.original.name}</span>
           </div>
         ),
       },
@@ -186,9 +184,9 @@ export default function WarehousesPage() {
         header: 'Khu vực liên kết',
         cell: ({ row }) => {
           const area = row.original.area;
-          if (!area) return <span className="text-zinc-400 text-sm">-</span>;
+          if (!area) return <span className="text-muted text-sm">-</span>;
           return (
-            <span className="text-sm text-zinc-700 dark:text-zinc-300">
+            <span className="text-sm text-fg-2">
               {area.code ? `${area.code} - ${area.name}` : area.name}
             </span>
           );
@@ -225,11 +223,7 @@ export default function WarehousesPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className={
-                        isLocked
-                          ? 'text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/30'
-                          : 'text-amber-600 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-950/30'
-                      }
+                      className={isLocked ? 'text-ok hover:bg-ok-bg' : 'text-warn hover:bg-warn-bg'}
                       onClick={() => setConfirmLockWarehouse(wh)}
                       title={isLocked ? 'Mở khóa kho hàng' : 'Khóa kho hàng'}
                     >
@@ -238,7 +232,7 @@ export default function WarehousesPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30"
+                      className="text-crit hover:bg-crit-bg"
                       onClick={() => setConfirmDeleteWarehouse(wh)}
                       title="Xóa kho hàng"
                     >

@@ -88,7 +88,7 @@ export default function StockMovesPage() {
       accessorKey: 'movedAt',
       header: 'Thời gian',
       cell: ({ row }) => (
-        <span className="text-xs text-slate-700 dark:text-slate-300 font-mono">
+        <span className="text-xs text-muted font-mono">
           {formatDateTime(row.original.movedAt || row.original.createdAt)}
         </span>
       ),
@@ -115,7 +115,7 @@ export default function StockMovesPage() {
       header: 'Mã phiếu / Tham chiếu',
       cell: ({ row }) => {
         const refId = row.original.refId;
-        if (!refId) return <span className="text-slate-400 text-xs">—</span>;
+        if (!refId) return <span className="text-muted text-xs">—</span>;
 
         // If it looks like a stock document code (NK-, XK-, DC-, KK-), make it a link
         const isStockDoc = row.original.refType === 'STOCK_DOC' || /^(NK|XK|DC|KK)-/i.test(refId);
@@ -124,16 +124,14 @@ export default function StockMovesPage() {
           return (
             <Link
               href={`/admin/inventory/documents/${encodeURIComponent(refId)}`}
-              className="font-mono text-xs font-semibold text-emerald-600 hover:underline dark:text-emerald-400"
+              className="font-mono text-xs font-semibold text-accent hover:underline"
             >
               {refId}
             </Link>
           );
         }
 
-        return (
-          <span className="font-mono text-xs text-slate-700 dark:text-slate-300">{refId}</span>
-        );
+        return <span className="font-mono text-xs text-fg">{refId}</span>;
       },
     },
     {
@@ -141,13 +139,11 @@ export default function StockMovesPage() {
       header: 'Vật tư',
       cell: ({ row }) => (
         <div>
-          <span className="font-medium text-slate-900 dark:text-slate-100">
+          <span className="font-medium text-fg">
             {row.original.itemName || row.original.itemId}
           </span>
           {row.original.itemSku && (
-            <span className="block text-xs font-mono text-slate-500">
-              SKU: {row.original.itemSku}
-            </span>
+            <span className="block text-xs font-mono text-muted">SKU: {row.original.itemSku}</span>
           )}
         </div>
       ),
@@ -156,9 +152,7 @@ export default function StockMovesPage() {
       accessorKey: 'lotCode',
       header: 'Mã lô',
       cell: ({ row }) => (
-        <span className="font-mono text-xs text-slate-600 dark:text-slate-400">
-          {row.original.lotCode || '—'}
-        </span>
+        <span className="font-mono text-xs text-muted">{row.original.lotCode || '—'}</span>
       ),
     },
     {
@@ -171,18 +165,16 @@ export default function StockMovesPage() {
         if (row.original.type === 'TRANSFER') {
           return (
             <div className="text-xs">
-              <span className="text-slate-500">Từ: </span>
-              <span className="font-medium">{from || '—'}</span>
-              <span className="text-slate-400 mx-1">➔</span>
-              <span className="text-slate-500">Đến: </span>
-              <span className="font-medium">{to || '—'}</span>
+              <span className="text-muted">Từ: </span>
+              <span className="font-medium text-fg">{from || '—'}</span>
+              <span className="text-muted mx-1">➔</span>
+              <span className="text-muted">Đến: </span>
+              <span className="font-medium text-fg">{to || '—'}</span>
             </div>
           );
         }
 
-        return (
-          <span className="text-xs text-slate-800 dark:text-slate-200">{to || from || '—'}</span>
-        );
+        return <span className="text-xs text-fg-2">{to || from || '—'}</span>;
       },
     },
     {
@@ -206,11 +198,7 @@ export default function StockMovesPage() {
         return (
           <span
             className={`font-semibold ${
-              isNegative
-                ? 'text-red-600 dark:text-red-400'
-                : isPositive
-                  ? 'text-emerald-700 dark:text-emerald-400'
-                  : 'text-slate-900 dark:text-slate-100'
+              isNegative ? 'text-crit' : isPositive ? 'text-ok' : 'text-fg'
             }`}
           >
             {isNegative ? `-${formatNumber(qty)}` : `+${formatNumber(qty)}`}{' '}
@@ -223,9 +211,7 @@ export default function StockMovesPage() {
       accessorKey: 'unitCost',
       header: 'Đơn giá vốn',
       cell: ({ row }) => (
-        <span className="text-xs text-slate-600 dark:text-slate-400">
-          {formatCurrency(row.original.unitCost)}
-        </span>
+        <span className="text-xs text-fg-2">{formatCurrency(row.original.unitCost)}</span>
       ),
     },
     {
@@ -233,7 +219,7 @@ export default function StockMovesPage() {
       header: 'Ghi chú',
       cell: ({ row }) => (
         <span
-          className="text-xs text-slate-500 italic max-w-xs truncate block"
+          className="text-xs text-muted italic max-w-xs truncate block"
           title={row.original.notes || ''}
         >
           {row.original.notes || '—'}
@@ -252,14 +238,11 @@ export default function StockMovesPage() {
       <InventoryNav />
 
       {/* Filter Bar */}
-      <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+      <div className="rounded-lg border border-line bg-surface p-4 shadow-sm">
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 items-end">
           {/* Item Filter */}
           <div className="space-y-1">
-            <label
-              htmlFor="filter-item"
-              className="text-xs font-medium text-slate-700 dark:text-slate-300"
-            >
+            <label htmlFor="filter-item" className="text-xs font-medium text-fg">
               Vật tư
             </label>
             <select
@@ -269,7 +252,7 @@ export default function StockMovesPage() {
                 setItemId(e.target.value);
                 setPage(1);
               }}
-              className="flex h-9 w-full rounded-md border border-slate-300 bg-white px-3 py-1 text-sm shadow-sm transition-colors focus:border-emerald-600 focus:outline-none dark:border-slate-700 dark:bg-slate-900"
+              className="flex h-9 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm text-fg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-accent/20"
             >
               <option value="">Tất cả vật tư</option>
               {items.map((it) => (
@@ -282,10 +265,7 @@ export default function StockMovesPage() {
 
           {/* Warehouse Filter */}
           <div className="space-y-1">
-            <label
-              htmlFor="filter-warehouse"
-              className="text-xs font-medium text-slate-700 dark:text-slate-300"
-            >
+            <label htmlFor="filter-warehouse" className="text-xs font-medium text-fg">
               Kho hàng
             </label>
             <select
@@ -295,7 +275,7 @@ export default function StockMovesPage() {
                 setWarehouseId(e.target.value);
                 setPage(1);
               }}
-              className="flex h-9 w-full rounded-md border border-slate-300 bg-white px-3 py-1 text-sm shadow-sm transition-colors focus:border-emerald-600 focus:outline-none dark:border-slate-700 dark:bg-slate-900"
+              className="flex h-9 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm text-fg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-accent/20"
             >
               <option value="">Tất cả kho</option>
               {warehouses.map((w) => (
@@ -308,10 +288,7 @@ export default function StockMovesPage() {
 
           {/* Type Filter */}
           <div className="space-y-1">
-            <label
-              htmlFor="filter-type"
-              className="text-xs font-medium text-slate-700 dark:text-slate-300"
-            >
+            <label htmlFor="filter-type" className="text-xs font-medium text-fg">
               Loại biến động
             </label>
             <select
@@ -321,7 +298,7 @@ export default function StockMovesPage() {
                 setMoveType(e.target.value);
                 setPage(1);
               }}
-              className="flex h-9 w-full rounded-md border border-slate-300 bg-white px-3 py-1 text-sm shadow-sm transition-colors focus:border-emerald-600 focus:outline-none dark:border-slate-700 dark:bg-slate-900"
+              className="flex h-9 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm text-fg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-accent/20"
             >
               <option value="">Tất cả loại</option>
               <option value={StockMoveType.IN}>Nhập kho</option>
@@ -333,10 +310,7 @@ export default function StockMovesPage() {
 
           {/* From Date */}
           <div className="space-y-1">
-            <label
-              htmlFor="filter-from"
-              className="text-xs font-medium text-slate-700 dark:text-slate-300"
-            >
+            <label htmlFor="filter-from" className="text-xs font-medium text-fg">
               Từ ngày
             </label>
             <input
@@ -347,16 +321,13 @@ export default function StockMovesPage() {
                 setFromDate(e.target.value);
                 setPage(1);
               }}
-              className="flex h-9 w-full rounded-md border border-slate-300 bg-white px-3 py-1 text-sm shadow-sm transition-colors focus:border-emerald-600 focus:outline-none dark:border-slate-700 dark:bg-slate-900"
+              className="flex h-9 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm text-fg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-accent/20"
             />
           </div>
 
           {/* To Date */}
           <div className="space-y-1">
-            <label
-              htmlFor="filter-to"
-              className="text-xs font-medium text-slate-700 dark:text-slate-300"
-            >
+            <label htmlFor="filter-to" className="text-xs font-medium text-fg">
               Đến ngày
             </label>
             <input
@@ -367,7 +338,7 @@ export default function StockMovesPage() {
                 setToDate(e.target.value);
                 setPage(1);
               }}
-              className="flex h-9 w-full rounded-md border border-slate-300 bg-white px-3 py-1 text-sm shadow-sm transition-colors focus:border-emerald-600 focus:outline-none dark:border-slate-700 dark:bg-slate-900"
+              className="flex h-9 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm text-fg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-accent/20"
             />
           </div>
         </div>
@@ -386,7 +357,7 @@ export default function StockMovesPage() {
                 setSearch('');
                 setPage(1);
               }}
-              className="text-xs text-slate-500 hover:text-slate-800 underline"
+              className="text-xs text-muted hover:text-fg underline"
             >
               Đặt lại bộ lọc
             </button>

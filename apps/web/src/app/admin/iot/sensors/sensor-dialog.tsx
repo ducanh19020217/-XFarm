@@ -189,7 +189,7 @@ export function SensorDialog({ open, onOpenChange, sensor, areas, onSubmit }: Se
   };
 
   const selectClass =
-    'h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20';
+    'h-10 w-full rounded-md border border-line bg-surface px-3 text-sm text-fg focus:outline-none focus:ring-2 focus:ring-accent/20';
 
   return (
     <FormDialog
@@ -207,7 +207,7 @@ export function SensorDialog({ open, onOpenChange, sensor, areas, onSubmit }: Se
           <div
             role="alert"
             data-testid="sensor-form-error"
-            className="rounded-md border border-red-200 bg-red-50 p-2.5 text-xs text-red-600 dark:border-red-900 dark:bg-red-950/40 dark:text-red-400"
+            className="rounded-md border border-crit/30 bg-crit-bg p-2.5 text-xs text-crit"
           >
             {errors.submit}
           </div>
@@ -228,11 +228,11 @@ export function SensorDialog({ open, onOpenChange, sensor, areas, onSubmit }: Se
               disabled={isEditing}
             />
             {errors.code ? (
-              <p className="text-[11px] text-red-500" data-testid="sensor-code-error">
+              <p className="text-[11px] text-crit" data-testid="sensor-code-error">
                 {errors.code}
               </p>
             ) : (
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-muted">
                 {isEditing ? 'Không thể đổi mã cảm biến' : 'Để trống để hệ thống tự cấp mã'}
               </p>
             )}
@@ -241,7 +241,7 @@ export function SensorDialog({ open, onOpenChange, sensor, areas, onSubmit }: Se
           {/* Tên cảm biến */}
           <div className="space-y-1.5">
             <Label htmlFor="sensor-name">
-              Tên cảm biến <span className="text-red-500">*</span>
+              Tên cảm biến <span className="text-crit">*</span>
             </Label>
             <Input
               id="sensor-name"
@@ -253,7 +253,7 @@ export function SensorDialog({ open, onOpenChange, sensor, areas, onSubmit }: Se
               }}
             />
             {errors.name && (
-              <p className="text-[11px] text-red-500" data-testid="sensor-name-error">
+              <p className="text-[11px] text-crit" data-testid="sensor-name-error">
                 {errors.name}
               </p>
             )}
@@ -264,7 +264,7 @@ export function SensorDialog({ open, onOpenChange, sensor, areas, onSubmit }: Se
           {/* Loại cảm biến */}
           <div className="space-y-1.5">
             <Label htmlFor="sensor-type">
-              Loại cảm biến <span className="text-red-500">*</span>
+              Loại cảm biến <span className="text-crit">*</span>
             </Label>
             <select
               id="sensor-type"
@@ -286,7 +286,7 @@ export function SensorDialog({ open, onOpenChange, sensor, areas, onSubmit }: Se
           {/* Đơn vị đo */}
           <div className="space-y-1.5">
             <Label htmlFor="sensor-unit">
-              Đơn vị đo <span className="text-red-500">*</span>
+              Đơn vị đo <span className="text-crit">*</span>
             </Label>
             <Input
               id="sensor-unit"
@@ -298,7 +298,7 @@ export function SensorDialog({ open, onOpenChange, sensor, areas, onSubmit }: Se
               }}
             />
             {errors.unit && (
-              <p className="text-[11px] text-red-500" data-testid="sensor-unit-error">
+              <p className="text-[11px] text-crit" data-testid="sensor-unit-error">
                 {errors.unit}
               </p>
             )}
@@ -308,7 +308,7 @@ export function SensorDialog({ open, onOpenChange, sensor, areas, onSubmit }: Se
         {/* Khu/lô */}
         <div className="space-y-1.5">
           <Label htmlFor="sensor-area">
-            Khu/lô lắp đặt <span className="text-red-500">*</span>
+            Khu/lô lắp đặt <span className="text-crit">*</span>
           </Label>
           <select
             id="sensor-area"
@@ -327,7 +327,7 @@ export function SensorDialog({ open, onOpenChange, sensor, areas, onSubmit }: Se
             ))}
           </select>
           {errors.areaId && (
-            <p className="text-[11px] text-red-500" data-testid="sensor-area-error">
+            <p className="text-[11px] text-crit" data-testid="sensor-area-error">
               {errors.areaId}
             </p>
           )}
@@ -340,27 +340,27 @@ export function SensorDialog({ open, onOpenChange, sensor, areas, onSubmit }: Se
             id="sensor-is-active"
             checked={isActive}
             onChange={(e) => setIsActive(e.target.checked)}
-            className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 dark:border-slate-700"
+            className="h-4 w-4 rounded border-line text-accent focus:ring-accent"
           />
-          <Label htmlFor="sensor-is-active" className="cursor-pointer font-normal text-sm">
+          <Label htmlFor="sensor-is-active" className="cursor-pointer font-normal text-sm text-fg">
             Kích hoạt tiếp nhận dữ liệu từ cảm biến này
           </Label>
         </div>
 
         {/* Thiết lập ngưỡng ban đầu (tùy chọn khi tạo mới) */}
         {!isEditing && (
-          <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50/70 p-3 dark:border-slate-800 dark:bg-slate-900/50 space-y-3">
+          <div className="mt-3 rounded-lg border border-line bg-surface-2 p-3 space-y-3">
             <div className="flex items-center gap-2">
               <input
                 type="checkbox"
                 id="enable-initial-rule"
                 checked={enableInitialRule}
                 onChange={(e) => setEnableInitialRule(e.target.checked)}
-                className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                className="h-4 w-4 rounded border-line text-accent focus:ring-accent"
               />
               <Label
                 htmlFor="enable-initial-rule"
-                className="cursor-pointer text-xs font-semibold text-slate-800 dark:text-slate-200"
+                className="cursor-pointer text-xs font-semibold text-fg"
               >
                 Thêm ngưỡng cảnh báo ban đầu (tùy chọn)
               </Label>
@@ -396,7 +396,7 @@ export function SensorDialog({ open, onOpenChange, sensor, areas, onSubmit }: Se
                     onChange={(e) => setInitialThreshold(e.target.value)}
                   />
                   {errors.initialThreshold && (
-                    <p className="text-[10px] text-red-500">{errors.initialThreshold}</p>
+                    <p className="text-[10px] text-crit">{errors.initialThreshold}</p>
                   )}
                 </div>
 

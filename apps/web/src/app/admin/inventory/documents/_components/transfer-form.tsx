@@ -159,7 +159,7 @@ export function TransferForm({ warehouses, items, onSuccess, onCancel }: Transfe
       {formError && (
         <div
           role="alert"
-          className="flex items-start gap-2 rounded-md bg-red-50 p-3 text-sm text-red-700 border border-red-200"
+          className="flex items-start gap-2 rounded-md bg-crit-bg p-3 text-sm text-crit border border-crit/30"
         >
           <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
           <span>{formError}</span>
@@ -174,7 +174,7 @@ export function TransferForm({ warehouses, items, onSuccess, onCancel }: Transfe
             id="transfer-from-warehouse"
             value={fromWarehouseId}
             onChange={(e) => setFromWarehouseId(e.target.value)}
-            className="flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm focus:border-emerald-600 focus:outline-none"
+            className="flex h-10 w-full rounded-md border border-line bg-surface px-3 text-sm text-fg focus:outline-none focus:ring-2 focus:ring-accent/20"
           >
             <option value="">Chọn kho chuyển đi</option>
             {warehouses.map((w) => (
@@ -191,7 +191,7 @@ export function TransferForm({ warehouses, items, onSuccess, onCancel }: Transfe
             id="transfer-to-warehouse"
             value={toWarehouseId}
             onChange={(e) => setToWarehouseId(e.target.value)}
-            className="flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm focus:border-emerald-600 focus:outline-none"
+            className="flex h-10 w-full rounded-md border border-line bg-surface px-3 text-sm text-fg focus:outline-none focus:ring-2 focus:ring-accent/20"
           >
             <option value="">Chọn kho chuyển đến</option>
             {warehouses
@@ -237,16 +237,16 @@ export function TransferForm({ warehouses, items, onSuccess, onCancel }: Transfe
             variant="outline"
             size="sm"
             onClick={addLine}
-            className="text-emerald-700 hover:text-emerald-800"
+            className="text-accent hover:text-accent/80"
           >
             <Plus className="h-4 w-4 mr-1" />
             Thêm dòng
           </Button>
         </div>
 
-        <div className="overflow-x-auto rounded-md border border-slate-200">
+        <div className="overflow-x-auto rounded-md border border-line">
           <table className="w-full text-left text-sm">
-            <thead className="bg-slate-50 text-xs uppercase text-slate-500">
+            <thead className="bg-surface-2 text-xs uppercase text-muted">
               <tr>
                 <th className="px-3 py-2 w-10">STT</th>
                 <th className="px-3 py-2 min-w-[260px]">Vật tư *</th>
@@ -254,19 +254,19 @@ export function TransferForm({ warehouses, items, onSuccess, onCancel }: Transfe
                 <th className="px-2 py-2 w-10"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 bg-white">
+            <tbody className="divide-y divide-line bg-surface">
               {lines.map((line, idx) => {
                 const selectedItem = items.find((it) => it.id === line.itemId);
 
                 return (
                   <tr key={line.id} className="align-top">
-                    <td className="px-3 py-2.5 text-slate-500">{idx + 1}</td>
+                    <td className="px-3 py-2.5 text-muted">{idx + 1}</td>
                     <td className="px-3 py-2">
                       <select
                         aria-label={`Vật tư dòng ${idx + 1}`}
                         value={line.itemId}
                         onChange={(e) => updateLine(idx, 'itemId', e.target.value)}
-                        className="flex h-9 w-full rounded border border-slate-300 bg-white px-2 text-sm focus:border-emerald-600 focus:outline-none"
+                        className="flex h-9 w-full rounded border border-line bg-surface px-2 text-sm text-fg focus:outline-none focus:ring-2 focus:ring-accent/20"
                       >
                         <option value="">Chọn vật tư</option>
                         {items.map((it) => (
@@ -276,12 +276,12 @@ export function TransferForm({ warehouses, items, onSuccess, onCancel }: Transfe
                         ))}
                       </select>
                       {selectedItem && (
-                        <span className="text-[11px] text-slate-500 block mt-0.5">
+                        <span className="text-[11px] text-muted block mt-0.5">
                           ĐVT: {selectedItem.unit}
                         </span>
                       )}
                       {lineErrors[idx] && (
-                        <span className="text-xs text-red-600 block mt-0.5">{lineErrors[idx]}</span>
+                        <span className="text-xs text-crit block mt-0.5">{lineErrors[idx]}</span>
                       )}
                     </td>
                     <td className="px-3 py-2">
@@ -307,7 +307,7 @@ export function TransferForm({ warehouses, items, onSuccess, onCancel }: Transfe
                         aria-label={`Xóa dòng ${idx + 1}`}
                         disabled={lines.length <= 1}
                         onClick={() => removeLine(idx)}
-                        className="p-1 text-slate-400 hover:text-red-600 disabled:opacity-30 disabled:hover:text-slate-400"
+                        className="p-1 text-muted hover:text-crit disabled:opacity-30 disabled:hover:text-muted"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -321,14 +321,14 @@ export function TransferForm({ warehouses, items, onSuccess, onCancel }: Transfe
       </div>
 
       {/* Action buttons */}
-      <div className="flex justify-end gap-3 pt-2 border-t border-slate-200">
+      <div className="flex justify-end gap-3 pt-2 border-t border-line">
         <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
           Hủy
         </Button>
         <Button
           type="submit"
           disabled={isSubmitting}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white"
+          className="bg-accent hover:bg-accent/90 text-white"
         >
           {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           Tạo phiếu điều chuyển

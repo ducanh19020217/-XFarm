@@ -181,18 +181,16 @@ export function SensorChartCard({
   return (
     <div
       data-testid={`sensor-chart-card-${sensor.id}`}
-      className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950 space-y-4"
+      className="rounded-lg border border-line bg-surface p-4 shadow-xs space-y-4"
     >
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-100 pb-3 dark:border-slate-800">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-line pb-3">
         <div className="space-y-1">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-mono text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 dark:bg-emerald-950 dark:border-emerald-800">
+            <span className="font-mono text-xs font-semibold text-accent bg-accent-bg px-2 py-0.5 rounded border border-line">
               {sensor.code}
             </span>
-            <h3 className="font-semibold text-slate-900 dark:text-slate-100 text-base">
-              {sensor.name}
-            </h3>
+            <h3 className="font-semibold text-fg text-base">{sensor.name}</h3>
             {sensor.area && (
               <Badge variant="outline" className="text-xs">
                 {sensor.area.name} ({sensor.area.code})
@@ -202,10 +200,9 @@ export function SensorChartCard({
               Đơn vị: {sensor.unit}
             </Badge>
           </div>
-          <p className="text-xs text-slate-400">
-            Khoảng thời gian:{' '}
-            <span className="font-medium text-slate-600 dark:text-slate-300">{rangeLabel}</span> (Độ
-            gom: {bucket})
+          <p className="text-xs text-muted">
+            Khoảng thời gian: <span className="font-medium text-fg-2">{rangeLabel}</span> (Độ gom:{' '}
+            {bucket})
           </p>
         </div>
 
@@ -214,20 +211,20 @@ export function SensorChartCard({
           {stats && (
             <div className="flex items-center gap-3 text-xs">
               <div className="text-right">
-                <span className="text-[11px] text-slate-400 block">Hiện tại</span>
-                <span className="font-bold text-slate-900 dark:text-slate-100 text-sm">
+                <span className="text-[11px] text-muted block">Hiện tại</span>
+                <span className="font-bold text-fg text-sm">
                   {stats.latest?.toFixed(1)} {sensor.unit}
                 </span>
               </div>
-              <div className="text-right hidden sm:block border-l pl-3 dark:border-slate-800">
-                <span className="text-[11px] text-slate-400 block">AVG</span>
-                <span className="font-semibold text-emerald-600">
+              <div className="text-right hidden sm:block border-l pl-3 border-line">
+                <span className="text-[11px] text-muted block">AVG</span>
+                <span className="font-semibold text-accent">
                   {stats.avg.toFixed(1)} {sensor.unit}
                 </span>
               </div>
-              <div className="text-right hidden sm:block border-l pl-3 dark:border-slate-800">
-                <span className="text-[11px] text-slate-400 block">MIN – MAX</span>
-                <span className="font-medium text-slate-600 dark:text-slate-400">
+              <div className="text-right hidden sm:block border-l pl-3 border-line">
+                <span className="text-[11px] text-muted block">MIN – MAX</span>
+                <span className="font-medium text-fg-2">
                   {stats.min.toFixed(1)} – {stats.max.toFixed(1)}
                 </span>
               </div>
@@ -249,9 +246,9 @@ export function SensorChartCard({
 
       {/* Alert rules indicator */}
       {rules.length > 0 && (
-        <div className="flex items-center gap-2 flex-wrap text-xs text-slate-500">
-          <span className="inline-flex items-center gap-1 font-medium text-slate-600 dark:text-slate-300">
-            <Bell className="h-3 w-3 text-amber-500" />
+        <div className="flex items-center gap-2 flex-wrap text-xs text-muted">
+          <span className="inline-flex items-center gap-1 font-medium text-fg-2">
+            <Bell className="h-3 w-3 text-warn" />
             Đường ngưỡng thiết lập:
           </span>
           {rules.map((r) => (
@@ -259,8 +256,8 @@ export function SensorChartCard({
               key={r.id}
               className={`rounded px-1.5 py-0.5 text-[11px] font-semibold border ${
                 r.op === AlertOp.GT
-                  ? 'bg-red-50 text-red-600 border-red-200 dark:bg-red-950/40 dark:border-red-900'
-                  : 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:border-amber-900'
+                  ? 'bg-crit-bg text-crit border-crit/20'
+                  : 'bg-warn-bg text-warn border-warn/20'
               }`}
             >
               {r.op === AlertOp.GT ? 'Vượt quá (>)' : 'Thấp hơn (<)'} {r.threshold} {sensor.unit}
@@ -271,19 +268,19 @@ export function SensorChartCard({
 
       {/* Chart Body */}
       {error ? (
-        <div className="flex h-72 items-center justify-center text-xs text-red-500">{error}</div>
+        <div className="flex h-72 items-center justify-center text-xs text-crit">{error}</div>
       ) : isLoading && data.length === 0 ? (
-        <div className="flex h-72 items-center justify-center text-xs text-slate-400">
-          <Loader2 className="h-5 w-5 animate-spin mr-2 text-emerald-600" />
+        <div className="flex h-72 items-center justify-center text-xs text-muted">
+          <Loader2 className="h-5 w-5 animate-spin mr-2 text-accent" />
           Đang tải dữ liệu chuỗi thời gian...
         </div>
       ) : data.length === 0 ? (
-        <div className="flex h-72 flex-col items-center justify-center rounded-lg border border-dashed border-slate-200 text-xs text-slate-400 dark:border-slate-800">
-          <Activity className="h-8 w-8 text-slate-300 mb-2" />
+        <div className="flex h-72 flex-col items-center justify-center rounded-lg border border-dashed border-line text-xs text-muted">
+          <Activity className="h-8 w-8 text-muted mb-2" />
           <span>Chưa có dữ liệu đo trong khoảng thời gian này</span>
         </div>
       ) : !isMounted ? (
-        <div className="flex h-72 items-center justify-center text-xs text-slate-400">
+        <div className="flex h-72 items-center justify-center text-xs text-muted">
           Đang chuẩn bị biểu đồ...
         </div>
       ) : (
@@ -315,7 +312,7 @@ export function SensorChartCard({
               <Area
                 type="monotone"
                 dataKey="range"
-                fill="#10b981"
+                fill={colors.accent}
                 fillOpacity={0.12}
                 stroke="none"
                 name="Dải MIN–MAX"
@@ -325,7 +322,7 @@ export function SensorChartCard({
               <Line
                 type="monotone"
                 dataKey="min"
-                stroke="#94a3b8"
+                stroke={colors.muted}
                 strokeDasharray="3 3"
                 strokeWidth={1}
                 dot={false}
@@ -336,7 +333,7 @@ export function SensorChartCard({
               <Line
                 type="monotone"
                 dataKey="max"
-                stroke="#64748b"
+                stroke={colors.axis}
                 strokeDasharray="3 3"
                 strokeWidth={1}
                 dot={false}
@@ -347,7 +344,7 @@ export function SensorChartCard({
               <Line
                 type="monotone"
                 dataKey="avg"
-                stroke="#10b981"
+                stroke={colors.accent}
                 strokeWidth={2.5}
                 dot={{ r: 2 }}
                 activeDot={{ r: 5 }}

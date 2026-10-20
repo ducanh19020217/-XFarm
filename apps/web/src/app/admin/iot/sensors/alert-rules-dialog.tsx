@@ -143,7 +143,7 @@ export function AlertRulesDialog({
   };
 
   const selectClass =
-    'h-9 rounded-md border border-slate-300 bg-white px-2.5 text-xs dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20';
+    'h-9 rounded-md border border-line bg-surface px-2.5 text-xs text-fg focus:outline-none focus:ring-2 focus:ring-accent/20';
 
   return (
     <FormDialog
@@ -165,12 +165,12 @@ export function AlertRulesDialog({
         {canManage && (
           <form
             onSubmit={handleSaveRule}
-            className="rounded-lg border border-slate-200 bg-slate-50 p-3.5 dark:border-slate-800 dark:bg-slate-900/60 space-y-3"
+            className="rounded-lg border border-line bg-surface-2 p-3.5 space-y-3"
             data-testid="alert-rule-form"
           >
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-                <Bell className="h-3.5 w-3.5 text-emerald-600" />
+              <span className="text-xs font-semibold text-fg flex items-center gap-1.5">
+                <Bell className="h-3.5 w-3.5 text-accent" />
                 {isEditingRule ? 'Chỉnh sửa ngưỡng cảnh báo' : 'Thêm ngưỡng cảnh báo mới'}
               </span>
               {isEditingRule && (
@@ -179,7 +179,7 @@ export function AlertRulesDialog({
                   variant="ghost"
                   size="sm"
                   onClick={resetForm}
-                  className="h-6 text-[11px] text-slate-500 hover:text-slate-800"
+                  className="h-6 text-[11px] text-muted hover:text-fg"
                 >
                   <X className="h-3 w-3 mr-1" />
                   Hủy sửa
@@ -187,7 +187,7 @@ export function AlertRulesDialog({
               )}
             </div>
 
-            {formError && <p className="text-xs text-red-500">{formError}</p>}
+            {formError && <p className="text-xs text-crit">{formError}</p>}
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
               <div className="space-y-1">
@@ -243,9 +243,9 @@ export function AlertRulesDialog({
                   id="rule-is-active"
                   checked={isActive}
                   onChange={(e) => setIsActive(e.target.checked)}
-                  className="h-3.5 w-3.5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                  className="h-3.5 w-3.5 rounded border-line text-accent focus:ring-accent"
                 />
-                <Label htmlFor="rule-is-active" className="cursor-pointer text-xs">
+                <Label htmlFor="rule-is-active" className="cursor-pointer text-xs text-fg">
                   Kích hoạt ngưỡng này
                 </Label>
               </div>
@@ -272,21 +272,21 @@ export function AlertRulesDialog({
 
         {/* Existing rules list */}
         <div className="space-y-2">
-          <div className="flex items-center justify-between text-xs font-semibold text-slate-700 dark:text-slate-300">
+          <div className="flex items-center justify-between text-xs font-semibold text-fg-2">
             <span>Danh sách ngưỡng hiện tại ({rules.length})</span>
           </div>
 
           {isLoading ? (
-            <div className="flex items-center justify-center py-6 text-xs text-slate-500">
+            <div className="flex items-center justify-center py-6 text-xs text-muted">
               <Loader2 className="h-4 w-4 animate-spin mr-2" />
               Đang tải danh sách ngưỡng...
             </div>
           ) : rules.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-slate-200 p-6 text-center text-xs text-slate-400 dark:border-slate-800">
+            <div className="rounded-lg border border-dashed border-line p-6 text-center text-xs text-muted">
               Chưa có ngưỡng cảnh báo nào cho cảm biến này.
             </div>
           ) : (
-            <div className="divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white dark:divide-slate-800 dark:border-slate-800 dark:bg-slate-950 overflow-hidden">
+            <div className="divide-y divide-line rounded-lg border border-line bg-surface overflow-hidden">
               {rules.map((rule) => {
                 const opText = rule.op === AlertOp.GT ? 'Vượt quá (>)' : 'Thấp hơn (<)';
                 return (
@@ -294,28 +294,31 @@ export function AlertRulesDialog({
                     key={rule.id}
                     data-testid={`alert-rule-row-${rule.id}`}
                     className={`flex items-center justify-between p-3 text-xs ${
-                      !rule.isActive ? 'opacity-60 bg-slate-50/50 dark:bg-slate-900/40' : ''
+                      !rule.isActive ? 'opacity-60 bg-surface-2/50' : ''
                     }`}
                   >
                     <div className="space-y-0.5">
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-slate-900 dark:text-slate-100">
+                        <span className="font-semibold text-fg">
                           {opText} {rule.threshold} {sensor?.unit}
                         </span>
                         {rule.isActive ? (
                           <Badge
                             variant="default"
-                            className="text-[10px] px-1.5 py-0 bg-emerald-600"
+                            className="text-[10px] px-1.5 py-0 bg-ok-bg text-ok border border-ok/30"
                           >
                             Đang bật
                           </Badge>
                         ) : (
-                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                          <Badge
+                            variant="secondary"
+                            className="text-[10px] px-1.5 py-0 bg-surface-2 text-muted border border-line"
+                          >
                             Đã tắt
                           </Badge>
                         )}
                       </div>
-                      <p className="text-[11px] text-slate-400">
+                      <p className="text-[11px] text-muted">
                         Thời gian chờ báo lại (cooldown): {rule.cooldownMinutes ?? 30} phút
                       </p>
                     </div>
@@ -328,9 +331,7 @@ export function AlertRulesDialog({
                           size="sm"
                           onClick={() => handleToggleActive(rule)}
                           className={`h-7 w-7 p-0 ${
-                            rule.isActive
-                              ? 'text-emerald-600 hover:text-red-600'
-                              : 'text-slate-400 hover:text-emerald-600'
+                            rule.isActive ? 'text-ok hover:text-crit' : 'text-muted hover:text-ok'
                           }`}
                           title={rule.isActive ? 'Tắt ngưỡng' : 'Bật ngưỡng'}
                           data-testid={`toggle-rule-btn-${rule.id}`}
@@ -343,7 +344,7 @@ export function AlertRulesDialog({
                           variant="ghost"
                           size="sm"
                           onClick={() => handleStartEdit(rule)}
-                          className="h-7 w-7 p-0 text-slate-500 hover:text-emerald-600"
+                          className="h-7 w-7 p-0 text-muted hover:text-accent"
                           title="Chỉnh sửa"
                           data-testid={`edit-rule-btn-${rule.id}`}
                         >
@@ -355,7 +356,7 @@ export function AlertRulesDialog({
                           variant="ghost"
                           size="sm"
                           onClick={() => handleDeleteRule(rule.id)}
-                          className="h-7 w-7 p-0 text-red-500 hover:text-red-700"
+                          className="h-7 w-7 p-0 text-crit hover:text-crit/80"
                           title="Xóa ngưỡng"
                           data-testid={`delete-rule-btn-${rule.id}`}
                         >

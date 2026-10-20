@@ -171,13 +171,18 @@ export function POReceiveDialog({
     >
       <form onSubmit={handleSubmit} noValidate className="space-y-4">
         {errors.general && (
-          <p role="alert" className="rounded-md bg-red-50 p-3 text-sm text-red-700">
+          <p
+            role="alert"
+            className="rounded-md border border-crit/30 bg-crit-bg p-3 text-sm text-crit"
+          >
             {errors.general}
           </p>
         )}
 
         <div className="space-y-1">
-          <Label htmlFor="receive-warehouse">Kho nhận hàng *</Label>
+          <Label htmlFor="receive-warehouse" className="text-fg">
+            Kho nhận hàng *
+          </Label>
           <select
             id="receive-warehouse"
             value={warehouseId}
@@ -187,7 +192,7 @@ export function POReceiveDialog({
                 setErrors((prev) => ({ ...prev, warehouseId: undefined }));
               }
             }}
-            className="flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="flex h-10 w-full rounded-md border border-line bg-surface px-3 text-sm text-fg focus:outline-none focus:ring-2 focus:ring-accent/20"
           >
             <option value="">Chọn kho nhận</option>
             {warehouses.map((w) => (
@@ -196,25 +201,25 @@ export function POReceiveDialog({
               </option>
             ))}
           </select>
-          {errors.warehouseId && <p className="text-xs text-red-600">{errors.warehouseId}</p>}
+          {errors.warehouseId && <p className="text-xs text-crit">{errors.warehouseId}</p>}
         </div>
 
         <div className="space-y-2">
-          <Label className="font-semibold">Chi tiết dòng nhận hàng</Label>
-          <div className="rounded-md border bg-slate-50 p-2 overflow-x-auto">
+          <Label className="font-semibold text-fg">Chi tiết dòng nhận hàng</Label>
+          <div className="rounded-md border border-line bg-surface-2 p-2 overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b text-left text-xs font-medium text-slate-500">
+                <tr className="border-b border-line text-left text-xs font-medium text-muted">
                   <th className="p-2 min-w-[160px]">Vật tư</th>
                   <th className="p-2 text-center w-20">Đã đặt</th>
                   <th className="p-2 text-center w-20">Đã nhận</th>
-                  <th className="p-2 text-center w-20 font-semibold text-emerald-700">Còn lại</th>
+                  <th className="p-2 text-center w-20 font-semibold text-ok">Còn lại</th>
                   <th className="p-2 w-28">Số lượng nhận *</th>
                   <th className="p-2 w-32">Mã lô</th>
                   <th className="p-2 w-36">Hạn dùng</th>
                 </tr>
               </thead>
-              <tbody className="divide-y">
+              <tbody className="divide-y divide-line">
                 {purchaseOrder.lines.map((line) => {
                   const rec = receiveLines.find((l) => l.lineId === line.id);
                   const ordered = Number(line.quantity) || 0;
@@ -223,16 +228,16 @@ export function POReceiveDialog({
                   const lineErr = errors.lineErrors?.[line.id];
 
                   return (
-                    <tr key={line.id} className="bg-white">
-                      <td className="p-2 align-top font-medium">
+                    <tr key={line.id} className="bg-surface">
+                      <td className="p-2 align-top font-medium text-fg">
                         <div>{line.item?.name || 'Vật tư'}</div>
-                        <div className="text-xs text-slate-400">
+                        <div className="text-xs text-muted">
                           {line.item?.sku || ''} ({line.item?.unit || ''})
                         </div>
                       </td>
-                      <td className="p-2 align-top text-center text-slate-600">{ordered}</td>
-                      <td className="p-2 align-top text-center text-slate-600">{received}</td>
-                      <td className="p-2 align-top text-center font-semibold text-emerald-700">
+                      <td className="p-2 align-top text-center text-fg-2">{ordered}</td>
+                      <td className="p-2 align-top text-center text-fg-2">{received}</td>
+                      <td className="p-2 align-top text-center font-semibold text-ok">
                         {remaining}
                       </td>
                       <td className="p-2 align-top">
@@ -254,7 +259,7 @@ export function POReceiveDialog({
                           }
                           className="h-9"
                         />
-                        {lineErr && <p className="mt-1 text-xs text-red-600">{lineErr}</p>}
+                        {lineErr && <p className="mt-1 text-xs text-crit">{lineErr}</p>}
                       </td>
                       <td className="p-2 align-top">
                         <Input
@@ -286,7 +291,7 @@ export function POReceiveDialog({
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 pt-3 border-t">
+        <div className="flex justify-end gap-3 pt-3 border-t border-line">
           <Button
             type="button"
             variant="outline"

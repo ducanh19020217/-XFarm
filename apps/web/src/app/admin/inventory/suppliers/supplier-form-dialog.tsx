@@ -100,7 +100,7 @@ export function SupplierFormDialog({
         {error && (
           <div
             role="alert"
-            className="rounded-md bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-400"
+            className="rounded-md bg-crit-bg p-3 text-sm text-crit border border-crit/30"
           >
             {error}
           </div>
@@ -108,7 +108,7 @@ export function SupplierFormDialog({
 
         <div className="space-y-1">
           <Label htmlFor="supplier-code">
-            Mã nhà cung cấp <span className="text-xs text-zinc-400 font-normal">(tùy chọn)</span>
+            Mã nhà cung cấp <span className="text-xs text-muted font-normal">(tùy chọn)</span>
           </Label>
           <Input
             id="supplier-code"
@@ -116,14 +116,12 @@ export function SupplierFormDialog({
             disabled={isEdit || isLoading}
             {...form.register('code')}
           />
-          {errors.code && (
-            <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.code.message}</p>
-          )}
+          {errors.code && <p className="text-xs text-crit mt-1">{errors.code.message}</p>}
         </div>
 
         <div className="space-y-1">
           <Label htmlFor="supplier-name">
-            Tên nhà cung cấp <span className="text-red-500">*</span>
+            Tên nhà cung cấp <span className="text-crit">*</span>
           </Label>
           <Input
             id="supplier-name"
@@ -131,15 +129,13 @@ export function SupplierFormDialog({
             disabled={isLoading}
             {...form.register('name')}
           />
-          {errors.name && (
-            <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.name.message}</p>
-          )}
+          {errors.name && <p className="text-xs text-crit mt-1">{errors.name.message}</p>}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1">
             <Label htmlFor="supplier-phone">
-              Số điện thoại <span className="text-xs text-zinc-400 font-normal">(tùy chọn)</span>
+              Số điện thoại <span className="text-xs text-muted font-normal">(tùy chọn)</span>
             </Label>
             <Input
               id="supplier-phone"
@@ -147,14 +143,12 @@ export function SupplierFormDialog({
               disabled={isLoading}
               {...form.register('phone')}
             />
-            {errors.phone && (
-              <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.phone.message}</p>
-            )}
+            {errors.phone && <p className="text-xs text-crit mt-1">{errors.phone.message}</p>}
           </div>
 
           <div className="space-y-1">
             <Label htmlFor="supplier-tax-code">
-              Mã số thuế <span className="text-xs text-zinc-400 font-normal">(tùy chọn)</span>
+              Mã số thuế <span className="text-xs text-muted font-normal">(tùy chọn)</span>
             </Label>
             <Input
               id="supplier-tax-code"
@@ -162,17 +156,13 @@ export function SupplierFormDialog({
               disabled={isLoading}
               {...form.register('taxCode')}
             />
-            {errors.taxCode && (
-              <p className="text-xs text-red-600 dark:text-red-400 mt-1">
-                {errors.taxCode.message}
-              </p>
-            )}
+            {errors.taxCode && <p className="text-xs text-crit mt-1">{errors.taxCode.message}</p>}
           </div>
         </div>
 
         <div className="space-y-1">
           <Label htmlFor="supplier-address">
-            Địa chỉ <span className="text-xs text-zinc-400 font-normal">(tùy chọn)</span>
+            Địa chỉ <span className="text-xs text-muted font-normal">(tùy chọn)</span>
           </Label>
           <Input
             id="supplier-address"
@@ -180,12 +170,10 @@ export function SupplierFormDialog({
             disabled={isLoading}
             {...form.register('address')}
           />
-          {errors.address && (
-            <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.address.message}</p>
-          )}
+          {errors.address && <p className="text-xs text-crit mt-1">{errors.address.message}</p>}
         </div>
 
-        <div className="flex justify-end gap-2 pt-4 border-t border-zinc-100 dark:border-zinc-800">
+        <div className="flex justify-end gap-2 pt-4 border-t border-line">
           <Button
             type="button"
             variant="outline"

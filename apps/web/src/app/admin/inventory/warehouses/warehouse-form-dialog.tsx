@@ -112,7 +112,7 @@ export function WarehouseFormDialog({
         {error && (
           <div
             role="alert"
-            className="rounded-md bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-400"
+            className="rounded-md bg-crit-bg p-3 text-sm text-crit border border-crit/30"
           >
             {error}
           </div>
@@ -120,7 +120,7 @@ export function WarehouseFormDialog({
 
         <div className="space-y-1">
           <Label htmlFor="warehouse-code">
-            Mã kho <span className="text-xs text-zinc-400 font-normal">(tùy chọn)</span>
+            Mã kho <span className="text-xs text-muted font-normal">(tùy chọn)</span>
           </Label>
           <Input
             id="warehouse-code"
@@ -128,14 +128,12 @@ export function WarehouseFormDialog({
             disabled={isEdit || isLoading}
             {...form.register('code')}
           />
-          {errors.code && (
-            <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.code.message}</p>
-          )}
+          {errors.code && <p className="text-xs text-crit mt-1">{errors.code.message}</p>}
         </div>
 
         <div className="space-y-1">
           <Label htmlFor="warehouse-name">
-            Tên kho hàng <span className="text-red-500">*</span>
+            Tên kho hàng <span className="text-crit">*</span>
           </Label>
           <Input
             id="warehouse-name"
@@ -143,18 +141,16 @@ export function WarehouseFormDialog({
             disabled={isLoading}
             {...form.register('name')}
           />
-          {errors.name && (
-            <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.name.message}</p>
-          )}
+          {errors.name && <p className="text-xs text-crit mt-1">{errors.name.message}</p>}
         </div>
 
         <div className="space-y-1">
           <Label htmlFor="warehouse-area">
-            Khu vực gắn kèm <span className="text-xs text-zinc-400 font-normal">(tùy chọn)</span>
+            Khu vực gắn kèm <span className="text-xs text-muted font-normal">(tùy chọn)</span>
           </Label>
           <select
             id="warehouse-area"
-            className="flex h-9 w-full rounded-md border border-zinc-200 bg-white px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-zinc-950 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-900 dark:focus-visible:ring-zinc-300"
+            className="flex h-10 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm text-fg shadow-xs transition-colors focus:outline-none focus:ring-2 focus:ring-accent/20 disabled:cursor-not-allowed disabled:opacity-50"
             disabled={isLoading}
             {...form.register('areaId')}
           >
@@ -165,12 +161,10 @@ export function WarehouseFormDialog({
               </option>
             ))}
           </select>
-          {errors.areaId && (
-            <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.areaId.message}</p>
-          )}
+          {errors.areaId && <p className="text-xs text-crit mt-1">{errors.areaId.message}</p>}
         </div>
 
-        <div className="flex justify-end gap-2 pt-4 border-t border-zinc-100 dark:border-zinc-800">
+        <div className="flex justify-end gap-2 pt-4 border-t border-line">
           <Button
             type="button"
             variant="outline"

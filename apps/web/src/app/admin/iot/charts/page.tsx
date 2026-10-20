@@ -162,7 +162,7 @@ function ChartsContent() {
   }, [mode, selectedSensorId, selectedAreaId, sensors]);
 
   const selectClass =
-    'h-9 rounded-md border border-slate-300 bg-white px-2.5 text-xs dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20';
+    'h-9 rounded-lg border border-line bg-surface px-2.5 text-xs text-fg focus:outline-none focus:ring-2 focus:ring-accent/20';
 
   return (
     <div className="space-y-6">
@@ -174,16 +174,16 @@ function ChartsContent() {
           {preset === '24h' && (
             <Badge
               variant="outline"
-              className="bg-emerald-50 text-emerald-700 border-emerald-300 flex items-center gap-1.5 py-1 px-2.5 text-xs dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800"
+              className="bg-accent-bg text-accent border-line flex items-center gap-1.5 py-1 px-2.5 text-xs"
               data-testid="auto-refresh-indicator"
             >
-              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="h-2 w-2 rounded-full bg-accent animate-pulse" />
               Tự refresh mỗi 60s
             </Badge>
           )}
 
           <Link href="/admin/iot/sensors">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="border-line">
               <Cpu className="h-4 w-4 mr-1.5" />
               Danh sách cảm biến
             </Button>
@@ -202,23 +202,21 @@ function ChartsContent() {
       </PageHeader>
 
       {/* Control Panel: Selection Mode + Time Range */}
-      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950 space-y-4">
+      <div className="rounded-lg border border-line bg-surface p-4 shadow-xs space-y-4">
         {/* Row 1: Mode toggles and presets */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 pb-4 dark:border-slate-800">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-line pb-4">
           {/* Mode Switcher */}
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-              Xem theo:
-            </span>
-            <div className="inline-flex rounded-lg border border-slate-200 bg-slate-100 p-0.5 dark:border-slate-800 dark:bg-slate-900">
+            <span className="text-xs font-semibold text-muted">Xem theo:</span>
+            <div className="inline-flex rounded-lg border border-line bg-surface-2 p-0.5">
               <button
                 type="button"
                 onClick={() => setMode('sensor')}
                 data-testid="mode-sensor-btn"
                 className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
                   mode === 'sensor'
-                    ? 'bg-white text-emerald-700 font-semibold shadow-xs dark:bg-slate-800 dark:text-emerald-400'
-                    : 'text-slate-600 hover:text-slate-900 dark:text-slate-400'
+                    ? 'bg-surface text-accent font-semibold shadow-xs'
+                    : 'text-muted hover:text-fg'
                 }`}
               >
                 <Cpu className="h-3.5 w-3.5" />
@@ -230,8 +228,8 @@ function ChartsContent() {
                 data-testid="mode-area-btn"
                 className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
                   mode === 'area'
-                    ? 'bg-white text-emerald-700 font-semibold shadow-xs dark:bg-slate-800 dark:text-emerald-400'
-                    : 'text-slate-600 hover:text-slate-900 dark:text-slate-400'
+                    ? 'bg-surface text-accent font-semibold shadow-xs'
+                    : 'text-muted hover:text-fg'
                 }`}
               >
                 <Layers className="h-3.5 w-3.5" />
@@ -242,7 +240,7 @@ function ChartsContent() {
 
           {/* Time range presets */}
           <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 mr-1 flex items-center gap-1">
+            <span className="text-xs font-semibold text-muted mr-1 flex items-center gap-1">
               <Clock className="h-3.5 w-3.5" />
               Khoảng thời gian:
             </span>
@@ -252,7 +250,7 @@ function ChartsContent() {
               size="sm"
               onClick={() => setPreset('24h')}
               data-testid="preset-24h-btn"
-              className={`h-8 text-xs ${preset === '24h' ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : ''}`}
+              className={`h-8 text-xs ${preset !== '24h' ? 'border-line' : ''}`}
             >
               24 giờ
             </Button>
@@ -262,7 +260,7 @@ function ChartsContent() {
               size="sm"
               onClick={() => setPreset('7d')}
               data-testid="preset-7d-btn"
-              className={`h-8 text-xs ${preset === '7d' ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : ''}`}
+              className={`h-8 text-xs ${preset !== '7d' ? 'border-line' : ''}`}
             >
               7 ngày
             </Button>
@@ -272,7 +270,7 @@ function ChartsContent() {
               size="sm"
               onClick={() => setPreset('30d')}
               data-testid="preset-30d-btn"
-              className={`h-8 text-xs ${preset === '30d' ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : ''}`}
+              className={`h-8 text-xs ${preset !== '30d' ? 'border-line' : ''}`}
             >
               30 ngày
             </Button>
@@ -282,7 +280,7 @@ function ChartsContent() {
               size="sm"
               onClick={() => setPreset('custom')}
               data-testid="preset-custom-btn"
-              className={`h-8 text-xs ${preset === 'custom' ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : ''}`}
+              className={`h-8 text-xs ${preset !== 'custom' ? 'border-line' : ''}`}
             >
               <Calendar className="h-3 w-3 mr-1" />
               Tùy chọn
@@ -315,11 +313,11 @@ function ChartsContent() {
           ) : (
             <div className="space-y-1.5 md:col-span-2 lg:col-span-2">
               <Label className="text-xs flex items-center gap-1.5">
-                <MapPin className="h-3.5 w-3.5 text-emerald-600" />
+                <MapPin className="h-3.5 w-3.5 text-accent" />
                 Cây phân cấp Khu/Lô (chọn khu để hiển thị tất cả cảm biến của khu đó)
               </Label>
               <div
-                className="max-h-48 overflow-y-auto rounded-lg border border-slate-200 bg-slate-50/50 p-2 dark:border-slate-800 dark:bg-slate-900/40"
+                className="max-h-48 overflow-y-auto rounded-lg border border-line bg-surface-2/40 p-2"
                 data-testid="area-tree-container"
               >
                 {treeData.length > 0 ? (
@@ -329,7 +327,7 @@ function ChartsContent() {
                     onSelectArea={(id) => setSelectedAreaId(id)}
                   />
                 ) : (
-                  <div className="py-4 text-center text-xs text-slate-400">
+                  <div className="py-4 text-center text-xs text-muted">
                     Đang tải cây phân cấp khu vực...
                   </div>
                 )}
@@ -339,10 +337,10 @@ function ChartsContent() {
 
           {/* Custom Date Inputs if preset === 'custom' */}
           {preset === 'custom' && (
-            <div className="space-y-3 col-span-full rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-900/60">
+            <div className="space-y-3 col-span-full rounded-lg border border-line bg-surface-2/60 p-3">
               <div className="flex items-center gap-2">
-                <SlidersHorizontal className="h-3.5 w-3.5 text-emerald-600" />
-                <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                <SlidersHorizontal className="h-3.5 w-3.5 text-accent" />
+                <span className="text-xs font-semibold text-fg">
                   Cấu hình khoảng thời gian tùy chọn
                 </span>
               </div>
@@ -394,18 +392,18 @@ function ChartsContent() {
 
       {/* Chart List: 1 chart per sensor */}
       {isLoadingSensors ? (
-        <div className="flex h-64 items-center justify-center text-xs text-slate-400">
+        <div className="flex h-64 items-center justify-center text-xs text-muted">
           Đang tải thông tin cảm biến...
         </div>
       ) : activeSensors.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-slate-200 bg-white p-12 text-center text-xs text-slate-400 dark:border-slate-800 dark:bg-slate-950">
-          <LineChart className="mx-auto h-10 w-10 text-slate-300 mb-2" />
-          <p className="font-medium text-slate-600 dark:text-slate-300">
+        <div className="rounded-lg border border-dashed border-line bg-surface p-12 text-center text-xs text-muted">
+          <LineChart className="mx-auto h-10 w-10 text-muted mb-2" />
+          <p className="font-medium text-fg">
             {mode === 'sensor'
               ? 'Chưa chọn cảm biến nào hoặc chưa có cảm biến trong hệ thống.'
               : 'Khu vực này hiện chưa được gắn cảm biến nào.'}
           </p>
-          <p className="mt-1">
+          <p className="mt-1 text-muted">
             Vui lòng chọn một cảm biến khác hoặc chuyển sang khu vực có cảm biến.
           </p>
         </div>

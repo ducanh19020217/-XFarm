@@ -40,7 +40,7 @@ export function InventoryNav() {
   const pathname = usePathname();
 
   return (
-    <div className="flex border-b border-slate-200 dark:border-slate-800 mb-6 gap-2">
+    <div className="flex border-b border-line mb-6 gap-2">
       {tabs.map((tab) => {
         const Icon = tab.icon;
         const isActive = tab.exact
@@ -53,8 +53,8 @@ export function InventoryNav() {
             href={tab.href}
             className={`flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-medium transition-colors ${
               isActive
-                ? 'border-emerald-600 text-emerald-600 dark:border-emerald-400 dark:text-emerald-400'
-                : 'border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+                ? 'border-accent text-accent'
+                : 'border-transparent text-muted hover:border-line hover:text-fg'
             }`}
           >
             <Icon className="h-4 w-4" />

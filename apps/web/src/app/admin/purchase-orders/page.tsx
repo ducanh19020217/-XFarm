@@ -120,6 +120,16 @@ export default function PurchaseOrdersPage() {
     }
   };
 
+  const stats = React.useMemo(() => {
+    const totalCount = total || orders.length;
+    const draftCount = orders.filter((o) => o.status === 'DRAFT').length;
+    const orderedCount = orders.filter(
+      (o) => o.status === 'ORDERED' || o.status === 'PARTIAL',
+    ).length;
+    const receivedCount = orders.filter((o) => o.status === 'RECEIVED').length;
+    return { totalCount, draftCount, orderedCount, receivedCount };
+  }, [total, orders]);
+
   const columns: ColumnDef<PurchaseOrderItem>[] = React.useMemo(
     () => [
       {
@@ -128,7 +138,7 @@ export default function PurchaseOrdersPage() {
         cell: ({ row }) => (
           <Link
             href={`/admin/purchase-orders/${row.original.id}`}
-            className="font-medium text-emerald-700 hover:text-emerald-800 hover:underline"
+            className="font-medium text-accent hover:underline"
           >
             {row.original.code}
           </Link>
@@ -137,17 +147,23 @@ export default function PurchaseOrdersPage() {
       {
         accessorKey: 'supplier',
         header: 'Nhà cung cấp',
-        cell: ({ row }) => row.original.supplier?.name || row.original.supplier?.code || '-',
+        cell: ({ row }) => (
+          <span className="text-fg">
+            {row.original.supplier?.name || row.original.supplier?.code || '-'}
+          </span>
+        ),
       },
       {
         accessorKey: 'orderDate',
         header: 'Ngày đặt',
-        cell: ({ row }) => formatDate(row.original.orderDate),
+        cell: ({ row }) => <span className="text-fg-2">{formatDate(row.original.orderDate)}</span>,
       },
       {
         accessorKey: 'total',
         header: 'Tổng tiền',
-        cell: ({ row }) => formatCurrency(row.original.total),
+        cell: ({ row }) => (
+          <span className="font-semibold text-fg">{formatCurrency(row.original.total)}</span>
+        ),
       },
       {
         accessorKey: 'status',
@@ -185,6 +201,25 @@ export default function PurchaseOrdersPage() {
           </Button>
         )}
       </PageHeader>
+
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div className="rounded-lg border border-line bg-surface p-4 shadow-sm">
+          <p className="text-xs font-medium text-muted">Tổng đơn hàng</p>
+          <p className="mt-1 text-2xl font-bold text-fg">{stats.totalCount}</p>
+        </div>
+        <div className="rounded-lg border border-line bg-surface p-4 shadow-sm">
+          <p className="text-xs font-medium text-muted">Bản nháp</p>
+          <p className="mt-1 text-2xl font-bold text-warn">{stats.draftCount}</p>
+        </div>
+        <div className="rounded-lg border border-line bg-surface p-4 shadow-sm">
+          <p className="text-xs font-medium text-muted">Đang đặt hàng</p>
+          <p className="mt-1 text-2xl font-bold text-accent">{stats.orderedCount}</p>
+        </div>
+        <div className="rounded-lg border border-line bg-surface p-4 shadow-sm">
+          <p className="text-xs font-medium text-muted">Đã nhận đủ</p>
+          <p className="mt-1 text-2xl font-bold text-ok">{stats.receivedCount}</p>
+        </div>
+      </div>
 
       <POFilters
         status={status}
