@@ -6,7 +6,6 @@ import { ChevronRight, ArrowLeft, ShieldCheck, Truck, RefreshCw } from 'lucide-r
 import { getPublicProductBySlug, formatCurrency } from '@/lib/public-api';
 import { getSiteUrl } from '@/lib/site-url';
 import { sanitizeHtml } from '@/lib/sanitize';
-import { OrderButton } from '../../_components/order-button';
 import { AddToCartButton } from '../../_components/add-to-cart-button';
 
 interface ProductDetailPageProps {
@@ -208,9 +207,6 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                 inStock={inStock}
                 variant="detail"
               />
-              <div className="pt-1">
-                <OrderButton />
-              </div>
             </div>
           </div>
         </div>

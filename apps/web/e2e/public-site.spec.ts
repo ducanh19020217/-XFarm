@@ -81,11 +81,11 @@ test.describe('Website Quảng Bá Public (không cần đăng nhập)', () => {
     await page.waitForURL(/\/san-pham\/[\w-]+/);
     await expect(page.getByText(/mô tả sản phẩm/i)).toBeVisible();
 
-    // Nút "Đặt hàng" bị disabled và có tooltip "Sắp có cửa hàng online"
-    const orderButton = page.getByRole('button', { name: /đặt hàng/i });
-    await expect(orderButton).toBeVisible();
-    await expect(orderButton).toBeDisabled();
-    await expect(orderButton).toHaveAttribute('title', 'Sắp có cửa hàng online');
+    // Webshop đã có (GĐ 4): nút "Thêm vào giỏ" hiển thị, không còn nút "Sắp có cửa hàng online"
+    await expect(
+      page.getByRole('button', { name: /thêm .* vào giỏ|thêm vào giỏ/i }).first(),
+    ).toBeVisible();
+    await expect(page.getByText(/sắp có cửa hàng online/i)).toHaveCount(0);
 
     // Không có lỗi console
     errors.assertClean();
