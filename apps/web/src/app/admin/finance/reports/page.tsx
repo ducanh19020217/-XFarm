@@ -228,12 +228,12 @@ export default function FinanceReportsPage() {
     return (
       <div className="space-y-6">
         <PageHeader title="Báo cáo tài chính" description="Phân hệ báo cáo tài chính" />
-        <div className="rounded-lg border border-rose-200 bg-rose-50/70 p-12 text-center dark:border-rose-900 dark:bg-rose-950/20">
-          <ShieldAlert className="mx-auto h-12 w-12 text-rose-600 dark:text-rose-400 mb-3" />
-          <h2 className="text-lg font-bold text-rose-800 dark:text-rose-300">
+        <div className="rounded-lg border border-crit/30 bg-crit-bg/20 p-12 text-center text-crit">
+          <ShieldAlert className="mx-auto h-12 w-12 text-crit mb-3" />
+          <h2 className="text-lg font-bold text-crit">
             Không có quyền truy cập
           </h2>
-          <p className="mt-1 text-sm text-rose-600 dark:text-rose-400 max-w-md mx-auto">
+          <p className="mt-1 text-sm text-crit/80 max-w-md mx-auto">
             Báo cáo tài chính, giá thành và lãi lỗ mùa vụ bị ẩn đối với nhân viên bán hàng (SALES)
             và công nhân (WORKER).
           </p>
@@ -264,11 +264,11 @@ export default function FinanceReportsPage() {
           <button
             type="button"
             onClick={() => setSelectedCycle(row.original)}
-            className="font-medium text-emerald-600 hover:underline dark:text-emerald-400 text-left"
+            className="font-medium text-accent hover:underline text-left"
           >
             {row.original.name}
           </button>
-          <div className="font-mono text-xs text-slate-400">{row.original.code}</div>
+          <div className="font-mono text-xs text-muted">{row.original.code}</div>
         </div>
       ),
     },
@@ -276,7 +276,7 @@ export default function FinanceReportsPage() {
       header: 'Khu/lô',
       accessorKey: 'area',
       cell: ({ row }) => (
-        <span className="text-slate-700 dark:text-slate-300">{row.original.area?.name || '-'}</span>
+        <span className="text-fg">{row.original.area?.name || '-'}</span>
       ),
     },
     {
@@ -288,7 +288,7 @@ export default function FinanceReportsPage() {
       header: 'Sản lượng',
       accessorKey: 'outputQuantity',
       cell: ({ row }) => (
-        <span className="font-semibold text-slate-800 dark:text-slate-200">
+        <span className="font-semibold text-fg">
           {row.original.outputQuantity}
         </span>
       ),
@@ -297,7 +297,7 @@ export default function FinanceReportsPage() {
       header: 'Chi phí vật tư',
       accessorKey: 'materialCost',
       cell: ({ row }) => (
-        <span className="text-slate-700 dark:text-slate-300">
+        <span className="text-fg">
           {formatVND(row.original.materialCost)}
         </span>
       ),
@@ -306,7 +306,7 @@ export default function FinanceReportsPage() {
       header: 'Chi phí khác',
       accessorKey: 'expenseCost',
       cell: ({ row }) => (
-        <span className="text-slate-700 dark:text-slate-300">
+        <span className="text-fg">
           {formatVND(row.original.expenseCost)}
         </span>
       ),
@@ -315,7 +315,7 @@ export default function FinanceReportsPage() {
       header: 'Tổng chi phí',
       accessorKey: 'totalCost',
       cell: ({ row }) => (
-        <span className="font-bold text-rose-700 dark:text-rose-400">
+        <span className="font-bold text-crit">
           {formatVND(row.original.totalCost)}
         </span>
       ),
@@ -324,7 +324,7 @@ export default function FinanceReportsPage() {
       header: 'Doanh thu',
       accessorKey: 'revenue',
       cell: ({ row }) => (
-        <span className="font-semibold text-emerald-700 dark:text-emerald-400">
+        <span className="font-semibold text-ok">
           {formatVND(row.original.revenue)}
         </span>
       ),
@@ -338,8 +338,8 @@ export default function FinanceReportsPage() {
           <span
             className={`font-bold ${
               val >= 0
-                ? 'text-emerald-600 dark:text-emerald-400'
-                : 'text-rose-600 dark:text-rose-400'
+                ? 'text-ok'
+                : 'text-crit'
             }`}
           >
             {val >= 0 ? '+' : ''}
@@ -352,7 +352,7 @@ export default function FinanceReportsPage() {
       header: 'Giá thành/ĐV',
       accessorKey: 'costPerUnit',
       cell: ({ row }) => (
-        <span className="text-slate-600 dark:text-slate-400 text-xs font-mono">
+        <span className="text-muted text-xs font-mono">
           {formatVND(row.original.costPerUnit)}
         </span>
       ),
@@ -365,7 +365,7 @@ export default function FinanceReportsPage() {
           size="sm"
           variant="outline"
           onClick={() => setSelectedCycle(row.original)}
-          className="text-xs h-7 px-2"
+          className="text-xs h-7 px-2 border-line text-fg hover:bg-hover"
         >
           <Eye className="h-3.5 w-3.5 mr-1" />
           Chi tiết
@@ -386,14 +386,14 @@ export default function FinanceReportsPage() {
       />
 
       {/* Navigation Tabs */}
-      <div className="flex border-b border-slate-200 dark:border-slate-800">
+      <div className="flex border-b border-line">
         <button
           type="button"
           onClick={() => setActiveTab('cashflow')}
           className={`flex items-center gap-2 border-b-2 px-5 py-3 text-sm font-medium transition-colors ${
             activeTab === 'cashflow'
-              ? 'border-emerald-600 text-emerald-600 dark:border-emerald-400 dark:text-emerald-400'
-              : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+              ? 'border-accent text-accent font-semibold'
+              : 'border-transparent text-muted hover:text-fg'
           }`}
         >
           <Calendar className="h-4 w-4" />
@@ -405,8 +405,8 @@ export default function FinanceReportsPage() {
           onClick={() => setActiveTab('cycles')}
           className={`flex items-center gap-2 border-b-2 px-5 py-3 text-sm font-medium transition-colors ${
             activeTab === 'cycles'
-              ? 'border-emerald-600 text-emerald-600 dark:border-emerald-400 dark:text-emerald-400'
-              : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+              ? 'border-accent text-accent font-semibold'
+              : 'border-transparent text-muted hover:text-fg'
           }`}
         >
           <Layers className="h-4 w-4" />
@@ -418,8 +418,8 @@ export default function FinanceReportsPage() {
           onClick={() => setActiveTab('products')}
           className={`flex items-center gap-2 border-b-2 px-5 py-3 text-sm font-medium transition-colors ${
             activeTab === 'products'
-              ? 'border-emerald-600 text-emerald-600 dark:border-emerald-400 dark:text-emerald-400'
-              : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+              ? 'border-accent text-accent font-semibold'
+              : 'border-transparent text-muted hover:text-fg'
           }`}
         >
           <Trophy className="h-4 w-4" />
@@ -431,18 +431,18 @@ export default function FinanceReportsPage() {
       {activeTab === 'cashflow' && (
         <div className="space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
-            <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-emerald-600" />
+            <h3 className="text-base font-bold text-fg flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-accent" />
               Biểu đồ dòng tiền thu chi năm {cashflowYear}
             </h3>
 
             <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-500">Chọn năm:</span>
+              <span className="text-xs text-muted">Chọn năm:</span>
               <select
                 aria-label="Chọn năm báo cáo"
                 value={cashflowYear}
                 onChange={(e) => setCashflowYear(Number(e.target.value))}
-                className="flex h-9 w-32 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring dark:bg-slate-800"
+                className="flex h-9 w-32 rounded-md border border-line bg-surface px-3 py-1 text-sm shadow-xs text-fg focus:outline-none focus:ring-1 focus:ring-accent"
               >
                 {[currentYear - 2, currentYear - 1, currentYear, currentYear + 1].map((yr) => (
                   <option key={yr} value={yr}>
@@ -455,33 +455,33 @@ export default function FinanceReportsPage() {
 
           {/* Yearly summary KPI */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="rounded-lg border bg-white p-4 shadow-sm border-emerald-200 bg-emerald-50/20 dark:border-emerald-900 dark:bg-emerald-950/20">
-              <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">
+            <div className="rounded-lg border border-ok/30 bg-ok-bg/20 p-4 shadow-xs text-ok">
+              <span className="text-xs font-semibold uppercase tracking-wider">
                 Tổng thu cả năm
               </span>
-              <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-400 mt-2">
+              <p className="text-2xl font-bold mt-2">
                 {formatVND(totalYearIncome)}
               </p>
             </div>
 
-            <div className="rounded-lg border bg-white p-4 shadow-sm border-rose-200 bg-rose-50/20 dark:border-rose-900 dark:bg-rose-950/20">
-              <span className="text-xs font-semibold text-rose-700 dark:text-rose-400 uppercase tracking-wider">
+            <div className="rounded-lg border border-crit/30 bg-crit-bg/20 p-4 shadow-xs text-crit">
+              <span className="text-xs font-semibold uppercase tracking-wider">
                 Tổng chi cả năm
               </span>
-              <p className="text-2xl font-bold text-rose-700 dark:text-rose-400 mt-2">
+              <p className="text-2xl font-bold mt-2">
                 {formatVND(totalYearExpense)}
               </p>
             </div>
 
-            <div className="rounded-lg border bg-white p-4 shadow-sm border-slate-200 dark:border-slate-800 dark:bg-slate-900">
-              <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+            <div className="rounded-lg border border-line bg-surface p-4 shadow-xs text-fg">
+              <span className="text-xs font-semibold text-muted uppercase tracking-wider">
                 Lãi thuần năm {cashflowYear}
               </span>
               <p
                 className={`text-2xl font-bold mt-2 ${
                   totalYearNet >= 0
-                    ? 'text-emerald-600 dark:text-emerald-400'
-                    : 'text-rose-600 dark:text-rose-400'
+                    ? 'text-ok'
+                    : 'text-crit'
                 }`}
               >
                 {formatVND(totalYearNet)}
@@ -490,12 +490,12 @@ export default function FinanceReportsPage() {
           </div>
 
           {/* Recharts BarChart thu/chi + line chênh lệch */}
-          <div className="rounded-lg border bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">
+          <div className="rounded-lg border border-line bg-surface p-5 shadow-xs text-fg">
+            <h4 className="text-sm font-semibold text-fg mb-4">
               Biểu đồ so sánh Thu - Chi và Chênh lệch theo tháng
             </h4>
             {cashflowLoading ? (
-              <div className="flex h-72 items-center justify-center text-slate-400">
+              <div className="flex h-72 items-center justify-center text-muted">
                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                 Đang tải dữ liệu biểu đồ...
               </div>
@@ -572,9 +572,9 @@ export default function FinanceReportsPage() {
                       type="monotone"
                       dataKey="net"
                       name="net"
-                      stroke="#6366f1"
+                      stroke={colors.accent || '#10b981'}
                       strokeWidth={3}
-                      dot={{ r: 4, fill: '#6366f1' }}
+                      dot={{ r: 4, fill: colors.accent || '#10b981' }}
                     />
                   </ComposedChart>
                 </ResponsiveContainer>
@@ -583,13 +583,13 @@ export default function FinanceReportsPage() {
           </div>
 
           {/* Bảng kê 12 tháng */}
-          <div className="rounded-lg border bg-white shadow-sm overflow-hidden dark:border-slate-800 dark:bg-slate-900">
-            <div className="px-4 py-3 border-b bg-slate-50 font-semibold text-xs text-slate-600 dark:border-slate-800 dark:bg-slate-800/50 dark:text-slate-300">
+          <div className="rounded-lg border border-line bg-surface shadow-xs overflow-hidden">
+            <div className="px-4 py-3 border-b border-line bg-surface-2 font-semibold text-xs text-muted uppercase tracking-wider">
               Bảng chi tiết 12 tháng
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
-                <thead className="border-b bg-slate-50/50 text-xs text-slate-500 dark:border-slate-800 dark:bg-slate-800/30">
+                <thead className="border-b border-line bg-surface-2/50 text-xs text-muted">
                   <tr>
                     <th className="py-2.5 px-3">Tháng</th>
                     <th className="py-2.5 px-3 text-right">Tổng thu</th>
@@ -597,28 +597,28 @@ export default function FinanceReportsPage() {
                     <th className="py-2.5 px-3 text-right">Chênh lệch thuần</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                <tbody className="divide-y divide-line">
                   {cashflowData.map((row) => {
                     const netVal = Number(row.net) || 0;
                     return (
                       <tr
                         key={row.month}
-                        className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40"
+                        className="hover:bg-hover transition-colors"
                       >
-                        <td className="py-2.5 px-3 font-medium text-slate-800 dark:text-slate-200">
+                        <td className="py-2.5 px-3 font-medium text-fg">
                           Tháng {row.month}
                         </td>
-                        <td className="py-2.5 px-3 text-right font-semibold text-emerald-700 dark:text-emerald-400">
+                        <td className="py-2.5 px-3 text-right font-semibold text-ok">
                           {formatVND(row.income)}
                         </td>
-                        <td className="py-2.5 px-3 text-right font-semibold text-rose-700 dark:text-rose-400">
+                        <td className="py-2.5 px-3 text-right font-semibold text-crit">
                           {formatVND(row.expense)}
                         </td>
                         <td
                           className={`py-2.5 px-3 text-right font-bold ${
                             netVal >= 0
-                              ? 'text-emerald-600 dark:text-emerald-400'
-                              : 'text-rose-600 dark:text-rose-400'
+                              ? 'text-ok'
+                              : 'text-crit'
                           }`}
                         >
                           {netVal >= 0 ? '+' : ''}
@@ -639,11 +639,11 @@ export default function FinanceReportsPage() {
         <div className="space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                <Layers className="h-4 w-4 text-emerald-600" />
+              <h3 className="text-base font-bold text-fg flex items-center gap-2">
+                <Layers className="h-4 w-4 text-accent" />
                 Báo cáo giá thành &amp; Lãi lỗ theo mùa vụ
               </h3>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-muted">
                 Nhấp vào từng dòng để xem chi tiết chi phí vật tư, chi phí giao dịch và doanh thu
               </p>
             </div>
@@ -653,7 +653,7 @@ export default function FinanceReportsPage() {
                 aria-label="Lọc trạng thái mùa vụ"
                 value={cyclesStatus}
                 onChange={(e) => setCyclesStatus(e.target.value)}
-                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring dark:bg-slate-800"
+                className="flex h-9 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm shadow-xs text-fg focus:outline-none focus:ring-1 focus:ring-accent"
               >
                 <option value="ALL">Tất cả trạng thái</option>
                 <option value="PLANNING">Kế hoạch</option>
@@ -665,7 +665,7 @@ export default function FinanceReportsPage() {
             </div>
           </div>
 
-          <div className="rounded-lg border bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="rounded-lg border border-line bg-surface shadow-xs overflow-hidden">
             <DataTable columns={cycleColumns} data={cyclesData} isLoading={cyclesLoading} />
           </div>
         </div>
@@ -676,11 +676,11 @@ export default function FinanceReportsPage() {
         <div className="space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                <Trophy className="h-4 w-4 text-amber-500" />
+              <h3 className="text-base font-bold text-fg flex items-center gap-2">
+                <Trophy className="h-4 w-4 text-warn" />
                 Top 10 sản phẩm đạt doanh thu cao nhất
               </h3>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-muted">
                 Thống kê các sản phẩm nông sản và hàng hóa đóng góp nhiều nhất vào doanh thu
               </p>
             </div>
@@ -691,26 +691,26 @@ export default function FinanceReportsPage() {
                 aria-label="Từ ngày"
                 value={productFrom}
                 onChange={(e) => setProductFrom(e.target.value)}
-                className="w-36"
+                className="w-36 bg-surface border-line text-fg"
               />
-              <span className="text-xs text-slate-400">đến</span>
+              <span className="text-xs text-muted">đến</span>
               <Input
                 type="date"
                 aria-label="Đến ngày"
                 value={productTo}
                 onChange={(e) => setProductTo(e.target.value)}
-                className="w-36"
+                className="w-36 bg-surface border-line text-fg"
               />
             </div>
           </div>
 
           {productsLoading ? (
-            <div className="flex h-44 items-center justify-center text-slate-400">
+            <div className="flex h-44 items-center justify-center text-muted">
               <Loader2 className="mr-2 h-5 w-5 animate-spin" />
               Đang tính toán doanh thu sản phẩm...
             </div>
           ) : productsData.length === 0 ? (
-            <div className="rounded-lg border p-12 text-center text-slate-400">
+            <div className="rounded-lg border border-line bg-surface p-12 text-center text-muted">
               Chưa có dữ liệu bán hàng cho khoảng thời gian này
             </div>
           ) : (
@@ -723,30 +723,30 @@ export default function FinanceReportsPage() {
                 return (
                   <div
                     key={`${prod.itemId}-${index}`}
-                    className="flex items-center justify-between rounded-lg border bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+                    className="flex items-center justify-between rounded-lg border border-line bg-surface p-4 shadow-xs text-fg"
                   >
                     <div className="flex items-center gap-3">
                       <div
                         className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-bold text-sm ${
                           index === 0
-                            ? 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400'
+                            ? 'bg-warn-bg text-warn'
                             : index === 1
-                              ? 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+                              ? 'bg-surface-2 text-fg border border-line'
                               : index === 2
-                                ? 'bg-orange-100 text-orange-700 dark:bg-orange-950/40 dark:text-orange-400'
-                                : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400'
+                                ? 'bg-accent/15 text-accent'
+                                : 'bg-surface-2 text-muted border border-line'
                         }`}
                       >
                         #{index + 1}
                       </div>
 
                       <div>
-                        <h4 className="font-semibold text-slate-800 dark:text-slate-200">
+                        <h4 className="font-semibold text-fg">
                           {prod.productName}
                         </h4>
-                        <p className="text-xs text-slate-500">
+                        <p className="text-xs text-muted">
                           Đã bán:{' '}
-                          <span className="font-semibold text-slate-700 dark:text-slate-300">
+                          <span className="font-semibold text-fg">
                             {prod.quantity} {prod.unit}
                           </span>{' '}
                           · Chiếm {percent}%
@@ -755,7 +755,7 @@ export default function FinanceReportsPage() {
                     </div>
 
                     <div className="text-right">
-                      <span className="text-base font-bold text-emerald-600 dark:text-emerald-400 block">
+                      <span className="text-base font-bold text-ok block">
                         {formatVND(prod.revenue)}
                       </span>
                     </div>
@@ -772,10 +772,10 @@ export default function FinanceReportsPage() {
         open={Boolean(selectedCycle)}
         onOpenChange={(open) => !open && setSelectedCycle(null)}
       >
-        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto bg-surface border-line text-fg">
           <DialogHeader>
-            <DialogTitle>Chi tiết giá thành &amp; Lãi lỗ mùa vụ: {selectedCycle?.name}</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-fg">Chi tiết giá thành &amp; Lãi lỗ mùa vụ: {selectedCycle?.name}</DialogTitle>
+            <DialogDescription className="text-muted">
               Mã vụ: {selectedCycle?.code} · Khu vực: {selectedCycle?.area?.name || '-'}
             </DialogDescription>
           </DialogHeader>
@@ -784,36 +784,36 @@ export default function FinanceReportsPage() {
             <div className="space-y-6">
               {/* Summary 4 boxes */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div className="rounded-lg bg-slate-50 p-3 border border-slate-200 dark:bg-slate-800 dark:border-slate-700">
-                  <span className="text-xs text-slate-500 block">Sản lượng</span>
-                  <p className="font-bold text-slate-800 dark:text-slate-200 mt-1">
+                <div className="rounded-lg bg-surface-2 p-3 border border-line text-fg">
+                  <span className="text-xs text-muted block">Sản lượng</span>
+                  <p className="font-bold text-fg mt-1">
                     {selectedCycle.outputQuantity}
                   </p>
                 </div>
 
-                <div className="rounded-lg bg-rose-50 p-3 border border-rose-200 dark:bg-rose-950/20 dark:border-rose-900">
-                  <span className="text-xs text-rose-700 dark:text-rose-400 block">
+                <div className="rounded-lg bg-crit-bg/20 p-3 border border-crit/30 text-crit">
+                  <span className="text-xs uppercase font-semibold block">
                     Tổng chi phí
                   </span>
-                  <p className="font-bold text-rose-700 dark:text-rose-400 mt-1">
+                  <p className="font-bold text-crit mt-1">
                     {formatVND(selectedCycle.totalCost)}
                   </p>
                 </div>
 
-                <div className="rounded-lg bg-emerald-50 p-3 border border-emerald-200 dark:bg-emerald-950/20 dark:border-emerald-900">
-                  <span className="text-xs text-emerald-700 dark:text-emerald-400 block">
+                <div className="rounded-lg bg-ok-bg/20 p-3 border border-ok/30 text-ok">
+                  <span className="text-xs uppercase font-semibold block">
                     Doanh thu
                   </span>
-                  <p className="font-bold text-emerald-700 dark:text-emerald-400 mt-1">
+                  <p className="font-bold text-ok mt-1">
                     {formatVND(selectedCycle.revenue)}
                   </p>
                 </div>
 
-                <div className="rounded-lg bg-indigo-50 p-3 border border-indigo-200 dark:bg-indigo-950/20 dark:border-indigo-900">
-                  <span className="text-xs text-indigo-700 dark:text-indigo-400 block">
+                <div className="rounded-lg bg-info-bg/20 p-3 border border-info/30 text-info">
+                  <span className="text-xs uppercase font-semibold block">
                     Lãi thuần
                   </span>
-                  <p className="font-bold text-indigo-700 dark:text-indigo-400 mt-1">
+                  <p className="font-bold text-info mt-1">
                     {formatVND(selectedCycle.profit)}
                   </p>
                 </div>
@@ -821,21 +821,21 @@ export default function FinanceReportsPage() {
 
               {/* Chi tiết từng khoản chi phí */}
               <div className="space-y-2">
-                <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 flex items-center justify-between">
+                <h4 className="font-semibold text-sm text-fg flex items-center justify-between">
                   <span>Chi tiết chi phí ({selectedCycle.costDetails?.length || 0} khoản)</span>
-                  <span className="text-xs text-rose-600 font-bold">
+                  <span className="text-xs text-crit font-bold">
                     Tổng: {formatVND(selectedCycle.totalCost)}
                   </span>
                 </h4>
 
                 {!selectedCycle.costDetails || selectedCycle.costDetails.length === 0 ? (
-                  <div className="rounded border p-4 text-center text-xs text-slate-400">
+                  <div className="rounded-lg border border-line bg-surface p-4 text-center text-xs text-muted">
                     Chưa ghi nhận chi phí nào cho mùa vụ này
                   </div>
                 ) : (
-                  <div className="overflow-x-auto rounded border dark:border-slate-800">
+                  <div className="overflow-x-auto rounded-lg border border-line">
                     <table className="w-full text-left text-xs">
-                      <thead className="border-b bg-slate-50 text-slate-500 dark:bg-slate-800 dark:border-slate-800">
+                      <thead className="border-b border-line bg-surface-2 text-muted">
                         <tr>
                           <th className="py-2 px-2.5">Ngày</th>
                           <th className="py-2 px-2.5">Loại</th>
@@ -845,31 +845,31 @@ export default function FinanceReportsPage() {
                           <th className="py-2 px-2.5 text-right">Thành tiền</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                      <tbody className="divide-y divide-line">
                         {selectedCycle.costDetails.map((item, idx) => (
-                          <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
-                            <td className="py-2 px-2.5 text-slate-500">{formatDate(item.date)}</td>
+                          <tr key={idx} className="hover:bg-hover transition-colors">
+                            <td className="py-2 px-2.5 text-muted">{formatDate(item.date)}</td>
                             <td className="py-2 px-2.5">
                               <span
                                 className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${
                                   item.type === 'MATERIAL'
-                                    ? 'bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-300'
-                                    : 'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300'
+                                    ? 'bg-info-bg text-info'
+                                    : 'bg-warn-bg text-warn'
                                 }`}
                               >
                                 {item.type === 'MATERIAL' ? 'Vật tư' : 'Giao dịch'}
                               </span>
                             </td>
-                            <td className="py-2 px-2.5 font-medium text-slate-800 dark:text-slate-200">
+                            <td className="py-2 px-2.5 font-medium text-fg">
                               {item.description}
                             </td>
-                            <td className="py-2 px-2.5 text-right text-slate-600 dark:text-slate-400">
+                            <td className="py-2 px-2.5 text-right text-muted">
                               {item.quantity ? `${item.quantity} ${item.unit || ''}` : '-'}
                             </td>
-                            <td className="py-2 px-2.5 text-right text-slate-600 dark:text-slate-400">
+                            <td className="py-2 px-2.5 text-right text-muted">
                               {item.unitCost ? formatVND(item.unitCost) : '-'}
                             </td>
-                            <td className="py-2 px-2.5 text-right font-bold text-rose-700 dark:text-rose-400">
+                            <td className="py-2 px-2.5 text-right font-bold text-crit">
                               {formatVND(item.amount)}
                             </td>
                           </tr>
@@ -882,24 +882,24 @@ export default function FinanceReportsPage() {
 
               {/* Chi tiết từng khoản doanh thu */}
               <div className="space-y-2">
-                <h4 className="font-semibold text-sm text-slate-800 dark:text-slate-200 flex items-center justify-between">
+                <h4 className="font-semibold text-sm text-fg flex items-center justify-between">
                   <span>
                     Chi tiết doanh thu từ đơn bán ({selectedCycle.revenueDetails?.length || 0}{' '}
                     khoản)
                   </span>
-                  <span className="text-xs text-emerald-600 font-bold">
+                  <span className="text-xs text-ok font-bold">
                     Tổng: {formatVND(selectedCycle.revenue)}
                   </span>
                 </h4>
 
                 {!selectedCycle.revenueDetails || selectedCycle.revenueDetails.length === 0 ? (
-                  <div className="rounded border p-4 text-center text-xs text-slate-400">
+                  <div className="rounded-lg border border-line bg-surface p-4 text-center text-xs text-muted">
                     Chưa có doanh thu bán hàng từ lô thu hoạch của mùa vụ này
                   </div>
                 ) : (
-                  <div className="overflow-x-auto rounded border dark:border-slate-800">
+                  <div className="overflow-x-auto rounded-lg border border-line">
                     <table className="w-full text-left text-xs">
-                      <thead className="border-b bg-slate-50 text-slate-500 dark:bg-slate-800 dark:border-slate-800">
+                      <thead className="border-b border-line bg-surface-2 text-muted">
                         <tr>
                           <th className="py-2 px-2.5">Đơn bán hàng</th>
                           <th className="py-2 px-2.5 text-right">Số lượng xuất</th>
@@ -907,19 +907,19 @@ export default function FinanceReportsPage() {
                           <th className="py-2 px-2.5 text-right">Thành tiền</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                      <tbody className="divide-y divide-line">
                         {selectedCycle.revenueDetails.map((item, idx) => (
-                          <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
-                            <td className="py-2 px-2.5 font-medium text-emerald-600 dark:text-emerald-400">
+                          <tr key={idx} className="hover:bg-hover transition-colors">
+                            <td className="py-2 px-2.5 font-medium text-accent">
                               {item.salesOrderCode}
                             </td>
-                            <td className="py-2 px-2.5 text-right text-slate-600 dark:text-slate-400">
+                            <td className="py-2 px-2.5 text-right text-muted">
                               {item.quantity} {item.unit}
                             </td>
-                            <td className="py-2 px-2.5 text-right text-slate-600 dark:text-slate-400">
+                            <td className="py-2 px-2.5 text-right text-muted">
                               {formatVND(item.unitPrice)}
                             </td>
-                            <td className="py-2 px-2.5 text-right font-bold text-emerald-700 dark:text-emerald-400">
+                            <td className="py-2 px-2.5 text-right font-bold text-ok">
                               {formatVND(item.amount)}
                             </td>
                           </tr>

@@ -253,8 +253,8 @@ export default function FinanceCategoriesPage() {
     return (
       <div key={node.id} className="select-none">
         <div
-          className={`group flex items-center justify-between border-b border-slate-100 py-2.5 px-3 transition-colors hover:bg-slate-50 dark:border-slate-800/60 dark:hover:bg-slate-800/40 ${
-            depth > 0 ? 'bg-slate-50/30 dark:bg-slate-900/20' : ''
+          className={`group flex items-center justify-between border-b border-line py-2.5 px-3 transition-colors hover:bg-hover ${
+            depth > 0 ? 'bg-surface-2/40' : ''
           }`}
           style={{ paddingLeft: `${Math.max(12, depth * 28 + 12)}px` }}
         >
@@ -264,7 +264,7 @@ export default function FinanceCategoriesPage() {
               <button
                 type="button"
                 onClick={() => toggleExpand(node.id)}
-                className="flex h-6 w-6 items-center justify-center rounded hover:bg-slate-200 text-slate-500 dark:hover:bg-slate-700"
+                className="flex h-6 w-6 items-center justify-center rounded hover:bg-hover text-muted"
                 title={isExpanded ? 'Thu gọn' : 'Mở rộng'}
               >
                 {isExpanded ? (
@@ -279,23 +279,23 @@ export default function FinanceCategoriesPage() {
 
             {hasChildren ? (
               isExpanded ? (
-                <FolderOpen className="h-4 w-4 text-emerald-600 shrink-0" />
+                <FolderOpen className="h-4 w-4 text-accent shrink-0" />
               ) : (
-                <Folder className="h-4 w-4 text-amber-500 shrink-0" />
+                <Folder className="h-4 w-4 text-warn shrink-0" />
               )
             ) : (
-              <Tag className="h-4 w-4 text-slate-400 shrink-0" />
+              <Tag className="h-4 w-4 text-muted shrink-0" />
             )}
 
-            <span className="font-medium text-slate-900 dark:text-slate-100">{node.name}</span>
+            <span className="font-medium text-fg">{node.name}</span>
 
             {/* Badges */}
             <div className="flex items-center gap-1.5 ml-2">
               <span
                 className={`inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold ${
                   node.type === TransactionType.INCOME
-                    ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400'
-                    : 'bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-400'
+                    ? 'bg-ok-bg text-ok'
+                    : 'bg-crit-bg text-crit'
                 }`}
               >
                 {node.type === TransactionType.INCOME ? 'Thu' : 'Chi'}
@@ -304,7 +304,7 @@ export default function FinanceCategoriesPage() {
               {isSystem && (
                 <span
                   title="Danh mục hệ thống (khóa chỉnh sửa loại và không thể xóa)"
-                  className="inline-flex items-center gap-1 rounded bg-blue-100 px-1.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+                  className="inline-flex items-center gap-1 rounded bg-info-bg px-1.5 py-0.5 text-xs font-medium text-info"
                 >
                   <Lock className="h-3 w-3" />
                   Hệ thống
@@ -312,7 +312,7 @@ export default function FinanceCategoriesPage() {
               )}
 
               {!node.isActive && (
-                <span className="inline-flex items-center rounded bg-slate-100 px-1.5 py-0.5 text-xs font-medium text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                <span className="inline-flex items-center rounded bg-surface-2 border border-line px-1.5 py-0.5 text-xs font-medium text-muted">
                   Tạm khóa
                 </span>
               )}
@@ -326,7 +326,7 @@ export default function FinanceCategoriesPage() {
               variant="outline"
               size="sm"
               onClick={() => openCreateDialog(node)}
-              className="h-8 px-2 text-xs text-slate-700 hover:text-emerald-600"
+              className="h-8 px-2 text-xs border-line text-fg hover:bg-hover hover:text-accent"
               title="Thêm danh mục con"
             >
               <Plus className="h-3.5 w-3.5 mr-1" />
@@ -338,7 +338,7 @@ export default function FinanceCategoriesPage() {
               variant="outline"
               size="sm"
               onClick={() => openEditDialog(node)}
-              className="h-8 px-2 text-xs text-slate-700 hover:text-blue-600"
+              className="h-8 px-2 text-xs border-line text-fg hover:bg-hover hover:text-accent"
               title="Chỉnh sửa danh mục"
             >
               <Edit2 className="h-3.5 w-3.5" />
@@ -353,7 +353,7 @@ export default function FinanceCategoriesPage() {
                 setCategoryToDelete(node);
                 setDeleteConfirmOpen(true);
               }}
-              className="h-8 px-2 text-xs text-red-600 hover:bg-red-50 disabled:opacity-30 disabled:pointer-events-none"
+              className="h-8 px-2 text-xs border-line text-crit hover:bg-crit-bg/20 disabled:opacity-30 disabled:pointer-events-none"
               title={
                 isSystem
                   ? 'Không thể xóa danh mục hệ thống'
@@ -385,7 +385,7 @@ export default function FinanceCategoriesPage() {
       >
         <Button
           onClick={() => openCreateDialog()}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white"
+          className="bg-accent hover:bg-accent-hover text-on-accent font-medium"
         >
           <Plus className="mr-1.5 h-4 w-4" />
           Thêm danh mục
@@ -393,19 +393,20 @@ export default function FinanceCategoriesPage() {
       </PageHeader>
 
       {/* Filter and Search */}
-      <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="flex flex-wrap items-center gap-3 rounded-lg border border-line bg-surface p-3 sm:p-4 text-fg shadow-xs">
         <div className="min-w-[200px] flex-1">
           <Input
             placeholder="Tìm kiếm danh mục theo tên..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            className="bg-surface border-line text-fg"
           />
         </div>
 
         <div className="w-48">
           <select
             aria-label="Lọc theo loại danh mục"
-            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring dark:bg-slate-800"
+            className="flex h-9 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm shadow-xs text-fg focus:outline-none focus:ring-1 focus:ring-accent"
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
           >
@@ -417,23 +418,23 @@ export default function FinanceCategoriesPage() {
       </div>
 
       {/* Categories Tree Container */}
-      <div className="rounded-lg border bg-white shadow-sm overflow-hidden dark:border-slate-800 dark:bg-slate-900">
-        <div className="border-b bg-slate-50 px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider dark:bg-slate-800/50 dark:text-slate-400 flex justify-between">
+      <div className="rounded-lg border border-line bg-surface shadow-xs overflow-hidden">
+        <div className="border-b border-line bg-surface-2 px-4 py-3 text-xs font-semibold text-muted uppercase tracking-wider flex justify-between">
           <span>Tên danh mục / Cây phân cấp</span>
           <span>Thao tác</span>
         </div>
 
         {loading ? (
-          <div className="flex items-center justify-center p-12 text-slate-500">
+          <div className="flex items-center justify-center p-12 text-muted">
             <Loader2 className="mr-2 h-5 w-5 animate-spin" />
             Đang tải cây danh mục...
           </div>
         ) : filteredCategories.length === 0 ? (
-          <div className="p-12 text-center text-sm text-slate-400">
+          <div className="p-12 text-center text-sm text-muted">
             Chưa có danh mục nào phù hợp
           </div>
         ) : (
-          <div className="divide-y divide-slate-100 dark:divide-slate-800">
+          <div className="divide-y divide-line">
             {filteredCategories.map((node) => renderTreeNode(node))}
           </div>
         )}
@@ -441,12 +442,12 @@ export default function FinanceCategoriesPage() {
 
       {/* Dialog Thêm/Sửa */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md bg-surface border-line text-fg">
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="text-fg">
               {editingCategory ? 'Chỉnh sửa danh mục' : 'Thêm danh mục mới'}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-muted">
               {editingCategory?.systemKey
                 ? 'Đây là danh mục hệ thống. Một số thuộc tính được khóa để đảm bảo toàn vẹn dữ liệu.'
                 : 'Nhập thông tin danh mục thu/chi để phân loại giao dịch.'}
@@ -455,20 +456,21 @@ export default function FinanceCategoriesPage() {
 
           <form onSubmit={handleFormSubmit} className="space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="cat-name">Tên danh mục *</Label>
+              <Label htmlFor="cat-name" className="text-fg">Tên danh mục *</Label>
               <Input
                 id="cat-name"
                 value={formName}
                 onChange={(e) => setFormName(e.target.value)}
                 placeholder="VD: Chi phí phân bón, Doanh thu rau quả..."
+                className="bg-surface border-line text-fg"
               />
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="cat-type">Loại giao dịch *</Label>
+              <Label htmlFor="cat-type" className="text-fg">Loại giao dịch *</Label>
               <select
                 id="cat-type"
-                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring dark:bg-slate-800 disabled:opacity-50"
+                className="flex h-9 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm shadow-xs text-fg focus:outline-none focus:ring-1 focus:ring-accent disabled:opacity-50"
                 value={formType}
                 disabled={Boolean(editingCategory?.systemKey)}
                 onChange={(e) => {
@@ -482,17 +484,17 @@ export default function FinanceCategoriesPage() {
                 <option value={TransactionType.INCOME}>Khoản thu (INCOME)</option>
               </select>
               {editingCategory?.systemKey && (
-                <p className="text-xs text-amber-600 mt-1">
+                <p className="text-xs text-warn mt-1">
                   Loại của danh mục hệ thống không thể thay đổi
                 </p>
               )}
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="cat-parent">Danh mục cha (tùy chọn)</Label>
+              <Label htmlFor="cat-parent" className="text-fg">Danh mục cha (tùy chọn)</Label>
               <select
                 id="cat-parent"
-                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring dark:bg-slate-800"
+                className="flex h-9 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm shadow-xs text-fg focus:outline-none focus:ring-1 focus:ring-accent"
                 value={formParentId}
                 onChange={(e) => setFormParentId(e.target.value)}
               >
@@ -511,14 +513,14 @@ export default function FinanceCategoriesPage() {
                 id="cat-active"
                 checked={formIsActive}
                 onChange={(e) => setFormIsActive(e.target.checked)}
-                className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                className="h-4 w-4 rounded border-line text-accent focus:ring-accent"
               />
-              <Label htmlFor="cat-active" className="cursor-pointer font-normal">
+              <Label htmlFor="cat-active" className="cursor-pointer font-normal text-fg">
                 Kích hoạt danh mục này
               </Label>
             </div>
 
-            {formError && <p className="text-xs text-red-600">{formError}</p>}
+            {formError && <p className="text-xs text-crit">{formError}</p>}
 
             <DialogFooter className="mt-4">
               <Button
@@ -526,13 +528,14 @@ export default function FinanceCategoriesPage() {
                 variant="outline"
                 disabled={submitting}
                 onClick={() => setDialogOpen(false)}
+                className="border-line text-fg hover:bg-hover"
               >
                 Hủy
               </Button>
               <Button
                 type="submit"
                 disabled={submitting}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                className="bg-accent hover:bg-accent-hover text-on-accent font-medium"
               >
                 {submitting ? 'Đang lưu...' : editingCategory ? 'Cập nhật' : 'Tạo mới'}
               </Button>
