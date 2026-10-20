@@ -332,10 +332,7 @@ export default function CalendarPage() {
             {/* Weekday headers (Thứ 2 -> Chủ nhật) */}
             <div className="grid grid-cols-7 border-b border-line bg-surface-2 text-center text-xs font-semibold text-fg">
               {WEEKDAY_NAMES.map((w, idx) => (
-                <div
-                  key={w}
-                  className={`py-2.5 ${idx >= 5 ? 'text-crit' : ''}`}
-                >
+                <div key={w} className={`py-2.5 ${idx >= 5 ? 'text-crit' : ''}`}>
                   {w}
                 </div>
               ))}
@@ -371,11 +368,7 @@ export default function CalendarPage() {
                       !day.isCurrentMonth
                         ? 'bg-surface-2/40 text-muted'
                         : 'bg-surface hover:bg-surface-2'
-                    } ${
-                      isSelected
-                        ? 'ring-2 ring-inset ring-accent bg-accent-bg/20'
-                        : ''
-                    }`}
+                    } ${isSelected ? 'ring-2 ring-inset ring-accent bg-accent-bg/20' : ''}`}
                   >
                     {/* Day number header */}
                     <div className="flex items-center justify-between">
@@ -394,9 +387,7 @@ export default function CalendarPage() {
                       </span>
 
                       {totalItems > 0 && (
-                        <span className="text-[10px] font-medium text-muted">
-                          {totalItems}
-                        </span>
+                        <span className="text-[10px] font-medium text-muted">{totalItems}</span>
                       )}
                     </div>
 
@@ -472,9 +463,7 @@ export default function CalendarPage() {
           {/* Legend */}
           <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-line bg-surface p-3 text-xs text-muted shadow-xs">
             <div className="flex flex-wrap items-center gap-4">
-              <span className="font-medium text-fg">
-                Chú thích loại mùa vụ:
-              </span>
+              <span className="font-medium text-fg">Chú thích loại mùa vụ:</span>
               <div className="flex items-center gap-1.5">
                 <span className="h-2.5 w-2.5 rounded-full bg-accent" />
                 <span>Trồng trọt (CROP)</span>
@@ -489,9 +478,7 @@ export default function CalendarPage() {
               </div>
             </div>
 
-            {isLoading && (
-              <span className="text-muted animate-pulse text-[11px]">Đang tải...</span>
-            )}
+            {isLoading && <span className="text-muted animate-pulse text-[11px]">Đang tải...</span>}
           </div>
         </div>
 
@@ -531,10 +518,7 @@ export default function CalendarPage() {
                     >
                       <div className="flex items-center justify-between gap-1">
                         <span className="font-semibold">{conf.label}</span>
-                        <Badge
-                          variant="outline"
-                          className="text-[10px] py-0 px-1.5 bg-surface/60"
-                        >
+                        <Badge variant="outline" className="text-[10px] py-0 px-1.5 bg-surface/60">
                           {kindInfo.icon}
                           {kindInfo.label}
                         </Badge>

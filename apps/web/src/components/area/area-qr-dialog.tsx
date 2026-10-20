@@ -77,9 +77,7 @@ export function AreaQrDialog({ open, onOpenChange, area }: AreaQrDialogProps) {
 
           <div className="space-y-0.5 border-t border-line pt-2">
             <h3 className="text-base font-bold text-fg">{area.name}</h3>
-            <p className="font-mono text-sm font-semibold text-accent">
-              {area.code}
-            </p>
+            <p className="font-mono text-sm font-semibold text-accent">{area.code}</p>
             <p className="text-[11px] text-muted font-mono select-all">{qrPayload}</p>
           </div>
         </div>

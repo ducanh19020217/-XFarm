@@ -157,9 +157,7 @@ export default function HarvestLotPrintPage() {
               </Button>
             </Link>
             <div>
-              <h1 className="text-base font-bold text-fg">
-                In tem nhãn lô {lot.code}
-              </h1>
+              <h1 className="text-base font-bold text-fg">In tem nhãn lô {lot.code}</h1>
               <span className="text-xs text-muted">
                 {lot.item?.name} · Mã truy xuất: {lot.traceCode}
               </span>

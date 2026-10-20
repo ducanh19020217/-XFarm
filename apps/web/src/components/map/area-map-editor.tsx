@@ -322,12 +322,7 @@ export default function AreaMapEditor({
                   <AlertCircle className="h-4 w-4" /> {errorMessage}
                 </span>
               )}
-              <Button
-                type="button"
-                size="sm"
-                onClick={handleSave}
-                disabled={isSaving}
-              >
+              <Button type="button" size="sm" onClick={handleSave} disabled={isSaving}>
                 {isSaving ? (
                   <>
                     <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />

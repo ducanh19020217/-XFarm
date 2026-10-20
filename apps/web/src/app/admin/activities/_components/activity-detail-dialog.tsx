@@ -74,9 +74,7 @@ export function ActivityDetailDialog({
           </div>
           <div>
             <span className="text-xs text-muted">Người thực hiện</span>
-            <p className="font-medium text-fg">
-              {activity.performedBy?.fullName ?? 'Chưa rõ'}
-            </p>
+            <p className="font-medium text-fg">{activity.performedBy?.fullName ?? 'Chưa rõ'}</p>
           </div>
           <div>
             <span className="text-xs text-muted">Thời điểm</span>
@@ -95,9 +93,7 @@ export function ActivityDetailDialog({
 
         {activity.notes ? (
           <div className="rounded-md border border-line p-3">
-            <span className="text-xs font-medium uppercase tracking-wider text-muted">
-              Ghi chú
-            </span>
+            <span className="text-xs font-medium uppercase tracking-wider text-muted">Ghi chú</span>
             <p className="mt-1 text-fg">{activity.notes}</p>
           </div>
         ) : null}

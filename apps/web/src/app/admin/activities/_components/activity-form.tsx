@@ -672,9 +672,7 @@ export function ActivityForm({
                       />
                     </div>
                     <div className="space-y-1 sm:col-span-3">
-                      <span className="block text-xs font-medium text-muted">
-                        Tồn &amp; Đơn vị
-                      </span>
+                      <span className="block text-xs font-medium text-muted">Tồn &amp; Đơn vị</span>
                       <div className="flex h-10 items-center rounded-md border border-line bg-surface px-3 text-sm text-fg">
                         {selectedItem ? (
                           <span>

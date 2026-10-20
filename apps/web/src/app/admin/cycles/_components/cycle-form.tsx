@@ -47,7 +47,10 @@ export function CycleForm({ areas, onSubmit, isSubmitting, formError }: CycleFor
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
       {formError && (
-        <p role="alert" className="rounded-md border border-crit/20 bg-crit-bg p-3 text-sm text-crit">
+        <p
+          role="alert"
+          className="rounded-md border border-crit/20 bg-crit-bg p-3 text-sm text-crit"
+        >
           {formError}
         </p>
       )}

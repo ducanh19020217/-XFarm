@@ -258,9 +258,7 @@ export default function AreasPage() {
       accessorKey: 'code',
       header: 'Mã khu/lô',
       cell: ({ row }) => (
-        <span className="font-mono text-xs font-semibold text-accent">
-          {row.original.code}
-        </span>
+        <span className="font-mono text-xs font-semibold text-accent">{row.original.code}</span>
       ),
     },
     {
@@ -324,9 +322,7 @@ export default function AreasPage() {
         const val = row.original.areaM2;
         if (val == null) return <span className="text-muted">—</span>;
         return (
-          <span className="font-medium text-fg">
-            {Number(val).toLocaleString('vi-VN')} m²
-          </span>
+          <span className="font-medium text-fg">{Number(val).toLocaleString('vi-VN')} m²</span>
         );
       },
     },
@@ -387,9 +383,7 @@ export default function AreasPage() {
                   variant={area.isActive ? 'outline' : 'default'}
                   size="sm"
                   className={`h-8 w-8 p-0 ${
-                    area.isActive
-                      ? 'text-crit hover:bg-crit-bg hover:text-crit'
-                      : ''
+                    area.isActive ? 'text-crit hover:bg-crit-bg hover:text-crit' : ''
                   }`}
                   onClick={() => {
                     setStatusArea(area);
@@ -437,23 +431,31 @@ export default function AreasPage() {
       {/* Thẻ thống kê nhỏ */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <div className="rounded-lg border border-line bg-surface p-3.5 shadow-xs">
-          <div className="text-xs font-medium text-muted uppercase tracking-wider">Tổng số khu/lô</div>
+          <div className="text-xs font-medium text-muted uppercase tracking-wider">
+            Tổng số khu/lô
+          </div>
           <div className="mt-1 text-2xl font-bold text-fg">{total}</div>
         </div>
         <div className="rounded-lg border border-line bg-surface p-3.5 shadow-xs">
-          <div className="text-xs font-medium text-muted uppercase tracking-wider">Đang hoạt động</div>
+          <div className="text-xs font-medium text-muted uppercase tracking-wider">
+            Đang hoạt động
+          </div>
           <div className="mt-1 text-2xl font-bold text-ok">
             {allAreas.filter((a) => a.isActive).length}
           </div>
         </div>
         <div className="rounded-lg border border-line bg-surface p-3.5 shadow-xs">
-          <div className="text-xs font-medium text-muted uppercase tracking-wider">Đang canh tác</div>
+          <div className="text-xs font-medium text-muted uppercase tracking-wider">
+            Đang canh tác
+          </div>
           <div className="mt-1 text-2xl font-bold text-accent">
             {allAreas.filter((a) => (a.activeCyclesCount ?? a._count?.cycles ?? 0) > 0).length}
           </div>
         </div>
         <div className="rounded-lg border border-line bg-surface p-3.5 shadow-xs">
-          <div className="text-xs font-medium text-muted uppercase tracking-wider">Có bản đồ polygon</div>
+          <div className="text-xs font-medium text-muted uppercase tracking-wider">
+            Có bản đồ polygon
+          </div>
           <div className="mt-1 text-2xl font-bold text-info">
             {allAreas.filter((a) => Boolean(a.geojson)).length}
           </div>

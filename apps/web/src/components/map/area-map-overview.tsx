@@ -118,9 +118,7 @@ export default function AreaMapOverview({
       {/* Map Header / Stats */}
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line bg-surface-2 px-4 py-2.5 text-xs text-muted">
         <div className="flex items-center gap-2">
-          <span className="font-semibold text-fg">
-            Bản đồ nông trại OpenStreetMap
-          </span>
+          <span className="font-semibold text-fg">Bản đồ nông trại OpenStreetMap</span>
           <span className="rounded-full bg-accent-bg px-2 py-0.5 text-[11px] font-medium text-accent">
             {areasWithPolygonCount} / {areas.length} khu có polygon
           </span>
@@ -133,9 +131,7 @@ export default function AreaMapOverview({
 
       {/* Legend */}
       <div className="border-t border-line bg-surface p-3">
-        <div className="mb-1.5 text-xs font-semibold text-fg">
-          Chú giải loại khu vực:
-        </div>
+        <div className="mb-1.5 text-xs font-semibold text-fg">Chú giải loại khu vực:</div>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs">
           {Object.values(AreaType).map((type) => {
             const style = AREA_TYPE_COLORS[type];

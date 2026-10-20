@@ -239,10 +239,7 @@ export function AreaFormDialog({
           >
             Hủy bỏ
           </Button>
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-          >
+          <Button type="submit" disabled={isSubmitting}>
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />

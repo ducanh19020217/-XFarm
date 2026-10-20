@@ -81,9 +81,7 @@ function TreeNode({
               <Folder className="h-4 w-4 text-warn shrink-0" />
             )
           ) : (
-            <MapPin
-              className="h-4 w-4 shrink-0 text-accent"
-            />
+            <MapPin className="h-4 w-4 shrink-0 text-accent" />
           )}
 
           <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
@@ -154,9 +152,7 @@ function TreeNode({
                 variant={node.isActive ? 'outline' : 'default'}
                 size="sm"
                 className={`h-7 w-7 p-0 ${
-                  node.isActive
-                    ? 'text-crit hover:bg-crit-bg hover:text-crit'
-                    : ''
+                  node.isActive ? 'text-crit hover:bg-crit-bg hover:text-crit' : ''
                 }`}
                 onClick={() => onToggleStatus(node)}
                 title={node.isActive ? 'Khóa khu vực' : 'Mở khóa khu vực'}

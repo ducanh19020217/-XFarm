@@ -230,11 +230,7 @@ export function AnimalsTab({ userRole, groups }: AnimalsTabProps) {
         header: 'Thao tác',
         cell: ({ row }) => (
           <a href={`/admin/animals/${row.original.id}`}>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 px-2 text-muted hover:text-fg"
-            >
+            <Button variant="ghost" size="sm" className="h-8 px-2 text-muted hover:text-fg">
               <Eye className="h-4 w-4 mr-1" /> Chi tiết
             </Button>
           </a>
@@ -247,9 +243,7 @@ export function AnimalsTab({ userRole, groups }: AnimalsTabProps) {
     <div className="space-y-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-lg font-medium text-fg">
-            Danh sách cá thể vật nuôi
-          </h2>
+          <h2 className="text-lg font-medium text-fg">Danh sách cá thể vật nuôi</h2>
           <p className="text-sm text-muted">
             Quản lý mã tai, giới tính, ngày sinh và phả hệ từng con
           </p>
@@ -502,10 +496,7 @@ export function AnimalsTab({ userRole, groups }: AnimalsTabProps) {
             >
               Hủy bỏ
             </Button>
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-            >
+            <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? 'Đang lưu...' : 'Thêm cá thể'}
             </Button>
           </div>

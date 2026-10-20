@@ -249,12 +249,8 @@ export function GroupsTab({ userRole, cycles, areas }: GroupsTabProps) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-medium text-fg">
-            Danh sách đàn vật nuôi
-          </h2>
-          <p className="text-sm text-muted">
-            Quản lý đàn gia súc, gia cầm và thủy sản theo mùa vụ
-          </p>
+          <h2 className="text-lg font-medium text-fg">Danh sách đàn vật nuôi</h2>
+          <p className="text-sm text-muted">Quản lý đàn gia súc, gia cầm và thủy sản theo mùa vụ</p>
         </div>
         {canEdit && (
           <Button onClick={handleOpenCreate}>
@@ -461,10 +457,7 @@ export function GroupsTab({ userRole, cycles, areas }: GroupsTabProps) {
             >
               Hủy bỏ
             </Button>
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-            >
+            <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? 'Đang lưu...' : editingGroup ? 'Cập nhật' : 'Tạo mới'}
             </Button>
           </div>

@@ -453,14 +453,9 @@ export function EventForm({
 
           <div className="space-y-3 pt-1">
             {offspringList.map((offspring, index) => (
-              <div
-                key={index}
-                className="rounded-md border border-line bg-surface p-3 space-y-2"
-              >
+              <div key={index} className="rounded-md border border-line bg-surface p-3 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-accent">
-                    Con non #{index + 1}
-                  </span>
+                  <span className="text-xs font-medium text-accent">Con non #{index + 1}</span>
                   {offspringList.length > 1 && (
                     <Button
                       type="button"
@@ -648,10 +643,7 @@ export function EventForm({
             Hủy bỏ
           </Button>
         )}
-        <Button
-          type="submit"
-          disabled={isSubmitting}
-        >
+        <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? 'Đang lưu...' : 'Lưu sự kiện'}
         </Button>
       </div>

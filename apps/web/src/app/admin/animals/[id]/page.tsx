@@ -234,9 +234,7 @@ export default function AnimalDetailPage() {
           </Link>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold text-fg">
-                Thẻ cá thể: {animal.tag}
-              </h1>
+              <h1 className="text-xl font-bold text-fg">Thẻ cá thể: {animal.tag}</h1>
               <AnimalStatusBadge status={animal.status} />
             </div>
             <p className="text-xs text-muted">
@@ -346,9 +344,7 @@ export default function AnimalDetailPage() {
                         MẸ
                       </div>
                       <div>
-                        <div className="font-semibold text-sm text-fg">
-                          {animal.mother.tag}
-                        </div>
+                        <div className="font-semibold text-sm text-fg">{animal.mother.tag}</div>
                         <div className="text-xs text-muted">
                           {animal.mother.species}{' '}
                           {animal.mother.breed ? `• ${animal.mother.breed}` : ''}
@@ -377,9 +373,7 @@ export default function AnimalDetailPage() {
                 <div className="rounded-lg border-2 border-accent bg-accent-bg/30 p-3.5">
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="font-bold text-base text-fg">
-                        {animal.tag} (Hiện tại)
-                      </div>
+                      <div className="font-bold text-base text-fg">{animal.tag} (Hiện tại)</div>
                       <div className="text-xs text-accent">
                         {animal.species} • {ANIMAL_SEX_LABELS[animal.sex]} • Trạng thái:{' '}
                         {ANIMAL_STATUS_LABELS[animal.status]}
@@ -410,9 +404,7 @@ export default function AnimalDetailPage() {
                         className="flex items-center justify-between rounded-lg border border-line bg-surface-2 p-2.5 hover:bg-surface transition-colors"
                       >
                         <div>
-                          <div className="font-semibold text-xs text-fg">
-                            {child.tag}
-                          </div>
+                          <div className="font-semibold text-xs text-fg">{child.tag}</div>
                           <div className="text-[11px] text-muted">
                             {ANIMAL_SEX_LABELS[child.sex]}
                             {child.birthDate
@@ -483,11 +475,7 @@ export default function AnimalDetailPage() {
 
                       {renderEventData(ev)}
 
-                      {ev.notes && (
-                        <p className="text-xs text-muted italic">
-                          "{ev.notes}"
-                        </p>
-                      )}
+                      {ev.notes && <p className="text-xs text-muted italic">"{ev.notes}"</p>}
                     </div>
                   </div>
                 ))}

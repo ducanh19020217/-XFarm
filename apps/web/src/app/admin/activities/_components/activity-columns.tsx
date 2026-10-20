@@ -36,9 +36,7 @@ export function getActivityColumns(
       id: 'summary',
       header: 'Tóm tắt',
       cell: ({ row }) => (
-        <span className="text-muted">
-          {activitySummary(row.original.type, row.original.data)}
-        </span>
+        <span className="text-muted">{activitySummary(row.original.type, row.original.data)}</span>
       ),
     },
     {

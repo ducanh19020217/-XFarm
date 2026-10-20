@@ -159,11 +159,7 @@ export default function HarvestLotDetailPage() {
             <Button
               variant={lot.isPublic ? 'outline' : 'default'}
               onClick={() => setConfirmOpen(true)}
-              className={
-                lot.isPublic
-                  ? 'border-warn/40 text-warn hover:bg-warn-bg'
-                  : ''
-              }
+              className={lot.isPublic ? 'border-warn/40 text-warn hover:bg-warn-bg' : ''}
             >
               {lot.isPublic ? (
                 <>
@@ -228,9 +224,7 @@ export default function HarvestLotDetailPage() {
             <dl className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
               <div>
                 <dt className="text-xs font-medium text-muted">Mã lô thu hoạch</dt>
-                <dd className="mt-1 font-semibold text-fg">
-                  {lot.code}
-                </dd>
+                <dd className="mt-1 font-semibold text-fg">{lot.code}</dd>
               </div>
 
               <div>
@@ -309,16 +303,12 @@ export default function HarvestLotDetailPage() {
 
               <div>
                 <dt className="text-xs font-medium text-muted">Người ghi nhận</dt>
-                <dd className="mt-1 text-fg">
-                  {lot.createdBy?.fullName || '—'}
-                </dd>
+                <dd className="mt-1 text-fg">{lot.createdBy?.fullName || '—'}</dd>
               </div>
 
               <div>
                 <dt className="text-xs font-medium text-muted">Phân loại chất lượng</dt>
-                <dd className="mt-1 text-fg">
-                  {lot.qualityGrade || 'Chưa phân loại'}
-                </dd>
+                <dd className="mt-1 text-fg">{lot.qualityGrade || 'Chưa phân loại'}</dd>
               </div>
 
               <div>
@@ -360,20 +350,14 @@ export default function HarvestLotDetailPage() {
 
               <div className="mt-4 text-center">
                 <span className="text-xs font-medium text-muted">Mã truy xuất</span>
-                <p className="font-mono text-lg font-bold text-fg">
-                  {lot.traceCode}
-                </p>
+                <p className="font-mono text-lg font-bold text-fg">{lot.traceCode}</p>
               </div>
             </div>
 
             <div className="mt-4 space-y-3 border-t border-line pt-4">
               <div className="rounded-md border border-line bg-surface-2 p-2.5">
-                <span className="block text-xs font-medium text-muted">
-                  Đường dẫn truy xuất
-                </span>
-                <p className="truncate font-mono text-xs text-fg">
-                  {traceUrl}
-                </p>
+                <span className="block text-xs font-medium text-muted">Đường dẫn truy xuất</span>
+                <p className="truncate font-mono text-xs text-fg">{traceUrl}</p>
               </div>
 
               <div className="grid grid-cols-2 gap-2">

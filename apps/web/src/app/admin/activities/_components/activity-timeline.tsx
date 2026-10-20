@@ -29,8 +29,7 @@ export function ActivityTimeline({
   const canViewCost =
     propCanViewCost ?? Boolean(user && ['OWNER', 'MANAGER', 'ACCOUNTANT'].includes(user.role));
 
-  if (!activities.length)
-    return <p className="text-sm text-muted">Chưa có nhật ký hoạt động.</p>;
+  if (!activities.length) return <p className="text-sm text-muted">Chưa có nhật ký hoạt động.</p>;
 
   return (
     <div className="space-y-4">
@@ -72,9 +71,7 @@ export function ActivityTimeline({
                           • {name}: <strong className="font-medium">{mat.quantity}</strong> {unit}
                         </span>
                         {showCost && (
-                          <span className="text-muted">
-                            (Giá vốn: {formatCost(mat.unitCost)})
-                          </span>
+                          <span className="text-muted">(Giá vốn: {formatCost(mat.unitCost)})</span>
                         )}
                       </li>
                     );

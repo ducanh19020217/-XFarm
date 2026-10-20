@@ -234,9 +234,7 @@ export default function AreaDetailPage() {
 
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-xl font-bold tracking-tight text-fg">
-                {area.name}
-              </h1>
+              <h1 className="text-xl font-bold tracking-tight text-fg">{area.name}</h1>
               <span className="font-mono text-sm font-semibold text-muted">({area.code})</span>
               <Badge
                 variant="outline"
@@ -287,11 +285,7 @@ export default function AreaDetailPage() {
               <Button
                 variant={area.isActive ? 'outline' : 'default'}
                 size="sm"
-                className={
-                  area.isActive
-                    ? 'text-crit hover:bg-crit-bg hover:text-crit'
-                    : ''
-                }
+                className={area.isActive ? 'text-crit hover:bg-crit-bg hover:text-crit' : ''}
                 onClick={() => {
                   setStatusError(null);
                   setStatusDialogOpen(true);
@@ -328,9 +322,7 @@ export default function AreaDetailPage() {
             <dl className="space-y-3 text-xs">
               <div>
                 <dt className="text-muted font-medium">Mã định danh</dt>
-                <dd className="font-mono font-semibold text-fg mt-0.5">
-                  {area.code}
-                </dd>
+                <dd className="font-mono font-semibold text-fg mt-0.5">{area.code}</dd>
               </div>
 
               <div>
@@ -369,9 +361,7 @@ export default function AreaDetailPage() {
                 <dt className="text-muted font-medium">Số mùa vụ đang hoạt động</dt>
                 <dd className="mt-1 flex items-center gap-2">
                   <Sprout className="h-4 w-4 text-accent" />
-                  <span className="font-semibold text-accent">
-                    {cyclesCount} vụ đang chạy
-                  </span>
+                  <span className="font-semibold text-accent">{cyclesCount} vụ đang chạy</span>
                   <Link
                     href={`/admin/cycles`}
                     className="ml-auto text-[11px] text-accent hover:underline font-medium"

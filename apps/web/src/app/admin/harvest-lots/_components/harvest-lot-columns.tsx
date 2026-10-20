@@ -35,9 +35,7 @@ export function getHarvestLotColumns(): ColumnDef<HarvestLotRecord>[] {
         const item = row.original.item;
         return (
           <div>
-            <span className="font-medium text-fg">
-              {item?.name || '—'}
-            </span>
+            <span className="font-medium text-fg">{item?.name || '—'}</span>
             {item?.sku && <span className="block text-xs text-muted">{item.sku}</span>}
           </div>
         );
