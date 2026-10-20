@@ -115,7 +115,7 @@ export default function HarvestLotsPage() {
   const canCreate = user?.role === 'OWNER' || user?.role === 'MANAGER' || user?.role === 'WORKER';
 
   const publicCount = lots.filter((l) => l.isPublic).length;
-  const inStockCount = lots.filter((l) => (l.remainingQuantity ?? l.quantity) > 0).length;
+  const inStockCount = lots.filter((l) => Number(l.remainingQuantity ?? l.quantity) > 0).length;
 
   return (
     <div className="space-y-6">
