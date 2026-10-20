@@ -137,7 +137,12 @@ const navGroups: NavGroup[] = [
       { title: 'Website · Sản phẩm', href: '/admin/cms/products', icon: Compass, isReady: true },
       { title: 'Website · Bài viết', href: '/admin/cms/posts', icon: ClipboardList, isReady: true },
       { title: 'Website · Trang', href: '/admin/cms/pages', icon: ClipboardList, isReady: true },
-      { title: 'Website · Cài đặt', href: '/admin/cms/settings', icon: ClipboardList, isReady: true },
+      {
+        title: 'Website · Cài đặt',
+        href: '/admin/cms/settings',
+        icon: ClipboardList,
+        isReady: true,
+      },
     ],
   },
   {

@@ -83,9 +83,7 @@ function CustomTooltip({ active, payload, label, unit }: CustomTooltipProps) {
 
   return (
     <div className="rounded-lg border border-line bg-surface p-3 shadow-lg text-xs space-y-1 text-fg">
-      <p className="font-semibold text-fg border-b pb-1 border-line">
-        Thời gian: {label}
-      </p>
+      <p className="font-semibold text-fg border-b pb-1 border-line">Thời gian: {label}</p>
       {avgItem && (
         <p className="text-accent font-bold flex items-center justify-between gap-4">
           <span>Trung bình (AVG):</span>
@@ -292,10 +290,7 @@ export function SensorChartCard({
         <div className="h-72 w-full pt-2" data-testid={`recharts-container-${sensor.id}`}>
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart data={data} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
-              <CartesianGrid
-                strokeDasharray="3 3"
-                stroke={colors.grid}
-              />
+              <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} />
               <XAxis
                 dataKey="formattedTime"
                 stroke={colors.axis}

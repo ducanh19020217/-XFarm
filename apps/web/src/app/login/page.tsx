@@ -60,12 +60,8 @@ export default function LoginPage() {
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-accent-bg text-accent">
             <Sprout className="h-7 w-7" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-fg">
-            Đăng nhập XFarm
-          </h1>
-          <p className="text-sm text-muted">
-            Hệ thống quản lý và vận hành nông trại sinh thái
-          </p>
+          <h1 className="text-2xl font-bold tracking-tight text-fg">Đăng nhập XFarm</h1>
+          <p className="text-sm text-muted">Hệ thống quản lý và vận hành nông trại sinh thái</p>
         </div>
 
         {errorMessage && (

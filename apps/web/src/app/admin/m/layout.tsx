@@ -92,9 +92,7 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-base font-bold text-fg">
-                    XFarm Công nhân
-                  </span>
+                  <span className="text-base font-bold text-fg">XFarm Công nhân</span>
                   {isOnline ? (
                     <span
                       className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full text-[10px] font-medium bg-ok-bg text-ok"
@@ -159,9 +157,7 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
                 key={tab.href}
                 href={tab.href}
                 className={`flex flex-col items-center justify-center gap-1 transition-colors touch-manipulation select-none ${
-                  active
-                    ? 'text-accent font-bold'
-                    : 'text-muted hover:text-fg font-medium'
+                  active ? 'text-accent font-bold' : 'text-muted hover:text-fg font-medium'
                 }`}
               >
                 <div
@@ -179,5 +175,4 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
       </nav>
     </div>
   );
-
 }

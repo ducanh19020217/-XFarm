@@ -507,7 +507,12 @@ export default function FinanceReportsPage() {
                     margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={colors.grid} />
-                    <XAxis dataKey="name" stroke={colors.axis} fontSize={12} tick={{ fill: colors.axis }} />
+                    <XAxis
+                      dataKey="name"
+                      stroke={colors.axis}
+                      fontSize={12}
+                      tick={{ fill: colors.axis }}
+                    />
                     <YAxis
                       stroke={colors.axis}
                       fontSize={11}

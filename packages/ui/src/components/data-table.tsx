@@ -107,8 +107,8 @@ export function DataTable<TData, TValue>({
       {onPageChange && (
         <div className="flex items-center justify-between text-sm text-muted px-1">
           <div>
-            Tổng số: <span className="font-medium text-fg">{total}</span>{' '}
-            bản ghi (Trang {page} / {totalPages})
+            Tổng số: <span className="font-medium text-fg">{total}</span> bản ghi (Trang {page} /{' '}
+            {totalPages})
           </div>
           <div className="flex items-center space-x-2">
             <Button
