@@ -82,7 +82,10 @@ test.describe('Capture light and dark screenshots for PWA and Public pages', () 
     // Find first product slug and first tour slug
     let productSlug = 'demo-prod-cai-ngot';
     try {
-      const prodRes = await api<{ data: Array<{ slug: string }> }>(page, '/public/products?pageSize=1');
+      const prodRes = await api<{ data: Array<{ slug: string }> }>(
+        page,
+        '/public/products?pageSize=1',
+      );
       if (prodRes.data?.[0]?.slug) {
         productSlug = prodRes.data[0].slug;
       }
@@ -90,7 +93,10 @@ test.describe('Capture light and dark screenshots for PWA and Public pages', () 
 
     let tourSlug = 'demo-tour-kham-pha-nong-trai-xanh';
     try {
-      const tourRes = await api<{ data: Array<{ slug: string }> }>(page, '/public/tours?pageSize=1');
+      const tourRes = await api<{ data: Array<{ slug: string }> }>(
+        page,
+        '/public/tours?pageSize=1',
+      );
       if (tourRes.data?.[0]?.slug) {
         tourSlug = tourRes.data[0].slug;
       }
