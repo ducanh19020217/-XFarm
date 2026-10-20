@@ -60,7 +60,7 @@ export class AuthController {
   constructor(@Inject(AuthService) private authService: AuthService) {}
 
   @Public()
-  @Throttle({ default: { limit: 100, ttl: 60000 } })
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Đăng nhập vào hệ thống' })
