@@ -26,6 +26,7 @@ test.describe('Nghiệm thu GĐ2 qua giao diện', () => {
     await page.locator('#item-category').selectOption('FERTILIZER');
     await page.locator('#item-unit').fill('kg');
     await page.getByRole('button', { name: 'Tạo mới' }).click();
+    await page.getByPlaceholder(/Tìm kiếm theo mã SKU, tên vật tư/i).fill(sku);
     await expect(page.getByText(itemName).first()).toBeVisible();
 
     // Nhập đúng 10 kg qua phiếu nhập.
@@ -50,6 +51,7 @@ test.describe('Nghiệm thu GĐ2 qua giao diện', () => {
     await page.getByRole('button', { name: /ghi nhật ký/i }).click();
     await page.getByLabel('Khu/lô *').selectOption({ index: 1 });
     await page.getByLabel('Loại nhật ký *').selectOption('FERTILIZING');
+    await page.locator('#activity-date').fill('2099-01-01T10:00');
     await selectOptionByText(page.getByLabel('Chọn vật tư'), itemName);
     await page.getByLabel('Số lượng vật tư').fill('3');
     await page.getByRole('button', { name: /lưu nhật ký/i }).click();

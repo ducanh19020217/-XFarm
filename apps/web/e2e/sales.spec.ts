@@ -17,7 +17,7 @@ test('quy trình bán hàng admin: tạo khách -> tạo đơn 2 dòng -> xác n
     return page.evaluate(
       async ({ apiBase, itemId, warehouseId }) => {
         const res = await fetch(
-          `${apiBase}/stock/balances?itemId=${itemId}&warehouseId=${warehouseId}&includeZero=true`,
+          `${apiBase}/stock/balances?itemId=${itemId}&warehouseId=${warehouseId}&includeZero=true&pageSize=1000`,
           { credentials: 'include' },
         );
         if (!res.ok) return 0;
@@ -42,8 +42,8 @@ test('quy trình bán hàng admin: tạo khách -> tạo đơn 2 dòng -> xác n
   expect(finishedWarehouse, 'Kho thành phẩm phải tồn tại').toBeDefined();
 
   const productsRes = await api<{
-    data: Array<{ id: string; name: string; itemId: string; price: number; unit: string }>;
-  }>(page, '/products?pageSize=100');
+    data: Array<{ id: string; name: string; itemId: string; price: number; unit: string; item?: { name: string } }>;
+  }>(page, '/products?isPublished=true&pageSize=100');
   expect(productsRes.data.length).toBeGreaterThanOrEqual(2);
 
   const prod1 = productsRes.data[0];

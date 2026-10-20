@@ -85,6 +85,8 @@ test('GĐ4 acceptance: webshop → admin → kho → thu tiền → transaction 
   // 2. Đơn xuất hiện trong admin, xác nhận và kiểm tra kho giảm đúng 1.
   await loginAs(page, 'OWNER');
   await page.goto('/admin/sales/orders', { waitUntil: 'domcontentloaded' });
+  await page.getByPlaceholder(/tìm theo mã đơn/i).fill(orderCode!);
+  await page.waitForTimeout(500);
   await expect(page.getByText(orderCode!, { exact: true })).toBeVisible();
   const orders = await api<{
     data: Array<{ id: string; code: string; total: string | number }>;
