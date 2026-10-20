@@ -3,7 +3,15 @@ import path from 'node:path';
 
 process.loadEnvFile?.(path.resolve(__dirname, '../../.env'));
 const baseURL = process.env.WEB_URL || 'http://localhost:3100';
-const apiURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4100/api/v1';
+const publicApiUrl = process.env.NEXT_PUBLIC_API_URL;
+const apiURL =
+  process.env.API_INTERNAL_URL ||
+  (publicApiUrl && /^https?:\/\//.test(publicApiUrl) ? publicApiUrl : undefined) ||
+  (process.env.API_PORT
+    ? `http://localhost:${process.env.API_PORT}/api/v1`
+    : 'http://localhost:4100/api/v1');
+// Spec gọi API trực tiếp từ Node cần URL tuyệt đối (khi .env dùng '/api/v1' cho trình duyệt).
+process.env.NEXT_PUBLIC_API_URL = apiURL;
 
 export default defineConfig({
   testDir: './e2e',

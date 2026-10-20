@@ -1,4 +1,19 @@
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4100/api/v1';
+/**
+ * Trình duyệt gọi API qua đường dẫn tương đối `/api/v1` (Next rewrite chuyển tiếp sang API),
+ * nên truy cập bằng IP/tên miền nào cũng chạy và cookie đăng nhập cùng origin với web.
+ * Server (SSR, route handler) không gọi được URL tương đối nên dùng `API_INTERNAL_URL`.
+ */
+const PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
+const INTERNAL_API_URL =
+  process.env.API_INTERNAL_URL ||
+  (process.env.API_PORT
+    ? `http://localhost:${process.env.API_PORT}/api/v1`
+    : 'http://localhost:4100/api/v1');
+
+export const API_BASE_URL =
+  typeof window === 'undefined' && PUBLIC_API_URL.startsWith('/')
+    ? INTERNAL_API_URL
+    : PUBLIC_API_URL;
 
 export class ApiError extends Error {
   statusCode: number;

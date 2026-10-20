@@ -37,8 +37,11 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
   },
   async rewrites() {
+    // Đích chuyển tiếp luôn là URL nội bộ tuyệt đối của API (không dùng NEXT_PUBLIC_API_URL tương đối).
+    const publicUrl = process.env.NEXT_PUBLIC_API_URL;
     const apiUrl =
-      process.env.NEXT_PUBLIC_API_URL ||
+      process.env.API_INTERNAL_URL ||
+      (publicUrl && /^https?:\/\//.test(publicUrl) ? publicUrl : undefined) ||
       (process.env.API_PORT
         ? `http://localhost:${process.env.API_PORT}/api/v1`
         : 'http://localhost:4100/api/v1');

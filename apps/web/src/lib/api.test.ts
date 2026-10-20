@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { apiFetch, isAbortError } from './api';
+import { apiFetch, isAbortError, API_BASE_URL } from './api';
 
 // Cùng nguồn URL với api.ts để test không phụ thuộc cổng trong .env (mỗi slot AgentHub dùng cổng riêng).
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4100/api/v1';
+const API_BASE = API_BASE_URL;
 
 describe('apiFetch client', () => {
   beforeEach(() => {
