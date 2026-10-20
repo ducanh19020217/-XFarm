@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { PurchaseOrderStatus } from '../types';
+import { PaymentMethod, PurchaseOrderStatus } from '../types';
 import { optionalDate, optionalNumber, optionalString } from './helpers';
 import { paginationSchema } from './pagination';
 
@@ -52,7 +52,15 @@ export const queryPurchaseOrderSchema = paginationSchema.extend({
   supplierId: z.string().optional(),
 });
 
+export const payPurchaseOrderSchema = z.object({
+  amount: optionalNumber(z.number().positive('Số tiền thanh toán phải lớn hơn 0')),
+  method: z.nativeEnum(PaymentMethod).optional().default(PaymentMethod.BANK_TRANSFER),
+  paidAt: optionalDate(),
+  notes: optionalString(),
+});
+
 export type CreatePurchaseOrderInput = z.infer<typeof createPurchaseOrderSchema>;
 export type UpdatePurchaseOrderInput = z.infer<typeof updatePurchaseOrderSchema>;
 export type ReceivePurchaseOrderInput = z.infer<typeof receivePurchaseOrderSchema>;
 export type QueryPurchaseOrderInput = z.infer<typeof queryPurchaseOrderSchema>;
+export type PayPurchaseOrderInput = z.infer<typeof payPurchaseOrderSchema>;

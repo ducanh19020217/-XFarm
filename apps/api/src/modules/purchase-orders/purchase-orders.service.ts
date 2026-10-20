@@ -13,6 +13,7 @@ import {
   UpdatePurchaseOrderDto,
   ReceivePurchaseOrderDto,
   QueryPurchaseOrderDto,
+  PayPurchaseOrderDto,
 } from './purchase-orders.dto';
 
 @Injectable()
@@ -73,8 +74,34 @@ export class PurchaseOrdersService {
       prisma.purchaseOrder.count({ where }),
     ]);
 
+    const poIds = data.map((d) => d.id);
+    const transactions =
+      poIds.length > 0
+        ? await prisma.transaction.findMany({
+            where: {
+              refType: 'PurchaseOrder',
+              refId: { in: poIds },
+              type: 'EXPENSE',
+            },
+            select: { refId: true, amount: true },
+          })
+        : [];
+
+    const paidByPo = new Map<string, Prisma.Decimal>();
+    for (const t of transactions) {
+      if (t.refId) {
+        const cur = paidByPo.get(t.refId) ?? new Prisma.Decimal(0);
+        paidByPo.set(t.refId, cur.plus(t.amount));
+      }
+    }
+
+    const dataWithPaid = data.map((item) => ({
+      ...item,
+      paidAmount: (paidByPo.get(item.id) ?? new Prisma.Decimal(0)).toNumber(),
+    }));
+
     return {
-      data,
+      data: dataWithPaid,
       total,
       page,
       pageSize,
@@ -101,7 +128,20 @@ export class PurchaseOrdersService {
       throw new NotFoundException('Không tìm thấy đơn mua hàng');
     }
 
-    return po;
+    const transactions = await prisma.transaction.findMany({
+      where: {
+        refType: 'PurchaseOrder',
+        refId: po.id,
+        type: 'EXPENSE',
+      },
+      select: { amount: true },
+    });
+    const paidAmount = transactions.reduce((sum, t) => sum.plus(t.amount), new Prisma.Decimal(0));
+
+    return {
+      ...po,
+      paidAmount: paidAmount.toNumber(),
+    };
   }
 
   async create(dto: CreatePurchaseOrderDto, userId?: string) {
@@ -485,6 +525,95 @@ export class PurchaseOrdersService {
       });
 
       return updatedPo;
+    });
+  }
+
+  async pay(id: string, dto: PayPurchaseOrderDto, userId?: string) {
+    return prisma.$transaction(async (tx) => {
+      // Khóa PO để 2 lượt trả đồng thời không cùng vượt tổng tiền
+      await tx.$queryRaw(Prisma.sql`SELECT id FROM "purchase_orders" WHERE id = ${id} FOR UPDATE`);
+      const po = await tx.purchaseOrder.findUnique({
+        where: { id },
+        include: {
+          supplier: true,
+          lines: {
+            include: { item: true },
+          },
+        },
+      });
+
+      if (!po) {
+        throw new NotFoundException('Không tìm thấy đơn mua hàng');
+      }
+
+      if (po.status === PurchaseOrderStatus.CANCELLED) {
+        throw new UnprocessableEntityException('Không thể thanh toán cho đơn mua hàng đã hủy');
+      }
+
+      const existingTxs = await tx.transaction.findMany({
+        where: {
+          refType: 'PurchaseOrder',
+          refId: po.id,
+          type: 'EXPENSE',
+        },
+        select: { amount: true },
+      });
+
+      const currentPaid = existingTxs.reduce((sum, t) => sum.plus(t.amount), new Prisma.Decimal(0));
+
+      let payAmount: Prisma.Decimal;
+      if (dto.amount !== undefined && dto.amount !== null) {
+        payAmount = new Prisma.Decimal(dto.amount);
+        if (payAmount.lte(0)) {
+          throw new UnprocessableEntityException('Số tiền thanh toán phải lớn hơn 0');
+        }
+      } else {
+        payAmount = po.total.minus(currentPaid);
+        if (payAmount.lte(0)) {
+          throw new UnprocessableEntityException('Đơn mua hàng đã được thanh toán đủ');
+        }
+      }
+
+      const newPaid = currentPaid.plus(payAmount);
+      if (newPaid.greaterThan(po.total)) {
+        throw new UnprocessableEntityException('Số tiền thanh toán vượt quá tổng giá trị đơn mua');
+      }
+
+      let purchaseCat = await tx.financeCategory.findFirst({
+        where: { systemKey: 'PURCHASE' },
+      });
+      if (!purchaseCat) {
+        purchaseCat = await tx.financeCategory.create({
+          data: {
+            name: 'Mua vật tư',
+            type: 'EXPENSE',
+            systemKey: 'PURCHASE',
+            isActive: true,
+          },
+        });
+      }
+
+      const txCode = await this.sequenceService.nextInTransaction(tx, 'TX');
+      const transaction = await tx.transaction.create({
+        data: {
+          code: txCode,
+          type: 'EXPENSE',
+          categoryId: purchaseCat.id,
+          amount: payAmount,
+          date: dto.paidAt ? new Date(dto.paidAt) : new Date(),
+          refType: 'PurchaseOrder',
+          refId: po.id,
+          method: dto.method ?? 'BANK_TRANSFER',
+          notes: dto.notes ?? `Thanh toán đơn mua hàng ${po.code}`,
+          createdById: userId,
+        },
+      });
+
+      return {
+        ...po,
+        paidAmount: newPaid.toNumber(),
+        transaction,
+      };
     });
   }
 }

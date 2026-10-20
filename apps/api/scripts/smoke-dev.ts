@@ -119,6 +119,16 @@ async function main() {
       '/attendance',
       '/payrolls',
       { path: '/sync/batch', method: 'POST', body: { items: [] } },
+      '/finance-categories',
+      '/finance-categories/tree',
+      '/transactions',
+      '/payments',
+      '/finance/receivables',
+      '/customers',
+      '/sales-orders',
+      '/reports/cashflow?year=2026',
+      '/reports/cycles',
+      '/reports/products',
     ];
 
     for (const item of routes) {

@@ -93,6 +93,36 @@ describe('XFarm API E2E Tests', () => {
     expect(rows[0]?.exists).toBe(true);
   });
 
+  it('tạo khách hàng mới sau khi đã có mã CU seed không bị trùng', async () => {
+    const { prisma } = await import('@xfarm/db');
+    await prisma.customer.create({
+      data: {
+        code: 'CU-0001',
+        name: 'Khách seed',
+        phone: '0900000001',
+        type: 'RETAIL',
+      },
+    });
+    await prisma.sequence.upsert({
+      where: { key_year: { key: 'CU', year: 0 } },
+      update: { current: 1 },
+      create: { key: 'CU', year: 0, current: 1 },
+    });
+
+    const login = await request(app.getHttpServer()).post('/api/v1/auth/login').send({
+      email: 'admin@xfarm.local',
+      password: 'Admin@123',
+    });
+    const cookies = login.headers['set-cookie'];
+    const response = await request(app.getHttpServer())
+      .post('/api/v1/customers')
+      .set('Cookie', cookies)
+      .send({ name: 'Khách API', phone: '0900000002', type: 'RETAIL' });
+
+    expect(response.status).toBe(201);
+    expect(response.body.data.code).toBe('CU-0002');
+  });
+
   describe('Auth', () => {
     let ownerCookies: string[];
 

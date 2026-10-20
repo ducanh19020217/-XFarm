@@ -7,5 +7,6 @@ import { CyclesService } from './cycles.service';
   imports: [SequenceModule],
   controllers: [CyclesController],
   providers: [CyclesService],
+  exports: [CyclesService],
 })
 export class CyclesModule {}

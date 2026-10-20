@@ -12,6 +12,13 @@ export async function cleanupDatabase(client: DatabaseClient = defaultPrisma): P
       await tx.payroll.deleteMany();
       await tx.attendance.deleteMany();
       await tx.task.deleteMany();
+      await tx.payment.deleteMany();
+      await tx.salesOrderLine.deleteMany();
+      await tx.salesOrder.deleteMany();
+      await tx.customer.deleteMany();
+      await tx.transaction.deleteMany();
+      await tx.financeCategory.updateMany({ data: { parentId: null } });
+      await tx.financeCategory.deleteMany();
       await tx.product.deleteMany();
       await tx.harvestLot.deleteMany();
       await tx.activityMaterial.deleteMany();

@@ -4,6 +4,7 @@ import { Header } from './_components/header';
 import { Footer } from './_components/footer';
 
 import { getSiteUrl } from '@/lib/site-url';
+import { CartProvider } from '@/lib/cart';
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
@@ -40,12 +41,14 @@ export default async function PublicLayout({ children }: { children: React.React
   const settings = await getSiteSettings();
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
-      <Header settings={settings} />
-      <main id="main-content" className="flex-1">
-        {children}
-      </main>
-      <Footer settings={settings} />
-    </div>
+    <CartProvider>
+      <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
+        <Header settings={settings} />
+        <main id="main-content" className="flex-1">
+          {children}
+        </main>
+        <Footer settings={settings} />
+      </div>
+    </CartProvider>
   );
 }

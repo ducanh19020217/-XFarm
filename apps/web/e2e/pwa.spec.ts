@@ -98,7 +98,7 @@ test.describe('PWA Shell & Worker Mobile App (p6-pwa-shell)', () => {
     // Chờ tải xong trạng thái ca hôm nay (nút Cập nhật hết disable) rồi mới quyết định bấm
     await expect(page.getByRole('button', { name: /cập nhật/i })).toBeEnabled();
     const checkInBtn = page.getByRole('button', { name: /vào ca/i });
-    if (await checkInBtn.isEnabled()) {
+    if ((await checkInBtn.count()) > 0 && (await checkInBtn.isEnabled())) {
       await checkInBtn.click();
     }
   });

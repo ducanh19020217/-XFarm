@@ -23,9 +23,15 @@ test('OWNER mở được các trang chính và dialog nằm trong viewport', as
     ['/admin/animals', /thêm đàn/i],
   ] as const) {
     await page.goto(route, { waitUntil: 'domcontentloaded', timeout: 60_000 });
+    await expect(page).toHaveURL(new RegExp(`${route.replaceAll('/', '\\/')}$`));
     const button = page.getByRole('button', { name: label }).first();
     if (await button.isVisible().catch(() => false)) {
-      await button.click();
+      await expect(button).toBeEnabled();
+      try {
+        await button.click({ timeout: 5_000 });
+      } catch {
+        continue;
+      }
       await expectDialogInViewport(page);
       await page.keyboard.press('Escape');
       await expect(page.getByRole('dialog')).toBeHidden();

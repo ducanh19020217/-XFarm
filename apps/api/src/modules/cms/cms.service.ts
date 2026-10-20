@@ -597,6 +597,7 @@ export class CmsService {
           id: true,
           slug: true,
           name: true,
+          itemId: true,
           description: true,
           price: true,
           unit: true,
@@ -607,9 +608,34 @@ export class CmsService {
       prisma.product.count({ where }),
     ]);
 
+    const itemIds = products.map((product) => product.itemId);
+    const balances = itemIds.length
+      ? await prisma.$queryRaw<Array<{ itemId: string; onHand: Prisma.Decimal }>>(
+          Prisma.sql`
+            SELECT "itemId", COALESCE(SUM(quantity), 0) AS "onHand"
+            FROM "stock_balances"
+            WHERE "itemId" IN (${Prisma.join(itemIds)})
+            GROUP BY "itemId"
+          `,
+        )
+      : [];
+    const inStockByItem = new Map(
+      balances.map((balance) => [
+        balance.itemId,
+        new Prisma.Decimal(balance.onHand).greaterThan(0),
+      ]),
+    );
+
     const data = products.map((p) => ({
-      ...p,
+      id: p.id,
+      slug: p.slug,
+      name: p.name,
+      description: p.description,
+      mediaIds: p.mediaIds,
+      sortOrder: p.sortOrder,
       price: Number(p.price),
+      unit: p.unit,
+      inStock: inStockByItem.get(p.itemId) ?? false,
     }));
 
     return {

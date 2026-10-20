@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ShoppingBag, ArrowRight } from 'lucide-react';
 import { formatCurrency, type PublicProduct } from '@/lib/public-api';
+import { AddToCartButton } from './add-to-cart-button';
 
 interface ProductCardProps {
   product: PublicProduct;
@@ -75,6 +76,13 @@ export function ProductCard({ product }: ProductCardProps) {
             <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
           </Link>
         </div>
+
+        <AddToCartButton
+          productId={product.id}
+          productName={product.name}
+          inStock={inStock}
+          variant="card"
+        />
       </div>
     </article>
   );

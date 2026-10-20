@@ -11,6 +11,8 @@ import {
   PayType,
   TaskStatus,
   PayrollStatus,
+  CustomerType,
+  TransactionType,
 } from '@prisma/client';
 import * as argon2 from 'argon2';
 import { Prisma } from '@prisma/client';
@@ -932,6 +934,50 @@ async function main() {
   console.log(`Linked worker@xfarm.local to employee NV-0001`);
 
   await ensureSequence('NV', 0, 5);
+
+  const financeCategories = [
+    { name: 'Bán hàng', type: TransactionType.INCOME, systemKey: 'SALES' },
+    { name: 'Mua vật tư', type: TransactionType.EXPENSE, systemKey: 'PURCHASE' },
+    { name: 'Lương', type: TransactionType.EXPENSE, systemKey: 'PAYROLL' },
+  ] as const;
+  for (const category of financeCategories) {
+    await prisma.financeCategory.upsert({
+      where: { systemKey: category.systemKey },
+      update: { name: category.name, type: category.type, isActive: true },
+      create: { ...category, isActive: true },
+    });
+  }
+  const customers = [
+    { code: 'CU-0001', name: 'Nguyễn Minh Anh', phone: '0909000001', type: CustomerType.RETAIL },
+    {
+      code: 'CU-0002',
+      name: 'Cửa hàng Nông sản Sạch',
+      phone: '0909000002',
+      type: CustomerType.WHOLESALE,
+    },
+  ] as const;
+  for (const customer of customers) {
+    await prisma.customer.upsert({
+      where: { code: customer.code },
+      update: { ...customer, isActive: true },
+      create: { ...customer, isActive: true },
+    });
+  }
+  const highestCustomer = await prisma.customer.findFirst({
+    where: { code: { startsWith: 'CU-' } },
+    orderBy: { code: 'desc' },
+    select: { code: true },
+  });
+  const highestCustomerNumber = Number(highestCustomer?.code.match(/^CU-(\d+)$/)?.[1] ?? 0);
+  await ensureSequence('CU', 0, highestCustomerNumber);
+  await prisma.siteSetting.upsert({
+    where: { key: 'bank.vietqr' },
+    update: { value: { bank: 'VCB', accountNumber: '0123456789', accountName: 'XFARM' } },
+    create: {
+      key: 'bank.vietqr',
+      value: { bank: 'VCB', accountNumber: '0123456789', accountName: 'XFARM' },
+    },
+  });
 
   // 6 tasks for this week (attached to seed cycles)
   const now = new Date();

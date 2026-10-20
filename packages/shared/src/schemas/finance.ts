@@ -1,0 +1,91 @@
+import { z } from 'zod';
+import { CycleStatus, PaymentMethod, TransactionType } from '../types';
+import { optionalDate, optionalString } from './helpers';
+import { paginationSchema } from './pagination';
+
+export const transactionTypeSchema = z.nativeEnum(TransactionType);
+
+export const createFinanceCategorySchema = z.object({
+  name: z.string().trim().min(1, 'Tên danh mục không được để trống'),
+  type: transactionTypeSchema,
+  parentId: optionalString(),
+  isActive: z.boolean().optional(),
+  systemKey: optionalString(),
+});
+
+export const updateFinanceCategorySchema = createFinanceCategorySchema.partial();
+
+export const createTransactionSchema = z.object({
+  type: transactionTypeSchema,
+  categoryId: z.string().min(1, 'Danh mục không được để trống'),
+  amount: z.coerce.number().positive('Số tiền phải lớn hơn 0'),
+  date: z.coerce.date(),
+  cycleId: optionalString(),
+  refType: optionalString(),
+  refId: optionalString(),
+  method: z.nativeEnum(PaymentMethod),
+  notes: optionalString(),
+  mediaIds: z.array(z.string()).optional().default([]),
+});
+
+export const updateTransactionSchema = z.object({
+  type: transactionTypeSchema.optional(),
+  categoryId: optionalString(),
+  amount: z.coerce.number().positive('Số tiền phải lớn hơn 0').optional(),
+  date: z.coerce.date().optional(),
+  cycleId: optionalString(),
+  method: z.nativeEnum(PaymentMethod).optional(),
+  notes: optionalString(),
+  mediaIds: z.array(z.string()).optional(),
+});
+
+export const financeReportQuerySchema = z.union([
+  z.object({ from: z.coerce.date(), to: z.coerce.date() }),
+  z.object({ year: z.coerce.number().int().min(2000).max(2200) }),
+]);
+
+export const cashflowReportQuerySchema = z.object({
+  year: z.coerce.number().int().min(2000).max(2200),
+});
+
+export const cycleReportQuerySchema = z.object({
+  status: z.nativeEnum(CycleStatus).optional(),
+});
+
+export const productReportQuerySchema = z.object({
+  from: optionalDate(),
+  to: optionalDate(),
+});
+
+export const queryFinanceCategorySchema = paginationSchema.extend({
+  search: optionalString(),
+  type: transactionTypeSchema.optional(),
+  parentId: optionalString(),
+});
+
+export const queryTransactionSchema = paginationSchema.extend({
+  search: optionalString(),
+  type: transactionTypeSchema.optional(),
+  categoryId: optionalString(),
+  from: optionalDate(),
+  to: optionalDate(),
+  cycleId: optionalString(),
+  method: z.nativeEnum(PaymentMethod).optional(),
+});
+
+export const queryReceivablesSchema = z.object({
+  search: optionalString(),
+  customerId: optionalString(),
+});
+
+export type CreateFinanceCategoryInput = z.infer<typeof createFinanceCategorySchema>;
+export type UpdateFinanceCategoryInput = z.infer<typeof updateFinanceCategorySchema>;
+export type CreateTransactionInput = z.infer<typeof createTransactionSchema>;
+export type UpdateTransactionInput = z.infer<typeof updateTransactionSchema>;
+export type FinanceReportQueryInput = z.infer<typeof financeReportQuerySchema>;
+export type QueryFinanceCategoryInput = z.infer<typeof queryFinanceCategorySchema>;
+export type QueryTransactionInput = z.infer<typeof queryTransactionSchema>;
+export type QueryReceivablesInput = z.infer<typeof queryReceivablesSchema>;
+export type CashflowReportQueryInput = z.infer<typeof cashflowReportQuerySchema>;
+export type CycleReportQueryInput = z.infer<typeof cycleReportQuerySchema>;
+export type ProductReportQueryInput = z.infer<typeof productReportQuerySchema>;
