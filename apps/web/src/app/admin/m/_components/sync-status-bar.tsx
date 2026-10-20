@@ -77,14 +77,12 @@ export function SyncStatusBar() {
   };
 
   // Determine display status
-  let barBg =
-    'bg-slate-50 border-slate-200 text-slate-700 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-300';
+  let barBg = 'bg-surface-2 border-line text-muted';
   let message = '';
   let showSyncButton = false;
 
   if (!isOnline) {
-    barBg =
-      'bg-amber-50 border-amber-200 text-amber-900 dark:bg-amber-950/70 dark:border-amber-800 dark:text-amber-300';
+    barBg = 'bg-warn-bg border-warn/20 text-warn';
     if (outboxCount > 0) {
       message = `Offline – ${outboxCount} thao tác chờ đồng bộ`;
     } else {
@@ -92,21 +90,17 @@ export function SyncStatusBar() {
     }
   } else {
     if (isSyncing) {
-      barBg =
-        'bg-blue-50 border-blue-200 text-blue-900 dark:bg-blue-950/70 dark:border-blue-800 dark:text-blue-300';
+      barBg = 'bg-info-bg border-info/20 text-info';
       message = `Đang đồng bộ ${outboxCount} thao tác...`;
     } else if (outboxCount > 0) {
-      barBg =
-        'bg-amber-50 border-amber-200 text-amber-900 dark:bg-amber-950/70 dark:border-amber-800 dark:text-amber-300';
+      barBg = 'bg-warn-bg border-warn/20 text-warn';
       message = `${outboxCount} thao tác chờ đồng bộ`;
       showSyncButton = true;
     } else if (lastSyncTime) {
-      barBg =
-        'bg-emerald-50 border-emerald-200 text-emerald-900 dark:bg-emerald-950/70 dark:border-emerald-800 dark:text-emerald-300';
+      barBg = 'bg-ok-bg border-ok/20 text-ok';
       message = `Đã đồng bộ lúc ${formatTime(lastSyncTime)}`;
     } else {
-      barBg =
-        'bg-emerald-50 border-emerald-200 text-emerald-900 dark:bg-emerald-950/70 dark:border-emerald-800 dark:text-emerald-300';
+      barBg = 'bg-ok-bg border-ok/20 text-ok';
       message = 'Đã đồng bộ';
     }
   }
@@ -121,13 +115,13 @@ export function SyncStatusBar() {
         className="flex items-center gap-2 hover:underline select-none flex-1 truncate"
       >
         {!isOnline ? (
-          <WifiOff className="h-3.5 w-3.5 shrink-0 text-amber-600 dark:text-amber-400" />
+          <WifiOff className="h-3.5 w-3.5 shrink-0 text-warn" />
         ) : isSyncing ? (
-          <RefreshCw className="h-3.5 w-3.5 shrink-0 animate-spin text-blue-600 dark:text-blue-400" />
+          <RefreshCw className="h-3.5 w-3.5 shrink-0 animate-spin text-info" />
         ) : outboxCount > 0 ? (
-          <Wifi className="h-3.5 w-3.5 shrink-0 text-amber-600 dark:text-amber-400" />
+          <Wifi className="h-3.5 w-3.5 shrink-0 text-warn" />
         ) : (
-          <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+          <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-ok" />
         )}
         <span className="truncate">{message}</span>
       </Link>
@@ -138,14 +132,14 @@ export function SyncStatusBar() {
             type="button"
             onClick={handleManualSync}
             disabled={isSyncing}
-            className="px-2 py-0.5 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold active:scale-95 transition-all"
+            className="px-2.5 py-1 rounded-md bg-accent hover:bg-accent-hover text-surface text-[11px] font-bold active:scale-95 transition-all shadow-xs"
           >
             Đồng bộ ngay
           </button>
         )}
         <Link
           href="/admin/m/outbox"
-          className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+          className="p-1 text-muted hover:text-fg"
           title="Xem hàng đợi ngoại tuyến"
         >
           <ChevronRight className="h-3.5 w-3.5" />

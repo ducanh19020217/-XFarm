@@ -223,10 +223,10 @@ export default function MobileScanPage() {
       {/* Header */}
       <div className="flex items-center justify-between pb-1">
         <div>
-          <h1 className="text-xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
+          <h1 className="text-xl font-extrabold text-fg tracking-tight">
             Quét mã QR khu/lô
           </h1>
-          <p className="text-xs font-medium text-slate-500">
+          <p className="text-xs font-medium text-muted">
             Đọc mã tem dán tại ruộng, luống hoặc chuồng nuôi
           </p>
         </div>
@@ -234,7 +234,7 @@ export default function MobileScanPage() {
           variant="outline"
           size="sm"
           onClick={() => setShowManualInput(!showManualInput)}
-          className="h-10 px-3 flex items-center gap-1.5 text-slate-600 rounded-xl active:scale-95 transition-transform"
+          className="h-10 px-3 flex items-center gap-1.5 border-line bg-surface text-fg hover:bg-hover rounded-xl active:scale-95 transition-transform"
         >
           <Keyboard className="h-4 w-4" />
           <span className="text-xs font-semibold">{showManualInput ? 'Ẩn nhập' : 'Nhập tay'}</span>
@@ -243,16 +243,16 @@ export default function MobileScanPage() {
 
       {/* Scanner Viewfinder Box */}
       {!scannedRaw && (
-        <div className="relative rounded-3xl overflow-hidden border-2 border-slate-300 dark:border-slate-800 bg-black aspect-square max-w-sm mx-auto flex items-center justify-center shadow-lg">
+        <div className="relative rounded-3xl overflow-hidden border-2 border-line bg-black aspect-square max-w-sm mx-auto flex items-center justify-center shadow-lg">
           {cameraError ? (
             <div className="p-6 text-center text-slate-300 space-y-3">
-              <CameraOff className="mx-auto h-12 w-12 text-amber-500" />
+              <CameraOff className="mx-auto h-12 w-12 text-warn" />
               <p className="text-xs leading-relaxed">{cameraError}</p>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => startScanner()}
-                className="text-xs border-slate-700 text-white rounded-xl"
+                className="text-xs border-line bg-surface text-fg hover:bg-hover rounded-xl"
               >
                 Thử lại camera
               </Button>
@@ -295,9 +295,9 @@ export default function MobileScanPage() {
       {(showManualInput || cameraError) && !scannedRaw && (
         <form
           onSubmit={handleManualSubmit}
-          className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-900 space-y-3"
+          className="rounded-2xl border border-line bg-surface p-4 shadow-xs space-y-3 text-fg"
         >
-          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+          <label className="block text-xs font-bold text-fg-2 uppercase tracking-wider">
             Nhập mã khu/lô thủ công
           </label>
           <div className="flex gap-2">
@@ -306,12 +306,12 @@ export default function MobileScanPage() {
               placeholder="VD: KV-0001 hoặc A1..."
               value={manualCode}
               onChange={(e) => setManualCode(e.target.value)}
-              className="h-12 rounded-xl text-base font-semibold"
+              className="h-12 rounded-xl text-base font-semibold bg-surface border-line text-fg placeholder:text-muted focus-visible:ring-accent"
             />
             <Button
               type="submit"
               variant="default"
-              className="h-12 px-5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold"
+              className="h-12 px-5 bg-accent hover:bg-accent-hover text-surface rounded-xl font-bold"
             >
               Tìm
             </Button>
@@ -321,35 +321,35 @@ export default function MobileScanPage() {
 
       {/* Scanned Result Card */}
       {scannedRaw && (
-        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-md dark:border-slate-800 dark:bg-slate-900 space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div className="rounded-3xl border border-line bg-surface p-5 shadow-md space-y-4 text-fg">
+          <div className="flex items-center justify-between border-b border-line pb-3">
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-              <h2 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+              <CheckCircle2 className="h-5 w-5 text-accent" />
+              <h2 className="text-sm font-bold text-fg-2 uppercase tracking-wider">
                 Kết quả quét mã
               </h2>
             </div>
-            <span className="text-[11px] font-mono text-slate-400">
+            <span className="text-[11px] font-mono text-muted">
               {engineUsed ? `Engine: ${engineUsed}` : ''}
             </span>
           </div>
 
           {isLookingUp ? (
             <div className="py-8 flex flex-col items-center justify-center space-y-2">
-              <RefreshCw className="h-6 w-6 animate-spin text-emerald-600" />
-              <p className="text-xs text-slate-500 font-medium">Đang tra cứu khu/lô...</p>
+              <RefreshCw className="h-6 w-6 animate-spin text-accent" />
+              <p className="text-xs text-muted font-medium">Đang tra cứu khu/lô...</p>
             </div>
           ) : matchedArea ? (
             <div className="space-y-4">
-              <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900 space-y-1">
+              <div className="p-4 rounded-2xl bg-ok-bg border border-ok/20 space-y-1 text-ok">
                 <div className="flex items-center gap-2">
-                  <MapPin className="h-5 w-5 text-emerald-600" />
-                  <h3 className="text-lg font-bold text-emerald-950 dark:text-emerald-100">
+                  <MapPin className="h-5 w-5 text-ok" />
+                  <h3 className="text-lg font-bold">
                     {matchedArea.name}
                   </h3>
                 </div>
-                <div className="flex items-center gap-2 text-xs text-emerald-800 dark:text-emerald-300 font-medium pl-7">
-                  <span className="font-mono bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
+                <div className="flex items-center gap-2 text-xs font-medium pl-7">
+                  <span className="font-mono bg-surface px-2 py-0.5 rounded border border-ok/30 text-fg">
                     Mã: {matchedArea.code}
                   </span>
                 </div>
@@ -362,7 +362,7 @@ export default function MobileScanPage() {
                   variant="default"
                   size="lg"
                   onClick={handleGoToQuickLog}
-                  className="w-full h-14 text-base font-extrabold bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl shadow-md flex items-center justify-center gap-2 active:scale-98"
+                  className="w-full h-14 text-base font-extrabold bg-accent hover:bg-accent-hover text-surface rounded-2xl shadow-md flex items-center justify-center gap-2 active:scale-98"
                 >
                   <span>Ghi nhật ký tại khu này</span>
                   <ArrowRight className="h-5 w-5" />
@@ -373,7 +373,7 @@ export default function MobileScanPage() {
                   variant="outline"
                   size="lg"
                   onClick={() => startScanner()}
-                  className="w-full h-12 text-sm font-semibold rounded-2xl text-slate-600 border-slate-200"
+                  className="w-full h-12 text-sm font-semibold rounded-2xl border-line bg-surface text-fg hover:bg-hover"
                 >
                   Quét mã khác
                 </Button>
@@ -381,9 +381,9 @@ export default function MobileScanPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 space-y-2 text-amber-900 dark:text-amber-300">
+              <div className="p-4 rounded-2xl bg-warn-bg border border-warn/20 space-y-2 text-warn">
                 <div className="flex items-center gap-2">
-                  <AlertCircle className="h-5 w-5 text-amber-600 shrink-0" />
+                  <AlertCircle className="h-5 w-5 text-warn shrink-0" />
                   <h3 className="text-sm font-bold">Không tìm thấy khu/lô trong hệ thống</h3>
                 </div>
                 <p className="text-xs pl-7">
@@ -399,7 +399,7 @@ export default function MobileScanPage() {
                   type="button"
                   variant="outline"
                   onClick={() => handleGoToQuickLog()}
-                  className="h-12 text-xs font-bold rounded-xl"
+                  className="h-12 text-xs font-bold rounded-xl border-line bg-surface text-fg hover:bg-hover"
                 >
                   Vẫn dùng mã này
                 </Button>
@@ -407,7 +407,7 @@ export default function MobileScanPage() {
                   type="button"
                   variant="default"
                   onClick={() => startScanner()}
-                  className="h-12 text-xs font-bold bg-slate-800 text-white rounded-xl"
+                  className="h-12 text-xs font-bold bg-accent hover:bg-accent-hover text-surface rounded-xl"
                 >
                   Quét lại
                 </Button>
