@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+  <title>Cảm biến thông minh IoT đo độ ẩm nhiệt độ đất</title>
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0fdf4"/>
+      <stop offset="100%" stop-color="#dcfce7"/>
+    </linearGradient>
+    <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#e0f2fe"/>
+      <stop offset="100%" stop-color="#bae6fd"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#064e3b" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect width="800" height="600" fill="url(#bgGrad)" rx="24"/>
+
+  <circle cx="400" cy="300" r="220" fill="#f0fdf4" opacity="0.8"/>
+  <!-- Soil layer -->
+  <rect x="180" y="420" width="440" height="100" fill="#78350f" rx="16"/>
+  <path d="M 180 420 Q 300 410 400 420 Q 500 430 620 420 L 620 440 L 180 440 Z" fill="#15803d"/>
+  <!-- Sensor Steel Probes in Soil -->
+  <rect x="360" y="380" width="16" height="110" fill="#94a3b8" rx="6"/>
+  <rect x="424" y="380" width="16" height="110" fill="#94a3b8" rx="6"/>
+  <!-- Main Sensor Module Case -->
+  <rect x="320" y="200" width="160" height="190" fill="#0f172a" rx="20" filter="url(#shadow)"/>
+  <!-- LCD Display Screen -->
+  <rect x="345" y="230" width="110" height="70" fill="#064e3b" rx="8"/>
+  <!-- Digital Text Glyphs -->
+  <text x="360" y="260" fill="#34d399" font-family="monospace" font-size="20" font-weight="bold">28.5°C</text>
+  <text x="360" y="285" fill="#38bdf8" font-family="monospace" font-size="18">68% RH</text>
+  <!-- Status LED -->
+  <circle cx="360" cy="350" r="8" fill="#22c55e"/>
+  <circle cx="400" cy="350" r="8" fill="#3b82f6"/>
+  <!-- Wireless Antenna -->
+  <line x1="400" y1="200" x2="400" y2="120" stroke="#475569" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="400" cy="115" r="10" fill="#0284c7"/>
+  <!-- Wireless Radio Waves -->
+  <path d="M 370 95 A 40 40 0 0 1 430 95" stroke="#0284c7" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M 350 75 A 70 70 0 0 1 450 75" stroke="#0284c7" stroke-width="4" fill="none" stroke-linecap="round"/>
+
+</svg>

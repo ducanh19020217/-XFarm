@@ -16,7 +16,10 @@ export function ProductCard({ product }: ProductCardProps) {
     <article className="group relative flex flex-col bg-white rounded-2xl border border-slate-200/80 hover:border-emerald-300 shadow-xs hover:shadow-md transition-all duration-200 overflow-hidden">
       {/* Product Image / Visual header */}
       <div className="relative aspect-4/3 w-full bg-slate-100 overflow-hidden">
-        {imageSrc && (imageSrc.startsWith('http://') || imageSrc.startsWith('https://')) ? (
+        {imageSrc &&
+        (imageSrc.startsWith('http://') ||
+          imageSrc.startsWith('https://') ||
+          imageSrc.startsWith('/')) ? (
           <Image
             src={imageSrc}
             alt={product.name}

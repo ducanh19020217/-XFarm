@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+  <title>Gà ri thả vườn đồi tự nhiên</title>
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0fdf4"/>
+      <stop offset="100%" stop-color="#dcfce7"/>
+    </linearGradient>
+    <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#e0f2fe"/>
+      <stop offset="100%" stop-color="#bae6fd"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#064e3b" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect width="800" height="600" fill="url(#bgGrad)" rx="24"/>
+
+  <circle cx="400" cy="300" r="220" fill="#fef3c7" opacity="0.7"/>
+  <!-- Legs -->
+  <line x1="370" y1="440" x2="370" y2="510" stroke="#d97706" stroke-width="8" stroke-linecap="round"/>
+  <line x1="370" y1="510" x2="345" y2="525" stroke="#d97706" stroke-width="6" stroke-linecap="round"/>
+  <line x1="370" y1="510" x2="395" y2="525" stroke="#d97706" stroke-width="6" stroke-linecap="round"/>
+  <line x1="430" y1="440" x2="430" y2="510" stroke="#d97706" stroke-width="8" stroke-linecap="round"/>
+  <line x1="430" y1="510" x2="405" y2="525" stroke="#d97706" stroke-width="6" stroke-linecap="round"/>
+  <line x1="430" y1="510" x2="455" y2="525" stroke="#d97706" stroke-width="6" stroke-linecap="round"/>
+  <!-- Tail feathers -->
+  <path d="M 280 320 C 180 250 160 160 240 140 C 260 220 280 260 310 290 Z" fill="#1e293b"/>
+  <path d="M 290 310 C 210 230 200 130 280 110 C 300 190 310 240 330 270 Z" fill="#047857"/>
+  <!-- Body -->
+  <ellipse cx="380" cy="340" rx="120" ry="90" fill="#b45309" filter="url(#shadow)"/>
+  <!-- Wing -->
+  <path d="M 330 330 C 320 400 420 420 450 350 C 440 310 380 290 330 330 Z" fill="#78350f"/>
+  <!-- Neck and Head -->
+  <path d="M 440 340 C 470 300 480 210 490 170 C 520 200 520 280 480 340 Z" fill="#d97706"/>
+  <circle cx="500" cy="160" r="35" fill="#d97706"/>
+  <!-- Comb -->
+  <path d="M 480 140 C 470 100 490 90 500 110 C 510 90 530 90 530 115 C 540 105 550 120 540 140 Z" fill="#dc2626"/>
+  <!-- Wattle & Beak -->
+  <path d="M 525 170 C 530 200 515 210 505 195 Z" fill="#dc2626"/>
+  <polygon points="530,150 570,165 530,175" fill="#f59e0b"/>
+  <!-- Eye -->
+  <circle cx="510" cy="150" r="6" fill="#000000"/>
+  <circle cx="512" cy="148" r="2" fill="#ffffff"/>
+
+</svg>

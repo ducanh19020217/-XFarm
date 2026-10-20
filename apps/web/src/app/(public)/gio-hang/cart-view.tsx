@@ -143,7 +143,9 @@ export function CartView() {
                 <div className="flex items-center gap-4 min-w-0 flex-1">
                   <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-slate-100 overflow-hidden shrink-0 border border-slate-100">
                     {imageSrc &&
-                    (imageSrc.startsWith('http://') || imageSrc.startsWith('https://')) ? (
+                    (imageSrc.startsWith('http://') ||
+                      imageSrc.startsWith('https://') ||
+                      imageSrc.startsWith('/')) ? (
                       <Image
                         src={imageSrc}
                         alt={product?.name ?? 'Sản phẩm'}

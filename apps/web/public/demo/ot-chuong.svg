@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+  <title>Ớt chuông ngọt tươi giòn Đà Lạt</title>
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0fdf4"/>
+      <stop offset="100%" stop-color="#dcfce7"/>
+    </linearGradient>
+    <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#e0f2fe"/>
+      <stop offset="100%" stop-color="#bae6fd"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#064e3b" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect width="800" height="600" fill="url(#bgGrad)" rx="24"/>
+
+  <circle cx="400" cy="300" r="220" fill="#fee2e2" opacity="0.6"/>
+  <!-- Red bell pepper lobes -->
+  <ellipse cx="340" cy="360" rx="50" ry="90" fill="#dc2626" filter="url(#shadow)"/>
+  <ellipse cx="460" cy="360" rx="50" ry="90" fill="#dc2626" filter="url(#shadow)"/>
+  <ellipse cx="400" cy="370" rx="60" ry="95" fill="#ef4444" filter="url(#shadow)"/>
+  <!-- Highlights -->
+  <ellipse cx="380" cy="320" rx="15" ry="35" fill="#f87171"/>
+  <!-- Green stem -->
+  <path d="M 400 270 Q 390 190 430 180" stroke="#16a34a" stroke-width="18" fill="none" stroke-linecap="round"/>
+
+</svg>

@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+  <title>Xà lách mỡ tươi giòn Đà Lạt</title>
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0fdf4"/>
+      <stop offset="100%" stop-color="#dcfce7"/>
+    </linearGradient>
+    <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#e0f2fe"/>
+      <stop offset="100%" stop-color="#bae6fd"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#064e3b" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect width="800" height="600" fill="url(#bgGrad)" rx="24"/>
+
+  <circle cx="400" cy="300" r="230" fill="#dcfce7" opacity="0.8"/>
+  <!-- Outer ruffled leaves -->
+  <path d="M 240 340 C 210 240 280 180 340 210 C 390 150 470 170 490 220 C 560 200 600 280 570 360 C 600 440 520 490 460 470 C 410 510 330 490 290 440 C 220 440 210 370 240 340 Z" fill="#4ade80" filter="url(#shadow)"/>
+  <!-- Middle layer -->
+  <path d="M 280 330 C 260 260 320 220 370 240 C 410 200 460 210 480 250 C 530 250 540 320 520 370 C 540 420 480 460 430 440 C 380 470 320 440 300 400 C 260 390 260 350 280 330 Z" fill="#86efac"/>
+  <!-- Inner heart leaves -->
+  <ellipse cx="400" cy="340" rx="90" ry="80" fill="#bbf7d0"/>
+  <path d="M 360 340 Q 400 310 440 340 Q 400 370 360 340 Z" fill="#fef08a" opacity="0.9"/>
+  <!-- Leaf veins -->
+  <path d="M 330 270 Q 370 310 400 340 Q 440 310 470 270" stroke="#f0fdf4" stroke-width="4" fill="none"/>
+  <circle cx="370" cy="300" r="7" fill="#ffffff" opacity="0.7"/>
+
+</svg>

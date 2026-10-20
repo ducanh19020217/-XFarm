@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="100%" height="100%">
+  <title>Banner nông nghiệp sinh thái tuần hoàn bền vững</title>
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0fdf4"/>
+      <stop offset="100%" stop-color="#dcfce7"/>
+    </linearGradient>
+    <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#e0f2fe"/>
+      <stop offset="100%" stop-color="#bae6fd"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#064e3b" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bgGrad)" rx="24"/>
+
+  <!-- Sky with golden sunrise -->
+  <defs>
+    <linearGradient id="b1Sky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0284c7"/>
+      <stop offset="60%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#fef08a"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="500" fill="url(#b1Sky)"/>
+  <circle cx="300" cy="350" r="140" fill="#fde047" opacity="0.9"/>
+  <!-- Distant mountain ridges -->
+  <path d="M 0 500 Q 400 320 800 420 Q 1200 300 1600 460 L 1600 500 Z" fill="#047857" opacity="0.7"/>
+  <!-- Lush agricultural fields -->
+  <path d="M 0 500 Q 500 440 1000 520 Q 1300 470 1600 530 L 1600 900 L 0 900 Z" fill="#065f46"/>
+  <polygon points="200,900 600,520 800,520 500,900" fill="#059669"/>
+  <polygon points="600,900 900,520 1100,520 900,900" fill="#10b981"/>
+  <polygon points="1000,900 1200,520 1400,520 1350,900" fill="#34d399"/>
+  <!-- Modern greenhouse silhouette -->
+  <polygon points="1200,520 1280,470 1360,520" fill="#ffffff" opacity="0.8"/>
+  <rect x="1200" y="520" width="160" height="60" fill="#ffffff" opacity="0.8"/>
+  <!-- Big decorative emblem / leaf circle -->
+  <circle cx="1350" cy="250" r="120" fill="#ffffff" opacity="0.15"/>
+
+</svg>

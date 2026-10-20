@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+  <title>Trứng gà ta thảo mộc tươi sạch</title>
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0fdf4"/>
+      <stop offset="100%" stop-color="#dcfce7"/>
+    </linearGradient>
+    <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#e0f2fe"/>
+      <stop offset="100%" stop-color="#bae6fd"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#064e3b" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect width="800" height="600" fill="url(#bgGrad)" rx="24"/>
+
+  <circle cx="400" cy="300" r="220" fill="#fef3c7" opacity="0.6"/>
+  <!-- Straw nest -->
+  <ellipse cx="400" cy="380" rx="200" ry="80" fill="#d97706" opacity="0.3"/>
+  <path d="M 220 370 Q 400 450 580 370 Q 400 480 220 370 Z" fill="#f59e0b"/>
+  <!-- Egg 1 Left -->
+  <ellipse cx="320" cy="320" rx="55" ry="75" fill="#fed7aa" transform="rotate(-25 320 320)" filter="url(#shadow)"/>
+  <ellipse cx="305" cy="300" rx="14" ry="25" fill="#ffedd5" transform="rotate(-25 305 300)"/>
+  <!-- Egg 2 Right -->
+  <ellipse cx="480" cy="320" rx="55" ry="75" fill="#ffedd5" transform="rotate(25 480 320)" filter="url(#shadow)"/>
+  <ellipse cx="495" cy="300" rx="14" ry="25" fill="#ffffff" transform="rotate(25 495 300)"/>
+  <!-- Egg 3 Center Main -->
+  <ellipse cx="400" cy="290" rx="65" ry="90" fill="#fdba74" filter="url(#shadow)"/>
+  <ellipse cx="380" cy="260" rx="18" ry="30" fill="#fed7aa"/>
+  <circle cx="375" cy="250" r="6" fill="#ffffff" opacity="0.8"/>
+  <!-- Green herb sprig -->
+  <path d="M 360 410 Q 420 390 480 430" stroke="#16a34a" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <ellipse cx="410" cy="395" rx="14" ry="7" fill="#22c55e" transform="rotate(-20 410 395)"/>
+  <ellipse cx="450" cy="405" rx="14" ry="7" fill="#22c55e" transform="rotate(30 450 405)"/>
+
+</svg>
