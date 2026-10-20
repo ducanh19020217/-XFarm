@@ -180,7 +180,7 @@ export class BookingsService {
         skip: (page - 1) * pageSize,
         take: pageSize,
         orderBy: { createdAt: 'desc' },
-        include: { slot: { include: { tour: true } }, payments: true },
+        include: { slot: { include: { tour: true } } },
       }),
       prisma.booking.count({ where }),
     ]);

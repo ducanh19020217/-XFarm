@@ -54,74 +54,37 @@ export class DashboardService {
       const salesOnly = role === Role.SALES;
       const canSeeOperations = PRIVATE_ROLES.includes(role);
 
-      const [
-        activeCycles,
-        lowStock,
-        expiringLots,
-        revenue,
-        upcomingBookings,
-        overdueTasks,
-        unreadAlerts,
-      ] = await Promise.all([
-        canSeeOperations
-          ? prisma.cycle.count({ where: { status: { in: ['ACTIVE', 'HARVESTING'] } } })
-          : Promise.resolve(0),
-        canSeeOperations
-          ? prisma.$queryRaw<Array<{ count: bigint }>>(Prisma.sql`
-                SELECT COUNT(*)::bigint AS count
-                FROM (
-                  SELECT b."itemId"
-                  FROM "stock_balances" b
-                  JOIN "items" i ON i.id = b."itemId"
-                  WHERE i."isActive" = true AND i."minStock" IS NOT NULL
-                  GROUP BY b."itemId", i."minStock"
-                  HAVING COALESCE(SUM(b.quantity), 0) < i."minStock"
-                ) low_stock`)
-          : Promise.resolve([{ count: 0n }]),
-        canSeeOperations
-          ? prisma.$queryRaw<Array<{ count: bigint }>>(Prisma.sql`
-                SELECT COUNT(*)::bigint AS count
-                FROM (
-                  SELECT l.id
-                  FROM "stock_lots" l
-                  JOIN "stock_balances" b ON b."stockLotId" = l.id
-                  WHERE l."expiryDate" IS NOT NULL
-                    AND l."expiryDate" >= ${today}
-                    AND l."expiryDate" <= ${nextWeek}
-                  GROUP BY l.id
-                  HAVING COALESCE(SUM(b.quantity), 0) > 0
-                ) expiring_lots`)
-          : Promise.resolve([{ count: 0n }]),
-        prisma.transaction.aggregate({
-          where: {
-            type: 'INCOME',
-            date: { gte: monthStart, lt: nextMonthStart },
-            ...(salesOnly ? { refType: { in: ['Payment', 'SalesOrder'] } } : {}),
-          },
-          _sum: { amount: true },
-        }),
-        prisma.booking.count({
-          where: {
-            status: { not: 'CANCELLED' },
-            slot: { startAt: { gte: now, lt: nextWeek } },
-          },
-        }),
-        canSeeOperations
-          ? prisma.task.count({
-              where: { dueDate: { lt: now }, status: { notIn: ['DONE', 'CANCELLED'] } },
-            })
-          : Promise.resolve(0),
-        prisma.alert.count({ where: { readAt: null } }),
-      ]);
+      const row = (
+        await prisma.$queryRaw<
+          Array<{
+            activeCycles: bigint;
+            lowStockItems: bigint;
+            expiringLots: bigint;
+            revenue: Prisma.Decimal | null;
+            upcomingBookings: bigint;
+            overdueTasks: bigint;
+            unreadAlerts: bigint;
+          }>
+        >(Prisma.sql`
+          SELECT
+            ${canSeeOperations ? Prisma.sql`(SELECT COUNT(*) FROM "cycles" WHERE "status" IN ('ACTIVE', 'HARVESTING'))` : Prisma.sql`0`} AS "activeCycles",
+            ${canSeeOperations ? Prisma.sql`(SELECT COUNT(*) FROM (SELECT b."itemId" FROM "stock_balances" b JOIN "items" i ON i.id = b."itemId" WHERE i."isActive" = true AND i."minStock" IS NOT NULL GROUP BY b."itemId", i."minStock" HAVING COALESCE(SUM(b.quantity), 0) < i."minStock") low_stock)` : Prisma.sql`0`} AS "lowStockItems",
+            ${canSeeOperations ? Prisma.sql`(SELECT COUNT(*) FROM (SELECT l.id FROM "stock_lots" l JOIN "stock_balances" b ON b."stockLotId" = l.id WHERE l."expiryDate" IS NOT NULL AND l."expiryDate" >= ${today} AND l."expiryDate" <= ${nextWeek} GROUP BY l.id HAVING COALESCE(SUM(b.quantity), 0) > 0) expiring_lots)` : Prisma.sql`0`} AS "expiringLots",
+            (SELECT COALESCE(SUM(amount), 0) FROM "transactions" WHERE type = 'INCOME' AND date >= ${monthStart} AND date < ${nextMonthStart}${salesOnly ? Prisma.sql` AND "refType" IN ('Payment', 'SalesOrder')` : Prisma.empty}) AS revenue,
+            (SELECT COUNT(*) FROM "bookings" b JOIN "tour_slots" s ON s.id = b."slotId" WHERE b.status <> 'CANCELLED' AND s."startAt" >= ${now} AND s."startAt" < ${nextWeek}) AS "upcomingBookings",
+            ${canSeeOperations ? Prisma.sql`(SELECT COUNT(*) FROM "tasks" WHERE "dueDate" < ${now} AND status NOT IN ('DONE', 'CANCELLED'))` : Prisma.sql`0`} AS "overdueTasks",
+            (SELECT COUNT(*) FROM "alerts" WHERE "readAt" IS NULL) AS "unreadAlerts"
+        `)
+      )[0];
 
       return {
-        activeCycles,
-        lowStockItems: Number(lowStock[0]?.count ?? 0),
-        expiringLots: Number(expiringLots[0]?.count ?? 0),
-        revenueThisMonth: revenue._sum.amount?.toString() ?? '0.00',
-        upcomingBookings,
-        overdueTasks,
-        unreadAlerts,
+        activeCycles: Number(row?.activeCycles ?? 0),
+        lowStockItems: Number(row?.lowStockItems ?? 0),
+        expiringLots: Number(row?.expiringLots ?? 0),
+        revenueThisMonth: row?.revenue?.toString() ?? '0.00',
+        upcomingBookings: Number(row?.upcomingBookings ?? 0),
+        overdueTasks: Number(row?.overdueTasks ?? 0),
+        unreadAlerts: Number(row?.unreadAlerts ?? 0),
       };
     });
   }
