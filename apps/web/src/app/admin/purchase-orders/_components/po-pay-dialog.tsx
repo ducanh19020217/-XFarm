@@ -90,18 +90,18 @@ export function POPayDialog({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="rounded-lg bg-slate-50 p-3 text-sm space-y-1.5 border border-slate-200">
+          <div className="rounded-lg bg-surface-2 p-3 text-sm space-y-1.5 border border-line">
             <div className="flex justify-between">
-              <span className="text-slate-500">Tổng tiền đơn:</span>
-              <span className="font-semibold text-slate-800">{formatCurrency(total)}</span>
+              <span className="text-muted">Tổng tiền đơn:</span>
+              <span className="font-semibold text-fg">{formatCurrency(total)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-500">Đã thanh toán:</span>
-              <span className="font-semibold text-emerald-700">{formatCurrency(paid)}</span>
+              <span className="text-muted">Đã thanh toán:</span>
+              <span className="font-semibold text-ok">{formatCurrency(paid)}</span>
             </div>
-            <div className="flex justify-between border-t border-slate-200 pt-1.5">
-              <span className="text-slate-700 font-medium">Còn lại cần trả:</span>
-              <span className="font-bold text-amber-600">{formatCurrency(remaining)}</span>
+            <div className="flex justify-between border-t border-line pt-1.5">
+              <span className="text-fg font-medium">Còn lại cần trả:</span>
+              <span className="font-bold text-warn">{formatCurrency(remaining)}</span>
             </div>
           </div>
 
@@ -113,14 +113,14 @@ export function POPayDialog({
               onChange={(val) => setAmount(val)}
               placeholder="Nhập số tiền"
             />
-            {error && <p className="text-xs text-red-600 mt-1">{error}</p>}
+            {error && <p className="text-xs text-crit mt-1">{error}</p>}
           </div>
 
           <div className="space-y-1.5">
             <Label htmlFor="pay-method">Phương thức thanh toán *</Label>
             <select
               id="pay-method"
-              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring dark:bg-slate-800"
+              className="flex h-10 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm text-fg shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/20"
               value={method}
               onChange={(e) => setMethod(e.target.value as PaymentMethod)}
             >
@@ -152,7 +152,7 @@ export function POPayDialog({
             <Button
               type="submit"
               disabled={isSubmitting || remaining <= 0}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white"
+              className="bg-ok hover:bg-ok/90 text-white"
             >
               {isSubmitting ? 'Đang xử lý...' : 'Xác nhận trả tiền'}
             </Button>

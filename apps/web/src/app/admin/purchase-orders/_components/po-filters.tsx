@@ -21,12 +21,13 @@ export function POFilters({
   onStatusChange,
   onSupplierChange,
 }: POFiltersProps) {
-  const selectClass = 'h-10 rounded-md border border-slate-300 bg-white px-3 text-sm';
+  const selectClass =
+    'h-10 rounded-md border border-line bg-surface px-3 text-sm text-fg focus:outline-none focus:ring-2 focus:ring-accent/20';
 
   return (
-    <div className="flex flex-wrap items-end gap-4 rounded-lg border bg-white p-4 shadow-sm">
+    <div className="flex flex-wrap items-end gap-4 rounded-lg border border-line bg-surface p-4 shadow-sm">
       <div className="space-y-1">
-        <Label htmlFor="filter-status">Trạng thái</Label>
+        <Label htmlFor="filter-status" className="text-fg">Trạng thái</Label>
         <select
           id="filter-status"
           value={status}
@@ -43,7 +44,7 @@ export function POFilters({
       </div>
 
       <div className="space-y-1">
-        <Label htmlFor="filter-supplier">Nhà cung cấp</Label>
+        <Label htmlFor="filter-supplier" className="text-fg">Nhà cung cấp</Label>
         <select
           id="filter-supplier"
           value={supplierId}

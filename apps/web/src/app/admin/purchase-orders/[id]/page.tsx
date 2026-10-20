@@ -130,7 +130,7 @@ export default function PurchaseOrderDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-12 text-slate-500">
+      <div className="flex items-center justify-center p-12 text-muted">
         <Loader2 className="mr-2 h-5 w-5 animate-spin" />
         Đang tải...
       </div>

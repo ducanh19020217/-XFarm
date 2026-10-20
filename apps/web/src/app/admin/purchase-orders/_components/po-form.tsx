@@ -163,14 +163,14 @@ export function POForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       {formError && (
-        <p role="alert" className="rounded-md bg-red-50 p-3 text-sm text-red-700">
+        <p role="alert" className="rounded-md border border-crit/30 bg-crit-bg p-3 text-sm text-crit">
           {formError}
         </p>
       )}
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1">
-          <Label htmlFor="po-supplier">Nhà cung cấp *</Label>
+          <Label htmlFor="po-supplier" className="text-fg">Nhà cung cấp *</Label>
           <select
             id="po-supplier"
             value={supplierId}
@@ -180,7 +180,7 @@ export function POForm({
                 setErrors((prev) => ({ ...prev, supplierId: undefined }));
               }
             }}
-            className="flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="flex h-10 w-full rounded-md border border-line bg-surface px-3 text-sm text-fg focus:outline-none focus:ring-2 focus:ring-accent/20"
           >
             <option value="">Chọn nhà cung cấp</option>
             {suppliers.map((s) => (
@@ -189,11 +189,11 @@ export function POForm({
               </option>
             ))}
           </select>
-          {errors.supplierId && <p className="text-xs text-red-600">{errors.supplierId}</p>}
+          {errors.supplierId && <p className="text-xs text-crit">{errors.supplierId}</p>}
         </div>
 
         <div className="space-y-1">
-          <Label htmlFor="po-order-date">Ngày đặt hàng</Label>
+          <Label htmlFor="po-order-date" className="text-fg">Ngày đặt hàng</Label>
           <Input
             id="po-order-date"
             type="date"
@@ -204,7 +204,7 @@ export function POForm({
       </div>
 
       <div className="space-y-1">
-        <Label htmlFor="po-notes">Ghi chú</Label>
+        <Label htmlFor="po-notes" className="text-fg">Ghi chú</Label>
         <Input
           id="po-notes"
           value={notes}
@@ -215,7 +215,7 @@ export function POForm({
 
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <Label className="text-base font-semibold">Danh sách vật tư đặt hàng *</Label>
+          <Label className="text-base font-semibold text-fg">Danh sách vật tư đặt hàng *</Label>
           <Button
             type="button"
             variant="outline"
@@ -228,12 +228,12 @@ export function POForm({
           </Button>
         </div>
 
-        {errors.lines && <p className="text-xs text-red-600">{errors.lines}</p>}
+        {errors.lines && <p className="text-xs text-crit">{errors.lines}</p>}
 
-        <div className="rounded-md border bg-slate-50 p-2 overflow-x-auto">
+        <div className="rounded-md border border-line bg-surface-2 p-2 overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b text-left text-xs font-medium text-slate-500">
+              <tr className="border-b border-line text-left text-xs font-medium text-muted">
                 <th className="p-2 min-w-[200px]">Vật tư *</th>
                 <th className="p-2 w-28">Số lượng *</th>
                 <th className="p-2 w-36">Đơn giá (₫) *</th>
@@ -241,19 +241,19 @@ export function POForm({
                 <th className="p-2 w-12 text-center"></th>
               </tr>
             </thead>
-            <tbody className="divide-y">
+            <tbody className="divide-y divide-line">
               {lines.map((line, idx) => {
                 const lineErr = errors.lineErrors?.[idx];
                 const subtotal = lineTotals[idx] || 0;
                 return (
-                  <tr key={idx} className="bg-white">
+                  <tr key={idx} className="bg-surface">
                     <td className="p-2 align-top">
                       <select
                         id={`po-line-item-${idx}`}
                         value={line.itemId}
                         aria-label={`Vật tư dòng ${idx + 1}`}
                         onChange={(e) => updateLine(idx, 'itemId', e.target.value)}
-                        className="flex h-9 w-full rounded-md border border-slate-300 bg-white px-2 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                        className="flex h-9 w-full rounded-md border border-line bg-surface px-2 text-sm text-fg focus:outline-none focus:ring-1 focus:ring-accent"
                       >
                         <option value="">Chọn vật tư</option>
                         {items.map((item) => (
@@ -263,7 +263,7 @@ export function POForm({
                         ))}
                       </select>
                       {lineErr?.itemId && (
-                        <p className="mt-1 text-xs text-red-600">{lineErr.itemId}</p>
+                        <p className="mt-1 text-xs text-crit">{lineErr.itemId}</p>
                       )}
                     </td>
 
@@ -285,7 +285,7 @@ export function POForm({
                         className="h-9"
                       />
                       {lineErr?.quantity && (
-                        <p className="mt-1 text-xs text-red-600">{lineErr.quantity}</p>
+                        <p className="mt-1 text-xs text-crit">{lineErr.quantity}</p>
                       )}
                     </td>
 
@@ -307,12 +307,12 @@ export function POForm({
                         className="h-9"
                       />
                       {lineErr?.unitPrice && (
-                        <p className="mt-1 text-xs text-red-600">{lineErr.unitPrice}</p>
+                        <p className="mt-1 text-xs text-crit">{lineErr.unitPrice}</p>
                       )}
                     </td>
 
                     <td className="p-2 align-top text-right font-medium pt-3">
-                      <span>{formatCurrency(subtotal)}</span>
+                      <span className="text-fg">{formatCurrency(subtotal)}</span>
                     </td>
 
                     <td className="p-2 align-top text-center">
@@ -323,7 +323,7 @@ export function POForm({
                         disabled={lines.length <= 1}
                         onClick={() => removeLine(idx)}
                         aria-label={`Xóa dòng ${idx + 1}`}
-                        className="h-8 w-8 p-0 text-slate-400 hover:text-red-600 disabled:opacity-30"
+                        className="h-8 w-8 p-0 text-muted hover:text-crit disabled:opacity-30"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -333,11 +333,11 @@ export function POForm({
               })}
             </tbody>
             <tfoot>
-              <tr className="border-t font-semibold text-slate-800">
+              <tr className="border-t border-line font-semibold text-fg">
                 <td colSpan={3} className="p-3 text-right">
                   Tổng tiền:
                 </td>
-                <td className="p-3 text-right text-base text-emerald-700 font-bold">
+                <td className="p-3 text-right text-base text-ok font-bold">
                   {formatCurrency(grandTotal)}
                 </td>
                 <td></td>
@@ -347,7 +347,7 @@ export function POForm({
         </div>
       </div>
 
-      <div className="flex justify-end gap-3 pt-3 border-t">
+      <div className="flex justify-end gap-3 pt-3 border-t border-line">
         {onCancel && (
           <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
             Hủy bỏ
