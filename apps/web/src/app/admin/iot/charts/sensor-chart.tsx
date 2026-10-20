@@ -15,6 +15,7 @@ import {
 } from 'recharts';
 import { Activity, Bell, Loader2, RefreshCw } from 'lucide-react';
 import { Badge, Button } from '@xfarm/ui';
+import { useChartColors } from '@/lib/chart-colors';
 import {
   type SensorItem,
   type TimeseriesPoint,
@@ -81,12 +82,12 @@ function CustomTooltip({ active, payload, label, unit }: CustomTooltipProps) {
   const maxItem = payload.find((p) => p.dataKey === 'max');
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-lg dark:border-slate-800 dark:bg-slate-900 text-xs space-y-1">
-      <p className="font-semibold text-slate-700 dark:text-slate-300 border-b pb-1 dark:border-slate-800">
+    <div className="rounded-lg border border-line bg-surface p-3 shadow-lg text-xs space-y-1 text-fg">
+      <p className="font-semibold text-fg border-b pb-1 border-line">
         Thời gian: {label}
       </p>
       {avgItem && (
-        <p className="text-emerald-600 font-bold flex items-center justify-between gap-4">
+        <p className="text-accent font-bold flex items-center justify-between gap-4">
           <span>Trung bình (AVG):</span>
           <span>
             {typeof avgItem.value === 'number' ? avgItem.value.toFixed(2) : avgItem.value} {unit}
@@ -94,7 +95,7 @@ function CustomTooltip({ active, payload, label, unit }: CustomTooltipProps) {
         </p>
       )}
       {minItem && (
-        <p className="text-slate-500 flex items-center justify-between gap-4">
+        <p className="text-muted flex items-center justify-between gap-4">
           <span>Nhỏ nhất (MIN):</span>
           <span>
             {typeof minItem.value === 'number' ? minItem.value.toFixed(2) : minItem.value} {unit}
@@ -102,7 +103,7 @@ function CustomTooltip({ active, payload, label, unit }: CustomTooltipProps) {
         </p>
       )}
       {maxItem && (
-        <p className="text-slate-500 flex items-center justify-between gap-4">
+        <p className="text-muted flex items-center justify-between gap-4">
           <span>Lớn nhất (MAX):</span>
           <span>
             {typeof maxItem.value === 'number' ? maxItem.value.toFixed(2) : maxItem.value} {unit}
@@ -126,6 +127,7 @@ export function SensorChartCard({
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState('');
   const [isMounted, setIsMounted] = React.useState(false);
+  const colors = useChartColors();
 
   React.useEffect(() => {
     setIsMounted(true);
@@ -292,16 +294,18 @@ export function SensorChartCard({
             <ComposedChart data={data} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
               <CartesianGrid
                 strokeDasharray="3 3"
-                className="stroke-slate-100 dark:stroke-slate-800"
+                stroke={colors.grid}
               />
               <XAxis
                 dataKey="formattedTime"
-                tick={{ fontSize: 11, fill: '#64748b' }}
+                stroke={colors.axis}
+                tick={{ fontSize: 11, fill: colors.axis }}
                 tickLine={false}
               />
               <YAxis
                 unit={` ${sensor.unit}`}
-                tick={{ fontSize: 11, fill: '#64748b' }}
+                stroke={colors.axis}
+                tick={{ fontSize: 11, fill: colors.axis }}
                 tickLine={false}
                 domain={['auto', 'auto']}
               />
