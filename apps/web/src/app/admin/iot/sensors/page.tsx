@@ -234,7 +234,7 @@ export default function SensorsPage() {
       cell: ({ row }) => (
         <Link
           href={`/admin/iot/charts?sensorId=${row.original.id}`}
-          className="font-mono text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:underline"
+          className="font-mono text-xs font-semibold text-accent hover:text-accent-hover hover:underline"
           title="Xem biểu đồ cảm biến này"
         >
           {row.original.code}
@@ -248,11 +248,11 @@ export default function SensorsPage() {
         <div className="space-y-0.5">
           <Link
             href={`/admin/iot/charts?sensorId=${row.original.id}`}
-            className="font-medium text-slate-900 hover:text-emerald-600 dark:text-slate-100"
+            className="font-medium text-fg hover:text-accent transition-colors"
           >
             {row.original.name}
           </Link>
-          <div className="text-[11px] text-slate-400">Đơn vị: {row.original.unit}</div>
+          <div className="text-[11px] text-muted">Đơn vị: {row.original.unit}</div>
         </div>
       ),
     },
@@ -269,7 +269,7 @@ export default function SensorsPage() {
       id: 'area',
       header: 'Khu / Lô',
       cell: ({ row }) => (
-        <span className="text-xs text-slate-700 dark:text-slate-300">
+        <span className="text-xs text-fg-2">
           {row.original.area ? `${row.original.area.name} (${row.original.area.code})` : '—'}
         </span>
       ),
@@ -284,21 +284,21 @@ export default function SensorsPage() {
             {online ? (
               <span
                 data-testid={`sensor-status-online-${row.original.id}`}
-                className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800"
+                className="inline-flex items-center gap-1.5 rounded-full bg-ok-bg px-2 py-0.5 text-xs font-semibold text-ok border border-ok/20"
               >
-                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="h-2 w-2 rounded-full bg-ok animate-pulse" />
                 Online
               </span>
             ) : (
               <span
                 data-testid={`sensor-status-offline-${row.original.id}`}
-                className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 border border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700"
+                className="inline-flex items-center gap-1.5 rounded-full bg-surface-2 px-2 py-0.5 text-xs font-medium text-muted border border-line"
               >
-                <span className="h-2 w-2 rounded-full bg-slate-400" />
+                <span className="h-2 w-2 rounded-full bg-muted" />
                 Offline
               </span>
             )}
-            <p className="text-[10px] text-slate-400">
+            <p className="text-[10px] text-muted">
               {row.original.lastSeenAt
                 ? `Vừa thấy: ${formatLastSeen(row.original.lastSeenAt)}`
                 : 'Chưa có tín hiệu'}
@@ -313,16 +313,16 @@ export default function SensorsPage() {
       cell: ({ row }) => {
         const latestReading = row.original.readings?.[0];
         if (!latestReading) {
-          return <span className="text-xs text-slate-400">—</span>;
+          return <span className="text-xs text-muted">—</span>;
         }
         const val = Number(latestReading.value);
         return (
           <div className="space-y-0.5">
-            <span className="font-semibold text-slate-900 dark:text-slate-100 text-sm">
+            <span className="font-semibold text-fg text-sm">
               {Number.isNaN(val) ? String(latestReading.value) : val.toLocaleString('vi-VN')}{' '}
-              <span className="text-xs font-normal text-slate-500">{row.original.unit}</span>
+              <span className="text-xs font-normal text-muted">{row.original.unit}</span>
             </span>
-            <p className="text-[10px] text-slate-400">
+            <p className="text-[10px] text-muted">
               {latestReading.recordedAt
                 ? new Date(latestReading.recordedAt).toLocaleTimeString('vi-VN', {
                     hour: '2-digit',
@@ -346,12 +346,12 @@ export default function SensorsPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => handleOpenRules(row.original)}
-                className="h-7 text-xs border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-800 dark:text-amber-300"
+                className="h-7 text-xs border-warn/30 text-warn hover:bg-warn-bg"
                 title={
                   canManage ? 'Xem và chỉnh sửa các ngưỡng cảnh báo' : 'Xem các ngưỡng cảnh báo'
                 }
               >
-                <Bell className="h-3 w-3 mr-1 fill-amber-500 text-amber-600" />
+                <Bell className="h-3 w-3 mr-1 fill-warn text-warn" />
                 {rules.length} ngưỡng
               </Button>
             ) : canManage ? (
@@ -359,14 +359,14 @@ export default function SensorsPage() {
                 variant="ghost"
                 size="sm"
                 onClick={() => handleOpenRules(row.original)}
-                className="h-7 text-xs text-slate-400 hover:text-slate-700"
+                className="h-7 text-xs text-muted hover:text-fg"
                 title="Chưa thiết lập ngưỡng"
               >
                 <Bell className="h-3 w-3 mr-1" />
                 Thêm ngưỡng
               </Button>
             ) : (
-              <span className="text-xs text-slate-400">Chưa có ngưỡng</span>
+              <span className="text-xs text-muted">Chưa có ngưỡng</span>
             )}
           </div>
         );
@@ -379,7 +379,7 @@ export default function SensorsPage() {
         <div className="flex items-center gap-1">
           <Link
             href={`/admin/iot/charts?sensorId=${row.original.id}`}
-            className="inline-flex items-center gap-1 rounded p-1 text-xs font-medium text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 dark:hover:bg-slate-800"
+            className="inline-flex items-center gap-1 rounded p-1 text-xs font-medium text-accent hover:bg-accent-bg hover:text-accent-hover transition-colors"
             title="Mở biểu đồ dữ liệu"
           >
             <LineChart className="h-3.5 w-3.5" />
@@ -392,7 +392,7 @@ export default function SensorsPage() {
                 variant="ghost"
                 size="sm"
                 onClick={() => handleRotateKey(row.original)}
-                className="h-7 w-7 p-0 text-slate-500 hover:text-amber-600"
+                className="h-7 w-7 p-0 text-muted hover:text-warn"
                 title="Xoay khóa API (Rotate Key)"
                 data-testid={`rotate-key-btn-${row.original.id}`}
               >
@@ -403,7 +403,7 @@ export default function SensorsPage() {
                 variant="ghost"
                 size="sm"
                 onClick={() => handleOpenEdit(row.original)}
-                className="h-7 w-7 p-0 text-slate-500 hover:text-emerald-600"
+                className="h-7 w-7 p-0 text-muted hover:text-accent"
                 title="Chỉnh sửa cảm biến"
                 data-testid={`edit-sensor-btn-${row.original.id}`}
               >
@@ -417,7 +417,10 @@ export default function SensorsPage() {
   ];
 
   const selectClass =
-    'h-10 rounded-md border border-slate-300 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20';
+    'h-10 rounded-lg border border-line bg-surface px-3 text-sm text-fg focus:outline-none focus:ring-2 focus:ring-accent/20';
+
+  const onlineCount = sensors.filter((s) => isOnline(s.lastSeenAt)).length;
+  const offlineCount = sensors.filter((s) => !isOnline(s.lastSeenAt)).length;
 
   return (
     <div className="space-y-6">
@@ -431,7 +434,7 @@ export default function SensorsPage() {
           <Link href="/admin/iot/charts">
             <Button
               variant="outline"
-              className="text-emerald-600 border-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+              className="text-accent border-line hover:bg-accent-bg"
             >
               <LineChart className="h-4 w-4 mr-1.5" />
               Biểu đồ trực quan
@@ -457,8 +460,24 @@ export default function SensorsPage() {
         </div>
       </PageHeader>
 
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="rounded-lg border border-line bg-surface p-4 shadow-xs">
+          <span className="text-xs font-medium text-muted block">Tổng số cảm biến</span>
+          <p className="text-2xl font-bold text-fg mt-1">{total}</p>
+        </div>
+        <div className="rounded-lg border border-line bg-surface p-4 shadow-xs">
+          <span className="text-xs font-medium text-muted block">Đang kết nối (Online)</span>
+          <p className="text-2xl font-bold text-ok mt-1">{onlineCount}</p>
+        </div>
+        <div className="rounded-lg border border-line bg-surface p-4 shadow-xs">
+          <span className="text-xs font-medium text-muted block">Mất kết nối / Chưa thấy</span>
+          <p className="text-2xl font-bold text-muted mt-1">{offlineCount}</p>
+        </div>
+      </div>
+
       {/* Filter Bar */}
-      <div className="flex flex-wrap items-end gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+      <div className="flex flex-wrap items-center gap-3 rounded-lg border border-line bg-surface p-4 shadow-xs">
         <div className="space-y-1.5 flex-1 min-w-[200px]">
           <Label htmlFor="search-sensors">Tìm kiếm</Label>
           <Input

@@ -35,10 +35,10 @@ function TreeNode({
   return (
     <div className="select-none">
       <div
-        className={`flex items-center gap-1.5 py-1.5 px-2 rounded-md cursor-pointer text-xs transition-colors ${
+        className={`flex items-center gap-1.5 py-1.5 px-2 rounded-lg cursor-pointer text-xs transition-colors ${
           isSelected
-            ? 'bg-emerald-100 text-emerald-900 font-semibold dark:bg-emerald-950 dark:text-emerald-300'
-            : 'hover:bg-slate-100 text-slate-700 dark:hover:bg-slate-800 dark:text-slate-300'
+            ? 'bg-selected text-accent font-semibold'
+            : 'hover:bg-hover text-fg'
         }`}
         style={{ paddingLeft: `${Math.max(8, level * 16 + 8)}px` }}
         onClick={() => onSelectArea(node.id)}
@@ -50,7 +50,7 @@ function TreeNode({
               e.stopPropagation();
               onToggleExpand(node.id);
             }}
-            className="flex h-5 w-5 items-center justify-center rounded hover:bg-slate-200 text-slate-400 dark:hover:bg-slate-700"
+            className="flex h-5 w-5 items-center justify-center rounded hover:bg-hover text-muted transition-colors"
           >
             {isExpanded ? (
               <ChevronDown className="h-3.5 w-3.5" />
@@ -64,19 +64,19 @@ function TreeNode({
 
         {hasChildren ? (
           isExpanded ? (
-            <FolderOpen className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+            <FolderOpen className="h-3.5 w-3.5 text-accent shrink-0" />
           ) : (
-            <Folder className="h-3.5 w-3.5 text-amber-500 shrink-0" />
+            <Folder className="h-3.5 w-3.5 text-warn shrink-0" />
           )
         ) : (
           <MapPin
             className="h-3.5 w-3.5 shrink-0"
-            style={{ color: typeStyle?.stroke || '#10b981' }}
+            style={{ color: typeStyle?.stroke || 'var(--t-accent)' }}
           />
         )}
 
         <span className="truncate">{node.name}</span>
-        <span className="text-[10px] text-slate-400 font-mono">({node.code})</span>
+        <span className="text-[10px] text-muted font-mono">({node.code})</span>
       </div>
 
       {hasChildren && isExpanded && (
