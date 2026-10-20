@@ -98,78 +98,55 @@ export default function PayrollPage() {
 
   // Các thao tác async (tính lương, duyệt, trả) tải lại theo bộ lọc hiện tại, không theo closure cũ
   const fetchPayrollsRef = React.useRef(fetchPayrolls);
-  fetchPayrollsRef.current = fetchPayrolls;
+  React.useEffect(() => {
+    fetchPayrollsRef.current = fetchPayrolls;
+  }, [fetchPayrolls]);
 
-  // Handle "Tính lương"
   const handleGeneratePayroll = async () => {
     setGenerating(true);
     try {
-      const res = await apiFetch<{
-        data: PayrollItem[];
-        skipped?: PayrollItem[];
-        skippedCount?: number;
-      }>('/payrolls/generate', {
+      await apiFetch('/payrolls/generate', {
         method: 'POST',
-        body: JSON.stringify({
-          periodStart,
-          periodEnd,
-        }),
+        body: JSON.stringify({ periodStart, periodEnd }),
       });
-      const skippedCount = Array.isArray(res?.skipped)
-        ? res.skipped.length
-        : (res?.skippedCount ?? 0);
-      if (skippedCount > 0) {
-        showToast(
-          `Tính toán bảng lương thành công (bỏ qua ${skippedCount} bảng lương đã duyệt/đã trả)`,
-        );
-      } else {
-        showToast('Tính toán bảng lương thành công');
-      }
+      showToast('Tính toán bảng lương thành công');
       await fetchPayrollsRef.current();
     } catch (err) {
-      showToast(err instanceof ApiError ? err.message : 'Không thể tạo bảng lương');
+      showToast(err instanceof ApiError ? err.message : 'Có lỗi khi tính lương');
     } finally {
       setGenerating(false);
     }
   };
 
-  // Handle Approve
   const handleApprove = async (item: PayrollItem) => {
     try {
-      await apiFetch(`/payrolls/${item.id}/approve`, {
-        method: 'POST',
-      });
-      showToast(`Đã duyệt bảng lương cho ${item.employee?.fullName}`);
+      await apiFetch(`/payrolls/${item.id}/approve`, { method: 'POST' });
+      showToast('Đã duyệt bảng lương');
       await fetchPayrollsRef.current();
     } catch (err) {
       showToast(err instanceof ApiError ? err.message : 'Không thể duyệt bảng lương');
     }
   };
 
-  // Handle Pay
   const handlePay = async (item: PayrollItem) => {
     try {
       await apiFetch(`/payrolls/${item.id}/pay`, {
         method: 'POST',
+        body: JSON.stringify({ paidAt: new Date().toISOString() }),
       });
-      showToast(`Đã xác nhận thanh toán lương cho ${item.employee?.fullName}`);
+      showToast('Đã xác nhận thanh toán');
       await fetchPayrollsRef.current();
     } catch (err) {
-      showToast(err instanceof ApiError ? err.message : 'Không thể cập nhật thanh toán lương');
+      showToast(err instanceof ApiError ? err.message : 'Không thể cập nhật trạng thái thanh toán');
     }
   };
 
-  // Handle CSV export
   const handleExportCSV = () => {
-    if (payrolls.length === 0) {
-      showToast('Không có dữ liệu bảng lương để xuất CSV');
-      return;
-    }
+    if (payrolls.length === 0) return;
     exportPayrollToCSV(payrolls, periodStart, periodEnd);
-    showToast('Đã tải xuống file CSV bảng lương');
   };
 
-  // Summary stats
+  // KPI stats
   const stats = React.useMemo(() => {
     let totalAmount = 0;
     let approvedCount = 0;
@@ -218,37 +195,37 @@ export default function PayrollPage() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="flex items-center gap-3.5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400">
+        <div className="flex items-center gap-3.5 rounded-xl border border-line bg-surface p-4 shadow-xs text-fg">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent-bg text-accent">
             <DollarSign className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-xs text-slate-500 font-medium">Tổng quỹ lương kỳ này</p>
-            <p className="text-xl font-bold text-slate-900 dark:text-slate-100">
+            <p className="text-xs font-medium text-muted">Tổng quỹ lương kỳ này</p>
+            <p className="text-xl font-bold text-fg">
               {formatCurrency(stats.totalAmount)}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3.5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-400">
+        <div className="flex items-center gap-3.5 rounded-xl border border-line bg-surface p-4 shadow-xs text-fg">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-info-bg text-info">
             <Users className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-xs text-slate-500 font-medium">Số nhân viên trong kỳ</p>
-            <p className="text-xl font-bold text-slate-900 dark:text-slate-100">
+            <p className="text-xs font-medium text-muted">Số nhân viên trong kỳ</p>
+            <p className="text-xl font-bold text-fg">
               {stats.totalCount} người
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3.5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-400">
+        <div className="flex items-center gap-3.5 rounded-xl border border-line bg-surface p-4 shadow-xs text-fg">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-ok-bg text-ok">
             <CheckCircle2 className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-xs text-slate-500 font-medium">Đã duyệt / Đã thanh toán</p>
-            <p className="text-xl font-bold text-slate-900 dark:text-slate-100">
+            <p className="text-xs font-medium text-muted">Đã duyệt / Đã thanh toán</p>
+            <p className="text-xl font-bold text-fg">
               {stats.approvedCount} duyệt • {stats.paidCount} đã trả
             </p>
           </div>
@@ -256,10 +233,10 @@ export default function PayrollPage() {
       </div>
 
       {/* Period Selection & Filter Bar */}
-      <div className="flex flex-wrap items-end justify-between gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+      <div className="flex flex-wrap items-end justify-between gap-4 rounded-xl border border-line bg-surface p-4 shadow-xs text-fg">
         <div className="flex flex-wrap items-end gap-3">
           <div className="space-y-1">
-            <Label htmlFor="periodStart" className="text-xs">
+            <Label htmlFor="periodStart" className="text-xs text-fg-2">
               Từ ngày
             </Label>
             <Input
@@ -275,7 +252,7 @@ export default function PayrollPage() {
           </div>
 
           <div className="space-y-1">
-            <Label htmlFor="periodEnd" className="text-xs">
+            <Label htmlFor="periodEnd" className="text-xs text-fg-2">
               Đến ngày
             </Label>
             <Input
@@ -291,7 +268,7 @@ export default function PayrollPage() {
           </div>
 
           <div className="space-y-1">
-            <Label htmlFor="statusSelect" className="text-xs">
+            <Label htmlFor="statusSelect" className="text-xs text-fg-2">
               Trạng thái
             </Label>
             <div className="w-40">

@@ -19,6 +19,9 @@ import {
   ChevronLeft,
   ChevronRight,
   Calendar,
+  CheckCircle2,
+  Clock,
+  ListTodo,
 } from 'lucide-react';
 import { TaskStatus, type CreateTaskInput, type Paginated } from '@xfarm/shared';
 import { apiFetch, ApiError, isAbortError } from '@/lib/api';
@@ -57,7 +60,6 @@ export default function TasksPage() {
   // Calculate start and end of week (Monday to Sunday)
   const { weekStart, weekEnd } = React.useMemo(() => {
     const now = new Date();
-    // Monday of current week
     const day = now.getDay();
     const diffToMonday = (day === 0 ? -6 : 1) - day;
     const monday = new Date(
@@ -196,6 +198,19 @@ export default function TasksPage() {
     }
   };
 
+  const todoCount = React.useMemo(
+    () => tasks.filter((t) => t.status === TaskStatus.TODO).length,
+    [tasks],
+  );
+  const inProgressCount = React.useMemo(
+    () => tasks.filter((t) => t.status === TaskStatus.IN_PROGRESS).length,
+    [tasks],
+  );
+  const doneCount = React.useMemo(
+    () => tasks.filter((t) => t.status === TaskStatus.DONE).length,
+    [tasks],
+  );
+
   return (
     <div className="space-y-6">
       <Toast message={message} onClose={closeToast} />
@@ -206,14 +221,14 @@ export default function TasksPage() {
       >
         <div className="flex items-center gap-2">
           {/* View switcher */}
-          <div className="flex rounded-lg border border-slate-200 bg-slate-100 p-0.5 dark:border-slate-800 dark:bg-slate-900">
+          <div className="flex rounded-lg border border-line bg-surface-2 p-0.5">
             <button
               type="button"
               onClick={() => setViewMode('kanban')}
               className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
                 viewMode === 'kanban'
-                  ? 'bg-white text-emerald-700 shadow-sm dark:bg-slate-800 dark:text-emerald-400'
-                  : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
+                  ? 'bg-surface text-accent shadow-xs'
+                  : 'text-muted hover:text-fg'
               }`}
             >
               <LayoutGrid className="h-3.5 w-3.5" />
@@ -224,8 +239,8 @@ export default function TasksPage() {
               onClick={() => setViewMode('table')}
               className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
                 viewMode === 'table'
-                  ? 'bg-white text-emerald-700 shadow-sm dark:bg-slate-800 dark:text-emerald-400'
-                  : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
+                  ? 'bg-surface text-accent shadow-xs'
+                  : 'text-muted hover:text-fg'
               }`}
             >
               <TableIcon className="h-3.5 w-3.5" />
@@ -247,8 +262,41 @@ export default function TasksPage() {
         </div>
       </PageHeader>
 
+      {/* KPI Stats Cards */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="flex items-center gap-3.5 rounded-xl border border-line bg-surface p-4 shadow-xs text-fg">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-surface-2 text-muted">
+            <ListTodo className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-xs font-medium text-muted">Chưa thực hiện</p>
+            <p className="text-xl font-bold text-fg">{todoCount} việc</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3.5 rounded-xl border border-line bg-surface p-4 shadow-xs text-fg">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-info-bg text-info">
+            <Clock className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-xs font-medium text-muted">Đang thực hiện</p>
+            <p className="text-xl font-bold text-fg">{inProgressCount} việc</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3.5 rounded-xl border border-line bg-surface p-4 shadow-xs text-fg">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-ok-bg text-ok">
+            <CheckCircle2 className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-xs font-medium text-muted">Đã hoàn thành</p>
+            <p className="text-xl font-bold text-fg">{doneCount} việc</p>
+          </div>
+        </div>
+      </div>
+
       {/* Week Navigator & Filters */}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-surface p-3 shadow-xs text-fg">
         {/* Week navigation */}
         <div className="flex items-center gap-2">
           <Button
@@ -261,13 +309,13 @@ export default function TasksPage() {
             <ChevronLeft className="h-4 w-4" />
           </Button>
 
-          <div className="flex items-center gap-2 px-2 text-xs font-medium text-slate-700 dark:text-slate-300">
-            <Calendar className="h-4 w-4 text-emerald-600" />
+          <div className="flex items-center gap-2 px-2 text-xs font-medium text-fg">
+            <Calendar className="h-4 w-4 text-accent" />
             <span>
               {formatDate(weekStart)} – {formatDate(weekEnd)}
             </span>
             {weekOffset === 0 && (
-              <span className="rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+              <span className="rounded bg-accent-bg px-1.5 py-0.5 text-[10px] font-semibold text-accent">
                 Tuần này
               </span>
             )}
@@ -288,7 +336,7 @@ export default function TasksPage() {
               variant="ghost"
               size="sm"
               onClick={() => setWeekOffset(0)}
-              className="h-8 text-xs text-slate-500"
+              className="h-8 text-xs text-muted hover:text-fg"
             >
               Hôm nay
             </Button>

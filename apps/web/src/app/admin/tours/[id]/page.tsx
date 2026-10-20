@@ -101,81 +101,98 @@ export default function TourDetailPage() {
   const [singleError, setSingleError] = React.useState<string | null>(null);
   const [isSubmittingSingle, setIsSubmittingSingle] = React.useState(false);
 
-  // Edit slot dialog states
+  // Edit slot dialog
   const [editingSlot, setEditingSlot] = React.useState<TourSlotItem | null>(null);
   const [editCapacity, setEditCapacity] = React.useState<number>(20);
-  const [editIsActive, setEditIsActive] = React.useState(true);
+  const [editIsActive, setEditIsActive] = React.useState<boolean>(true);
   const [editError, setEditError] = React.useState<string | null>(null);
   const [isSubmittingEdit, setIsSubmittingEdit] = React.useState(false);
 
   // Delete slot confirm
   const [deletingSlot, setDeletingSlot] = React.useState<TourSlotItem | null>(null);
 
-  // Fetch tour
-  React.useEffect(() => {
-    if (!tourId) return;
-    let isMounted = true;
-    setIsLoadingTour(true);
-
-    apiFetch<{ data: TourItem }>(`/tours/${tourId}`)
-      .then((res) => {
-        if (isMounted) {
-          setTour(res.data);
-          setBulkCapacity(res.data.capacity);
-          setSingleCapacity(res.data.capacity);
-        }
-      })
-      .catch((err) => {
-        if (!isAbortError(err)) console.error('Lỗi khi tải thông tin tour:', err);
-      })
-      .finally(() => {
-        if (isMounted) setIsLoadingTour(false);
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [tourId]);
-
-  // Fetch slots based on date range
-  const fetchSlots = React.useCallback(
+  // Fetch tour details
+  const fetchTour = React.useCallback(
     async (signal?: AbortSignal) => {
       if (!tourId) return;
-      setIsLoadingSlots(true);
+      setIsLoadingTour(true);
       try {
-        let fromDate: Date;
-        let toDate: Date;
-
-        const year = currentDate.getFullYear();
-        const month = currentDate.getMonth();
-
-        if (viewMode === 'MONTH') {
-          fromDate = new Date(Date.UTC(year, month - 1, 20));
-          toDate = new Date(Date.UTC(year, month + 1, 15));
-        } else {
-          const dayOfWeek = (currentDate.getDay() + 6) % 7;
-          fromDate = new Date(currentDate);
-          fromDate.setDate(currentDate.getDate() - dayOfWeek - 7);
-          toDate = new Date(currentDate);
-          toDate.setDate(currentDate.getDate() + (6 - dayOfWeek) + 7);
-        }
-
-        const res = await apiFetch<Paginated<TourSlotItem>>(
-          `/tours/${tourId}/slots?from=${fromDate.toISOString()}&to=${toDate.toISOString()}&pageSize=500`,
-          { signal },
-        );
-        setSlots(res.data);
+        const res = await apiFetch<{ data: TourItem }>(`/tours/${tourId}`, { signal });
+        setTour(res.data);
+        setBulkCapacity(res.data.capacity || 20);
+        setSingleCapacity(res.data.capacity || 20);
       } catch (err) {
         if (!isAbortError(err)) {
-          console.error('Lỗi khi tải danh sách suất trải nghiệm:', err);
-          setSlots([]);
+          console.error('Lỗi khi tải thông tin tour:', err);
+        }
+      } finally {
+        setIsLoadingTour(false);
+      }
+    },
+    [tourId],
+  );
+
+  // Calculate start & end range for query
+  const { queryFrom, queryTo } = React.useMemo(() => {
+    const y = currentDate.getFullYear();
+    const m = currentDate.getMonth();
+
+    if (viewMode === 'MONTH') {
+      const firstOfMonth = new Date(y, m, 1);
+      const dayOfWeek = firstOfMonth.getDay();
+      const diffToMon = (dayOfWeek === 0 ? -6 : 1) - dayOfWeek;
+      const startGrid = new Date(y, m, 1 + diffToMon);
+      const endGrid = new Date(startGrid);
+      endGrid.setDate(startGrid.getDate() + 41);
+      return {
+        queryFrom: toVietnamDateString(startGrid),
+        queryTo: toVietnamDateString(endGrid),
+      };
+    } else {
+      const dayOfWeek = currentDate.getDay();
+      const diffToMon = (dayOfWeek === 0 ? -6 : 1) - dayOfWeek;
+      const mon = new Date(y, m, currentDate.getDate() + diffToMon);
+      const sun = new Date(mon);
+      sun.setDate(mon.getDate() + 6);
+      return {
+        queryFrom: toVietnamDateString(mon),
+        queryTo: toVietnamDateString(sun),
+      };
+    }
+  }, [currentDate, viewMode]);
+
+  // Fetch slots
+  const fetchSlots = React.useCallback(
+    async (signal?: AbortSignal) => {
+      if (!tourId || !queryFrom || !queryTo) return;
+      setIsLoadingSlots(true);
+      try {
+        const params = new URLSearchParams({
+          from: queryFrom,
+          to: queryTo,
+          pageSize: '500',
+        });
+        const res = await apiFetch<Paginated<TourSlotItem>>(
+          `/tours/${tourId}/slots?${params.toString()}`,
+          { signal },
+        );
+        setSlots(res.data || []);
+      } catch (err) {
+        if (!isAbortError(err)) {
+          console.error('Lỗi khi tải lịch suất:', err);
         }
       } finally {
         setIsLoadingSlots(false);
       }
     },
-    [tourId, currentDate, viewMode],
+    [tourId, queryFrom, queryTo],
   );
+
+  React.useEffect(() => {
+    const controller = new AbortController();
+    void fetchTour(controller.signal);
+    return () => controller.abort();
+  }, [fetchTour]);
 
   React.useEffect(() => {
     const controller = new AbortController();
@@ -186,25 +203,25 @@ export default function TourDetailPage() {
   // Calendar navigation
   const handlePrev = () => {
     setCurrentDate((prev) => {
-      const next = new Date(prev);
+      const d = new Date(prev);
       if (viewMode === 'MONTH') {
-        next.setMonth(next.getMonth() - 1);
+        d.setMonth(d.getMonth() - 1);
       } else {
-        next.setDate(next.getDate() - 7);
+        d.setDate(d.getDate() - 7);
       }
-      return next;
+      return d;
     });
   };
 
   const handleNext = () => {
     setCurrentDate((prev) => {
-      const next = new Date(prev);
+      const d = new Date(prev);
       if (viewMode === 'MONTH') {
-        next.setMonth(next.getMonth() + 1);
+        d.setMonth(d.getMonth() + 1);
       } else {
-        next.setDate(next.getDate() + 7);
+        d.setDate(d.getDate() + 7);
       }
-      return next;
+      return d;
     });
   };
 
@@ -212,7 +229,7 @@ export default function TourDetailPage() {
     setCurrentDate(new Date());
   };
 
-  // Group slots by Vietnam date string
+  // Group slots by date string YYYY-MM-DD
   const slotsByDate = React.useMemo(() => {
     const map: Record<string, TourSlotItem[]> = {};
     for (const slot of slots) {
@@ -226,86 +243,79 @@ export default function TourDetailPage() {
     return map;
   }, [slots]);
 
-  // Bulk dialog open
+  // Dialog actions
   const openBulkDialog = () => {
-    const today = new Date();
-    const twoWeeksLater = new Date();
-    twoWeeksLater.setDate(today.getDate() + 14);
-
-    setBulkFrom(toVietnamDateString(today));
-    setBulkTo(toVietnamDateString(twoWeeksLater));
-    setBulkWeekdays([6, 0]); // Saturday, Sunday
-    setBulkTimes(['08:00', '14:00']);
-    setBulkCapacity(tour?.capacity || 20);
     setBulkError(null);
     setBulkSuccessMsg(null);
+    const now = new Date();
+    const nextMon = new Date(now);
+    const daysToMon = (1 - now.getDay() + 7) % 7 || 7;
+    nextMon.setDate(now.getDate() + daysToMon);
+    const nextSun = new Date(nextMon);
+    nextSun.setDate(nextMon.getDate() + 13);
+
+    setBulkFrom(toVietnamDateString(nextMon));
+    setBulkTo(toVietnamDateString(nextSun));
+    setBulkWeekdays([6, 0]);
+    setBulkTimes(['08:00', '14:00']);
+    setBulkCapacity(tour?.capacity || 20);
     setBulkDialogOpen(true);
   };
 
   const toggleBulkWeekday = (day: number) => {
     setBulkWeekdays((prev) =>
-      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day],
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day].sort(),
     );
   };
 
   const addBulkTime = () => {
-    const trimmed = newTimeInput.trim();
-    if (!trimmed) return;
-    if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(trimmed)) {
-      setBulkError('Định dạng giờ không hợp lệ. Vui lòng dùng định dạng HH:mm (ví dụ 08:30)');
-      return;
+    if (!newTimeInput) return;
+    if (!bulkTimes.includes(newTimeInput)) {
+      setBulkTimes((prev) => [...prev, newTimeInput].sort());
     }
-    if (!bulkTimes.includes(trimmed)) {
-      setBulkTimes([...bulkTimes, trimmed].sort());
-    }
-    setNewTimeInput('');
   };
 
   const removeBulkTime = (time: string) => {
-    setBulkTimes(bulkTimes.filter((t) => t !== time));
+    setBulkTimes((prev) => prev.filter((t) => t !== time));
   };
 
   const handleBulkSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setBulkError(null);
-    setBulkSuccessMsg(null);
-
     if (!bulkFrom || !bulkTo) {
-      setBulkError('Vui lòng chọn khoảng ngày bắt đầu và kết thúc');
+      setBulkError('Vui lòng chọn khoảng ngày bắt đầu và kết thúc.');
       return;
     }
     if (bulkWeekdays.length === 0) {
-      setBulkError('Vui lòng chọn ít nhất một thứ trong tuần');
+      setBulkError('Vui lòng chọn ít nhất một thứ trong tuần.');
       return;
     }
     if (bulkTimes.length === 0) {
-      setBulkError('Vui lòng nhập ít nhất một khung giờ');
+      setBulkError('Vui lòng thêm ít nhất một khung giờ.');
       return;
     }
 
     setIsSubmittingBulk(true);
-    try {
-      const res = await apiFetch<{ created: number; skipped: number }>(
-        `/tours/${tourId}/slots/bulk`,
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            from: bulkFrom,
-            to: bulkTo,
-            weekdays: bulkWeekdays,
-            times: bulkTimes,
-            capacity: bulkCapacity,
-          }),
-        },
-      );
+    setBulkError(null);
+    setBulkSuccessMsg(null);
 
-      setBulkSuccessMsg(
-        `Tạo slot thành công: đã tạo ${res.created} suất, bỏ qua ${res.skipped} suất đã tồn tại.`,
-      );
+    try {
+      const res = await apiFetch<{ data: { count: number } }>(`/tours/${tourId}/slots/bulk`, {
+        method: 'POST',
+        body: JSON.stringify({
+          from: bulkFrom,
+          to: bulkTo,
+          weekdays: bulkWeekdays,
+          times: bulkTimes,
+          capacity: bulkCapacity,
+        }),
+      });
+
+      const count = res.data?.count ?? 0;
+      setBulkSuccessMsg(`Đã tạo ${count} suất trải nghiệm thành công.`);
       void fetchSlots();
       setTimeout(() => {
         setBulkDialogOpen(false);
-      }, 1500);
+      }, 1200);
     } catch (err) {
       if (err instanceof ApiError) {
         setBulkError(err.message || 'Không thể tạo slot hàng loạt.');
@@ -317,37 +327,31 @@ export default function TourDetailPage() {
     }
   };
 
-  // Open single slot dialog
   const openSingleDialog = (dateStr?: string) => {
+    setSingleError(null);
     setSingleDate(dateStr || toVietnamDateString(new Date()));
     setSingleTime('08:00');
     setSingleCapacity(tour?.capacity || 20);
-    setSingleError(null);
     setSingleDialogOpen(true);
   };
 
   const handleSingleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSingleError(null);
-
     if (!singleDate || !singleTime) {
-      setSingleError('Vui lòng chọn ngày và giờ');
+      setSingleError('Vui lòng điền đầy đủ ngày và giờ bắt đầu.');
       return;
     }
 
     setIsSubmittingSingle(true);
-    try {
-      const [year, month, day] = singleDate.split('-').map(Number);
-      const [hour, min] = singleTime.split(':').map(Number);
-      const startAt = new Date(Date.UTC(year, month - 1, day, hour - 7, min, 0, 0));
+    setSingleError(null);
 
+    try {
+      const startAt = new Date(`${singleDate}T${singleTime}:00+07:00`).toISOString();
       await apiFetch(`/tours/${tourId}/slots`, {
         method: 'POST',
         body: JSON.stringify({
-          tourId,
-          startAt: startAt.toISOString(),
+          startAt,
           capacity: singleCapacity,
-          isActive: true,
         }),
       });
 
@@ -355,16 +359,15 @@ export default function TourDetailPage() {
       void fetchSlots();
     } catch (err) {
       if (err instanceof ApiError) {
-        setSingleError(err.message || 'Không thể tạo suất trải nghiệm này.');
+        setSingleError(err.message || 'Không thể tạo suất trải nghiệm.');
       } else {
-        setSingleError('Đã xảy ra lỗi khi tạo suất.');
+        setSingleError('Đã xảy ra lỗi không xác định.');
       }
     } finally {
       setIsSubmittingSingle(false);
     }
   };
 
-  // Open edit slot dialog
   const openEditSlot = (slot: TourSlotItem) => {
     setEditingSlot(slot);
     setEditCapacity(slot.capacity);
@@ -375,29 +378,26 @@ export default function TourDetailPage() {
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingSlot) return;
-    setEditError(null);
-
-    if (editCapacity < editingSlot.bookedCount) {
-      setEditError(`Sức chứa không được nhỏ hơn số vé đã đặt (${editingSlot.bookedCount} vé)`);
-      return;
-    }
 
     setIsSubmittingEdit(true);
+    setEditError(null);
+
     try {
-      await apiFetch(`/tour-slots/${editingSlot.id}`, {
+      await apiFetch(`/tours/${tourId}/slots/${editingSlot.id}`, {
         method: 'PATCH',
         body: JSON.stringify({
           capacity: editCapacity,
           isActive: editIsActive,
         }),
       });
+
       setEditingSlot(null);
       void fetchSlots();
     } catch (err) {
       if (err instanceof ApiError) {
         setEditError(err.message || 'Không thể cập nhật suất trải nghiệm.');
       } else {
-        setEditError('Đã xảy ra lỗi khi cập nhật.');
+        setEditError('Đã xảy ra lỗi không xác định.');
       }
     } finally {
       setIsSubmittingEdit(false);
@@ -406,65 +406,70 @@ export default function TourDetailPage() {
 
   const handleToggleSlotActive = async (slot: TourSlotItem) => {
     try {
-      await apiFetch(`/tour-slots/${slot.id}`, {
+      await apiFetch(`/tours/${tourId}/slots/${slot.id}`, {
         method: 'PATCH',
-        body: JSON.stringify({ isActive: !slot.isActive }),
+        body: JSON.stringify({
+          isActive: !slot.isActive,
+        }),
       });
       void fetchSlots();
     } catch (err) {
       console.error('Lỗi khi đổi trạng thái slot:', err);
-      alert('Không thể thay đổi trạng thái suất trải nghiệm.');
     }
   };
 
   const handleDeleteSlot = async () => {
     if (!deletingSlot) return;
     try {
-      await apiFetch(`/tour-slots/${deletingSlot.id}`, { method: 'DELETE' });
+      await apiFetch(`/tours/${tourId}/slots/${deletingSlot.id}`, { method: 'DELETE' });
       setDeletingSlot(null);
       void fetchSlots();
     } catch (err) {
       if (err instanceof ApiError) {
         alert(err.message);
       } else {
-        alert('Không thể xóa suất đã có người đặt vé.');
+        alert('Không thể xóa suất đã có khách đặt.');
       }
     }
   };
 
-  // Calculate current week days (Monday to Sunday)
+  const monthGridDays = React.useMemo(() => {
+    const y = currentDate.getFullYear();
+    const m = currentDate.getMonth();
+    return buildMonthGrid(y, m);
+  }, [currentDate]);
+
+  const monthLabel = React.useMemo(() => {
+    const m = currentDate.getMonth() + 1;
+    const y = currentDate.getFullYear();
+    return `Tháng ${m}/${y}`;
+  }, [currentDate]);
+
   const currentWeekDays = React.useMemo(() => {
-    const days: { dateStr: string; label: string; dateNum: number; isToday: boolean }[] = [];
+    const y = currentDate.getFullYear();
+    const m = currentDate.getMonth();
+    const dayOfWeek = currentDate.getDay();
+    const diffToMon = (dayOfWeek === 0 ? -6 : 1) - dayOfWeek;
+    const mon = new Date(y, m, currentDate.getDate() + diffToMon);
+
+    const days = [];
     const todayStr = toVietnamDateString(new Date());
 
-    const dayOfWeek = (currentDate.getDay() + 6) % 7;
-    const startOfWeek = new Date(currentDate);
-    startOfWeek.setDate(currentDate.getDate() - dayOfWeek);
-
     for (let i = 0; i < 7; i++) {
-      const d = new Date(startOfWeek);
-      d.setDate(startOfWeek.getDate() + i);
+      const d = new Date(mon);
+      d.setDate(mon.getDate() + i);
       const dateStr = toVietnamDateString(d);
-      const weekdayName = WEEKDAY_LABELS.find((w) => w.day === (i + 1) % 7)?.label || '';
+      const weekdayItem = WEEKDAY_LABELS.find((w) => w.day === d.getDay());
+
       days.push({
+        date: d,
         dateStr,
-        label: weekdayName,
+        label: weekdayItem?.label || '',
         dateNum: d.getDate(),
         isToday: dateStr === todayStr,
       });
     }
     return days;
-  }, [currentDate]);
-
-  // Calculate month grid days
-  const monthGridDays = React.useMemo(() => {
-    const year = currentDate.getFullYear();
-    const month = currentDate.getMonth() + 1;
-    return buildMonthGrid(year, month);
-  }, [currentDate]);
-
-  const monthLabel = React.useMemo(() => {
-    return `Tháng ${currentDate.getMonth() + 1}/${currentDate.getFullYear()}`;
   }, [currentDate]);
 
   const weekLabel = React.useMemo(() => {
@@ -479,8 +484,8 @@ export default function TourDetailPage() {
   if (isLoadingTour && !tour) {
     return (
       <div className="space-y-6">
-        <div className="h-8 w-48 animate-pulse rounded bg-slate-200" />
-        <div className="h-64 rounded-xl border border-slate-200 bg-white p-6 shadow-sm" />
+        <div className="h-8 w-48 animate-pulse rounded bg-surface-2" />
+        <div className="h-64 rounded-xl border border-line bg-surface p-6 shadow-xs" />
       </div>
     );
   }
@@ -490,12 +495,12 @@ export default function TourDetailPage() {
       <div className="space-y-6">
         <Link
           href="/admin/tours"
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-slate-900"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-muted hover:text-fg"
         >
           <ArrowLeft className="h-4 w-4" />
           Quay lại danh sách tour
         </Link>
-        <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-red-700">
+        <div className="rounded-xl border border-crit/20 bg-crit-bg p-6 text-crit">
           Không tìm thấy thông tin tour du lịch.
         </div>
       </div>
@@ -509,15 +514,15 @@ export default function TourDetailPage() {
         <div className="space-y-1">
           <Link
             href="/admin/tours"
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400"
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-accent hover:text-accent-hover"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             Danh sách tour
           </Link>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+          <h1 className="text-2xl font-bold tracking-tight text-fg">
             {tour.name}
           </h1>
-          <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
+          <div className="flex flex-wrap items-center gap-3 text-xs text-muted">
             <span className="flex items-center gap-1">
               <Clock className="h-3.5 w-3.5" />
               {tour.durationMinutes} phút
@@ -530,24 +535,24 @@ export default function TourDetailPage() {
             <span>•</span>
             <span>
               Người lớn:{' '}
-              <b className="text-emerald-600 dark:text-emerald-400">
+              <b className="text-accent">
                 {formatMoney(tour.priceAdult)}
               </b>
             </span>
             <span>•</span>
             <span>
-              Trẻ em: <b>{formatMoney(tour.priceChild)}</b>
+              Trẻ em: <b className="text-fg">{formatMoney(tour.priceChild)}</b>
             </span>
             <span>•</span>
             {tour.isPublished ? (
               <Badge
                 variant="default"
-                className="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] h-5"
+                className="bg-ok-bg text-ok border-ok/20 text-[10px] h-5"
               >
                 Đã xuất bản
               </Badge>
             ) : (
-              <Badge variant="secondary" className="text-[10px] h-5">
+              <Badge variant="secondary" className="bg-surface-2 text-muted border-line text-[10px] h-5">
                 Bản nháp
               </Badge>
             )}
@@ -568,7 +573,7 @@ export default function TourDetailPage() {
             <Button
               size="sm"
               onClick={openBulkDialog}
-              className="gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-xs text-white"
+              className="gap-1.5 text-xs"
             >
               <CalendarIcon className="h-3.5 w-3.5" />
               Tạo slot hàng loạt
@@ -578,7 +583,7 @@ export default function TourDetailPage() {
       </div>
 
       {/* Calendar Control Bar */}
-      <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between dark:border-slate-800 dark:bg-slate-950">
+      <div className="flex flex-col gap-3 rounded-xl border border-line bg-surface p-4 shadow-xs sm:flex-row sm:items-center sm:justify-between text-fg">
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={handlePrev} className="h-8 w-8 p-0">
             <ChevronLeft className="h-4 w-4" />
@@ -590,40 +595,40 @@ export default function TourDetailPage() {
             <ChevronRight className="h-4 w-4" />
           </Button>
 
-          <span className="ml-2 font-semibold text-slate-900 dark:text-slate-100 text-sm sm:text-base flex items-center gap-2">
+          <span className="ml-2 font-semibold text-fg text-sm sm:text-base flex items-center gap-2">
             {viewMode === 'MONTH' ? monthLabel : weekLabel}
             {isLoadingSlots && (
-              <span className="text-xs text-slate-400 font-normal">(Đang tải...)</span>
+              <span className="text-xs text-muted font-normal">(Đang tải...)</span>
             )}
           </span>
         </div>
 
         <div className="flex items-center gap-3">
           {/* Legend */}
-          <div className="hidden md:flex items-center gap-3 text-xs text-slate-500">
+          <div className="hidden md:flex items-center gap-3 text-xs text-muted">
             <span className="flex items-center gap-1">
-              <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
+              <span className="h-2.5 w-2.5 rounded-full bg-accent" />
               Còn chỗ
             </span>
             <span className="flex items-center gap-1">
-              <span className="h-2.5 w-2.5 rounded-full bg-red-500" />
+              <span className="h-2.5 w-2.5 rounded-full bg-crit" />
               Đầy chỗ
             </span>
             <span className="flex items-center gap-1">
-              <span className="h-2.5 w-2.5 rounded-full bg-slate-400" />
+              <span className="h-2.5 w-2.5 rounded-full bg-muted" />
               Đã tắt
             </span>
           </div>
 
           {/* View mode toggle */}
-          <div className="inline-flex rounded-lg border border-slate-200 bg-slate-100 p-0.5 dark:border-slate-800 dark:bg-slate-900">
+          <div className="inline-flex rounded-lg border border-line bg-surface-2 p-0.5">
             <button
               type="button"
               onClick={() => setViewMode('WEEK')}
               className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
                 viewMode === 'WEEK'
-                  ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-800 dark:text-slate-100'
-                  : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100'
+                  ? 'bg-surface text-fg shadow-xs'
+                  : 'text-muted hover:text-fg'
               }`}
             >
               Theo tuần
@@ -633,8 +638,8 @@ export default function TourDetailPage() {
               onClick={() => setViewMode('MONTH')}
               className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
                 viewMode === 'MONTH'
-                  ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-800 dark:text-slate-100'
-                  : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100'
+                  ? 'bg-surface text-fg shadow-xs'
+                  : 'text-muted hover:text-fg'
               }`}
             >
               Theo tháng
@@ -651,23 +656,23 @@ export default function TourDetailPage() {
             return (
               <div
                 key={day.dateStr}
-                className={`flex flex-col rounded-xl border bg-white p-3 shadow-sm transition-all dark:bg-slate-950 ${
+                className={`flex flex-col rounded-xl border bg-surface p-3 shadow-xs transition-all text-fg ${
                   day.isToday
-                    ? 'border-emerald-500 ring-1 ring-emerald-500/30'
-                    : 'border-slate-200 dark:border-slate-800'
+                    ? 'border-accent ring-1 ring-accent/30'
+                    : 'border-line'
                 }`}
               >
                 {/* Day Header */}
-                <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-2 dark:border-slate-900">
+                <div className="flex items-center justify-between border-b border-line/60 pb-2 mb-2">
                   <div>
-                    <span className="block text-xs font-medium text-slate-500 dark:text-slate-400">
+                    <span className="block text-xs font-medium text-muted">
                       {day.label}
                     </span>
                     <span
                       className={`text-base font-bold ${
                         day.isToday
-                          ? 'text-emerald-600 dark:text-emerald-400'
-                          : 'text-slate-900 dark:text-slate-100'
+                          ? 'text-accent'
+                          : 'text-fg'
                       }`}
                     >
                       {day.dateNum}
@@ -678,7 +683,7 @@ export default function TourDetailPage() {
                       variant="ghost"
                       size="sm"
                       onClick={() => openSingleDialog(day.dateStr)}
-                      className="h-6 w-6 p-0 text-slate-400 hover:text-emerald-600"
+                      className="h-6 w-6 p-0 text-muted hover:text-accent hover:bg-hover"
                       title="Thêm suất vào ngày này"
                     >
                       <Plus className="h-3.5 w-3.5" />
@@ -689,7 +694,7 @@ export default function TourDetailPage() {
                 {/* Day Slots List */}
                 <div className="flex-1 space-y-2 overflow-y-auto max-h-[500px]">
                   {daySlots.length === 0 ? (
-                    <p className="text-center py-6 text-xs text-slate-400 italic">Không có suất</p>
+                    <p className="text-center py-6 text-xs text-muted italic">Không có suất</p>
                   ) : (
                     daySlots.map((slot) => {
                       const timeStr = formatVietnamTime(slot.startAt);
@@ -701,41 +706,41 @@ export default function TourDetailPage() {
                           key={slot.id}
                           className={`rounded-lg border p-2 text-xs transition-all ${
                             isInactive
-                              ? 'border-slate-200 bg-slate-50 opacity-60 dark:border-slate-800 dark:bg-slate-900'
+                              ? 'border-line bg-surface-2 opacity-60 text-muted'
                               : isFull
-                                ? 'border-red-200 bg-red-50/60 dark:border-red-900 dark:bg-red-950/20'
-                                : 'border-emerald-200 bg-emerald-50/40 hover:border-emerald-400 dark:border-emerald-900 dark:bg-emerald-950/20'
+                                ? 'border-crit/30 bg-crit-bg text-crit'
+                                : 'border-accent/30 bg-accent-bg/40 text-accent hover:border-accent'
                           }`}
                         >
                           <div className="flex items-center justify-between font-semibold">
-                            <span className="flex items-center gap-1 text-slate-800 dark:text-slate-200">
-                              <Clock className="h-3 w-3 text-slate-400" />
+                            <span className="flex items-center gap-1 text-fg">
+                              <Clock className="h-3 w-3 text-muted" />
                               {timeStr}
                             </span>
                             {isInactive ? (
-                              <span className="text-[10px] text-slate-500 font-normal">Tắt</span>
+                              <span className="text-[10px] text-muted font-normal">Tắt</span>
                             ) : isFull ? (
-                              <span className="text-[10px] font-bold text-red-600">Đầy</span>
+                              <span className="text-[10px] font-bold text-crit">Đầy</span>
                             ) : (
-                              <span className="text-[10px] font-bold text-emerald-600">
+                              <span className="text-[10px] font-bold text-accent">
                                 Còn {slot.capacity - slot.bookedCount}
                               </span>
                             )}
                           </div>
 
-                          <div className="mt-1 flex items-center justify-between text-[11px] text-slate-500">
+                          <div className="mt-1 flex items-center justify-between text-[11px] text-muted">
                             <span>
-                              Đã đặt: <b>{slot.bookedCount}</b>/{slot.capacity}
+                              Đã đặt: <b className="text-fg">{slot.bookedCount}</b>/{slot.capacity}
                             </span>
                           </div>
 
                           {/* Slot Actions */}
                           {canEdit && (
-                            <div className="mt-2 flex items-center justify-end gap-1 border-t border-slate-100 pt-1.5 dark:border-slate-800/60">
+                            <div className="mt-2 flex items-center justify-end gap-1 border-t border-line/60 pt-1.5">
                               <Link href={`/admin/tours/bookings?slotId=${slot.id}`}>
                                 <button
                                   type="button"
-                                  className="rounded p-1 text-slate-500 hover:text-emerald-600 transition-colors"
+                                  className="rounded p-1 text-muted hover:text-accent hover:bg-hover transition-colors"
                                   title="Xem danh sách khách đặt suất này"
                                 >
                                   <Ticket className="h-3 w-3" />
@@ -746,8 +751,8 @@ export default function TourDetailPage() {
                                 onClick={() => handleToggleSlotActive(slot)}
                                 className={`rounded p-1 transition-colors ${
                                   slot.isActive
-                                    ? 'text-slate-400 hover:text-amber-600'
-                                    : 'text-amber-600 hover:text-emerald-600'
+                                    ? 'text-muted hover:text-warn hover:bg-hover'
+                                    : 'text-warn hover:text-accent hover:bg-hover'
                                 }`}
                                 title={slot.isActive ? 'Tắt suất này' : 'Bật lại suất này'}
                               >
@@ -760,7 +765,7 @@ export default function TourDetailPage() {
                               <button
                                 type="button"
                                 onClick={() => openEditSlot(slot)}
-                                className="rounded p-1 text-slate-500 hover:text-slate-900 transition-colors dark:hover:text-slate-100"
+                                className="rounded p-1 text-muted hover:text-fg hover:bg-hover transition-colors"
                                 title="Sửa sức chứa"
                               >
                                 <Edit2 className="h-3 w-3" />
@@ -769,7 +774,7 @@ export default function TourDetailPage() {
                                 <button
                                   type="button"
                                   onClick={() => setDeletingSlot(slot)}
-                                  className="rounded p-1 text-red-400 hover:text-red-600 transition-colors"
+                                  className="rounded p-1 text-crit hover:bg-crit-bg transition-colors"
                                   title="Xóa suất này"
                                 >
                                   <Trash2 className="h-3 w-3" />
@@ -790,9 +795,9 @@ export default function TourDetailPage() {
 
       {/* MONTH VIEW */}
       {viewMode === 'MONTH' && (
-        <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden dark:border-slate-800 dark:bg-slate-950">
+        <div className="rounded-xl border border-line bg-surface shadow-xs overflow-hidden">
           {/* Weekday headers */}
-          <div className="grid grid-cols-7 border-b border-slate-200 bg-slate-50 text-center text-xs font-semibold text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400">
+          <div className="grid grid-cols-7 border-b border-line bg-surface-2 text-center text-xs font-semibold text-fg-2">
             {WEEKDAY_LABELS.map((w) => (
               <div key={w.day} className="py-2.5">
                 {w.label}
@@ -801,7 +806,7 @@ export default function TourDetailPage() {
           </div>
 
           {/* Month Grid */}
-          <div className="grid grid-cols-7 auto-rows-fr divide-x divide-y divide-slate-100 dark:divide-slate-800/60">
+          <div className="grid grid-cols-7 auto-rows-fr divide-x divide-y divide-line/60">
             {monthGridDays.map((cell) => {
               const daySlots = slotsByDate[cell.date] || [];
               return (
@@ -809,20 +814,20 @@ export default function TourDetailPage() {
                   key={cell.date}
                   className={`min-h-[110px] p-2 transition-colors ${
                     !cell.isCurrentMonth
-                      ? 'bg-slate-50/50 text-slate-400 dark:bg-slate-900/30'
+                      ? 'bg-surface-2/40 text-muted/60'
                       : cell.isToday
-                        ? 'bg-emerald-50/20'
-                        : 'bg-white dark:bg-slate-950'
+                        ? 'bg-accent-bg/20'
+                        : 'bg-surface'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1.5">
                     <span
                       className={`text-xs font-semibold ${
                         cell.isToday
-                          ? 'flex h-5 w-5 items-center justify-center rounded-full bg-emerald-600 text-white'
+                          ? 'flex h-5 w-5 items-center justify-center rounded-full bg-accent text-white'
                           : cell.isCurrentMonth
-                            ? 'text-slate-800 dark:text-slate-200'
-                            : 'text-slate-400'
+                            ? 'text-fg'
+                            : 'text-muted'
                       }`}
                     >
                       {cell.day}
@@ -831,7 +836,7 @@ export default function TourDetailPage() {
                       <button
                         type="button"
                         onClick={() => openSingleDialog(cell.date)}
-                        className="h-4 w-4 rounded text-slate-300 hover:text-emerald-600 transition-colors"
+                        className="h-4 w-4 rounded text-muted hover:text-accent transition-colors"
                         title="Thêm suất"
                       >
                         <Plus className="h-3 w-3" />
@@ -852,10 +857,10 @@ export default function TourDetailPage() {
                           onClick={() => canEdit && openEditSlot(slot)}
                           className={`cursor-pointer rounded px-1.5 py-0.5 text-[11px] font-medium flex items-center justify-between transition-colors ${
                             isInactive
-                              ? 'bg-slate-100 text-slate-400 line-through dark:bg-slate-800'
+                              ? 'bg-surface-2 text-muted line-through border border-line'
                               : isFull
-                                ? 'bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-950/60 dark:text-red-300'
-                                : 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300'
+                                ? 'bg-crit-bg text-crit hover:opacity-90'
+                                : 'bg-accent-bg text-accent hover:opacity-90'
                           }`}
                           title={`${timeStr}: ${slot.bookedCount}/${slot.capacity} khách ${
                             isInactive ? '(Đã tắt)' : isFull ? '(Đầy)' : ''
@@ -886,14 +891,14 @@ export default function TourDetailPage() {
       >
         <form onSubmit={handleBulkSubmit} className="space-y-4 py-2">
           {bulkError && (
-            <div className="rounded-md bg-red-50 p-3 text-xs text-red-600 dark:bg-red-950/50 dark:text-red-400 flex items-center gap-2">
+            <div className="rounded-md border border-crit/20 bg-crit-bg p-3 text-xs text-crit flex items-center gap-2">
               <AlertCircle className="h-4 w-4 flex-shrink-0" />
               <span>{bulkError}</span>
             </div>
           )}
 
           {bulkSuccessMsg && (
-            <div className="rounded-md bg-emerald-50 p-3 text-xs text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400 flex items-center gap-2">
+            <div className="rounded-md border border-ok/20 bg-ok-bg p-3 text-xs text-ok flex items-center gap-2">
               <Check className="h-4 w-4 flex-shrink-0" />
               <span>{bulkSuccessMsg}</span>
             </div>
@@ -903,7 +908,7 @@ export default function TourDetailPage() {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <Label htmlFor="bulk-from">
-                Từ ngày <span className="text-red-500">*</span>
+                Từ ngày <span className="text-crit">*</span>
               </Label>
               <Input
                 id="bulk-from"
@@ -914,7 +919,7 @@ export default function TourDetailPage() {
             </div>
             <div className="space-y-1">
               <Label htmlFor="bulk-to">
-                Đến ngày <span className="text-red-500">*</span>
+                Đến ngày <span className="text-crit">*</span>
               </Label>
               <Input
                 id="bulk-to"
@@ -929,13 +934,13 @@ export default function TourDetailPage() {
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <Label>
-                Các thứ trong tuần <span className="text-red-500">*</span>
+                Các thứ trong tuần <span className="text-crit">*</span>
               </Label>
               <div className="flex gap-2 text-xs">
                 <button
                   type="button"
                   onClick={() => setBulkWeekdays([6, 0])}
-                  className="text-emerald-600 hover:underline"
+                  className="text-accent hover:underline font-medium"
                 >
                   Cuối tuần (T7, CN)
                 </button>
@@ -943,7 +948,7 @@ export default function TourDetailPage() {
                 <button
                   type="button"
                   onClick={() => setBulkWeekdays([1, 2, 3, 4, 5])}
-                  className="text-emerald-600 hover:underline"
+                  className="text-accent hover:underline font-medium"
                 >
                   Ngày trong tuần (T2-T6)
                 </button>
@@ -951,7 +956,7 @@ export default function TourDetailPage() {
                 <button
                   type="button"
                   onClick={() => setBulkWeekdays([1, 2, 3, 4, 5, 6, 0])}
-                  className="text-emerald-600 hover:underline"
+                  className="text-accent hover:underline font-medium"
                 >
                   Tất cả các ngày
                 </button>
@@ -967,8 +972,8 @@ export default function TourDetailPage() {
                     onClick={() => toggleBulkWeekday(w.day)}
                     className={`rounded-md py-2 text-xs font-medium transition-all ${
                       selected
-                        ? 'bg-emerald-600 text-white shadow-sm'
-                        : 'border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300'
+                        ? 'bg-accent text-white shadow-xs'
+                        : 'border border-line bg-surface-2 text-fg-2 hover:bg-hover'
                     }`}
                   >
                     {w.label}
@@ -981,20 +986,20 @@ export default function TourDetailPage() {
           {/* Times selector */}
           <div className="space-y-1.5">
             <Label>
-              Khung giờ trải nghiệm <span className="text-red-500">*</span>
+              Khung giờ trải nghiệm <span className="text-crit">*</span>
             </Label>
             <div className="flex flex-wrap items-center gap-2">
               {bulkTimes.map((t) => (
                 <span
                   key={t}
-                  className="inline-flex items-center gap-1.5 rounded-md bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800 border border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800"
+                  className="inline-flex items-center gap-1.5 rounded-md bg-accent-bg px-2.5 py-1 text-xs font-semibold text-accent border border-accent/30"
                 >
                   <Clock className="h-3 w-3" />
                   {t}
                   <button
                     type="button"
                     onClick={() => removeBulkTime(t)}
-                    className="hover:text-red-600"
+                    className="hover:text-crit text-muted"
                     title="Xóa giờ này"
                   >
                     <X className="h-3 w-3" />
@@ -1025,7 +1030,7 @@ export default function TourDetailPage() {
           {/* Capacity */}
           <div className="space-y-1">
             <Label htmlFor="bulk-capacity">
-              Sức chứa mỗi suất (khách) <span className="text-red-500">*</span>
+              Sức chứa mỗi suất (khách) <span className="text-crit">*</span>
             </Label>
             <Input
               id="bulk-capacity"
@@ -1034,12 +1039,12 @@ export default function TourDetailPage() {
               value={bulkCapacity}
               onChange={(e) => setBulkCapacity(parseInt(e.target.value, 10) || 0)}
             />
-            <p className="text-[11px] text-slate-500">
+            <p className="text-[11px] text-muted">
               Mặc định lấy theo sức chứa chuẩn của tour ({tour?.capacity} khách).
             </p>
           </div>
 
-          <div className="flex justify-end gap-2 pt-4 border-t border-slate-100 dark:border-slate-800">
+          <div className="flex justify-end gap-2 pt-4 border-t border-line">
             <Button
               type="button"
               variant="outline"
@@ -1051,7 +1056,6 @@ export default function TourDetailPage() {
             <Button
               type="submit"
               disabled={isSubmittingBulk}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white"
             >
               {isSubmittingBulk ? 'Đang tạo...' : 'Tạo hàng loạt suất'}
             </Button>
@@ -1068,7 +1072,7 @@ export default function TourDetailPage() {
       >
         <form onSubmit={handleSingleSubmit} className="space-y-4 py-2">
           {singleError && (
-            <div className="rounded-md bg-red-50 p-3 text-xs text-red-600 dark:bg-red-950/50 dark:text-red-400">
+            <div className="rounded-md border border-crit/20 bg-crit-bg p-3 text-xs text-crit">
               {singleError}
             </div>
           )}
@@ -1076,7 +1080,7 @@ export default function TourDetailPage() {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <Label htmlFor="single-date">
-                Ngày <span className="text-red-500">*</span>
+                Ngày <span className="text-crit">*</span>
               </Label>
               <Input
                 id="single-date"
@@ -1087,7 +1091,7 @@ export default function TourDetailPage() {
             </div>
             <div className="space-y-1">
               <Label htmlFor="single-time">
-                Giờ bắt đầu <span className="text-red-500">*</span>
+                Giờ bắt đầu <span className="text-crit">*</span>
               </Label>
               <Input
                 id="single-time"
@@ -1100,7 +1104,7 @@ export default function TourDetailPage() {
 
           <div className="space-y-1">
             <Label htmlFor="single-capacity">
-              Sức chứa (khách) <span className="text-red-500">*</span>
+              Sức chứa (khách) <span className="text-crit">*</span>
             </Label>
             <Input
               id="single-capacity"
@@ -1111,7 +1115,7 @@ export default function TourDetailPage() {
             />
           </div>
 
-          <div className="flex justify-end gap-2 pt-4 border-t border-slate-100 dark:border-slate-800">
+          <div className="flex justify-end gap-2 pt-4 border-t border-line">
             <Button
               type="button"
               variant="outline"
@@ -1123,7 +1127,6 @@ export default function TourDetailPage() {
             <Button
               type="submit"
               disabled={isSubmittingSingle}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white"
             >
               {isSubmittingSingle ? 'Đang tạo...' : 'Tạo suất'}
             </Button>
@@ -1146,14 +1149,14 @@ export default function TourDetailPage() {
       >
         <form onSubmit={handleEditSubmit} className="space-y-4 py-2">
           {editError && (
-            <div className="rounded-md bg-red-50 p-3 text-xs text-red-600 dark:bg-red-950/50 dark:text-red-400">
+            <div className="rounded-md border border-crit/20 bg-crit-bg p-3 text-xs text-crit">
               {editError}
             </div>
           )}
 
           <div className="space-y-1">
             <Label htmlFor="edit-capacity">
-              Sức chứa tối đa (khách) <span className="text-red-500">*</span>
+              Sức chứa tối đa (khách) <span className="text-crit">*</span>
             </Label>
             <Input
               id="edit-capacity"
@@ -1163,8 +1166,8 @@ export default function TourDetailPage() {
               onChange={(e) => setEditCapacity(parseInt(e.target.value, 10) || 0)}
             />
             {editingSlot && (
-              <p className="text-[11px] text-slate-500">
-                Đã có <b>{editingSlot.bookedCount}</b> khách đặt chỗ cho suất này.
+              <p className="text-[11px] text-muted">
+                Đã có <b className="text-fg">{editingSlot.bookedCount}</b> khách đặt chỗ cho suất này.
               </p>
             )}
           </div>
@@ -1175,14 +1178,14 @@ export default function TourDetailPage() {
               type="checkbox"
               checked={editIsActive}
               onChange={(e) => setEditIsActive(e.target.checked)}
-              className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+              className="h-4 w-4 rounded border-line text-accent focus:ring-accent"
             />
-            <Label htmlFor="edit-active" className="cursor-pointer font-normal">
+            <Label htmlFor="edit-active" className="cursor-pointer font-normal text-fg">
               Cho phép khách hàng đặt chỗ suất trải nghiệm này (Hoạt động)
             </Label>
           </div>
 
-          <div className="flex justify-end gap-2 pt-4 border-t border-slate-100 dark:border-slate-800">
+          <div className="flex justify-end gap-2 pt-4 border-t border-line">
             <Button
               type="button"
               variant="outline"
@@ -1194,7 +1197,6 @@ export default function TourDetailPage() {
             <Button
               type="submit"
               disabled={isSubmittingEdit}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white"
             >
               {isSubmittingEdit ? 'Đang cập nhật...' : 'Cập nhật suất'}
             </Button>

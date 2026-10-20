@@ -35,6 +35,7 @@ import {
   Image as ImageIcon,
   CheckCircle,
   EyeOff,
+  Ticket,
 } from 'lucide-react';
 import { apiFetch, ApiError, isAbortError } from '@/lib/api';
 import { useAdminUser } from '../admin-user-context';
@@ -104,20 +105,20 @@ export default function AdminToursPage() {
     async (signal?: AbortSignal) => {
       setIsLoading(true);
       try {
-        let url = `/tours?page=${page}&pageSize=${pageSize}&search=${encodeURIComponent(search)}`;
-        if (statusFilter === 'PUBLISHED') url += '&isPublished=true';
-        if (statusFilter === 'DRAFT') url += '&isPublished=false';
+        const params = new URLSearchParams({
+          page: String(page),
+          pageSize: String(pageSize),
+        });
+        if (search.trim()) params.set('search', search.trim());
+        if (statusFilter === 'PUBLISHED') params.set('isPublished', 'true');
+        if (statusFilter === 'DRAFT') params.set('isPublished', 'false');
 
-        const res = await apiFetch<Paginated<TourItem>>(url, { signal });
-        setTours(res.data);
-        setTotal(res.total);
+        const res = await apiFetch<Paginated<TourItem>>(`/tours?${params.toString()}`, { signal });
+        setTours(res.data || []);
+        setTotal(res.total || 0);
       } catch (err) {
         if (!isAbortError(err)) {
-          if (!(err instanceof ApiError && err.statusCode === 404)) {
-            console.error('Lỗi khi tải danh sách tour:', err);
-          }
-          setTours([]);
-          setTotal(0);
+          console.error('Lỗi khi tải danh sách tour:', err);
         }
       } finally {
         setIsLoading(false);
@@ -134,8 +135,8 @@ export default function AdminToursPage() {
 
   const openCreateDialog = () => {
     setEditingTour(null);
-    setFormError(null);
     setIsSlugManual(false);
+    setFormError(null);
     form.reset({
       name: '',
       slug: '',
@@ -153,19 +154,19 @@ export default function AdminToursPage() {
 
   const openEditDialog = (tour: TourItem) => {
     setEditingTour(tour);
-    setFormError(null);
     setIsSlugManual(true);
+    setFormError(null);
     form.reset({
       name: tour.name,
       slug: tour.slug,
-      description: tour.description,
+      description: tour.description || '',
       durationMinutes: tour.durationMinutes,
-      priceAdult: Number(tour.priceAdult) || 0,
-      priceChild: Number(tour.priceChild) || 0,
+      priceAdult: typeof tour.priceAdult === 'string' ? parseFloat(tour.priceAdult) : tour.priceAdult,
+      priceChild: typeof tour.priceChild === 'string' ? parseFloat(tour.priceChild) : tour.priceChild,
       capacity: tour.capacity,
       mediaIds: tour.mediaIds || [],
       isPublished: tour.isPublished,
-      sortOrder: tour.sortOrder ?? 0,
+      sortOrder: tour.sortOrder,
     });
     setDialogOpen(true);
   };
@@ -173,7 +174,7 @@ export default function AdminToursPage() {
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newName = e.target.value;
     form.setValue('name', newName, { shouldValidate: true });
-    if (!isSlugManual) {
+    if (!isSlugManual && !editingTour) {
       form.setValue('slug', slugify(newName), { shouldValidate: true });
     }
   };
@@ -183,19 +184,19 @@ export default function AdminToursPage() {
     form.setValue('slug', e.target.value, { shouldValidate: true });
   };
 
-  const handleSubmit = async (data: CreateTourInput) => {
+  const handleSubmit = async (values: CreateTourInput) => {
     setIsSubmitting(true);
     setFormError(null);
     try {
       if (editingTour) {
         await apiFetch(`/tours/${editingTour.id}`, {
           method: 'PATCH',
-          body: JSON.stringify(data),
+          body: JSON.stringify(values),
         });
       } else {
         await apiFetch('/tours', {
           method: 'POST',
-          body: JSON.stringify(data),
+          body: JSON.stringify(values),
         });
       }
       setDialogOpen(false);
@@ -220,7 +221,6 @@ export default function AdminToursPage() {
       void fetchTours();
     } catch (err) {
       console.error('Lỗi khi thay đổi trạng thái xuất bản:', err);
-      alert('Không thể thay đổi trạng thái xuất bản.');
     }
   };
 
@@ -231,13 +231,18 @@ export default function AdminToursPage() {
       setDeletingTour(null);
       void fetchTours();
     } catch (err) {
-      if (err instanceof ApiError) {
-        alert(err.message);
-      } else {
-        alert('Không thể xóa tour đã có suất hoặc đặt chỗ.');
-      }
+      console.error('Lỗi khi xóa tour:', err);
     }
   };
+
+  const publishedCount = React.useMemo(
+    () => tours.filter((t) => t.isPublished).length,
+    [tours],
+  );
+  const draftCount = React.useMemo(
+    () => tours.filter((t) => !t.isPublished).length,
+    [tours],
+  );
 
   const columns = React.useMemo<ColumnDef<TourItem>[]>(
     () => [
@@ -249,7 +254,7 @@ export default function AdminToursPage() {
           const thumbnail = item.mediaIds?.[0];
           return (
             <div className="flex items-center gap-3">
-              <div className="relative h-12 w-16 flex-shrink-0 overflow-hidden rounded-md border border-slate-200 bg-slate-100 dark:border-slate-800 dark:bg-slate-900">
+              <div className="relative h-12 w-16 flex-shrink-0 overflow-hidden rounded-md border border-line bg-surface-2">
                 {thumbnail ? (
                   <img
                     src={thumbnail}
@@ -260,7 +265,7 @@ export default function AdminToursPage() {
                     }}
                   />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center text-slate-400">
+                  <div className="flex h-full w-full items-center justify-center text-muted">
                     <ImageIcon className="h-5 w-5" />
                   </div>
                 )}
@@ -268,11 +273,11 @@ export default function AdminToursPage() {
               <div className="min-w-0">
                 <Link
                   href={`/admin/tours/${item.id}`}
-                  className="font-medium text-slate-900 hover:text-emerald-600 transition-colors dark:text-slate-100 dark:hover:text-emerald-400 block truncate"
+                  className="font-medium text-fg hover:text-accent transition-colors block truncate"
                 >
                   {item.name}
                 </Link>
-                <span className="font-mono text-xs text-slate-400 dark:text-slate-500">
+                <span className="font-mono text-xs text-muted">
                   /{item.slug}
                 </span>
               </div>
@@ -284,7 +289,7 @@ export default function AdminToursPage() {
         accessorKey: 'durationMinutes',
         header: 'Thời lượng',
         cell: ({ row }) => (
-          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+          <span className="text-sm font-medium text-fg-2">
             {row.original.durationMinutes} phút
           </span>
         ),
@@ -293,7 +298,7 @@ export default function AdminToursPage() {
         accessorKey: 'priceAdult',
         header: 'Giá người lớn',
         cell: ({ row }) => (
-          <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+          <span className="text-sm font-semibold text-accent">
             {formatMoney(row.original.priceAdult)}
           </span>
         ),
@@ -302,7 +307,7 @@ export default function AdminToursPage() {
         accessorKey: 'priceChild',
         header: 'Giá trẻ em',
         cell: ({ row }) => (
-          <span className="text-sm text-slate-600 dark:text-slate-400">
+          <span className="text-sm text-fg-2">
             {formatMoney(row.original.priceChild)}
           </span>
         ),
@@ -311,7 +316,7 @@ export default function AdminToursPage() {
         accessorKey: 'capacity',
         header: 'Sức chứa',
         cell: ({ row }) => (
-          <span className="text-sm text-slate-700 dark:text-slate-300">
+          <span className="text-sm text-fg-2">
             {row.original.capacity} khách / suất
           </span>
         ),
@@ -322,11 +327,11 @@ export default function AdminToursPage() {
         cell: ({ row }) => {
           const isPublished = row.original.isPublished;
           return isPublished ? (
-            <Badge variant="default" className="bg-emerald-600 hover:bg-emerald-700 text-white">
+            <Badge variant="default" className="bg-ok-bg text-ok border-ok/20">
               Đã xuất bản
             </Badge>
           ) : (
-            <Badge variant="secondary" className="text-slate-600 dark:text-slate-400">
+            <Badge variant="secondary" className="bg-surface-2 text-muted border-line">
               Bản nháp
             </Badge>
           );
@@ -343,7 +348,7 @@ export default function AdminToursPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-8 gap-1 px-2.5 text-xs text-emerald-700 border-emerald-200 hover:bg-emerald-50 dark:text-emerald-400 dark:border-emerald-800"
+                  className="h-8 gap-1 px-2.5 text-xs border-accent/30 text-accent hover:bg-accent-bg"
                   title="Quản lý lịch suất trải nghiệm"
                 >
                   <Calendar className="h-3.5 w-3.5" />
@@ -356,21 +361,21 @@ export default function AdminToursPage() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-8 w-8 p-0 text-slate-600 hover:text-slate-900 dark:text-slate-400"
+                    className="h-8 w-8 p-0 text-muted hover:text-fg hover:bg-hover"
                     title={item.isPublished ? 'Gỡ xuất bản' : 'Xuất bản ngay'}
                     onClick={() => handleTogglePublish(item)}
                   >
                     {item.isPublished ? (
-                      <EyeOff className="h-4 w-4 text-amber-600" />
+                      <EyeOff className="h-4 w-4 text-warn" />
                     ) : (
-                      <CheckCircle className="h-4 w-4 text-emerald-600" />
+                      <CheckCircle className="h-4 w-4 text-ok" />
                     )}
                   </Button>
 
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-8 w-8 p-0 text-slate-600 hover:text-slate-900 dark:text-slate-400"
+                    className="h-8 w-8 p-0 text-muted hover:text-fg hover:bg-hover"
                     title="Chỉnh sửa thông tin tour"
                     onClick={() => openEditDialog(item)}
                   >
@@ -380,7 +385,7 @@ export default function AdminToursPage() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-8 w-8 p-0 text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950"
+                    className="h-8 w-8 p-0 text-crit hover:bg-crit-bg"
                     title="Xóa tour"
                     onClick={() => setDeletingTour(item)}
                   >
@@ -403,15 +408,48 @@ export default function AdminToursPage() {
         description="Danh sách và quản lý các tour trải nghiệm sinh thái tại XFarm"
       >
         {canEdit && (
-          <Button onClick={openCreateDialog} className="gap-2 bg-emerald-600 hover:bg-emerald-700">
+          <Button onClick={openCreateDialog} className="gap-2">
             <Plus className="h-4 w-4" />
             Thêm tour mới
           </Button>
         )}
       </PageHeader>
 
-      {/* Filters */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      {/* KPI Stats Cards */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="flex items-center gap-3.5 rounded-xl border border-line bg-surface p-4 shadow-xs text-fg">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent-bg text-accent">
+            <Ticket className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-xs font-medium text-muted">Tổng số tour</p>
+            <p className="text-xl font-bold text-fg">{total} tour</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3.5 rounded-xl border border-line bg-surface p-4 shadow-xs text-fg">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-ok-bg text-ok">
+            <CheckCircle className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-xs font-medium text-muted">Đã xuất bản</p>
+            <p className="text-xl font-bold text-fg">{publishedCount} tour</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3.5 rounded-xl border border-line bg-surface p-4 shadow-xs text-fg">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-surface-2 text-muted">
+            <EyeOff className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-xs font-medium text-muted">Bản nháp</p>
+            <p className="text-xl font-bold text-fg">{draftCount} tour</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Filters in single row */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-1 items-center gap-3 max-w-md">
           <Input
             placeholder="Tìm theo tên tour hoặc slug..."
@@ -420,11 +458,11 @@ export default function AdminToursPage() {
               setSearch(e.target.value);
               setPage(1);
             }}
-            className="w-full"
+            className="w-full h-9 text-xs"
           />
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-slate-500">Trạng thái:</span>
+          <span className="text-xs text-muted whitespace-nowrap">Trạng thái:</span>
           <Select
             value={statusFilter}
             onValueChange={(val: 'ALL' | 'PUBLISHED' | 'DRAFT') => {
@@ -465,7 +503,7 @@ export default function AdminToursPage() {
       >
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 py-2">
           {formError && (
-            <div className="rounded-md bg-red-50 p-3 text-sm text-red-600 dark:bg-red-950/50 dark:text-red-400">
+            <div className="rounded-md border border-crit/20 bg-crit-bg p-3 text-sm text-crit">
               {formError}
             </div>
           )}
@@ -474,7 +512,7 @@ export default function AdminToursPage() {
             {/* Name */}
             <div className="space-y-1 sm:col-span-2">
               <Label htmlFor="tour-name">
-                Tên tour <span className="text-red-500">*</span>
+                Tên tour <span className="text-crit">*</span>
               </Label>
               <Input
                 id="tour-name"
@@ -483,7 +521,7 @@ export default function AdminToursPage() {
                 onChange={handleNameChange}
               />
               {form.formState.errors.name && (
-                <p className="text-xs text-red-500">{form.formState.errors.name.message}</p>
+                <p className="text-xs text-crit">{form.formState.errors.name.message}</p>
               )}
             </div>
 
@@ -497,14 +535,14 @@ export default function AdminToursPage() {
                 onChange={handleSlugChange}
               />
               {form.formState.errors.slug && (
-                <p className="text-xs text-red-500">{form.formState.errors.slug.message}</p>
+                <p className="text-xs text-crit">{form.formState.errors.slug.message}</p>
               )}
             </div>
 
             {/* Duration */}
             <div className="space-y-1">
               <Label htmlFor="tour-duration">
-                Thời lượng (phút) <span className="text-red-500">*</span>
+                Thời lượng (phút) <span className="text-crit">*</span>
               </Label>
               <Input
                 id="tour-duration"
@@ -520,7 +558,7 @@ export default function AdminToursPage() {
                 }
               />
               {form.formState.errors.durationMinutes && (
-                <p className="text-xs text-red-500">
+                <p className="text-xs text-crit">
                   {form.formState.errors.durationMinutes.message}
                 </p>
               )}
@@ -529,7 +567,7 @@ export default function AdminToursPage() {
             {/* Capacity */}
             <div className="space-y-1">
               <Label htmlFor="tour-capacity">
-                Sức chứa tối đa (người / suất) <span className="text-red-500">*</span>
+                Sức chứa tối đa (người / suất) <span className="text-crit">*</span>
               </Label>
               <Input
                 id="tour-capacity"
@@ -544,14 +582,14 @@ export default function AdminToursPage() {
                 }
               />
               {form.formState.errors.capacity && (
-                <p className="text-xs text-red-500">{form.formState.errors.capacity.message}</p>
+                <p className="text-xs text-crit">{form.formState.errors.capacity.message}</p>
               )}
             </div>
 
             {/* Price Adult */}
             <div className="space-y-1">
               <Label htmlFor="tour-price-adult">
-                Giá vé người lớn <span className="text-red-500">*</span>
+                Giá vé người lớn <span className="text-crit">*</span>
               </Label>
               <Controller
                 control={form.control}
@@ -566,14 +604,14 @@ export default function AdminToursPage() {
                 )}
               />
               {form.formState.errors.priceAdult && (
-                <p className="text-xs text-red-500">{form.formState.errors.priceAdult.message}</p>
+                <p className="text-xs text-crit">{form.formState.errors.priceAdult.message}</p>
               )}
             </div>
 
             {/* Price Child */}
             <div className="space-y-1">
               <Label htmlFor="tour-price-child">
-                Giá vé trẻ em <span className="text-red-500">*</span>
+                Giá vé trẻ em <span className="text-crit">*</span>
               </Label>
               <Controller
                 control={form.control}
@@ -588,7 +626,7 @@ export default function AdminToursPage() {
                 )}
               />
               {form.formState.errors.priceChild && (
-                <p className="text-xs text-red-500">{form.formState.errors.priceChild.message}</p>
+                <p className="text-xs text-crit">{form.formState.errors.priceChild.message}</p>
               )}
             </div>
 
@@ -614,9 +652,9 @@ export default function AdminToursPage() {
                 type="checkbox"
                 checked={form.watch('isPublished')}
                 onChange={(e) => form.setValue('isPublished', e.target.checked)}
-                className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                className="h-4 w-4 rounded border-line text-accent focus:ring-accent"
               />
-              <Label htmlFor="tour-publish" className="cursor-pointer font-normal">
+              <Label htmlFor="tour-publish" className="cursor-pointer font-normal text-fg">
                 Xuất bản tour ngay lập tức trên website
               </Label>
             </div>
@@ -636,7 +674,7 @@ export default function AdminToursPage() {
             {/* Rich text description */}
             <div className="space-y-1 sm:col-span-2">
               <Label>
-                Mô tả chi tiết tour (Tiptap) <span className="text-red-500">*</span>
+                Mô tả chi tiết tour (Tiptap) <span className="text-crit">*</span>
               </Label>
               <Controller
                 control={form.control}
@@ -650,12 +688,12 @@ export default function AdminToursPage() {
                 )}
               />
               {form.formState.errors.description && (
-                <p className="text-xs text-red-500">{form.formState.errors.description.message}</p>
+                <p className="text-xs text-crit">{form.formState.errors.description.message}</p>
               )}
             </div>
           </div>
 
-          <div className="flex justify-end gap-2 pt-4 border-t border-slate-100 dark:border-slate-800">
+          <div className="flex justify-end gap-2 pt-4 border-t border-line">
             <Button
               type="button"
               variant="outline"
@@ -667,7 +705,6 @@ export default function AdminToursPage() {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="bg-emerald-600 hover:bg-emerald-700"
             >
               {isSubmitting ? 'Đang lưu...' : editingTour ? 'Lưu thay đổi' : 'Tạo tour'}
             </Button>
@@ -679,8 +716,8 @@ export default function AdminToursPage() {
       <ConfirmDialog
         open={!!deletingTour}
         onOpenChange={(open) => !open && setDeletingTour(null)}
-        title="Xác nhận xóa tour"
-        description={`Bạn có chắc chắn muốn xóa tour "${deletingTour?.name}"? Thao tác này không thể hoàn tác nếu tour chưa có lượt đặt.`}
+        title="Xóa tour trải nghiệm"
+        description={`Bạn có chắc chắn muốn xóa tour "${deletingTour?.name}"? Hành động này không thể hoàn tác.`}
         confirmText="Xóa tour"
         isDanger
         onConfirm={handleDelete}

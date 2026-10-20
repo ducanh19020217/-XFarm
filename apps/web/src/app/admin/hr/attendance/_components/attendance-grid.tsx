@@ -78,9 +78,9 @@ export function AttendanceGrid({
 
   if (isLoading) {
     return (
-      <div className="rounded-xl border border-slate-200 bg-white p-8 text-center text-slate-500 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+      <div className="rounded-xl border border-line bg-surface p-8 text-center text-muted shadow-xs">
         <div className="flex items-center justify-center gap-2">
-          <Clock className="h-5 w-5 animate-spin text-emerald-600" />
+          <Clock className="h-5 w-5 animate-spin text-accent" />
           <span>Đang tải dữ liệu chấm công...</span>
         </div>
       </div>
@@ -89,22 +89,22 @@ export function AttendanceGrid({
 
   if (employees.length === 0) {
     return (
-      <div className="rounded-xl border border-slate-200 bg-white p-8 text-center text-slate-500 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+      <div className="rounded-xl border border-line bg-surface p-8 text-center text-muted shadow-xs">
         Chưa có nhân viên nào trong danh sách.
       </div>
     );
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
+    <div className="overflow-x-auto rounded-xl border border-line bg-surface shadow-xs">
       <table
         className="w-full border-collapse text-left text-sm"
         data-testid="attendance-grid-table"
       >
         <thead>
-          <tr className="border-b border-slate-200 bg-slate-50/75 dark:border-slate-800 dark:bg-slate-900/50">
+          <tr className="border-b border-line bg-surface-2">
             {/* Employee info column */}
-            <th className="min-w-[200px] p-3.5 font-semibold text-slate-700 dark:text-slate-200">
+            <th className="min-w-[200px] p-3.5 font-semibold text-fg-2">
               Nhân viên
             </th>
 
@@ -114,22 +114,22 @@ export function AttendanceGrid({
                 key={day.dateStr}
                 className={`min-w-[100px] p-3 text-center font-medium ${
                   day.isToday
-                    ? 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300'
-                    : 'text-slate-600 dark:text-slate-300'
+                    ? 'bg-accent-bg text-accent'
+                    : 'text-fg-2'
                 }`}
               >
                 <div className="font-semibold">{day.dayLabel}</div>
-                <div className="text-xs text-slate-400 font-normal">{day.formattedDate}</div>
+                <div className="text-xs text-muted font-normal">{day.formattedDate}</div>
               </th>
             ))}
 
             {/* Total column */}
-            <th className="min-w-[110px] p-3 text-center font-bold text-emerald-700 bg-emerald-50/50 dark:bg-emerald-950/20 dark:text-emerald-400">
+            <th className="min-w-[110px] p-3 text-center font-bold text-accent bg-accent-bg/40">
               Tổng giờ
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+        <tbody className="divide-y divide-line/60">
           {employees.map((emp) => {
             const empTotalHours = getEmployeeTotalHours(emp.id);
 
@@ -138,19 +138,19 @@ export function AttendanceGrid({
                 key={emp.id}
                 data-employee-id={emp.id}
                 data-testid={`attendance-row-${emp.id}`}
-                className="hover:bg-slate-50/60 dark:hover:bg-slate-900/40 transition-colors"
+                className="hover:bg-hover/30 transition-colors"
               >
                 {/* Employee info */}
                 <td className="p-3.5">
                   <div className="flex items-center gap-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-2 text-muted">
                       <User className="h-4 w-4" />
                     </div>
                     <div>
-                      <div className="font-semibold text-slate-900 dark:text-slate-100">
+                      <div className="font-semibold text-fg">
                         {emp.fullName}
                       </div>
-                      <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                      <div className="flex items-center gap-1.5 text-xs text-muted">
                         <span>{emp.code}</span>
                         <span>•</span>
                         <span>{getPayTypeLabel(emp.payType)}</span>
@@ -175,9 +175,9 @@ export function AttendanceGrid({
                       onClick={() => canEdit && onCellClick(emp, day.dateStr, att || null)}
                       className={`p-2.5 text-center transition-colors select-none ${
                         canEdit
-                          ? 'cursor-pointer hover:bg-emerald-100/50 dark:hover:bg-emerald-900/30'
+                          ? 'cursor-pointer hover:bg-hover'
                           : ''
-                      } ${day.isToday ? 'bg-emerald-50/30 dark:bg-emerald-950/10' : ''}`}
+                      } ${day.isToday ? 'bg-accent-bg/20' : ''}`}
                       title={
                         canEdit
                           ? `Bấm để chỉnh sửa chấm công ngày ${day.formattedDate} cho ${emp.fullName}`
@@ -186,18 +186,18 @@ export function AttendanceGrid({
                     >
                       <div className="flex flex-col items-center justify-center gap-0.5">
                         {hasAttendance ? (
-                          <div className="flex items-center gap-1 font-semibold text-emerald-700 dark:text-emerald-400">
+                          <div className="flex items-center gap-1 font-semibold text-accent">
                             <span>{formatHours(hours)}</span>
                             {canEdit && (
-                              <Edit3 className="h-2.5 w-2.5 opacity-0 group-hover:opacity-100 text-slate-400" />
+                              <Edit3 className="h-2.5 w-2.5 opacity-0 group-hover:opacity-100 text-muted" />
                             )}
                           </div>
                         ) : (
-                          <span className="text-slate-300 dark:text-slate-600">-</span>
+                          <span className="text-muted/50">-</span>
                         )}
 
                         {pieceQty > 0 && (
-                          <span className="rounded bg-amber-50 px-1 py-0.2 text-[10px] font-medium text-amber-700 dark:bg-amber-950/50 dark:text-amber-400">
+                          <span className="rounded bg-warn-bg px-1 py-0.2 text-[10px] font-medium text-warn">
                             {pieceQty} SP
                           </span>
                         )}
@@ -207,7 +207,7 @@ export function AttendanceGrid({
                 })}
 
                 {/* Total hours for employee */}
-                <td className="p-3 text-center font-bold text-emerald-700 bg-emerald-50/30 dark:bg-emerald-950/10 dark:text-emerald-400">
+                <td className="p-3 text-center font-bold text-accent bg-accent-bg/20">
                   {formatHours(empTotalHours)}
                 </td>
               </tr>
@@ -215,20 +215,20 @@ export function AttendanceGrid({
           })}
         </tbody>
         <tfoot>
-          <tr className="border-t-2 border-slate-200 bg-slate-50/80 font-semibold text-slate-700 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-200">
+          <tr className="border-t-2 border-line bg-surface-2 font-semibold text-fg">
             <td className="p-3.5">Tổng cộng theo ngày</td>
             {days.map((day) => {
               const dayTotal = getDayTotalHours(day.dateStr);
               return (
                 <td
                   key={day.dateStr}
-                  className="p-3 text-center text-xs text-slate-600 dark:text-slate-300"
+                  className="p-3 text-center text-xs text-muted"
                 >
                   {formatHours(dayTotal)}
                 </td>
               );
             })}
-            <td className="p-3 text-center font-bold text-emerald-700 dark:text-emerald-400">
+            <td className="p-3 text-center font-bold text-accent">
               {formatHours(grandTotalHours)}
             </td>
           </tr>

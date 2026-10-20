@@ -101,33 +101,14 @@ export default function AttendancePage() {
       }
 
       try {
-        const res = await apiFetch<{ data: AttendanceItem[] }>(`/attendance?${params}`, {
-          signal,
-        });
+        const res = await apiFetch<{ data: AttendanceItem[] }>(`/attendance?${params}`, { signal });
         setAttendances(res.data || []);
       } catch (err) {
         if (!isAbortError(err)) {
           if (err instanceof ApiError && err.statusCode === 404) {
             setAttendances([]);
           } else {
-            let msg = 'Không thể tải dữ liệu chấm công';
-            if (err instanceof ApiError) {
-              if (Array.isArray(err.errors) && err.errors.length > 0) {
-                const details = (
-                  err.errors as Array<{ field?: string; path?: string[]; message?: string }>
-                )
-                  .map((item) => {
-                    const f = item.field || (Array.isArray(item.path) ? item.path.join('.') : '');
-                    return f ? `${f}: ${item.message}` : item.message;
-                  })
-                  .filter(Boolean)
-                  .join('; ');
-                msg = details ? `${err.message}: ${details}` : err.message;
-              } else {
-                msg = err.message;
-              }
-            }
-            showToast(msg);
+            showToast(err instanceof ApiError ? err.message : 'Không thể tải dữ liệu chấm công');
           }
         }
       } finally {
@@ -148,33 +129,33 @@ export default function AttendancePage() {
     if (!search.trim()) return employees;
     const q = search.trim().toLowerCase();
     return employees.filter(
-      (e) =>
-        e.fullName.toLowerCase().includes(q) ||
-        e.code.toLowerCase().includes(q) ||
-        e.position.toLowerCase().includes(q),
+      (emp) => emp.fullName.toLowerCase().includes(q) || emp.code.toLowerCase().includes(q),
     );
   }, [employees, search]);
 
-  // Statistics
+  // Calculate statistics for the KPI cards
   const stats = React.useMemo(() => {
     let totalHours = 0;
-    const activeEmpIds = new Set<string>();
+    const activeEmpSet = new Set<string>();
 
     attendances.forEach((att) => {
       if (att.hours && Number(att.hours) > 0) {
         totalHours += Number(att.hours);
-        activeEmpIds.add(att.employeeId);
+        activeEmpSet.add(att.employeeId);
       }
     });
 
+    const activeEmployees = activeEmpSet.size;
+    const avgHours = activeEmployees > 0 ? (totalHours / activeEmployees).toFixed(1) : '0';
+
     return {
       totalHours,
-      activeEmployees: activeEmpIds.size,
-      avgHours: activeEmpIds.size > 0 ? (totalHours / activeEmpIds.size).toFixed(1) : '0',
+      activeEmployees,
+      avgHours,
     };
   }, [attendances]);
 
-  // Save attendance from dialog
+  // Handle saving attendance from dialog
   const handleSaveAttendance = async (payload: {
     id?: string;
     employeeId: string;
@@ -186,15 +167,8 @@ export default function AttendancePage() {
     pieceQty?: number | null;
     notes?: string | null;
   }) => {
-    const existingAtt = payload.id
-      ? null
-      : attendances.find(
-          (a) => a.employeeId === payload.employeeId && a.date.slice(0, 10) === payload.date,
-        );
-    const targetId = payload.id || existingAtt?.id;
-
-    if (targetId) {
-      await apiFetch(`/attendance/${targetId}`, {
+    if (payload.id) {
+      await apiFetch(`/attendance/${payload.id}`, {
         method: 'PATCH',
         body: JSON.stringify({
           hours: payload.hours,
@@ -227,37 +201,37 @@ export default function AttendancePage() {
 
       {/* Summary KPI Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="flex items-center gap-3.5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400">
+        <div className="flex items-center gap-3.5 rounded-xl border border-line bg-surface p-4 shadow-xs text-fg">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent-bg text-accent">
             <Clock className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-xs text-slate-500 font-medium">Tổng giờ công tuần</p>
-            <p className="text-xl font-bold text-slate-900 dark:text-slate-100">
+            <p className="text-xs font-medium text-muted">Tổng giờ công tuần</p>
+            <p className="text-xl font-bold text-fg">
               {formatHours(stats.totalHours)}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3.5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-400">
+        <div className="flex items-center gap-3.5 rounded-xl border border-line bg-surface p-4 shadow-xs text-fg">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-info-bg text-info">
             <Users className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-xs text-slate-500 font-medium">Nhân viên đi làm</p>
-            <p className="text-xl font-bold text-slate-900 dark:text-slate-100">
+            <p className="text-xs font-medium text-muted">Nhân viên đi làm</p>
+            <p className="text-xl font-bold text-fg">
               {stats.activeEmployees} / {employees.length}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3.5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-400">
+        <div className="flex items-center gap-3.5 rounded-xl border border-line bg-surface p-4 shadow-xs text-fg">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-ok-bg text-ok">
             <CheckCircle2 className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-xs text-slate-500 font-medium">Trung bình giờ / người</p>
-            <p className="text-xl font-bold text-slate-900 dark:text-slate-100">
+            <p className="text-xs font-medium text-muted">Trung bình giờ / người</p>
+            <p className="text-xl font-bold text-fg">
               {stats.avgHours}h
             </p>
           </div>
@@ -265,7 +239,7 @@ export default function AttendancePage() {
       </div>
 
       {/* Controls & Filters Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-surface p-3.5 shadow-xs text-fg">
         {/* Week navigation */}
         <div className="flex items-center gap-2">
           <Button
@@ -278,13 +252,13 @@ export default function AttendancePage() {
             <ChevronLeft className="h-4 w-4" />
           </Button>
 
-          <div className="flex items-center gap-2 px-2 text-xs font-medium text-slate-700 dark:text-slate-300">
-            <Calendar className="h-4 w-4 text-emerald-600" />
+          <div className="flex items-center gap-2 px-2 text-xs font-medium text-fg">
+            <Calendar className="h-4 w-4 text-accent" />
             <span>
               {formatDate(weekDays[0].date)} – {formatDate(weekDays[6].date)}
             </span>
             {weekOffset === 0 && (
-              <span className="rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+              <span className="rounded bg-accent-bg px-1.5 py-0.5 text-[10px] font-semibold text-accent">
                 Tuần này
               </span>
             )}
@@ -305,7 +279,7 @@ export default function AttendancePage() {
               variant="ghost"
               size="sm"
               onClick={() => setWeekOffset(0)}
-              className="h-8 text-xs text-slate-500"
+              className="h-8 text-xs text-muted hover:text-fg"
             >
               Hôm nay
             </Button>
@@ -345,7 +319,7 @@ export default function AttendancePage() {
       </div>
 
       {canEdit && (
-        <p className="text-xs text-slate-500 italic">
+        <p className="text-xs text-muted italic">
           * Mẹo: Với quyền Quản lý (MANAGER / OWNER), bạn có thể bấm trực tiếp vào bất kỳ ô ngày nào
           để điều chỉnh giờ công.
         </p>

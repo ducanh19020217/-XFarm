@@ -111,33 +111,35 @@ export function EmployeeFormDialog({
     >
       <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
         {formError && (
-          <div className="rounded-md bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/50 dark:text-red-400">
+          <div className="rounded-md border border-crit/20 bg-crit-bg p-3 text-sm text-crit">
             {formError}
           </div>
         )}
 
-        <div className="space-y-1">
-          <Label htmlFor="code">Mã nhân viên (để trống để tự sinh)</Label>
-          <Input
-            id="code"
-            placeholder="NV-0001"
-            disabled={isEdit || submitting}
-            {...register('code')}
-          />
-          {errors.code && <p className="text-xs text-red-500">{errors.code.message}</p>}
-        </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="space-y-1">
+            <Label htmlFor="code">Mã nhân viên (để trống để tự sinh)</Label>
+            <Input
+              id="code"
+              placeholder="NV-0001"
+              disabled={isEdit || submitting}
+              {...register('code')}
+            />
+            {errors.code && <p className="text-xs text-crit">{errors.code.message}</p>}
+          </div>
 
-        <div className="space-y-1">
-          <Label htmlFor="fullName">
-            Họ và tên <span className="text-red-500">*</span>
-          </Label>
-          <Input
-            id="fullName"
-            placeholder="Nguyễn Văn A"
-            disabled={submitting}
-            {...register('fullName')}
-          />
-          {errors.fullName && <p className="text-xs text-red-500">{errors.fullName.message}</p>}
+          <div className="space-y-1">
+            <Label htmlFor="fullName">
+              Họ và tên <span className="text-crit">*</span>
+            </Label>
+            <Input
+              id="fullName"
+              placeholder="Nguyễn Văn A"
+              disabled={submitting}
+              {...register('fullName')}
+            />
+            {errors.fullName && <p className="text-xs text-crit">{errors.fullName.message}</p>}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -149,12 +151,12 @@ export function EmployeeFormDialog({
               disabled={submitting}
               {...register('phone')}
             />
-            {errors.phone && <p className="text-xs text-red-500">{errors.phone.message}</p>}
+            {errors.phone && <p className="text-xs text-crit">{errors.phone.message}</p>}
           </div>
 
           <div className="space-y-1">
             <Label htmlFor="position">
-              Vị trí công việc <span className="text-red-500">*</span>
+              Vị trí công việc <span className="text-crit">*</span>
             </Label>
             <Input
               id="position"
@@ -162,14 +164,14 @@ export function EmployeeFormDialog({
               disabled={submitting}
               {...register('position')}
             />
-            {errors.position && <p className="text-xs text-red-500">{errors.position.message}</p>}
+            {errors.position && <p className="text-xs text-crit">{errors.position.message}</p>}
           </div>
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="space-y-1">
             <Label htmlFor="payType">
-              Hình thức lương <span className="text-red-500">*</span>
+              Hình thức lương <span className="text-crit">*</span>
             </Label>
             <Controller
               name="payType"
@@ -189,12 +191,12 @@ export function EmployeeFormDialog({
                 </Select>
               )}
             />
-            {errors.payType && <p className="text-xs text-red-500">{errors.payType.message}</p>}
+            {errors.payType && <p className="text-xs text-crit">{errors.payType.message}</p>}
           </div>
 
           <div className="space-y-1">
             <Label htmlFor="baseRate">
-              Mức lương cơ bản <span className="text-red-500">*</span>
+              Mức lương cơ bản <span className="text-crit">*</span>
             </Label>
             <Controller
               name="baseRate"
@@ -210,7 +212,7 @@ export function EmployeeFormDialog({
                 />
               )}
             />
-            {errors.baseRate && <p className="text-xs text-red-500">{errors.baseRate.message}</p>}
+            {errors.baseRate && <p className="text-xs text-crit">{errors.baseRate.message}</p>}
           </div>
         </div>
 
@@ -218,11 +220,11 @@ export function EmployeeFormDialog({
           <input
             type="checkbox"
             id="isActive"
-            className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+            className="h-4 w-4 rounded border-line text-accent focus:ring-accent"
             disabled={submitting}
             {...register('isActive')}
           />
-          <Label htmlFor="isActive" className="cursor-pointer font-normal">
+          <Label htmlFor="isActive" className="cursor-pointer font-normal text-fg">
             Đang hoạt động (cho phép giao việc & chấm công)
           </Label>
         </div>
