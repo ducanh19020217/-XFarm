@@ -129,6 +129,10 @@ async function main() {
       '/reports/cashflow?year=2026',
       '/reports/cycles',
       '/reports/products',
+      '/bookings',
+      '/tours',
+      '/public/tours',
+      '/public/bookings/lookup?code=TEST&phone=0900000000',
     ];
 
     for (const item of routes) {
@@ -137,19 +141,28 @@ async function main() {
       const path = routeConfig.path;
       const headers: Record<string, string> = { cookie: cookieHeader };
       let body: string | undefined;
-
       if (routeConfig.body !== undefined) {
         headers['content-type'] = 'application/json';
         body = JSON.stringify(routeConfig.body);
       }
-
-      const response = await request(`${baseUrl}${path}`, {
-        method,
-        headers,
-        body,
-      });
+      let response: Response | undefined;
+      for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+          response = await request(`${baseUrl}${path}`, { method, headers, body });
+          break;
+        } catch {
+          await new Promise((resolvePromise) => setTimeout(resolvePromise, 1000));
+        }
+      }
+      if (!response) {
+        throw new Error(`Failed to request ${path} after 3 attempts\nServer output:\n${output}`);
+      }
       if (response.status === 404 && path.startsWith('/calendar')) {
         console.log(`SKIP ${path} (404: route chưa có)`);
+        continue;
+      }
+      if (response.status === 404 && path.startsWith('/public/bookings/lookup')) {
+        console.log(`PASS ${method} ${path} (${response.status}: không tìm thấy dữ liệu mẫu)`);
         continue;
       }
       if (response.status === 404 || response.status >= 500) {

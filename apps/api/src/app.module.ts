@@ -31,6 +31,8 @@ import { FinanceModule } from './modules/finance/finance.module';
 import { CustomersModule } from './modules/customers/customers.module';
 import { SalesOrdersModule } from './modules/sales-orders/sales-orders.module';
 import { ReportsModule } from './modules/reports/reports.module';
+import { BookingsModule } from './modules/bookings/bookings.module';
+import { ToursModule } from './modules/tours/tours.module';
 import { SequenceModule } from './common/sequence/sequence.module';
 
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
@@ -77,6 +79,8 @@ import { HealthController } from './health.controller';
     CustomersModule,
     SalesOrdersModule,
     ReportsModule,
+    BookingsModule,
+    ToursModule,
   ],
   providers: [
     {

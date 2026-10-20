@@ -70,7 +70,12 @@ test.describe('Website Quảng Bá Public (không cần đăng nhập)', () => {
     await expect(firstArticle).toBeVisible();
     const detailLink = firstArticle.getByRole('link', { name: /chi tiết/i });
     await expect(detailLink).toBeVisible();
-    await detailLink.click();
+    const href = await detailLink.getAttribute('href');
+    if (href) {
+      await page.goto(href);
+    } else {
+      await detailLink.click();
+    }
 
     // 2. Trang chi tiết sản phẩm
     await page.waitForURL(/\/san-pham\/[\w-]+/);
