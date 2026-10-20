@@ -44,41 +44,41 @@ export default async function ProductsPage() {
         {/* Breadcrumb */}
         <nav
           aria-label="Breadcrumb"
-          className="flex items-center gap-2 text-xs sm:text-sm text-slate-700"
+          className="flex items-center gap-2 text-xs sm:text-sm text-muted"
         >
-          <Link href="/" className="hover:text-emerald-700 transition-colors">
+          <Link href="/" className="hover:text-accent transition-colors">
             Trang chủ
           </Link>
-          <ChevronRight className="w-3.5 h-3.5 text-slate-400" aria-hidden="true" />
-          <span className="text-slate-900 font-semibold" aria-current="page">
+          <ChevronRight className="w-3.5 h-3.5 text-muted" aria-hidden="true" />
+          <span className="text-fg font-semibold" aria-current="page">
             Sản phẩm
           </span>
         </nav>
 
         {/* Page Header */}
-        <div className="border-b border-slate-200 pb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div className="border-b border-line pb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200">
+            <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-accent bg-accent-bg px-3 py-1.5 rounded-full border border-accent/20">
               Nông sản sạch
             </span>
-            <h1 className="mt-3 text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight">
+            <h1 className="mt-3 text-3xl sm:text-5xl font-extrabold text-fg tracking-tight">
               Sản Phẩm Trang Trại
             </h1>
-            <p className="mt-2 text-slate-700 text-base max-w-2xl">
+            <p className="mt-2 text-muted text-base max-w-2xl">
               Tất cả sản phẩm đều được thu hoạch trực tiếp tại các khu trồng trọt, chuồng trại và ao
               nuôi sinh thái của XFarm.
             </p>
           </div>
 
-          <div className="text-xs sm:text-sm text-slate-700 font-medium">
-            Hiển thị <span className="font-bold text-slate-900">{products.length}</span> sản phẩm
+          <div className="text-xs sm:text-sm text-muted font-medium">
+            Hiển thị <span className="font-bold text-fg">{products.length}</span> sản phẩm
           </div>
         </div>
 
         {/* Products Grid */}
         {products.length === 0 ? (
-          <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 shadow-xs max-w-xl mx-auto">
-            <p className="text-slate-700 text-base">Hiện chưa có sản phẩm nào được bày bán.</p>
+          <div className="bg-surface rounded-3xl p-12 text-center border border-line shadow-xs max-w-xl mx-auto text-fg">
+            <p className="text-muted text-base">Hiện chưa có sản phẩm nào được bày bán.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">

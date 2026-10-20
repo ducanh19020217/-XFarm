@@ -9,12 +9,12 @@ interface TraceTimelineViewProps {
 export function TraceTimelineView({ timeline }: TraceTimelineViewProps) {
   if (!timeline || timeline.length === 0) {
     return (
-      <section className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
-        <div className="flex items-center gap-2 mb-3 pb-2 border-b border-slate-100">
-          <History className="w-5 h-5 text-emerald-600" />
-          <h2 className="text-base font-semibold text-slate-800">Nhật ký quy trình canh tác</h2>
+      <section className="bg-surface rounded-2xl p-4 shadow-xs border border-line">
+        <div className="flex items-center gap-2 mb-3 pb-2 border-b border-line">
+          <History className="w-5 h-5 text-accent" />
+          <h2 className="text-base font-semibold text-fg">Nhật ký quy trình canh tác</h2>
         </div>
-        <p className="text-sm text-slate-500 py-4 text-center">
+        <p className="text-sm text-muted py-4 text-center">
           Chưa có nhật ký canh tác chi tiết cho lô sản phẩm này.
         </p>
       </section>
@@ -22,36 +22,34 @@ export function TraceTimelineView({ timeline }: TraceTimelineViewProps) {
   }
 
   return (
-    <section className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
-      <div className="flex items-center gap-2 mb-4 pb-2 border-b border-slate-100">
-        <History className="w-5 h-5 text-emerald-600" />
-        <h2 className="text-base font-semibold text-slate-800">Nhật ký quy trình canh tác</h2>
-        <span className="text-xs text-slate-400 font-medium ml-auto">
-          {timeline.length} giai đoạn
-        </span>
+    <section className="bg-surface rounded-2xl p-4 shadow-xs border border-line">
+      <div className="flex items-center gap-2 mb-4 pb-2 border-b border-line">
+        <History className="w-5 h-5 text-accent" />
+        <h2 className="text-base font-semibold text-fg">Nhật ký quy trình canh tác</h2>
+        <span className="text-xs text-muted font-medium ml-auto">{timeline.length} giai đoạn</span>
       </div>
 
-      <div className="relative pl-6 space-y-6 before:absolute before:left-3.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-emerald-200">
+      <div className="relative pl-6 space-y-6 before:absolute before:left-3.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-accent/30">
         {timeline.map((item, index) => (
           <div key={item.id || index} className="relative group">
             {/* Timeline icon node */}
-            <div className="absolute -left-6 top-0 flex items-center justify-center w-7 h-7 rounded-full bg-emerald-50 border-2 border-emerald-500 text-sm shadow-xs select-none">
+            <div className="absolute -left-6 top-0 flex items-center justify-center w-7 h-7 rounded-full bg-accent-bg border-2 border-accent text-sm shadow-xs select-none">
               {item.icon}
             </div>
 
             {/* Step content */}
-            <div className="bg-slate-50/90 rounded-xl p-3 border border-slate-100">
+            <div className="bg-surface-2 rounded-xl p-3 border border-line">
               <div className="flex flex-wrap items-baseline justify-between gap-1 mb-1">
-                <h3 className="font-semibold text-slate-900 text-sm">{item.typeLabel}</h3>
-                <span className="text-xs font-medium text-emerald-700 bg-emerald-100/70 px-2 py-0.5 rounded-full">
+                <h3 className="font-semibold text-fg text-sm">{item.typeLabel}</h3>
+                <span className="text-xs font-medium text-accent bg-accent-bg px-2 py-0.5 rounded-full">
                   {item.formattedDate}
                 </span>
               </div>
 
               {item.summary ? (
-                <p className="text-xs text-slate-600 leading-relaxed">{item.summary}</p>
+                <p className="text-xs text-fg-2 leading-relaxed">{item.summary}</p>
               ) : (
-                <p className="text-xs text-slate-400 italic">Thực hiện theo quy chuẩn kỹ thuật</p>
+                <p className="text-xs text-muted italic">Thực hiện theo quy chuẩn kỹ thuật</p>
               )}
 
               {/* Photos attached to this specific step */}
@@ -62,7 +60,7 @@ export function TraceTimelineView({ timeline }: TraceTimelineViewProps) {
                       key={imgIdx}
                       src={url}
                       alt={`${item.typeLabel} - ảnh ${imgIdx + 1}`}
-                      className="w-12 h-12 object-cover rounded-md border border-slate-200"
+                      className="w-12 h-12 object-cover rounded-md border border-line"
                       loading="lazy"
                     />
                   ))}

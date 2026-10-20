@@ -39,11 +39,11 @@ export function TraceLightbox({ photos }: TraceLightboxProps) {
   }
 
   return (
-    <section className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+    <section className="bg-surface rounded-2xl p-4 shadow-xs border border-line">
       <div className="flex items-center gap-2 mb-3">
-        <ImageIcon className="w-5 h-5 text-emerald-600" />
-        <h2 className="text-base font-semibold text-slate-800">Hình ảnh thực tế</h2>
-        <span className="text-xs text-slate-400 font-medium ml-auto">{photos.length} hình ảnh</span>
+        <ImageIcon className="w-5 h-5 text-accent" />
+        <h2 className="text-base font-semibold text-fg">Hình ảnh thực tế</h2>
+        <span className="text-xs text-muted font-medium ml-auto">{photos.length} hình ảnh</span>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
@@ -52,7 +52,7 @@ export function TraceLightbox({ photos }: TraceLightboxProps) {
             key={idx}
             type="button"
             onClick={() => setSelectedIndex(idx)}
-            className="group relative aspect-square w-full rounded-xl overflow-hidden bg-slate-100 border border-slate-200/80 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-transform active:scale-95"
+            className="group relative aspect-square w-full rounded-xl overflow-hidden bg-surface-2 border border-line focus:outline-hidden focus:ring-2 focus:ring-accent transition-transform active:scale-95"
             aria-label={`Xem ảnh ${idx + 1}`}
           >
             {/* Using standard img for external/user-uploaded media in Next.js without fixed domain config */}

@@ -37,7 +37,7 @@ export function Header({ settings }: HeaderProps) {
             href="/"
             className="flex items-center gap-2.5 text-accent hover:opacity-90 transition-opacity focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent rounded-md"
           >
-            <div className="w-10 h-10 rounded-xl bg-accent text-surface flex items-center justify-center shadow-xs">
+            <div className="w-10 h-10 rounded-xl bg-accent text-accent-contrast flex items-center justify-center shadow-xs">
               <Sprout className="w-6 h-6" aria-hidden="true" />
             </div>
             <div className="flex flex-col">
@@ -90,7 +90,7 @@ export function Header({ settings }: HeaderProps) {
               {isLoaded && totalCount > 0 && (
                 <span
                   data-testid="cart-badge-count"
-                  className="absolute -top-1 -right-1 bg-accent text-surface text-[11px] font-bold rounded-full min-w-5 h-5 px-1 flex items-center justify-center shadow-xs"
+                  className="absolute -top-1 -right-1 bg-accent text-accent-contrast text-[11px] font-bold rounded-full min-w-5 h-5 px-1 flex items-center justify-center shadow-xs"
                 >
                   {totalCount > 99 ? '99+' : totalCount}
                 </span>
@@ -110,7 +110,7 @@ export function Header({ settings }: HeaderProps) {
             >
               <ShoppingCart className="w-6 h-6 text-fg-2" aria-hidden="true" />
               {isLoaded && totalCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-accent text-surface text-[10px] font-bold rounded-full min-w-4.5 h-4.5 px-1 flex items-center justify-center shadow-xs">
+                <span className="absolute -top-1 -right-1 bg-accent text-accent-contrast text-[10px] font-bold rounded-full min-w-4.5 h-4.5 px-1 flex items-center justify-center shadow-xs">
                   {totalCount > 99 ? '99+' : totalCount}
                 </span>
               )}
@@ -172,7 +172,7 @@ export function Header({ settings }: HeaderProps) {
                 <span>Giỏ hàng</span>
               </span>
               {isLoaded && totalCount > 0 && (
-                <span className="bg-accent text-surface text-xs font-bold rounded-full px-2 py-0.5">
+                <span className="bg-accent text-accent-contrast text-xs font-bold rounded-full px-2 py-0.5">
                   {totalCount}
                 </span>
               )}

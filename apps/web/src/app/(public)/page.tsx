@@ -128,16 +128,16 @@ export default async function HomePage() {
       {/* KHU VỰC 2: 4 Mảng Nông Nghiệp */}
       <section aria-labelledby="pillars-heading" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-          <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200">
+          <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-accent bg-accent-bg px-3 py-1.5 rounded-full border border-accent/20">
             Hệ sinh thái XFarm
           </span>
           <h2
             id="pillars-heading"
-            className="mt-3 text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight"
+            className="mt-3 text-2xl sm:text-4xl font-extrabold text-fg tracking-tight"
           >
             4 Lĩnh Vực Canh Tác Cốt Lõi
           </h2>
-          <p className="mt-3 text-base sm:text-lg text-slate-700">
+          <p className="mt-3 text-base sm:text-lg text-muted">
             Mô hình kinh tế tuần hoàn khép kín: chất thải chăn nuôi làm phân bón hữu cơ, phụ phẩm
             nông nghiệp nuôi trùn và cá, tạo nên chu trình bền vững.
           </p>
@@ -149,15 +149,15 @@ export default async function HomePage() {
             return (
               <div
                 key={item.title}
-                className="bg-white rounded-2xl p-6 sm:p-7 border border-slate-200/80 shadow-xs hover:shadow-md hover:border-emerald-300 transition-all duration-200 flex flex-col"
+                className="bg-surface rounded-2xl p-6 sm:p-7 border border-line shadow-xs hover:shadow-md hover:border-accent transition-all duration-200 flex flex-col text-fg"
               >
                 <div
                   className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-5 ${item.color}`}
                 >
                   <Icon className="w-7 h-7" aria-hidden="true" />
                 </div>
-                <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-2.5">{item.title}</h3>
-                <p className="text-sm text-slate-700 leading-relaxed">{item.description}</p>
+                <h3 className="text-lg sm:text-xl font-bold text-fg mb-2.5">{item.title}</h3>
+                <p className="text-sm text-muted leading-relaxed">{item.description}</p>
               </div>
             );
           })}
@@ -171,23 +171,23 @@ export default async function HomePage() {
       >
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10 sm:mb-12">
           <div>
-            <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200">
+            <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-accent bg-accent-bg px-3 py-1.5 rounded-full border border-accent/20">
               Nông sản tươi sạch
             </span>
             <h2
               id="featured-products-heading"
-              className="mt-3 text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight"
+              className="mt-3 text-2xl sm:text-4xl font-extrabold text-fg tracking-tight"
             >
               Sản Phẩm Nổi Bật
             </h2>
-            <p className="mt-2 text-slate-700 text-sm sm:text-base">
+            <p className="mt-2 text-muted text-sm sm:text-base">
               Thu hoạch trực tiếp từ trang trại, đảm bảo độ tươi ngon và an toàn tuyệt đối.
             </p>
           </div>
 
           <Link
             href="/san-pham"
-            className="inline-flex items-center gap-1.5 text-sm font-bold text-emerald-700 hover:text-emerald-800 transition-colors self-start md:self-auto"
+            className="inline-flex items-center gap-1.5 text-sm font-bold text-accent hover:text-accent-hover transition-colors self-start md:self-auto"
           >
             <span>Xem tất cả sản phẩm</span>
             <ArrowRight className="w-4 h-4" aria-hidden="true" />
@@ -205,17 +205,17 @@ export default async function HomePage() {
       <section aria-labelledby="tour-heading" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10 sm:mb-12">
           <div>
-            <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200">
+            <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-accent bg-accent-bg px-3 py-1.5 rounded-full border border-accent/20">
               Du lịch sinh thái
             </span>
             <span className="sr-only">Sắp ra mắt (Giai đoạn 5)</span>
             <h2
               id="tour-heading"
-              className="mt-3 text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight"
+              className="mt-3 text-2xl sm:text-4xl font-extrabold text-fg tracking-tight"
             >
               Tour Du Lịch Trải Nghiệm Sinh Thái
             </h2>
-            <p className="mt-2 text-slate-700 text-sm sm:text-base">
+            <p className="mt-2 text-muted text-sm sm:text-base">
               Hòa mình vào thiên nhiên, trải nghiệm làm nông dân thực thụ và tận hưởng không gian
               xanh mát cùng gia đình.
             </p>
@@ -223,7 +223,7 @@ export default async function HomePage() {
 
           <Link
             href="/tour"
-            className="inline-flex items-center gap-1.5 text-sm font-bold text-emerald-700 hover:text-emerald-800 transition-colors self-start md:self-auto"
+            className="inline-flex items-center gap-1.5 text-sm font-bold text-accent hover:text-accent-hover transition-colors self-start md:self-auto"
           >
             <span>Xem tất cả tour</span>
             <ArrowRight className="w-4 h-4" aria-hidden="true" />
@@ -244,16 +244,16 @@ export default async function HomePage() {
       >
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10 sm:mb-12">
           <div>
-            <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200">
+            <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-accent bg-accent-bg px-3 py-1.5 rounded-full border border-accent/20">
               Cẩm nang XFarm
             </span>
             <h2
               id="latest-posts-heading"
-              className="mt-3 text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight"
+              className="mt-3 text-2xl sm:text-4xl font-extrabold text-fg tracking-tight"
             >
               Tin Tức & Cẩm Nang Nông Nghiệp
             </h2>
-            <p className="mt-2 text-slate-700 text-sm sm:text-base">
+            <p className="mt-2 text-muted text-sm sm:text-base">
               Chia sẻ kiến thức canh tác sạch, mẹo chọn nông sản và câu chuyện đời thường tại nông
               trại.
             </p>
@@ -261,7 +261,7 @@ export default async function HomePage() {
 
           <Link
             href="/blog"
-            className="inline-flex items-center gap-1.5 text-sm font-bold text-emerald-700 hover:text-emerald-800 transition-colors self-start md:self-auto"
+            className="inline-flex items-center gap-1.5 text-sm font-bold text-accent hover:text-accent-hover transition-colors self-start md:self-auto"
           >
             <span>Xem tất cả tin tức</span>
             <ArrowRight className="w-4 h-4" aria-hidden="true" />

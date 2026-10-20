@@ -147,8 +147,8 @@ export function CheckoutView() {
   if (!isLoaded || loadingProducts) {
     return (
       <div className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-emerald-600 border-t-transparent" />
-        <p className="mt-3 text-slate-600 text-sm">Đang tải thông tin thanh toán...</p>
+        <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-accent border-t-transparent" />
+        <p className="mt-3 text-muted text-sm">Đang tải thông tin thanh toán...</p>
       </div>
     );
   }
@@ -156,18 +156,18 @@ export function CheckoutView() {
   if (items.length === 0) {
     return (
       <div className="py-16 sm:py-24 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-3xl p-8 sm:p-14 text-center border border-slate-200/80 shadow-xs">
-          <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-500">
+        <div className="bg-surface rounded-3xl p-8 sm:p-14 text-center border border-line shadow-xs">
+          <div className="w-16 h-16 bg-surface-2 rounded-full flex items-center justify-center mx-auto mb-4 text-muted">
             <ShoppingBag className="w-8 h-8" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900">Giỏ hàng trống</h1>
-          <p className="mt-2 text-slate-600 text-sm">
+          <h1 className="text-2xl font-bold text-fg">Giỏ hàng trống</h1>
+          <p className="mt-2 text-muted text-sm">
             Bạn chưa chọn sản phẩm nào để thanh toán. Vui lòng thêm sản phẩm vào giỏ hàng trước.
           </p>
           <div className="mt-6">
             <Link
               href="/san-pham"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-emerald-600 text-white font-bold text-sm hover:bg-emerald-700 transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-accent text-accent-contrast font-bold text-sm hover:bg-accent-hover transition-colors"
             >
               <span>Xem danh mục sản phẩm</span>
             </Link>
@@ -183,15 +183,15 @@ export function CheckoutView() {
       <div className="mb-8">
         <Link
           href="/gio-hang"
-          className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-emerald-700 hover:text-emerald-800 transition-colors mb-3"
+          className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-accent hover:underline transition-colors mb-3"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Quay lại giỏ hàng</span>
         </Link>
-        <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+        <h1 className="text-2xl sm:text-4xl font-extrabold text-fg tracking-tight">
           Thông tin thanh toán
         </h1>
-        <p className="mt-1 text-slate-600 text-sm">
+        <p className="mt-1 text-muted text-sm">
           Vui lòng nhập thông tin nhận hàng để hoàn tất đặt hàng.
         </p>
       </div>
@@ -199,9 +199,9 @@ export function CheckoutView() {
       {apiError && (
         <div
           role="alert"
-          className="mb-8 p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 flex items-start gap-3"
+          className="mb-8 p-4 rounded-xl bg-crit-bg border border-crit/20 text-crit flex items-start gap-3"
         >
-          <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+          <AlertCircle className="w-5 h-5 text-crit shrink-0 mt-0.5" />
           <div className="text-sm font-medium">{apiError}</div>
         </div>
       )}
@@ -211,18 +211,15 @@ export function CheckoutView() {
           {/* Main Form Fields */}
           <div className="lg:col-span-2 space-y-6">
             {/* Customer Details Box */}
-            <div className="bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-8 shadow-xs space-y-5">
-              <h2 className="text-lg font-bold text-slate-900 border-b border-slate-100 pb-3">
+            <div className="bg-surface rounded-2xl border border-line p-6 sm:p-8 shadow-xs space-y-5">
+              <h2 className="text-lg font-bold text-fg border-b border-line pb-3">
                 1. Thông tin người nhận
               </h2>
 
               {/* Full Name */}
               <div>
-                <label
-                  htmlFor="fullName"
-                  className="block text-sm font-semibold text-slate-800 mb-1.5"
-                >
-                  Họ và tên <span className="text-red-500">*</span>
+                <label htmlFor="fullName" className="block text-sm font-semibold text-fg-2 mb-1.5">
+                  Họ và tên <span className="text-crit">*</span>
                 </label>
                 <input
                   id="fullName"
@@ -231,14 +228,14 @@ export function CheckoutView() {
                   {...register('fullName')}
                   aria-invalid={Boolean(errors.fullName)}
                   aria-describedby={errors.fullName ? 'fullName-error' : undefined}
-                  className={`w-full px-4 py-2.5 rounded-xl border text-sm transition-colors focus:outline-hidden focus:ring-2 ${
+                  className={`w-full px-4 py-2.5 rounded-xl border text-sm transition-colors bg-surface text-fg focus:outline-hidden focus:ring-2 ${
                     errors.fullName
-                      ? 'border-red-300 focus:border-red-500 focus:ring-red-200 bg-red-50/30'
-                      : 'border-slate-300 focus:border-emerald-500 focus:ring-emerald-100'
+                      ? 'border-crit/50 focus:border-crit focus:ring-crit/20 bg-crit-bg/20'
+                      : 'border-line focus:border-accent focus:ring-accent/20'
                   }`}
                 />
                 {errors.fullName && (
-                  <p id="fullName-error" className="text-red-600 text-xs mt-1.5 font-medium">
+                  <p id="fullName-error" className="text-crit text-xs mt-1.5 font-medium">
                     {errors.fullName.message}
                   </p>
                 )}
@@ -246,11 +243,8 @@ export function CheckoutView() {
 
               {/* Phone */}
               <div>
-                <label
-                  htmlFor="phone"
-                  className="block text-sm font-semibold text-slate-800 mb-1.5"
-                >
-                  Số điện thoại <span className="text-red-500">*</span>
+                <label htmlFor="phone" className="block text-sm font-semibold text-fg-2 mb-1.5">
+                  Số điện thoại <span className="text-crit">*</span>
                 </label>
                 <input
                   id="phone"
@@ -259,14 +253,14 @@ export function CheckoutView() {
                   {...register('phone')}
                   aria-invalid={Boolean(errors.phone)}
                   aria-describedby={errors.phone ? 'phone-error' : undefined}
-                  className={`w-full px-4 py-2.5 rounded-xl border text-sm transition-colors focus:outline-hidden focus:ring-2 ${
+                  className={`w-full px-4 py-2.5 rounded-xl border text-sm transition-colors bg-surface text-fg focus:outline-hidden focus:ring-2 ${
                     errors.phone
-                      ? 'border-red-300 focus:border-red-500 focus:ring-red-200 bg-red-50/30'
-                      : 'border-slate-300 focus:border-emerald-500 focus:ring-emerald-100'
+                      ? 'border-crit/50 focus:border-crit focus:ring-crit/20 bg-crit-bg/20'
+                      : 'border-line focus:border-accent focus:ring-accent/20'
                   }`}
                 />
                 {errors.phone && (
-                  <p id="phone-error" className="text-red-600 text-xs mt-1.5 font-medium">
+                  <p id="phone-error" className="text-crit text-xs mt-1.5 font-medium">
                     {errors.phone.message}
                   </p>
                 )}
@@ -274,11 +268,8 @@ export function CheckoutView() {
 
               {/* Address */}
               <div>
-                <label
-                  htmlFor="address"
-                  className="block text-sm font-semibold text-slate-800 mb-1.5"
-                >
-                  Địa chỉ nhận hàng <span className="text-red-500">*</span>
+                <label htmlFor="address" className="block text-sm font-semibold text-fg-2 mb-1.5">
+                  Địa chỉ nhận hàng <span className="text-crit">*</span>
                 </label>
                 <input
                   id="address"
@@ -287,14 +278,14 @@ export function CheckoutView() {
                   {...register('address')}
                   aria-invalid={Boolean(errors.address)}
                   aria-describedby={errors.address ? 'address-error' : undefined}
-                  className={`w-full px-4 py-2.5 rounded-xl border text-sm transition-colors focus:outline-hidden focus:ring-2 ${
+                  className={`w-full px-4 py-2.5 rounded-xl border text-sm transition-colors bg-surface text-fg focus:outline-hidden focus:ring-2 ${
                     errors.address
-                      ? 'border-red-300 focus:border-red-500 focus:ring-red-200 bg-red-50/30'
-                      : 'border-slate-300 focus:border-emerald-500 focus:ring-emerald-100'
+                      ? 'border-crit/50 focus:border-crit focus:ring-crit/20 bg-crit-bg/20'
+                      : 'border-line focus:border-accent focus:ring-accent/20'
                   }`}
                 />
                 {errors.address && (
-                  <p id="address-error" className="text-red-600 text-xs mt-1.5 font-medium">
+                  <p id="address-error" className="text-crit text-xs mt-1.5 font-medium">
                     {errors.address.message}
                   </p>
                 )}
@@ -302,10 +293,7 @@ export function CheckoutView() {
 
               {/* Notes */}
               <div>
-                <label
-                  htmlFor="notes"
-                  className="block text-sm font-semibold text-slate-800 mb-1.5"
-                >
+                <label htmlFor="notes" className="block text-sm font-semibold text-fg-2 mb-1.5">
                   Ghi chú đơn hàng (tùy chọn)
                 </label>
                 <textarea
@@ -315,10 +303,10 @@ export function CheckoutView() {
                   {...register('notes')}
                   aria-invalid={Boolean(errors.notes)}
                   aria-describedby={errors.notes ? 'notes-error' : undefined}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm transition-colors focus:outline-hidden focus:ring-2 focus:border-emerald-500 focus:ring-emerald-100"
+                  className="w-full px-4 py-2.5 rounded-xl border border-line bg-surface text-fg text-sm transition-colors focus:outline-hidden focus:ring-2 focus:border-accent focus:ring-accent/20"
                 />
                 {errors.notes && (
-                  <p id="notes-error" className="text-red-600 text-xs mt-1.5 font-medium">
+                  <p id="notes-error" className="text-crit text-xs mt-1.5 font-medium">
                     {errors.notes.message}
                   </p>
                 )}
@@ -326,8 +314,8 @@ export function CheckoutView() {
             </div>
 
             {/* Payment Method Box */}
-            <div className="bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-8 shadow-xs space-y-4">
-              <h2 className="text-lg font-bold text-slate-900 border-b border-slate-100 pb-3">
+            <div className="bg-surface rounded-2xl border border-line p-6 sm:p-8 shadow-xs space-y-4">
+              <h2 className="text-lg font-bold text-fg border-b border-line pb-3">
                 2. Hình thức thanh toán
               </h2>
 
@@ -336,22 +324,22 @@ export function CheckoutView() {
                 <label
                   className={`relative flex items-start p-4 rounded-xl border cursor-pointer transition-all ${
                     selectedPaymentMethod === PaymentMethod.COD
-                      ? 'border-emerald-600 bg-emerald-50/40 shadow-xs'
-                      : 'border-slate-200 hover:border-slate-300 bg-white'
+                      ? 'border-accent bg-accent-bg/40 shadow-xs'
+                      : 'border-line hover:border-line-strong bg-surface'
                   }`}
                 >
                   <input
                     type="radio"
                     value={PaymentMethod.COD}
                     {...register('paymentMethod')}
-                    className="mt-1 h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-slate-300"
+                    className="mt-1 h-4 w-4 text-accent focus:ring-accent border-line"
                   />
                   <div className="ml-3 flex flex-col">
-                    <span className="flex items-center gap-1.5 font-bold text-sm text-slate-900">
-                      <Truck className="w-4 h-4 text-emerald-600" />
+                    <span className="flex items-center gap-1.5 font-bold text-sm text-fg">
+                      <Truck className="w-4 h-4 text-accent" />
                       Thanh toán khi nhận hàng (COD)
                     </span>
-                    <span className="text-xs text-slate-500 mt-1">
+                    <span className="text-xs text-muted mt-1">
                       Trả tiền mặt trực tiếp cho nhân viên giao hàng khi nhận được nông sản.
                     </span>
                   </div>
@@ -361,22 +349,22 @@ export function CheckoutView() {
                 <label
                   className={`relative flex items-start p-4 rounded-xl border cursor-pointer transition-all ${
                     selectedPaymentMethod === PaymentMethod.BANK_TRANSFER
-                      ? 'border-emerald-600 bg-emerald-50/40 shadow-xs'
-                      : 'border-slate-200 hover:border-slate-300 bg-white'
+                      ? 'border-accent bg-accent-bg/40 shadow-xs'
+                      : 'border-line hover:border-line-strong bg-surface'
                   }`}
                 >
                   <input
                     type="radio"
                     value={PaymentMethod.BANK_TRANSFER}
                     {...register('paymentMethod')}
-                    className="mt-1 h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-slate-300"
+                    className="mt-1 h-4 w-4 text-accent focus:ring-accent border-line"
                   />
                   <div className="ml-3 flex flex-col">
-                    <span className="flex items-center gap-1.5 font-bold text-sm text-slate-900">
-                      <CreditCard className="w-4 h-4 text-emerald-600" />
+                    <span className="flex items-center gap-1.5 font-bold text-sm text-fg">
+                      <CreditCard className="w-4 h-4 text-accent" />
                       Chuyển khoản (VietQR)
                     </span>
-                    <span className="text-xs text-slate-500 mt-1">
+                    <span className="text-xs text-muted mt-1">
                       Quét mã QR qua app ngân hàng tiện lợi với thông tin tự động điền sẵn.
                     </span>
                   </div>
@@ -384,7 +372,7 @@ export function CheckoutView() {
               </div>
 
               {errors.paymentMethod && (
-                <p className="text-red-600 text-xs mt-1.5 font-medium">
+                <p className="text-crit text-xs mt-1.5 font-medium">
                   {errors.paymentMethod.message}
                 </p>
               )}
@@ -392,27 +380,27 @@ export function CheckoutView() {
           </div>
 
           {/* Sidebar: Order Summary */}
-          <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-6">
-            <h2 className="text-lg font-bold text-slate-900 border-b border-slate-100 pb-3">
+          <div className="bg-surface rounded-2xl border border-line p-6 shadow-xs space-y-6">
+            <h2 className="text-lg font-bold text-fg border-b border-line pb-3">
               Đơn hàng của bạn ({items.length} món)
             </h2>
 
             {/* List items */}
-            <div className="space-y-3 max-h-80 overflow-y-auto pr-1 text-sm divide-y divide-slate-100">
+            <div className="space-y-3 max-h-80 overflow-y-auto pr-1 text-sm divide-y divide-line">
               {cartLines.map((line) => (
                 <div
                   key={line.productId}
                   className="pt-3 first:pt-0 flex justify-between items-start gap-2"
                 >
                   <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-slate-900 truncate">
+                    <p className="font-semibold text-fg truncate">
                       {line.product?.name ?? `SP: ${line.productId}`}
                     </p>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-muted">
                       Số lượng: {line.quantity} × {formatCurrency(line.price)}
                     </p>
                   </div>
-                  <span className="font-bold text-slate-900 shrink-0">
+                  <span className="font-bold text-fg shrink-0">
                     {formatCurrency(line.subtotal)}
                   </span>
                 </div>
@@ -420,22 +408,22 @@ export function CheckoutView() {
             </div>
 
             {errors.items && (
-              <p className="text-red-600 text-xs font-medium">{errors.items.message}</p>
+              <p className="text-crit text-xs font-medium">{errors.items.message}</p>
             )}
 
             {/* Total calculation */}
-            <div className="border-t border-slate-100 pt-4 space-y-2.5 text-sm">
-              <div className="flex justify-between text-slate-600">
+            <div className="border-t border-line pt-4 space-y-2.5 text-sm">
+              <div className="flex justify-between text-muted">
                 <span>Tạm tính</span>
-                <span className="font-semibold text-slate-900">{formatCurrency(subtotal)}</span>
+                <span className="font-semibold text-fg">{formatCurrency(subtotal)}</span>
               </div>
-              <div className="flex justify-between text-slate-600">
+              <div className="flex justify-between text-muted">
                 <span>Phí vận chuyển</span>
-                <span className="text-emerald-700 font-medium">Miễn phí giao hàng</span>
+                <span className="text-accent font-medium">Miễn phí giao hàng</span>
               </div>
-              <div className="border-t border-slate-100 pt-3 flex justify-between items-baseline">
-                <span className="text-base font-bold text-slate-900">Tổng thanh toán</span>
-                <span className="text-2xl font-extrabold text-emerald-700">
+              <div className="border-t border-line pt-3 flex justify-between items-baseline">
+                <span className="text-base font-bold text-fg">Tổng thanh toán</span>
+                <span className="text-2xl font-extrabold text-accent">
                   {formatCurrency(subtotal)}
                 </span>
               </div>
@@ -447,7 +435,7 @@ export function CheckoutView() {
                 type="submit"
                 disabled={isSubmitting}
                 data-testid="submit-checkout"
-                className="w-full inline-flex items-center justify-center gap-2 py-4 px-6 rounded-xl bg-emerald-600 text-white font-bold text-base hover:bg-emerald-700 disabled:bg-slate-400 disabled:cursor-not-allowed shadow-sm transition-all focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-emerald-500"
+                className="w-full inline-flex items-center justify-center gap-2 py-4 px-6 rounded-xl bg-accent text-accent-contrast font-bold text-base hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed shadow-xs transition-all focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
               >
                 {isSubmitting ? (
                   <>

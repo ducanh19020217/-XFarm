@@ -114,31 +114,31 @@ export default function OutboxPage() {
     switch (kind) {
       case 'activity':
         return (
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-ok-bg text-ok border border-ok/20">
             Nhật ký nông trại
           </span>
         );
       case 'check-in':
         return (
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-info-bg text-info border border-info/20">
             Chấm công Vào ca
           </span>
         );
       case 'check-out':
         return (
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-selected text-accent border border-accent/20">
             Chấm công Ra ca
           </span>
         );
       case 'task-complete':
         return (
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-warn-bg text-warn border border-warn/20">
             Hoàn thành việc
           </span>
         );
       default:
         return (
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-surface-2 text-muted border border-line">
             {kind}
           </span>
         );
@@ -162,20 +162,18 @@ export default function OutboxPage() {
   return (
     <div className="space-y-4">
       {/* Top Header */}
-      <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+      <div className="flex items-center justify-between pb-2 border-b border-line">
         <div className="flex items-center gap-2">
           <Link
             href="/admin/m"
-            className="p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 active:scale-95"
+            className="p-2 rounded-xl text-muted hover:text-fg hover:bg-hover active:scale-95 transition-colors"
             title="Quay lại"
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <div>
-            <h1 className="text-lg font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
-              Hàng đợi ngoại tuyến
-            </h1>
-            <p className="text-xs font-medium text-slate-500">
+            <h1 className="text-lg font-extrabold text-fg tracking-tight">Hàng đợi ngoại tuyến</h1>
+            <p className="text-xs font-medium text-muted">
               Quản lý các thao tác chưa đồng bộ lên máy chủ
             </p>
           </div>
@@ -185,7 +183,7 @@ export default function OutboxPage() {
           <button
             type="button"
             onClick={() => setShowClearConfirm(true)}
-            className="p-2 text-xs font-bold text-red-600 hover:bg-red-50 dark:hover:bg-red-950/50 rounded-xl flex items-center gap-1 active:scale-95"
+            className="p-2 text-xs font-bold text-crit hover:bg-crit-bg rounded-xl flex items-center gap-1 active:scale-95 transition-colors"
             title="Xóa tất cả"
           >
             <Trash2 className="h-4 w-4" />
@@ -195,20 +193,20 @@ export default function OutboxPage() {
       </div>
 
       {statusMessage && (
-        <div className="p-3 text-xs font-semibold rounded-xl bg-blue-50 text-blue-900 border border-blue-200 dark:bg-blue-950/60 dark:border-blue-800 dark:text-blue-300 animate-in fade-in">
+        <div className="p-3 text-xs font-semibold rounded-xl bg-info-bg text-info border border-info/20 animate-in fade-in">
           {statusMessage}
         </div>
       )}
 
       {/* Sync Action Card */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-900 flex items-center justify-between">
+      <div className="rounded-2xl border border-line bg-surface p-4 shadow-xs flex items-center justify-between text-fg">
         <div>
           <div className="flex items-center gap-1.5">
-            <span className="text-sm font-bold text-slate-800 dark:text-slate-200">
+            <span className="text-sm font-bold text-fg-2">
               {items.length} thao tác trong hàng đợi
             </span>
           </div>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-muted">
             {isOnline
               ? 'Máy chủ sẵn sàng, có thể đồng bộ ngay'
               : 'Thiết bị đang offline. Dữ liệu an toàn trong máy.'}
@@ -220,7 +218,7 @@ export default function OutboxPage() {
           size="sm"
           disabled={isSyncing || items.length === 0}
           onClick={handleSyncNow}
-          className="h-10 px-4 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-xs flex items-center gap-1.5 active:scale-95"
+          className="h-10 px-4 text-xs font-bold bg-accent hover:bg-accent-hover text-surface rounded-xl shadow-xs flex items-center gap-1.5 active:scale-95"
         >
           <RefreshCw className={`h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
           {isSyncing ? 'Đang đồng bộ...' : 'Đồng bộ ngay'}
@@ -229,22 +227,26 @@ export default function OutboxPage() {
 
       {/* Item List */}
       {loading ? (
-        <div className="py-12 text-center text-sm font-medium text-slate-500 flex flex-col items-center gap-2">
-          <RefreshCw className="h-6 w-6 animate-spin text-emerald-600" />
+        <div className="py-12 text-center text-sm font-medium text-muted flex flex-col items-center gap-2">
+          <RefreshCw className="h-6 w-6 animate-spin text-accent" />
           <span>Đang tải dữ liệu hàng đợi...</span>
         </div>
       ) : items.length === 0 ? (
-        <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-xs dark:border-slate-800 dark:bg-slate-900 space-y-3">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400">
+        <div className="rounded-2xl border border-line bg-surface p-8 text-center shadow-xs space-y-3 text-fg">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-ok-bg text-ok">
             <CheckCircle2 className="h-6 w-6" />
           </div>
-          <h3 className="text-base font-bold text-slate-800 dark:text-slate-200">Hàng đợi trống</h3>
-          <p className="text-xs text-slate-500 max-w-xs mx-auto leading-relaxed">
+          <h3 className="text-base font-bold text-fg-2">Hàng đợi trống</h3>
+          <p className="text-xs text-muted max-w-xs mx-auto leading-relaxed">
             Toàn bộ thao tác bạn thực hiện đã được đồng bộ hoàn tất lên hệ thống máy chủ XFarm.
           </p>
           <div className="pt-2">
             <Link href="/admin/m">
-              <Button variant="outline" size="sm" className="h-10 rounded-xl text-xs font-bold">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-10 rounded-xl text-xs font-bold border-line bg-surface text-fg hover:bg-hover"
+              >
                 Quay về trang chính
               </Button>
             </Link>
@@ -259,19 +261,19 @@ export default function OutboxPage() {
             return (
               <div
                 key={item.clientId}
-                className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-900 space-y-2.5 transition-all"
+                className="rounded-2xl border border-line bg-surface p-4 shadow-xs space-y-2.5 transition-all text-fg"
               >
                 {/* Header */}
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-extrabold text-slate-400">#{index + 1}</span>
+                    <span className="text-xs font-extrabold text-muted">#{index + 1}</span>
                     {getKindBadge(item.kind)}
                   </div>
                   <button
                     type="button"
                     disabled={isDeleting}
                     onClick={() => handleDeleteItem(item.clientId)}
-                    className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/50 rounded-lg transition-colors active:scale-95"
+                    className="p-1.5 text-muted hover:text-crit hover:bg-crit-bg rounded-lg transition-colors active:scale-95"
                     title="Xóa thao tác này"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -279,25 +281,25 @@ export default function OutboxPage() {
                 </div>
 
                 {/* Details */}
-                <div className="text-xs space-y-1 text-slate-600 dark:text-slate-400">
+                <div className="text-xs space-y-1 text-muted">
                   {Boolean(payload.notes) && (
-                    <p className="font-medium text-slate-800 dark:text-slate-200">
-                      Ghi chú: {String(payload.notes)}
-                    </p>
+                    <p className="font-medium text-fg">Ghi chú: {String(payload.notes)}</p>
                   )}
                   {Boolean(payload.type) && (
                     <p>
-                      Loại: <span className="font-semibold">{String(payload.type)}</span>
+                      Loại: <span className="font-semibold text-fg-2">{String(payload.type)}</span>
                     </p>
                   )}
                   {Boolean(payload.at) && (
                     <p>
                       Thời điểm:{' '}
-                      <span className="font-medium">{formatDateTime(String(payload.at))}</span>
+                      <span className="font-medium text-fg-2">
+                        {formatDateTime(String(payload.at))}
+                      </span>
                     </p>
                   )}
                   {Array.isArray(payload.mediaIds) && payload.mediaIds.length > 0 && (
-                    <p className="text-emerald-700 dark:text-emerald-400 font-medium">
+                    <p className="text-accent font-medium">
                       📷 Kèm {payload.mediaIds.length} ảnh hiện trường
                     </p>
                   )}
@@ -305,18 +307,18 @@ export default function OutboxPage() {
 
                 {/* Last Error if any */}
                 {item.lastError && (
-                  <div className="p-2 rounded-xl bg-red-50 text-red-700 dark:bg-red-950/60 dark:text-red-300 text-[11px] font-medium flex items-start gap-1.5">
-                    <AlertCircle className="h-3.5 w-3.5 shrink-0 mt-0.5 text-red-600" />
+                  <div className="p-2 rounded-xl bg-crit-bg text-crit border border-crit/20 text-[11px] font-medium flex items-start gap-1.5">
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0 mt-0.5 text-crit" />
                     <span>Lỗi lần thử trước: {item.lastError}</span>
                   </div>
                 )}
 
                 {/* Footer metadata */}
-                <div className="pt-1 flex items-center justify-between text-[11px] text-slate-400 font-mono border-t border-slate-100 dark:border-slate-800/80">
+                <div className="pt-1 flex items-center justify-between text-[11px] text-muted font-mono border-t border-line">
                   <span title={item.clientId}>ID: {item.clientId.slice(0, 8)}...</span>
                   <div className="flex items-center gap-2 font-sans">
                     {item.attempts > 0 && (
-                      <span className="text-amber-600 font-medium">Thử: {item.attempts} lần</span>
+                      <span className="text-warn font-medium">Thử: {item.attempts} lần</span>
                     )}
                     <span>{formatDateTime(item.createdAt)}</span>
                   </div>

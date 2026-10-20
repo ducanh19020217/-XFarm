@@ -15,6 +15,7 @@ import {
   CycleKind,
   CycleStatus,
   Role,
+  StockMoveType,
 } from '@prisma/client';
 import { createHash } from 'node:crypto';
 import { resetDemo } from './seed-demo';
@@ -1589,6 +1590,41 @@ async function main() {
         createdById: admin?.id,
       },
     });
+
+    // 3. Ensure stock exists in finished warehouse
+    const finishedWarehouse = await prisma.warehouse.findUnique({
+      where: { code: 'WH-FINISHED' },
+    });
+    if (finishedWarehouse) {
+      const lot = await prisma.stockLot.upsert({
+        where: { itemId_lotCode: { itemId: item.id, lotCode: `LOT-${prod.sku}` } },
+        update: { warehouseId: finishedWarehouse.id },
+        create: {
+          itemId: item.id,
+          warehouseId: finishedWarehouse.id,
+          lotCode: `LOT-${prod.sku}`,
+          unitCost: new Prisma.Decimal(prod.price * 0.5),
+        },
+      });
+      const refId = `DEMO-OPENING-${prod.sku}`;
+      const move = await prisma.stockMove.findFirst({ where: { refType: 'OPENING', refId } });
+      if (!move) {
+        await prisma.stockMove.create({
+          data: {
+            type: StockMoveType.IN,
+            itemId: item.id,
+            stockLotId: lot.id,
+            toWarehouseId: finishedWarehouse.id,
+            quantity: new Prisma.Decimal(500),
+            unitCost: new Prisma.Decimal(prod.price * 0.5),
+            refType: 'OPENING',
+            refId,
+            movedAt: new Date(),
+            notes: 'Nhập tồn demo sản phẩm',
+          },
+        });
+      }
+    }
   }
 
   // ==========================================
