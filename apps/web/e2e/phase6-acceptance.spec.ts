@@ -1,4 +1,5 @@
 import { api, expect, expectDialogInViewport, loginAs, test } from './fixtures';
+import { PrismaClient } from '@prisma/client';
 
 for (const envFile of ['../../.env', '../.env', '.env']) {
   try {
@@ -99,7 +100,7 @@ test.describe('Nghiệm thu GĐ 6 (Phase 6 Acceptance Criteria)', () => {
       '/activities?pageSize=10',
     );
     expect(afterSyncRes?.total).toBe(initialCount + 2);
-    const prisma = new (await import('@prisma/client')).PrismaClient();
+    const prisma = new PrismaClient();
     try {
       const synced = await prisma.activity.findMany({
         where: { notes: { in: [note1, note2] } },

@@ -1,4 +1,5 @@
 import { api, expect, loginAs, test } from './fixtures';
+import { PrismaClient } from '@prisma/client';
 
 try {
   process.loadEnvFile?.('../../.env');
@@ -109,7 +110,7 @@ test.describe('PWA Offline IndexedDB Queue & Idempotent Auto-Sync (p6-pwa-offlin
       '/activities?pageSize=10',
     );
     expect(afterSyncRes?.total).toBe(initialCount + 2);
-    const prisma = new (await import('@prisma/client')).PrismaClient();
+    const prisma = new PrismaClient();
     try {
       const synced = await prisma.activity.findMany({
         where: { notes: { in: [note1, note2] } },
