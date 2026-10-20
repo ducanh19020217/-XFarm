@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  UnprocessableEntityException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { prisma, Prisma } from '@xfarm/db';
 import { Role, SalesOrderStatus } from '@xfarm/shared';
 import { SequenceService } from '../../common/sequence/sequence.service';
