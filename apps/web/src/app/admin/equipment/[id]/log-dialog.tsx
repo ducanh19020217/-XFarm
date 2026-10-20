@@ -80,7 +80,7 @@ export function LogDialog({ open, onOpenChange, schedules, onSubmit }: LogDialog
   };
 
   const selectClass =
-    'h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20';
+    'h-10 w-full rounded-lg border border-line bg-surface px-3 text-sm text-fg focus:outline-none focus:ring-2 focus:ring-accent/20 transition-colors';
 
   return (
     <FormDialog
@@ -91,7 +91,7 @@ export function LogDialog({ open, onOpenChange, schedules, onSubmit }: LogDialog
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         {formError && (
-          <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-600 dark:border-red-900 dark:bg-red-950/50">
+          <div className="rounded-lg border border-crit/30 bg-crit-bg p-3 text-sm text-crit">
             {formError}
           </div>
         )}
@@ -109,7 +109,7 @@ export function LogDialog({ open, onOpenChange, schedules, onSubmit }: LogDialog
               }}
               disabled={isSubmitting}
             />
-            {errors.date && <p className="text-xs text-red-600">{errors.date}</p>}
+            {errors.date && <p className="text-xs text-crit">{errors.date}</p>}
           </div>
 
           <div className="space-y-1">
@@ -146,7 +146,7 @@ export function LogDialog({ open, onOpenChange, schedules, onSubmit }: LogDialog
               </option>
             ))}
           </select>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-muted">
             Khi chọn lịch, ngày đến hạn tiếp theo của lịch sẽ được tự động cập nhật lại.
           </p>
         </div>

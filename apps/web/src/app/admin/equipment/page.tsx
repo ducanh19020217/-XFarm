@@ -159,7 +159,7 @@ export default function EquipmentPage() {
     switch (status) {
       case EquipmentStatus.ACTIVE:
         return (
-          <Badge variant="default" className="bg-emerald-600 hover:bg-emerald-700">
+          <Badge variant="default">
             {EQUIPMENT_STATUS_LABELS[status]}
           </Badge>
         );
@@ -181,7 +181,7 @@ export default function EquipmentPage() {
       cell: ({ row }) => (
         <Link
           href={`/admin/equipment/${row.original.id}`}
-          className="font-medium text-emerald-600 hover:text-emerald-700 hover:underline"
+          className="font-medium text-accent hover:text-accent-hover hover:underline"
         >
           {row.original.code}
         </Link>
@@ -194,12 +194,12 @@ export default function EquipmentPage() {
         <div className="space-y-0.5">
           <Link
             href={`/admin/equipment/${row.original.id}`}
-            className="font-medium text-slate-900 hover:text-emerald-600 dark:text-slate-100"
+            className="font-medium text-fg hover:text-accent transition-colors"
           >
             {row.original.name}
           </Link>
           {row.original.notes && (
-            <p className="text-xs text-slate-400 line-clamp-1">{row.original.notes}</p>
+            <p className="text-xs text-muted line-clamp-1">{row.original.notes}</p>
           )}
         </div>
       ),
@@ -217,7 +217,7 @@ export default function EquipmentPage() {
       id: 'area',
       header: 'Khu vực',
       cell: ({ row }) => (
-        <span className="text-sm text-slate-600 dark:text-slate-300">
+        <span className="text-sm text-fg-2">
           {row.original.area ? `${row.original.area.name} (${row.original.area.code})` : '—'}
         </span>
       ),
@@ -226,7 +226,7 @@ export default function EquipmentPage() {
       accessorKey: 'value',
       header: 'Giá trị',
       cell: ({ row }) => (
-        <span className="text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">
+        <span className="text-sm text-fg-2 whitespace-nowrap">
           {row.original.value ? formatCurrencyVN(row.original.value) : '—'}
         </span>
       ),
@@ -254,16 +254,16 @@ export default function EquipmentPage() {
               <Badge
                 variant="warning"
                 data-testid="badge-due-soon"
-                className="text-xs bg-amber-500 text-white hover:bg-amber-600"
+                className="text-xs"
               >
                 Đến hạn bảo trì
               </Badge>
             )}
             {!isOverdue && !isDueSoon && earliestDueDate && (
-              <span className="text-xs text-slate-500">Hạn: {formatVNDate(earliestDueDate)}</span>
+              <span className="text-xs text-muted">Hạn: {formatVNDate(earliestDueDate)}</span>
             )}
             {!isOverdue && !isDueSoon && !earliestDueDate && (
-              <span className="text-xs text-slate-400">—</span>
+              <span className="text-xs text-muted">—</span>
             )}
           </div>
         );
@@ -276,7 +276,7 @@ export default function EquipmentPage() {
         <div className="flex items-center gap-1">
           <Link
             href={`/admin/equipment/${row.original.id}`}
-            className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 hover:text-emerald-700 p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800"
+            className="inline-flex items-center gap-1 text-xs font-medium text-accent hover:text-accent-hover p-1 rounded hover:bg-hover transition-colors"
             title="Xem chi tiết"
           >
             <ExternalLink className="h-3.5 w-3.5" />
@@ -288,7 +288,7 @@ export default function EquipmentPage() {
               variant="ghost"
               size="sm"
               onClick={() => handleOpenEdit(row.original)}
-              className="h-7 w-7 p-0 text-slate-500 hover:text-emerald-600"
+              className="h-7 w-7 p-0 text-muted hover:text-accent"
               title="Chỉnh sửa thiết bị"
             >
               <Edit2 className="h-3.5 w-3.5" />
@@ -300,7 +300,13 @@ export default function EquipmentPage() {
   ];
 
   const selectClass =
-    'h-10 rounded-md border border-slate-300 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20';
+    'h-10 rounded-lg border border-line bg-surface px-3 text-sm text-fg focus:outline-none focus:ring-2 focus:ring-accent/20';
+
+  const activeCount = equipmentList.filter((e) => e.status === EquipmentStatus.ACTIVE).length;
+  const maintenanceCount = equipmentList.filter((e) => {
+    const s = getEquipmentMaintenanceStatus(e.maintenanceSchedules);
+    return s.isOverdue || s.isDueSoon;
+  }).length;
 
   return (
     <div className="space-y-6">
@@ -317,7 +323,7 @@ export default function EquipmentPage() {
                 variant="outline"
                 onClick={handleRunMaintenanceCheck}
                 disabled={isCheckingMaint}
-                className="border-emerald-600 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+                className="border-line text-accent hover:bg-accent-bg"
               >
                 {isCheckingMaint ? (
                   <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
@@ -346,8 +352,24 @@ export default function EquipmentPage() {
         </div>
       </PageHeader>
 
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="rounded-lg border border-line bg-surface p-4 shadow-xs">
+          <span className="text-xs font-medium text-muted block">Tổng số thiết bị</span>
+          <p className="text-2xl font-bold text-fg mt-1">{total}</p>
+        </div>
+        <div className="rounded-lg border border-line bg-surface p-4 shadow-xs">
+          <span className="text-xs font-medium text-muted block">Đang hoạt động trên trang</span>
+          <p className="text-2xl font-bold text-ok mt-1">{activeCount}</p>
+        </div>
+        <div className="rounded-lg border border-line bg-surface p-4 shadow-xs">
+          <span className="text-xs font-medium text-muted block">Cần bảo trì / quá hạn</span>
+          <p className="text-2xl font-bold text-warn mt-1">{maintenanceCount}</p>
+        </div>
+      </div>
+
       {/* Filter Bar */}
-      <div className="flex flex-wrap items-end gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+      <div className="flex flex-wrap items-center gap-3 rounded-lg border border-line bg-surface p-4 shadow-xs">
         <div className="space-y-1.5 flex-1 min-w-[200px]">
           <Label htmlFor="search-equipment">Tìm kiếm</Label>
           <Input

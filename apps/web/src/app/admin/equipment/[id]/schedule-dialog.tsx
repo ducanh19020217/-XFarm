@@ -98,7 +98,7 @@ export function ScheduleDialog({ open, onOpenChange, schedule, onSubmit }: Sched
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         {formError && (
-          <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-600 dark:border-red-900 dark:bg-red-950/50">
+          <div className="rounded-lg border border-crit/30 bg-crit-bg p-3 text-sm text-crit">
             {formError}
           </div>
         )}
@@ -115,7 +115,7 @@ export function ScheduleDialog({ open, onOpenChange, schedule, onSubmit }: Sched
             }}
             disabled={isSubmitting}
           />
-          {errors.name && <p className="text-xs text-red-600">{errors.name}</p>}
+          {errors.name && <p className="text-xs text-crit">{errors.name}</p>}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -132,7 +132,7 @@ export function ScheduleDialog({ open, onOpenChange, schedule, onSubmit }: Sched
               }}
               disabled={isSubmitting}
             />
-            {errors.intervalDays && <p className="text-xs text-red-600">{errors.intervalDays}</p>}
+            {errors.intervalDays && <p className="text-xs text-crit">{errors.intervalDays}</p>}
           </div>
 
           <div className="space-y-1">
@@ -147,7 +147,7 @@ export function ScheduleDialog({ open, onOpenChange, schedule, onSubmit }: Sched
               }}
               disabled={isSubmitting}
             />
-            {errors.nextDueDate && <p className="text-xs text-red-600">{errors.nextDueDate}</p>}
+            {errors.nextDueDate && <p className="text-xs text-crit">{errors.nextDueDate}</p>}
           </div>
         </div>
 
@@ -158,7 +158,7 @@ export function ScheduleDialog({ open, onOpenChange, schedule, onSubmit }: Sched
             checked={isActive}
             onChange={(e) => setIsActive(e.target.checked)}
             disabled={isSubmitting}
-            className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+            className="h-4 w-4 rounded border-line text-accent focus:ring-accent"
           />
           <Label htmlFor="schedule-isActive" className="cursor-pointer text-sm font-normal">
             Kích hoạt lịch bảo trì này
