@@ -201,7 +201,7 @@ export default function PostsCmsPage() {
       cell: ({ row }) => {
         const cover = row.original.coverMediaId;
         return (
-          <div className="h-12 w-16 rounded-md border border-slate-200 bg-slate-100 overflow-hidden flex items-center justify-center dark:border-slate-800 dark:bg-slate-900">
+          <div className="h-12 w-16 rounded-md border border-line bg-surface-2 overflow-hidden flex items-center justify-center">
             {cover ? (
               <img
                 src={cover}
@@ -212,7 +212,7 @@ export default function PostsCmsPage() {
                 }}
               />
             ) : (
-              <ImageIcon className="h-5 w-5 text-slate-400" />
+              <ImageIcon className="h-5 w-5 text-muted" />
             )}
           </div>
         );
@@ -223,10 +223,10 @@ export default function PostsCmsPage() {
       header: 'Tiêu đề bài viết',
       cell: ({ row }) => (
         <div className="max-w-md">
-          <span className="font-medium text-slate-900 dark:text-slate-100 block truncate">
+          <span className="font-medium text-fg block truncate">
             {row.original.title}
           </span>
-          <span className="block text-xs text-slate-400 truncate">/{row.original.slug}</span>
+          <span className="block text-xs text-muted truncate">/{row.original.slug}</span>
         </div>
       ),
     },
@@ -234,7 +234,7 @@ export default function PostsCmsPage() {
       accessorKey: 'excerpt',
       header: 'Tóm tắt',
       cell: ({ row }) => (
-        <p className="max-w-xs truncate text-xs text-slate-500">{row.original.excerpt}</p>
+        <p className="max-w-xs truncate text-xs text-muted">{row.original.excerpt}</p>
       ),
     },
     {
@@ -242,22 +242,25 @@ export default function PostsCmsPage() {
       header: 'Trạng thái',
       cell: ({ row }) =>
         row.original.status === 'PUBLISHED' ? (
-          <Badge className="bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300">
+          <span className="inline-flex items-center rounded px-2 py-0.5 text-xs font-semibold bg-ok-bg text-ok">
             Đã xuất bản
-          </Badge>
+          </span>
         ) : (
-          <Badge variant="secondary" className="text-slate-600 dark:text-slate-400">
+          <span className="inline-flex items-center rounded px-2 py-0.5 text-xs font-semibold bg-surface-2 text-muted border border-line">
             Bản nháp
-          </Badge>
+          </span>
         ),
     },
     {
       accessorKey: 'publishedAt',
       header: 'Ngày xuất bản',
-      cell: ({ row }) =>
-        row.original.publishedAt
-          ? new Date(row.original.publishedAt).toLocaleDateString('vi-VN')
-          : '—',
+      cell: ({ row }) => (
+        <span className="text-muted text-xs">
+          {row.original.publishedAt
+            ? new Date(row.original.publishedAt).toLocaleDateString('vi-VN')
+            : '—'}
+        </span>
+      ),
     },
     {
       id: 'actions',
@@ -271,6 +274,7 @@ export default function PostsCmsPage() {
               variant="outline"
               size="sm"
               onClick={() => openEditDialog(p)}
+              className="border-line text-fg hover:bg-hover hover:text-accent"
               title="Chỉnh sửa bài viết"
             >
               <Edit2 className="h-3.5 w-3.5" />
@@ -278,7 +282,7 @@ export default function PostsCmsPage() {
             <Button
               variant="outline"
               size="sm"
-              className="text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950"
+              className="border-line text-crit hover:bg-crit-bg/20"
               onClick={() => setDeletingPost(p)}
               title="Xóa bài viết"
             >
@@ -297,28 +301,33 @@ export default function PostsCmsPage() {
         description="Đăng tải tin tức nông trại, kiến thức canh tác và câu chuyện sinh thái lên website"
       >
         {canEdit && (
-          <Button onClick={openCreateDialog}>
+          <Button
+            onClick={openCreateDialog}
+            className="bg-accent hover:bg-accent-hover text-on-accent font-medium"
+          >
             <Plus className="h-4 w-4 mr-1.5" />
             Viết bài mới
           </Button>
         )}
       </PageHeader>
 
-      <DataTable
-        columns={columns}
-        data={posts}
-        total={total}
-        page={page}
-        pageSize={pageSize}
-        onPageChange={setPage}
-        searchValue={search}
-        onSearchChange={(val) => {
-          setSearch(val);
-          setPage(1);
-        }}
-        searchPlaceholder="Tìm theo tiêu đề bài viết..."
-        isLoading={isLoading}
-      />
+      <div className="rounded-lg border border-line bg-surface shadow-xs overflow-hidden">
+        <DataTable
+          columns={columns}
+          data={posts}
+          total={total}
+          page={page}
+          pageSize={pageSize}
+          onPageChange={setPage}
+          searchValue={search}
+          onSearchChange={(val) => {
+            setSearch(val);
+            setPage(1);
+          }}
+          searchPlaceholder="Tìm theo tiêu đề bài viết..."
+          isLoading={isLoading}
+        />
+      </div>
 
       {/* Form Dialog for Post Create/Edit */}
       <FormDialog
@@ -328,7 +337,7 @@ export default function PostsCmsPage() {
         description="Soạn thảo nội dung bài viết và chọn trạng thái xuất bản"
       >
         {formError && (
-          <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-600">
+          <div className="mb-4 rounded-md border border-crit/30 bg-crit-bg/20 p-3 text-sm text-crit">
             {formError}
           </div>
         )}
@@ -340,54 +349,56 @@ export default function PostsCmsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Title */}
             <div className="space-y-1">
-              <Label htmlFor="post-title">Tiêu đề bài viết *</Label>
+              <Label htmlFor="post-title" className="text-fg">Tiêu đề bài viết *</Label>
               <Input
                 id="post-title"
                 placeholder="VD: Kỹ thuật nuôi ong tự nhiên tại XFarm"
                 disabled={isSubmitting}
+                className="bg-surface border-line text-fg"
                 {...form.register('title')}
                 onChange={handleTitleChange}
               />
               {form.formState.errors.title && (
-                <p className="text-xs text-red-600">{form.formState.errors.title.message}</p>
+                <p className="text-xs text-crit">{form.formState.errors.title.message}</p>
               )}
             </div>
 
             {/* Slug */}
             <div className="space-y-1">
-              <Label htmlFor="post-slug">Đường dẫn tĩnh (Slug)</Label>
+              <Label htmlFor="post-slug" className="text-fg">Đường dẫn tĩnh (Slug)</Label>
               <Input
                 id="post-slug"
                 placeholder="VD: ky-thuat-nuoi-ong-tu-nhien"
                 disabled={isSubmitting}
+                className="bg-surface border-line text-fg"
                 {...form.register('slug')}
                 onChange={handleSlugChange}
               />
               {form.formState.errors.slug && (
-                <p className="text-xs text-red-600">{form.formState.errors.slug.message}</p>
+                <p className="text-xs text-crit">{form.formState.errors.slug.message}</p>
               )}
             </div>
           </div>
 
           {/* Excerpt */}
           <div className="space-y-1">
-            <Label htmlFor="post-excerpt">Tóm tắt ngắn *</Label>
+            <Label htmlFor="post-excerpt" className="text-fg">Tóm tắt ngắn *</Label>
             <textarea
               id="post-excerpt"
               rows={2}
-              className="w-full rounded-md border border-slate-200 bg-white p-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
+              className="w-full rounded-md border border-line bg-surface p-2.5 text-sm text-fg focus:outline-none focus:ring-1 focus:ring-accent"
               placeholder="Tóm tắt 1-2 câu ngắn gọn về bài viết để hiển thị ở trang danh sách..."
               disabled={isSubmitting}
               {...form.register('excerpt')}
             />
             {form.formState.errors.excerpt && (
-              <p className="text-xs text-red-600">{form.formState.errors.excerpt.message}</p>
+              <p className="text-xs text-crit">{form.formState.errors.excerpt.message}</p>
             )}
           </div>
 
           {/* Cover Image */}
           <div className="space-y-1">
-            <Label>Ảnh bìa bài viết</Label>
+            <Label className="text-fg">Ảnh bìa bài viết</Label>
             <Controller
               control={form.control}
               name="coverMediaId"
@@ -404,7 +415,7 @@ export default function PostsCmsPage() {
 
           {/* Content (RichTextEditor) */}
           <div className="space-y-1">
-            <Label>Nội dung chi tiết *</Label>
+            <Label className="text-fg">Nội dung chi tiết *</Label>
             <Controller
               control={form.control}
               name="content"
@@ -418,22 +429,22 @@ export default function PostsCmsPage() {
               )}
             />
             {form.formState.errors.content && (
-              <p className="text-xs text-red-600">{form.formState.errors.content.message}</p>
+              <p className="text-xs text-crit">{form.formState.errors.content.message}</p>
             )}
           </div>
 
           {/* Status */}
           <div className="space-y-1">
-            <Label>Trạng thái xuất bản *</Label>
+            <Label className="text-fg">Trạng thái xuất bản *</Label>
             <Select
               defaultValue={form.getValues('status')}
               onValueChange={(val) => form.setValue('status', val as 'DRAFT' | 'PUBLISHED')}
               disabled={isSubmitting}
             >
-              <SelectTrigger>
+              <SelectTrigger className="bg-surface border-line text-fg">
                 <SelectValue placeholder="Chọn trạng thái" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-surface border-line text-fg">
                 <SelectItem value="DRAFT">Bản nháp (DRAFT)</SelectItem>
                 <SelectItem value="PUBLISHED">Xuất bản công khai (PUBLISHED)</SelectItem>
               </SelectContent>
@@ -441,16 +452,21 @@ export default function PostsCmsPage() {
           </div>
 
           {/* Dialog Action Buttons */}
-          <div className="flex justify-end gap-2 pt-4 border-t border-slate-200 dark:border-slate-800">
+          <div className="flex justify-end gap-2 pt-4 border-t border-line">
             <Button
               type="button"
               variant="outline"
               onClick={() => setDialogOpen(false)}
               disabled={isSubmitting}
+              className="border-line text-fg hover:bg-hover"
             >
               Hủy bỏ
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="bg-accent hover:bg-accent-hover text-on-accent font-medium"
+            >
               {isSubmitting ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />

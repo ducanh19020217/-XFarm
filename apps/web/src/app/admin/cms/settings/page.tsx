@@ -197,7 +197,11 @@ export default function SettingsCmsPage() {
         description="Quản lý thông tin công khai của nông trại, banner quảng cáo và tài khoản VietQR"
       >
         {canEdit && (
-          <Button onClick={handleSave} disabled={isSaving || isLoading}>
+          <Button
+            onClick={handleSave}
+            disabled={isSaving || isLoading}
+            className="bg-accent hover:bg-accent-hover text-on-accent font-medium"
+          >
             {isSaving ? (
               <>
                 <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
@@ -214,7 +218,7 @@ export default function SettingsCmsPage() {
       </PageHeader>
 
       {!canEdit && (
-        <div className="flex items-center gap-2 rounded-md border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-400">
+        <div className="flex items-center gap-2 rounded-md border border-warn/30 bg-warn-bg/20 p-4 text-sm text-warn">
           <AlertCircle className="h-5 w-5 shrink-0" />
           <span>
             Bạn đang xem ở chế độ chỉ đọc. Chỉ tài khoản vai trò <strong>Chủ trại (OWNER)</strong>{' '}
@@ -224,14 +228,14 @@ export default function SettingsCmsPage() {
       )}
 
       {errorMessage && (
-        <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-600 flex items-center gap-2">
+        <div className="rounded-md border border-crit/30 bg-crit-bg/20 p-3 text-sm text-crit flex items-center gap-2">
           <AlertCircle className="h-4 w-4" />
           {errorMessage}
         </div>
       )}
 
       {successMessage && (
-        <div className="rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700 flex items-center gap-2">
+        <div className="rounded-md border border-ok/30 bg-ok-bg/20 p-3 text-sm text-ok flex items-center gap-2">
           <CheckCircle2 className="h-4 w-4" />
           {successMessage}
         </div>
@@ -239,143 +243,151 @@ export default function SettingsCmsPage() {
 
       <form onSubmit={handleSave} className="space-y-8">
         {/* Section 1: Thông tin nông trại */}
-        <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950 space-y-4">
-          <div className="flex items-center gap-2 border-b border-slate-100 pb-3 dark:border-slate-800">
-            <Building className="h-5 w-5 text-emerald-600" />
-            <h3 className="font-semibold text-slate-900 dark:text-slate-100">
+        <div className="rounded-lg border border-line bg-surface p-5 shadow-xs space-y-4 text-fg">
+          <div className="flex items-center gap-2 border-b border-line pb-3">
+            <Building className="h-5 w-5 text-accent" />
+            <h3 className="font-semibold text-fg">
               Thông tin nhận diện nông trại
             </h3>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <Label htmlFor="farm-name">Tên nông trại (farm.name) *</Label>
+              <Label htmlFor="farm-name" className="text-fg">Tên nông trại (farm.name) *</Label>
               <Input
                 id="farm-name"
                 value={settings['farm.name']}
                 onChange={(e) => handleChange('farm.name', e.target.value)}
                 disabled={!canEdit || isSaving}
+                className="bg-surface border-line text-fg"
               />
             </div>
 
             <div className="space-y-1">
-              <Label htmlFor="farm-slogan">Khẩu hiệu / Slogan (farm.slogan)</Label>
+              <Label htmlFor="farm-slogan" className="text-fg">Khẩu hiệu / Slogan (farm.slogan)</Label>
               <Input
                 id="farm-slogan"
                 value={settings['farm.slogan']}
                 onChange={(e) => handleChange('farm.slogan', e.target.value)}
                 disabled={!canEdit || isSaving}
+                className="bg-surface border-line text-fg"
               />
             </div>
           </div>
 
           <div className="space-y-1">
-            <Label htmlFor="farm-about">Giới thiệu ngắn (farm.about)</Label>
+            <Label htmlFor="farm-about" className="text-fg">Giới thiệu ngắn (farm.about)</Label>
             <textarea
               id="farm-about"
               rows={3}
               value={settings['farm.about']}
               onChange={(e) => handleChange('farm.about', e.target.value)}
-              className="w-full rounded-md border border-slate-200 bg-white p-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
+              className="w-full rounded-md border border-line bg-surface p-2.5 text-sm text-fg focus:outline-none focus:ring-1 focus:ring-accent"
               disabled={!canEdit || isSaving}
             />
           </div>
         </div>
 
         {/* Section 2: Thông tin liên hệ */}
-        <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950 space-y-4">
-          <div className="flex items-center gap-2 border-b border-slate-100 pb-3 dark:border-slate-800">
-            <Phone className="h-5 w-5 text-emerald-600" />
-            <h3 className="font-semibold text-slate-900 dark:text-slate-100">
+        <div className="rounded-lg border border-line bg-surface p-5 shadow-xs space-y-4 text-fg">
+          <div className="flex items-center gap-2 border-b border-line pb-3">
+            <Phone className="h-5 w-5 text-accent" />
+            <h3 className="font-semibold text-fg">
               Kênh liên hệ công khai
             </h3>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <Label htmlFor="contact-phone">Số điện thoại hotline (contact.phone) *</Label>
+              <Label htmlFor="contact-phone" className="text-fg">Số điện thoại hotline (contact.phone) *</Label>
               <Input
                 id="contact-phone"
                 value={settings['contact.phone']}
                 onChange={(e) => handleChange('contact.phone', e.target.value)}
                 disabled={!canEdit || isSaving}
+                className="bg-surface border-line text-fg"
               />
             </div>
 
             <div className="space-y-1">
-              <Label htmlFor="contact-email">Email tiếp nhận (contact.email) *</Label>
+              <Label htmlFor="contact-email" className="text-fg">Email tiếp nhận (contact.email) *</Label>
               <Input
                 id="contact-email"
                 type="email"
                 value={settings['contact.email']}
                 onChange={(e) => handleChange('contact.email', e.target.value)}
                 disabled={!canEdit || isSaving}
+                className="bg-surface border-line text-fg"
               />
             </div>
           </div>
 
           <div className="space-y-1">
-            <Label htmlFor="contact-address">Địa chỉ nông trại (contact.address)</Label>
+            <Label htmlFor="contact-address" className="text-fg">Địa chỉ nông trại (contact.address)</Label>
             <Input
               id="contact-address"
               value={settings['contact.address']}
               onChange={(e) => handleChange('contact.address', e.target.value)}
               disabled={!canEdit || isSaving}
+              className="bg-surface border-line text-fg"
             />
           </div>
         </div>
 
         {/* Section 3: Mạng xã hội */}
-        <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950 space-y-4">
-          <div className="flex items-center gap-2 border-b border-slate-100 pb-3 dark:border-slate-800">
-            <Share2 className="h-5 w-5 text-emerald-600" />
-            <h3 className="font-semibold text-slate-900 dark:text-slate-100">
+        <div className="rounded-lg border border-line bg-surface p-5 shadow-xs space-y-4 text-fg">
+          <div className="flex items-center gap-2 border-b border-line pb-3">
+            <Share2 className="h-5 w-5 text-accent" />
+            <h3 className="font-semibold text-fg">
               Liên kết Mạng xã hội
             </h3>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-1">
-              <Label htmlFor="social-fb">Facebook URL (social.facebook)</Label>
+              <Label htmlFor="social-fb" className="text-fg">Facebook URL (social.facebook)</Label>
               <Input
                 id="social-fb"
                 placeholder="https://facebook.com/..."
                 value={settings['social.facebook']}
                 onChange={(e) => handleChange('social.facebook', e.target.value)}
                 disabled={!canEdit || isSaving}
+                className="bg-surface border-line text-fg"
               />
             </div>
 
             <div className="space-y-1">
-              <Label htmlFor="social-zl">Zalo link / SĐT (social.zalo)</Label>
+              <Label htmlFor="social-zl" className="text-fg">Zalo link / SĐT (social.zalo)</Label>
               <Input
                 id="social-zl"
                 placeholder="https://zalo.me/..."
                 value={settings['social.zalo']}
                 onChange={(e) => handleChange('social.zalo', e.target.value)}
                 disabled={!canEdit || isSaving}
+                className="bg-surface border-line text-fg"
               />
             </div>
 
             <div className="space-y-1">
-              <Label htmlFor="social-yt">Youtube URL (social.youtube)</Label>
+              <Label htmlFor="social-yt" className="text-fg">Youtube URL (social.youtube)</Label>
               <Input
                 id="social-yt"
                 placeholder="https://youtube.com/@..."
                 value={settings['social.youtube']}
                 onChange={(e) => handleChange('social.youtube', e.target.value)}
                 disabled={!canEdit || isSaving}
+                className="bg-surface border-line text-fg"
               />
             </div>
           </div>
         </div>
 
         {/* Section 4: Banner trang chủ */}
-        <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950 space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3 dark:border-slate-800">
+        <div className="rounded-lg border border-line bg-surface p-5 shadow-xs space-y-4 text-fg">
+          <div className="flex items-center justify-between border-b border-line pb-3">
             <div className="flex items-center gap-2">
-              <ImageIcon className="h-5 w-5 text-emerald-600" />
-              <h3 className="font-semibold text-slate-900 dark:text-slate-100">
+              <ImageIcon className="h-5 w-5 text-accent" />
+              <h3 className="font-semibold text-fg">
                 Banner quảng bá trang chủ (home.banners)
               </h3>
             </div>
@@ -386,6 +398,7 @@ export default function SettingsCmsPage() {
                 size="sm"
                 onClick={handleAddBanner}
                 disabled={isSaving}
+                className="border-line text-fg hover:bg-hover hover:text-accent"
               >
                 <Plus className="h-4 w-4 mr-1.5" />
                 Thêm banner
@@ -397,10 +410,10 @@ export default function SettingsCmsPage() {
             {settings['home.banners'].map((banner, index) => (
               <div
                 key={index}
-                className="rounded-md border border-slate-200 p-4 bg-slate-50 dark:border-slate-800 dark:bg-slate-900 space-y-3"
+                className="rounded-md border border-line p-4 bg-surface-2 space-y-3"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                  <span className="text-sm font-semibold text-fg">
                     Banner #{index + 1}
                   </span>
                   {canEdit && (
@@ -408,7 +421,7 @@ export default function SettingsCmsPage() {
                       type="button"
                       variant="outline"
                       size="sm"
-                      className="text-red-600 hover:bg-red-50"
+                      className="border-line text-crit hover:bg-crit-bg/20"
                       onClick={() => handleRemoveBanner(index)}
                       disabled={isSaving}
                     >
@@ -420,28 +433,30 @@ export default function SettingsCmsPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <Label>Tiêu đề banner</Label>
+                    <Label className="text-fg">Tiêu đề banner</Label>
                     <Input
                       value={banner.title}
                       onChange={(e) => handleBannerChange(index, 'title', e.target.value)}
                       placeholder="VD: Mùa thu hoạch cà chua bi hữu cơ"
                       disabled={!canEdit || isSaving}
+                      className="bg-surface border-line text-fg"
                     />
                   </div>
 
                   <div className="space-y-1">
-                    <Label>Liên kết khi bấm vào (tùy chọn)</Label>
+                    <Label className="text-fg">Liên kết khi bấm vào (tùy chọn)</Label>
                     <Input
                       value={banner.link || ''}
                       onChange={(e) => handleBannerChange(index, 'link', e.target.value)}
                       placeholder="/products hoặc https://..."
                       disabled={!canEdit || isSaving}
+                      className="bg-surface border-line text-fg"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <Label>Hình ảnh banner</Label>
+                  <Label className="text-fg">Hình ảnh banner</Label>
                   <SingleImageUpload
                     value={banner.imageUrl}
                     onChange={(_id, url) => handleBannerChange(index, 'imageUrl', url || '')}
@@ -453,7 +468,7 @@ export default function SettingsCmsPage() {
             ))}
 
             {settings['home.banners'].length === 0 && (
-              <p className="text-sm text-slate-500 italic py-2">
+              <p className="text-sm text-muted italic py-2">
                 Chưa có banner nào. Nhấn &quot;Thêm banner&quot; để tạo banner trang chủ.
               </p>
             )}
@@ -461,45 +476,48 @@ export default function SettingsCmsPage() {
         </div>
 
         {/* Section 5: Thông tin VietQR */}
-        <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950 space-y-4">
-          <div className="flex items-center gap-2 border-b border-slate-100 pb-3 dark:border-slate-800">
-            <CreditCard className="h-5 w-5 text-emerald-600" />
-            <h3 className="font-semibold text-slate-900 dark:text-slate-100">
+        <div className="rounded-lg border border-line bg-surface p-5 shadow-xs space-y-4 text-fg">
+          <div className="flex items-center gap-2 border-b border-line pb-3">
+            <CreditCard className="h-5 w-5 text-accent" />
+            <h3 className="font-semibold text-fg">
               Cấu hình thanh toán VietQR (bank.vietqr)
             </h3>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-1">
-              <Label htmlFor="bank-id">Ngân hàng (Mã hoặc tên viết tắt) *</Label>
+              <Label htmlFor="bank-id" className="text-fg">Ngân hàng (Mã hoặc tên viết tắt) *</Label>
               <Input
                 id="bank-id"
                 placeholder="VD: VCB, MB, TCB, ACB, BIDV"
                 value={settings['bank.vietqr'].bankId}
                 onChange={(e) => handleVietQRChange('bankId', e.target.value)}
                 disabled={!canEdit || isSaving}
+                className="bg-surface border-line text-fg"
               />
             </div>
 
             <div className="space-y-1">
-              <Label htmlFor="bank-no">Số tài khoản nhận tiền *</Label>
+              <Label htmlFor="bank-no" className="text-fg">Số tài khoản nhận tiền *</Label>
               <Input
                 id="bank-no"
                 placeholder="VD: 1029384756"
                 value={settings['bank.vietqr'].accountNo}
                 onChange={(e) => handleVietQRChange('accountNo', e.target.value)}
                 disabled={!canEdit || isSaving}
+                className="bg-surface border-line text-fg"
               />
             </div>
 
             <div className="space-y-1">
-              <Label htmlFor="bank-name">Tên chủ tài khoản (in hoa) *</Label>
+              <Label htmlFor="bank-name" className="text-fg">Tên chủ tài khoản (in hoa) *</Label>
               <Input
                 id="bank-name"
                 placeholder="VD: NGUYEN VAN A"
                 value={settings['bank.vietqr'].accountName}
                 onChange={(e) => handleVietQRChange('accountName', e.target.value.toUpperCase())}
                 disabled={!canEdit || isSaving}
+                className="bg-surface border-line text-fg"
               />
             </div>
           </div>
@@ -507,7 +525,12 @@ export default function SettingsCmsPage() {
 
         {canEdit && (
           <div className="flex justify-end pt-2">
-            <Button type="submit" size="lg" disabled={isSaving || isLoading}>
+            <Button
+              type="submit"
+              size="lg"
+              disabled={isSaving || isLoading}
+              className="bg-accent hover:bg-accent-hover text-on-accent font-medium"
+            >
               {isSaving ? (
                 <>
                   <Loader2 className="h-5 w-5 mr-2 animate-spin" />
