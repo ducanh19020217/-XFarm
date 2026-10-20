@@ -98,10 +98,8 @@ export default function CyclesPage() {
     setPage(1);
   };
 
-  const activeCount = cycles.filter((c) => c.status === CycleStatus.IN_PROGRESS).length;
-  const completedCount = cycles.filter(
-    (c) => c.status === CycleStatus.HARVESTED || c.status === CycleStatus.COMPLETED,
-  ).length;
+  const activeCount = cycles.filter((c) => c.status === CycleStatus.ACTIVE).length;
+  const completedCount = cycles.filter((c) => c.status === CycleStatus.CLOSED).length;
 
   return (
     <div className="space-y-6">
