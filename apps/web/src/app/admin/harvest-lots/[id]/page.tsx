@@ -124,7 +124,7 @@ export default function HarvestLotDetailPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-accent" />
       </div>
     );
   }
@@ -137,7 +137,7 @@ export default function HarvestLotDetailPage() {
           <ArrowLeft className="mr-2 h-4 w-4" />
           Danh sách lô thu hoạch
         </Button>
-        <p className="text-slate-500">Không tìm thấy lô thu hoạch yêu cầu.</p>
+        <p className="text-muted">Không tìm thấy lô thu hoạch yêu cầu.</p>
       </div>
     );
   }
@@ -159,11 +159,7 @@ export default function HarvestLotDetailPage() {
             <Button
               variant={lot.isPublic ? 'outline' : 'default'}
               onClick={() => setConfirmOpen(true)}
-              className={
-                lot.isPublic
-                  ? 'border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-700 dark:text-amber-400'
-                  : 'bg-emerald-600 hover:bg-emerald-700'
-              }
+              className={lot.isPublic ? 'border-warn/40 text-warn hover:bg-warn-bg' : ''}
             >
               {lot.isPublic ? (
                 <>
@@ -204,12 +200,12 @@ export default function HarvestLotDetailPage() {
             {lot.isPublic ? 'Đang công khai' : 'Lưu trữ nội bộ'}
           </Badge>
           {lot.qualityGrade && (
-            <Badge variant="outline" className="border-emerald-300 bg-emerald-50 text-emerald-800">
+            <Badge variant="outline" className="border-accent/30 bg-accent-bg text-accent">
               {lot.qualityGrade}
             </Badge>
           )}
           {lot.certification && (
-            <Badge variant="outline" className="border-blue-300 bg-blue-50 text-blue-800">
+            <Badge variant="outline" className="border-info/30 bg-info-bg text-info">
               {lot.certification}
             </Badge>
           )}
@@ -219,46 +215,44 @@ export default function HarvestLotDetailPage() {
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Thông tin lô */}
         <div className="space-y-6 lg:col-span-2">
-          <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-            <h2 className="mb-4 flex items-center gap-2 text-base font-semibold text-slate-900 dark:text-slate-100">
-              <Package className="h-5 w-5 text-emerald-600" />
+          <div className="rounded-lg border border-line bg-surface p-6 shadow-sm">
+            <h2 className="mb-4 flex items-center gap-2 text-base font-semibold text-fg">
+              <Package className="h-5 w-5 text-accent" />
               Thông tin lô nông sản
             </h2>
 
             <dl className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
               <div>
-                <dt className="text-xs font-medium text-slate-500">Mã lô thu hoạch</dt>
-                <dd className="mt-1 font-semibold text-slate-900 dark:text-slate-100">
-                  {lot.code}
-                </dd>
+                <dt className="text-xs font-medium text-muted">Mã lô thu hoạch</dt>
+                <dd className="mt-1 font-semibold text-fg">{lot.code}</dd>
               </div>
 
               <div>
-                <dt className="text-xs font-medium text-slate-500">Mã truy xuất nguồn gốc</dt>
+                <dt className="text-xs font-medium text-muted">Mã truy xuất nguồn gốc</dt>
                 <dd className="mt-1">
-                  <code className="rounded bg-slate-100 px-2 py-0.5 font-mono text-sm font-semibold text-slate-800 dark:bg-slate-800 dark:text-slate-200">
+                  <code className="rounded border border-line bg-surface-2 px-2 py-0.5 font-mono text-sm font-semibold text-fg">
                     {lot.traceCode}
                   </code>
                 </dd>
               </div>
 
               <div>
-                <dt className="text-xs font-medium text-slate-500">Tên sản phẩm</dt>
-                <dd className="mt-1 font-medium text-slate-900 dark:text-slate-100">
+                <dt className="text-xs font-medium text-muted">Tên sản phẩm</dt>
+                <dd className="mt-1 font-medium text-fg">
                   {lot.item?.name || '—'}
                   {lot.item?.sku && (
-                    <span className="ml-2 text-xs text-slate-400">({lot.item.sku})</span>
+                    <span className="ml-2 text-xs text-muted">({lot.item.sku})</span>
                   )}
                 </dd>
               </div>
 
               <div>
-                <dt className="text-xs font-medium text-slate-500">Mùa vụ sản xuất</dt>
-                <dd className="mt-1 text-slate-900 dark:text-slate-100">
+                <dt className="text-xs font-medium text-muted">Mùa vụ sản xuất</dt>
+                <dd className="mt-1 text-fg">
                   {lot.cycle ? (
                     <Link
                       href={`/admin/cycles/${lot.cycle.id}`}
-                      className="text-emerald-700 hover:underline"
+                      className="text-accent hover:underline"
                     >
                       {lot.cycle.code} · {lot.cycle.name}
                     </Link>
@@ -269,8 +263,8 @@ export default function HarvestLotDetailPage() {
               </div>
 
               <div>
-                <dt className="text-xs font-medium text-slate-500">Khu vực / Lô canh tác</dt>
-                <dd className="mt-1 text-slate-900 dark:text-slate-100">
+                <dt className="text-xs font-medium text-muted">Khu vực / Lô canh tác</dt>
+                <dd className="mt-1 text-fg">
                   {lot.activity?.area
                     ? `${lot.activity.area.code} - ${lot.activity.area.name}`
                     : '—'}
@@ -278,53 +272,49 @@ export default function HarvestLotDetailPage() {
               </div>
 
               <div>
-                <dt className="text-xs font-medium text-slate-500">Thời điểm thu hoạch</dt>
-                <dd className="mt-1 flex items-center gap-1.5 text-slate-900 dark:text-slate-100">
-                  <Calendar className="h-4 w-4 text-slate-400" />
+                <dt className="text-xs font-medium text-muted">Thời điểm thu hoạch</dt>
+                <dd className="mt-1 flex items-center gap-1.5 text-fg">
+                  <Calendar className="h-4 w-4 text-muted" />
                   {new Date(lot.harvestedAt).toLocaleString('vi-VN')}
                 </dd>
               </div>
 
               <div>
-                <dt className="text-xs font-medium text-slate-500">Số lượng thu hoạch</dt>
-                <dd className="mt-1 text-base font-bold text-slate-900 dark:text-slate-100">
+                <dt className="text-xs font-medium text-muted">Số lượng thu hoạch</dt>
+                <dd className="mt-1 text-base font-bold text-fg">
                   {lot.quantity} {lot.unit}
                 </dd>
               </div>
 
               <div>
-                <dt className="text-xs font-medium text-slate-500">Tồn kho hiện tại</dt>
-                <dd className="mt-1 text-base font-bold text-emerald-600">
+                <dt className="text-xs font-medium text-muted">Tồn kho hiện tại</dt>
+                <dd className="mt-1 text-base font-bold text-accent">
                   {remainingQty} {lot.unit}
                 </dd>
               </div>
 
               <div>
-                <dt className="text-xs font-medium text-slate-500">Kho lưu trữ nhập hàng</dt>
-                <dd className="mt-1 flex items-center gap-1.5 text-slate-900 dark:text-slate-100">
-                  <WarehouseIcon className="h-4 w-4 text-slate-400" />
+                <dt className="text-xs font-medium text-muted">Kho lưu trữ nhập hàng</dt>
+                <dd className="mt-1 flex items-center gap-1.5 text-fg">
+                  <WarehouseIcon className="h-4 w-4 text-muted" />
                   {lot.warehouse ? `${lot.warehouse.code} - ${lot.warehouse.name}` : '—'}
                 </dd>
               </div>
 
               <div>
-                <dt className="text-xs font-medium text-slate-500">Người ghi nhận</dt>
-                <dd className="mt-1 text-slate-900 dark:text-slate-100">
-                  {lot.createdBy?.fullName || '—'}
-                </dd>
+                <dt className="text-xs font-medium text-muted">Người ghi nhận</dt>
+                <dd className="mt-1 text-fg">{lot.createdBy?.fullName || '—'}</dd>
               </div>
 
               <div>
-                <dt className="text-xs font-medium text-slate-500">Phân loại chất lượng</dt>
-                <dd className="mt-1 text-slate-900 dark:text-slate-100">
-                  {lot.qualityGrade || 'Chưa phân loại'}
-                </dd>
+                <dt className="text-xs font-medium text-muted">Phân loại chất lượng</dt>
+                <dd className="mt-1 text-fg">{lot.qualityGrade || 'Chưa phân loại'}</dd>
               </div>
 
               <div>
-                <dt className="text-xs font-medium text-slate-500">Tiêu chuẩn / Chứng nhận</dt>
-                <dd className="mt-1 flex items-center gap-1.5 text-slate-900 dark:text-slate-100">
-                  <ShieldCheck className="h-4 w-4 text-blue-500" />
+                <dt className="text-xs font-medium text-muted">Tiêu chuẩn / Chứng nhận</dt>
+                <dd className="mt-1 flex items-center gap-1.5 text-fg">
+                  <ShieldCheck className="h-4 w-4 text-info" />
                   {lot.certification || 'Chưa có chứng nhận'}
                 </dd>
               </div>
@@ -334,15 +324,15 @@ export default function HarvestLotDetailPage() {
 
         {/* Mã QR & Truy xuất Card */}
         <div className="space-y-6 lg:col-span-1">
-          <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-            <h2 className="mb-4 flex items-center gap-2 text-base font-semibold text-slate-900 dark:text-slate-100">
-              <QrIcon className="h-5 w-5 text-emerald-600" />
+          <div className="rounded-lg border border-line bg-surface p-6 shadow-sm">
+            <h2 className="mb-4 flex items-center gap-2 text-base font-semibold text-fg">
+              <QrIcon className="h-5 w-5 text-accent" />
               Mã QR Truy xuất nguồn gốc
             </h2>
 
             <div className="flex flex-col items-center justify-center p-4">
               {qrDataUrl ? (
-                <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-inner">
+                <div className="rounded-xl border border-line bg-white p-3 shadow-inner">
                   <img
                     id="harvest-lot-qr"
                     data-testid="harvest-lot-qr"
@@ -353,34 +343,28 @@ export default function HarvestLotDetailPage() {
                   />
                 </div>
               ) : (
-                <div className="flex h-52 w-52 items-center justify-center rounded-xl border border-dashed border-slate-300">
-                  <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
+                <div className="flex h-52 w-52 items-center justify-center rounded-xl border border-dashed border-line">
+                  <Loader2 className="h-6 w-6 animate-spin text-muted" />
                 </div>
               )}
 
               <div className="mt-4 text-center">
-                <span className="text-xs font-medium text-slate-400">Mã truy xuất</span>
-                <p className="font-mono text-lg font-bold text-slate-800 dark:text-slate-200">
-                  {lot.traceCode}
-                </p>
+                <span className="text-xs font-medium text-muted">Mã truy xuất</span>
+                <p className="font-mono text-lg font-bold text-fg">{lot.traceCode}</p>
               </div>
             </div>
 
-            <div className="mt-4 space-y-3 border-t border-slate-100 pt-4 dark:border-slate-800">
-              <div className="rounded-md bg-slate-50 p-2.5 dark:bg-slate-900">
-                <span className="block text-xs font-medium text-slate-400">
-                  Đường dẫn truy xuất
-                </span>
-                <p className="truncate font-mono text-xs text-slate-700 dark:text-slate-300">
-                  {traceUrl}
-                </p>
+            <div className="mt-4 space-y-3 border-t border-line pt-4">
+              <div className="rounded-md border border-line bg-surface-2 p-2.5">
+                <span className="block text-xs font-medium text-muted">Đường dẫn truy xuất</span>
+                <p className="truncate font-mono text-xs text-fg">{traceUrl}</p>
               </div>
 
               <div className="grid grid-cols-2 gap-2">
                 <Button variant="outline" size="sm" onClick={copyUrl} className="w-full">
                   {copied ? (
                     <>
-                      <CheckCircle className="mr-1.5 h-3.5 w-3.5 text-emerald-600" />
+                      <CheckCircle className="mr-1.5 h-3.5 w-3.5 text-ok" />
                       Đã chép
                     </>
                   ) : (
@@ -399,7 +383,7 @@ export default function HarvestLotDetailPage() {
                 </Button>
               </div>
 
-              <Button asChild className="w-full bg-emerald-600 hover:bg-emerald-700">
+              <Button asChild className="w-full">
                 <Link href={`/admin/harvest-lots/${lot.id}/print`}>
                   <Printer className="mr-1.5 h-4 w-4" />
                   In tem nhãn lô

@@ -25,3 +25,50 @@ body {
   margin: 0;
   padding: 0;
 }
+
+/* Leaflet Dark Theme & Accent Polygons */
+html.dark .leaflet-tile,
+.dark .leaflet-tile {
+  filter: brightness(0.65) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3);
+}
+
+html.dark .leaflet-container,
+.dark .leaflet-container {
+  background-color: var(--t-surface-2) !important;
+}
+
+html.dark .leaflet-popup-content-wrapper,
+.dark .leaflet-popup-content-wrapper {
+  background-color: var(--t-surface) !important;
+  color: var(--t-text) !important;
+  border: 1px solid var(--t-border) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+html.dark .leaflet-popup-tip,
+.dark .leaflet-popup-tip {
+  background-color: var(--t-surface) !important;
+}
+
+html.dark .leaflet-control-zoom a,
+.dark .leaflet-control-zoom a {
+  background-color: var(--t-surface) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border) !important;
+}
+
+html.dark .leaflet-control-zoom a:hover,
+.dark .leaflet-control-zoom a:hover {
+  background-color: var(--t-hover) !important;
+}
+
+html.dark .leaflet-control-attribution,
+.dark .leaflet-control-attribution {
+  background-color: rgba(30, 32, 41, 0.85) !important;
+  color: var(--t-text-3) !important;
+}
+
+html.dark .leaflet-control-attribution a,
+.dark .leaflet-control-attribution a {
+  color: var(--t-accent) !important;
+}

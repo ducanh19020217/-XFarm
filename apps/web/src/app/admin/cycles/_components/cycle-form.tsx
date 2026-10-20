@@ -47,7 +47,10 @@ export function CycleForm({ areas, onSubmit, isSubmitting, formError }: CycleFor
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
       {formError && (
-        <p role="alert" className="rounded-md bg-red-50 p-3 text-sm text-red-700">
+        <p
+          role="alert"
+          className="rounded-md border border-crit/20 bg-crit-bg p-3 text-sm text-crit"
+        >
           {formError}
         </p>
       )}
@@ -59,7 +62,7 @@ export function CycleForm({ areas, onSubmit, isSubmitting, formError }: CycleFor
             {...form.register('name')}
             placeholder="Ví dụ: Vụ rau cải mùa đông"
           />
-          {errors.name && <p className="text-xs text-red-600">{errors.name.message}</p>}
+          {errors.name && <p className="text-xs text-crit">{errors.name.message}</p>}
         </div>
         <div className="space-y-1">
           <Label htmlFor="cycle-kind">Loại mùa vụ *</Label>
@@ -69,7 +72,7 @@ export function CycleForm({ areas, onSubmit, isSubmitting, formError }: CycleFor
             onChange={(event) =>
               form.setValue('kind', event.target.value as CycleKind, { shouldValidate: true })
             }
-            className="flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm"
+            className="flex h-10 w-full rounded-md border border-line bg-surface px-3 text-sm text-fg focus:outline-none focus:ring-2 focus:ring-accent"
           >
             {Object.values(CycleKind).map((value) => (
               <option key={value} value={value}>
@@ -82,7 +85,7 @@ export function CycleForm({ areas, onSubmit, isSubmitting, formError }: CycleFor
           <Label htmlFor="cycle-area">Khu/lô *</Label>
           <select
             id="cycle-area"
-            className="flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm"
+            className="flex h-10 w-full rounded-md border border-line bg-surface px-3 text-sm text-fg focus:outline-none focus:ring-2 focus:ring-accent"
             {...form.register('areaId')}
           >
             <option value="">Chọn khu/lô</option>
@@ -94,7 +97,7 @@ export function CycleForm({ areas, onSubmit, isSubmitting, formError }: CycleFor
                 </option>
               ))}
           </select>
-          {errors.areaId && <p className="text-xs text-red-600">{errors.areaId.message}</p>}
+          {errors.areaId && <p className="text-xs text-crit">{errors.areaId.message}</p>}
         </div>
         <div className="space-y-1">
           <Label htmlFor="cycle-species">{kind === CycleKind.CROP ? 'Giống' : 'Loài'} *</Label>
@@ -103,12 +106,12 @@ export function CycleForm({ areas, onSubmit, isSubmitting, formError }: CycleFor
             {...form.register('species')}
             placeholder={kind === CycleKind.CROP ? 'Ví dụ: Cải xanh' : 'Ví dụ: Gà ri'}
           />
-          {errors.species && <p className="text-xs text-red-600">{errors.species.message}</p>}
+          {errors.species && <p className="text-xs text-crit">{errors.species.message}</p>}
         </div>
         <div className="space-y-1">
           <Label htmlFor="cycle-start">Ngày bắt đầu *</Label>
           <Input id="cycle-start" type="date" {...form.register('startDate')} />
-          {errors.startDate && <p className="text-xs text-red-600">Ngày bắt đầu không hợp lệ</p>}
+          {errors.startDate && <p className="text-xs text-crit">Ngày bắt đầu không hợp lệ</p>}
         </div>
         <div className="space-y-1">
           <Label htmlFor="cycle-variety">
@@ -128,7 +131,7 @@ export function CycleForm({ areas, onSubmit, isSubmitting, formError }: CycleFor
                 {...form.register('expectedYield', numberOptions)}
               />
               {errors.expectedYield && (
-                <p className="text-xs text-red-600">{errors.expectedYield.message}</p>
+                <p className="text-xs text-crit">{errors.expectedYield.message}</p>
               )}
             </div>
             <div className="space-y-1">
@@ -148,7 +151,7 @@ export function CycleForm({ areas, onSubmit, isSubmitting, formError }: CycleFor
                 {...form.register('initialQuantity', numberOptions)}
               />
               {errors.initialQuantity && (
-                <p className="text-xs text-red-600">{errors.initialQuantity.message}</p>
+                <p className="text-xs text-crit">{errors.initialQuantity.message}</p>
               )}
             </div>
             <div className="space-y-1">
@@ -162,7 +165,7 @@ export function CycleForm({ areas, onSubmit, isSubmitting, formError }: CycleFor
         <Label htmlFor="cycle-notes">Ghi chú</Label>
         <textarea
           id="cycle-notes"
-          className="min-h-20 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm"
+          className="min-h-20 w-full rounded-md border border-line bg-surface px-3 py-2 text-sm text-fg placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent"
           {...form.register('notes')}
         />
       </div>

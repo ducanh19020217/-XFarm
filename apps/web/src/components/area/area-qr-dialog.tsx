@@ -45,8 +45,8 @@ export function AreaQrDialog({ open, onOpenChange, area }: AreaQrDialogProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-sm w-[90vw] rounded-2xl p-5">
         <DialogHeader>
-          <DialogTitle className="text-base font-bold flex items-center gap-2">
-            <QrCode className="h-5 w-5 text-emerald-600" />
+          <DialogTitle className="text-base font-bold flex items-center gap-2 text-fg">
+            <QrCode className="h-5 w-5 text-accent" />
             Mã QR Khu/Lô
           </DialogTitle>
         </DialogHeader>
@@ -54,9 +54,9 @@ export function AreaQrDialog({ open, onOpenChange, area }: AreaQrDialogProps) {
         {/* Printable Area Card */}
         <div
           id="printable-area-qr"
-          className="p-4 border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900 text-center space-y-3"
+          className="p-4 border border-line rounded-2xl bg-surface text-center space-y-3 text-fg"
         >
-          <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400">
+          <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-accent">
             <Sprout className="h-4 w-4" />
             <span>NÔNG TRẠI XFARM</span>
           </div>
@@ -69,18 +69,16 @@ export function AreaQrDialog({ open, onOpenChange, area }: AreaQrDialogProps) {
                 className="w-52 h-52 mx-auto object-contain"
               />
             ) : (
-              <div className="w-52 h-52 flex items-center justify-center text-xs text-slate-400">
+              <div className="w-52 h-52 flex items-center justify-center text-xs text-muted">
                 Đang tạo mã QR...
               </div>
             )}
           </div>
 
-          <div className="space-y-0.5 border-t border-slate-100 dark:border-slate-800 pt-2">
-            <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">{area.name}</h3>
-            <p className="font-mono text-sm font-semibold text-emerald-700 dark:text-emerald-400">
-              {area.code}
-            </p>
-            <p className="text-[11px] text-slate-400 font-mono select-all">{qrPayload}</p>
+          <div className="space-y-0.5 border-t border-line pt-2">
+            <h3 className="text-base font-bold text-fg">{area.name}</h3>
+            <p className="font-mono text-sm font-semibold text-accent">{area.code}</p>
+            <p className="text-[11px] text-muted font-mono select-all">{qrPayload}</p>
           </div>
         </div>
 
@@ -90,7 +88,7 @@ export function AreaQrDialog({ open, onOpenChange, area }: AreaQrDialogProps) {
             variant="default"
             size="lg"
             onClick={handlePrint}
-            className="w-full h-11 text-sm font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl flex items-center justify-center gap-2"
+            className="w-full h-11 text-sm font-bold rounded-xl flex items-center justify-center gap-2"
           >
             <Printer className="h-4 w-4" />
             In tem mã QR

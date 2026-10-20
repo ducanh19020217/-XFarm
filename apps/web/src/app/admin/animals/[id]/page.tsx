@@ -98,8 +98,8 @@ export default function AnimalDetailPage() {
   if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="text-center text-zinc-500">
-          <Activity className="mx-auto h-8 w-8 animate-spin text-emerald-600 mb-2" />
+        <div className="text-center text-muted">
+          <Activity className="mx-auto h-8 w-8 animate-spin text-accent mb-2" />
           <p>Đang tải thông tin cá thể vật nuôi...</p>
         </div>
       </div>
@@ -114,7 +114,7 @@ export default function AnimalDetailPage() {
             <ArrowLeft className="h-4 w-4 mr-1.5" /> Quay lại danh sách
           </Button>
         </Link>
-        <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center text-red-700 dark:border-red-900 dark:bg-red-950/30">
+        <div className="rounded-lg border border-crit/20 bg-crit-bg p-6 text-center text-crit">
           <AlertCircle className="mx-auto h-8 w-8 mb-2" />
           <p className="font-medium">{error || 'Không tìm thấy cá thể vật nuôi'}</p>
         </div>
@@ -133,8 +133,8 @@ export default function AnimalDetailPage() {
     switch (ev.type) {
       case AnimalEventType.VACCINATION:
         return (
-          <div className="text-xs text-zinc-600 dark:text-zinc-400 mt-1">
-            <span className="font-medium">Vắc-xin:</span> {String(d.vaccine || '—')}
+          <div className="text-xs text-muted mt-1">
+            <span className="font-medium text-fg">Vắc-xin:</span> {String(d.vaccine || '—')}
             {d.dose ? ` • Liều: ${String(d.dose)}` : ''}
             {d.disease ? ` • Bệnh: ${String(d.disease)}` : ''}
           </div>
@@ -142,8 +142,8 @@ export default function AnimalDetailPage() {
 
       case AnimalEventType.TREATMENT:
         return (
-          <div className="text-xs text-zinc-600 dark:text-zinc-400 mt-1">
-            <span className="font-medium">Thuốc:</span> {String(d.medicine || '—')}
+          <div className="text-xs text-muted mt-1">
+            <span className="font-medium text-fg">Thuốc:</span> {String(d.medicine || '—')}
             {d.dosage ? ` • Liều: ${String(d.dosage)}` : ''}
             {d.diagnosis ? ` • Chẩn đoán: ${String(d.diagnosis)}` : ''}
           </div>
@@ -151,9 +151,9 @@ export default function AnimalDetailPage() {
 
       case AnimalEventType.WEIGHING:
         return (
-          <div className="text-xs text-zinc-600 dark:text-zinc-400 mt-1">
-            <span className="font-medium">Trọng lượng:</span>{' '}
-            <strong className="text-emerald-700 dark:text-emerald-400">
+          <div className="text-xs text-muted mt-1">
+            <span className="font-medium text-fg">Trọng lượng:</span>{' '}
+            <strong className="text-accent">
               {Number(d.weightKg || 0).toLocaleString('vi-VN')} kg
             </strong>
           </div>
@@ -161,8 +161,8 @@ export default function AnimalDetailPage() {
 
       case AnimalEventType.BREEDING:
         return (
-          <div className="text-xs text-zinc-600 dark:text-zinc-400 mt-1">
-            <span className="font-medium">Phối giống:</span>{' '}
+          <div className="text-xs text-muted mt-1">
+            <span className="font-medium text-fg">Phối giống:</span>{' '}
             {d.mateTag ? `Đực giống ${String(d.mateTag)}` : ''}
             {d.method ? ` • ${String(d.method)}` : ''}
           </div>
@@ -171,9 +171,9 @@ export default function AnimalDetailPage() {
       case AnimalEventType.BIRTH: {
         const offspringArr = Array.isArray(d.offspring) ? d.offspring : [];
         return (
-          <div className="text-xs text-zinc-600 dark:text-zinc-400 mt-1">
-            <span className="font-medium">Sinh sản:</span> Đã sinh{' '}
-            <strong>{offspringArr.length}</strong> con non (
+          <div className="text-xs text-muted mt-1">
+            <span className="font-medium text-fg">Sinh sản:</span> Đã sinh{' '}
+            <strong className="text-fg">{offspringArr.length}</strong> con non (
             {offspringArr.map((c: { tag?: string }) => c.tag || 'Chưa đặt mã').join(', ')})
           </div>
         );
@@ -181,15 +181,15 @@ export default function AnimalDetailPage() {
 
       case AnimalEventType.DEATH:
         return (
-          <div className="text-xs text-red-600 dark:text-red-400 mt-1 font-medium">
+          <div className="text-xs text-crit mt-1 font-medium">
             Khai tử: {String(d.cause || 'Không rõ nguyên nhân')}
           </div>
         );
 
       case AnimalEventType.SALE:
         return (
-          <div className="text-xs text-zinc-600 dark:text-zinc-400 mt-1">
-            <span className="font-medium">Xuất bán:</span>{' '}
+          <div className="text-xs text-muted mt-1">
+            <span className="font-medium text-fg">Xuất bán:</span>{' '}
             {d.price ? `${Number(d.price).toLocaleString('vi-VN')} đ` : 'Thương lượng'}
             {d.weightKg ? ` • ${Number(d.weightKg).toLocaleString('vi-VN')} kg` : ''}
             {d.buyer ? ` • Khách mua: ${String(d.buyer)}` : ''}
@@ -204,21 +204,21 @@ export default function AnimalDetailPage() {
   const getEventBadgeClass = (type: AnimalEventType) => {
     switch (type) {
       case AnimalEventType.VACCINATION:
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400';
+        return 'bg-info-bg text-info border border-info/20';
       case AnimalEventType.TREATMENT:
-        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400';
+        return 'bg-accent-bg text-accent border border-accent/20';
       case AnimalEventType.WEIGHING:
-        return 'bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-400';
+        return 'bg-surface-2 text-fg border border-line';
       case AnimalEventType.BREEDING:
-        return 'bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-400';
+        return 'bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-400 border border-pink-300/30';
       case AnimalEventType.BIRTH:
-        return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400';
+        return 'bg-ok-bg text-ok border border-ok/20';
       case AnimalEventType.SALE:
-        return 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400';
+        return 'bg-warn-bg text-warn border border-warn/20';
       case AnimalEventType.DEATH:
-        return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
+        return 'bg-crit-bg text-crit border border-crit/20';
       default:
-        return 'bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-300';
+        return 'bg-surface-2 text-fg border border-line';
     }
   };
 
@@ -234,12 +234,10 @@ export default function AnimalDetailPage() {
           </Link>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
-                Thẻ cá thể: {animal.tag}
-              </h1>
+              <h1 className="text-xl font-bold text-fg">Thẻ cá thể: {animal.tag}</h1>
               <AnimalStatusBadge status={animal.status} />
             </div>
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-muted">
               Loài: {animal.species} {animal.breed ? `• Giống: ${animal.breed}` : ''}
             </p>
           </div>
@@ -247,16 +245,13 @@ export default function AnimalDetailPage() {
 
         <div>
           {canRecord && (
-            <Button
-              onClick={() => setEventDialogOpen(true)}
-              className="bg-emerald-600 hover:bg-emerald-700"
-            >
+            <Button onClick={() => setEventDialogOpen(true)}>
               <PlusCircle className="h-4 w-4 mr-1.5" />
               Ghi sự kiện
             </Button>
           )}
           {isDeadOrSold && (
-            <div className="text-xs text-amber-600 bg-amber-50 dark:bg-amber-950/40 dark:text-amber-400 border border-amber-200 dark:border-amber-900 px-3 py-1.5 rounded-md font-medium">
+            <div className="text-xs text-warn bg-warn-bg border border-warn/20 px-3 py-1.5 rounded-md font-medium">
               Cá thể đã {animal.status === AnimalStatus.DEAD ? 'chết' : 'xuất bán'} — Không thể ghi
               thêm sự kiện
             </div>
@@ -268,35 +263,35 @@ export default function AnimalDetailPage() {
         {/* Cột trái: Thông tin chi tiết cá thể & Cây phả hệ (2 cols) */}
         <div className="space-y-6 lg:col-span-2">
           {/* Card Thông tin cá thể */}
-          <div className="rounded-lg border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900 shadow-sm">
-            <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100 mb-4 flex items-center gap-2">
-              <Tag className="h-5 w-5 text-emerald-600" />
+          <div className="rounded-lg border border-line bg-surface p-5 shadow-sm">
+            <h2 className="text-base font-semibold text-fg mb-4 flex items-center gap-2">
+              <Tag className="h-5 w-5 text-accent" />
               Thông tin hồ sơ cá thể
             </h2>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
               <div>
-                <span className="text-xs text-zinc-500 block">Mã tai / Thẻ</span>
-                <span className="font-semibold text-zinc-900 dark:text-zinc-100">{animal.tag}</span>
+                <span className="text-xs text-muted block">Mã tai / Thẻ</span>
+                <span className="font-semibold text-fg">{animal.tag}</span>
               </div>
 
               <div>
-                <span className="text-xs text-zinc-500 block">Loài & Giống</span>
-                <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                <span className="text-xs text-muted block">Loài & Giống</span>
+                <span className="font-medium text-fg">
                   {animal.species} {animal.breed ? `(${animal.breed})` : ''}
                 </span>
               </div>
 
               <div>
-                <span className="text-xs text-zinc-500 block">Giới tính</span>
-                <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                <span className="text-xs text-muted block">Giới tính</span>
+                <span className="font-medium text-fg">
                   {ANIMAL_SEX_LABELS[animal.sex] || animal.sex}
                 </span>
               </div>
 
               <div>
-                <span className="text-xs text-zinc-500 block">Ngày sinh</span>
-                <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                <span className="text-xs text-muted block">Ngày sinh</span>
+                <span className="font-medium text-fg">
                   {animal.birthDate
                     ? new Date(animal.birthDate).toLocaleDateString('vi-VN')
                     : 'Chưa rõ'}
@@ -304,14 +299,14 @@ export default function AnimalDetailPage() {
               </div>
 
               <div>
-                <span className="text-xs text-zinc-500 block">Thuộc đàn</span>
-                <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                <span className="text-xs text-muted block">Thuộc đàn</span>
+                <span className="font-medium text-fg">
                   {animal.group ? `${animal.group.code} (${animal.group.species})` : '—'}
                 </span>
               </div>
 
               <div>
-                <span className="text-xs text-zinc-500 block">Trạng thái</span>
+                <span className="text-xs text-muted block">Trạng thái</span>
                 <div className="mt-0.5">
                   <AnimalStatusBadge status={animal.status} />
                 </div>
@@ -319,49 +314,47 @@ export default function AnimalDetailPage() {
             </div>
 
             {animal.notes && (
-              <div className="mt-4 pt-3 border-t border-zinc-100 dark:border-zinc-800 text-sm">
-                <span className="text-xs text-zinc-500 block mb-1">Ghi chú đặc điểm</span>
-                <p className="text-zinc-700 dark:text-zinc-300 italic">{animal.notes}</p>
+              <div className="mt-4 pt-3 border-t border-line text-sm">
+                <span className="text-xs text-muted block mb-1">Ghi chú đặc điểm</span>
+                <p className="text-fg italic">{animal.notes}</p>
               </div>
             )}
           </div>
 
           {/* Card Cây phả hệ đơn giản (mẹ → con) */}
-          <div className="rounded-lg border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900 shadow-sm">
-            <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100 mb-4 flex items-center gap-2">
-              <Dna className="h-5 w-5 text-emerald-600" />
+          <div className="rounded-lg border border-line bg-surface p-5 shadow-sm">
+            <h2 className="text-base font-semibold text-fg mb-4 flex items-center gap-2">
+              <Dna className="h-5 w-5 text-accent" />
               Cây phả hệ đơn giản (Mẹ → Con)
             </h2>
 
             <div className="space-y-4">
               {/* Tầng 1: Mẹ */}
               <div>
-                <span className="text-xs font-semibold uppercase text-zinc-400 block mb-1">
+                <span className="text-xs font-semibold uppercase text-muted block mb-1">
                   Cấp 1: Cá thể mẹ (Mother)
                 </span>
                 {animal.mother ? (
                   <Link
                     href={`/admin/animals/${animal.mother.id}`}
-                    className="flex items-center justify-between rounded-lg border border-pink-200 bg-pink-50/50 p-3 hover:bg-pink-100/50 transition-colors dark:border-pink-900/50 dark:bg-pink-950/20"
+                    className="flex items-center justify-between rounded-lg border border-line bg-surface-2 p-3 hover:bg-surface transition-colors"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-pink-200 text-pink-700 dark:bg-pink-900 dark:text-pink-300 font-bold text-xs">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-pink-100 text-pink-700 font-bold text-xs">
                         MẸ
                       </div>
                       <div>
-                        <div className="font-semibold text-sm text-zinc-900 dark:text-zinc-100">
-                          {animal.mother.tag}
-                        </div>
-                        <div className="text-xs text-zinc-500">
+                        <div className="font-semibold text-sm text-fg">{animal.mother.tag}</div>
+                        <div className="text-xs text-muted">
                           {animal.mother.species}{' '}
                           {animal.mother.breed ? `• ${animal.mother.breed}` : ''}
                         </div>
                       </div>
                     </div>
-                    <ChevronRight className="h-4 w-4 text-zinc-400" />
+                    <ChevronRight className="h-4 w-4 text-muted" />
                   </Link>
                 ) : (
-                  <div className="rounded-lg border border-dashed border-zinc-200 p-3 text-xs text-zinc-500 text-center dark:border-zinc-800">
+                  <div className="rounded-lg border border-dashed border-line p-3 text-xs text-muted text-center">
                     Không có thông tin mẹ (Cá thể gốc giống / Con nhập ngoài)
                   </div>
                 )}
@@ -369,21 +362,19 @@ export default function AnimalDetailPage() {
 
               {/* Đường nối */}
               <div className="flex justify-center my-1">
-                <div className="h-6 w-0.5 bg-emerald-400"></div>
+                <div className="h-6 w-0.5 bg-accent/40"></div>
               </div>
 
               {/* Tầng 2: Cá thể hiện tại */}
               <div>
-                <span className="text-xs font-semibold uppercase text-zinc-400 block mb-1">
+                <span className="text-xs font-semibold uppercase text-muted block mb-1">
                   Cấp 2: Cá thể hiện tại
                 </span>
-                <div className="rounded-lg border-2 border-emerald-500 bg-emerald-50/60 p-3.5 dark:bg-emerald-950/30">
+                <div className="rounded-lg border-2 border-accent bg-accent-bg/30 p-3.5">
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="font-bold text-base text-emerald-900 dark:text-emerald-200">
-                        {animal.tag} (Hiện tại)
-                      </div>
-                      <div className="text-xs text-emerald-700 dark:text-emerald-400">
+                      <div className="font-bold text-base text-fg">{animal.tag} (Hiện tại)</div>
+                      <div className="text-xs text-accent">
                         {animal.species} • {ANIMAL_SEX_LABELS[animal.sex]} • Trạng thái:{' '}
                         {ANIMAL_STATUS_LABELS[animal.status]}
                       </div>
@@ -395,12 +386,12 @@ export default function AnimalDetailPage() {
 
               {/* Đường nối */}
               <div className="flex justify-center my-1">
-                <div className="h-6 w-0.5 bg-emerald-400"></div>
+                <div className="h-6 w-0.5 bg-accent/40"></div>
               </div>
 
               {/* Tầng 3: Danh sách con non */}
               <div>
-                <span className="text-xs font-semibold uppercase text-zinc-400 block mb-2">
+                <span className="text-xs font-semibold uppercase text-muted block mb-2">
                   Cấp 3: Danh sách con non ({animal.offspring?.length || 0} con)
                 </span>
 
@@ -410,13 +401,11 @@ export default function AnimalDetailPage() {
                       <Link
                         key={child.id}
                         href={`/admin/animals/${child.id}`}
-                        className="flex items-center justify-between rounded-lg border border-zinc-200 bg-zinc-50/50 p-2.5 hover:bg-zinc-100 transition-colors dark:border-zinc-800 dark:bg-zinc-900/50 dark:hover:bg-zinc-800"
+                        className="flex items-center justify-between rounded-lg border border-line bg-surface-2 p-2.5 hover:bg-surface transition-colors"
                       >
                         <div>
-                          <div className="font-semibold text-xs text-zinc-900 dark:text-zinc-100">
-                            {child.tag}
-                          </div>
-                          <div className="text-[11px] text-zinc-500">
+                          <div className="font-semibold text-xs text-fg">{child.tag}</div>
+                          <div className="text-[11px] text-muted">
                             {ANIMAL_SEX_LABELS[child.sex]}
                             {child.birthDate
                               ? ` • ${new Date(child.birthDate).toLocaleDateString('vi-VN')}`
@@ -428,7 +417,7 @@ export default function AnimalDetailPage() {
                     ))}
                   </div>
                 ) : (
-                  <div className="rounded-lg border border-dashed border-zinc-200 p-3 text-xs text-zinc-500 text-center dark:border-zinc-800">
+                  <div className="rounded-lg border border-dashed border-line p-3 text-xs text-muted text-center">
                     Chưa có ghi nhận sinh sản con non nào
                   </div>
                 )}
@@ -439,18 +428,18 @@ export default function AnimalDetailPage() {
 
         {/* Cột phải: Timeline sự kiện (1 col) */}
         <div className="space-y-6">
-          <div className="rounded-lg border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900 shadow-sm">
+          <div className="rounded-lg border border-line bg-surface p-5 shadow-sm">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
-                <Clock className="h-5 w-5 text-emerald-600" />
+              <h2 className="text-base font-semibold text-fg flex items-center gap-2">
+                <Clock className="h-5 w-5 text-accent" />
                 Dòng thời gian sự kiện
               </h2>
-              <span className="text-xs text-zinc-500">{events.length} sự kiện</span>
+              <span className="text-xs text-muted">{events.length} sự kiện</span>
             </div>
 
             {events.length === 0 ? (
-              <div className="text-center py-8 text-xs text-zinc-500">
-                <Activity className="mx-auto h-8 w-8 text-zinc-300 dark:text-zinc-700 mb-2" />
+              <div className="text-center py-8 text-xs text-muted">
+                <Activity className="mx-auto h-8 w-8 text-muted mb-2" />
                 <p>Chưa có sự kiện nào được ghi nhận cho cá thể này</p>
                 {canRecord && (
                   <Button
@@ -464,11 +453,11 @@ export default function AnimalDetailPage() {
                 )}
               </div>
             ) : (
-              <div className="relative border-l-2 border-zinc-200 pl-4 space-y-5 dark:border-zinc-800">
+              <div className="relative border-l-2 border-line pl-4 space-y-5">
                 {events.map((ev) => (
                   <div key={ev.id} className="relative group">
                     {/* Chấm tròn mốc timeline */}
-                    <div className="absolute -left-[21px] top-1 h-2.5 w-2.5 rounded-full bg-emerald-600 border-2 border-white dark:border-zinc-900"></div>
+                    <div className="absolute -left-[21px] top-1 h-2.5 w-2.5 rounded-full bg-accent border-2 border-surface"></div>
 
                     <div className="space-y-1">
                       <div className="flex items-center justify-between">
@@ -479,18 +468,14 @@ export default function AnimalDetailPage() {
                         >
                           {ANIMAL_EVENT_TYPE_LABELS[ev.type] || ev.type}
                         </span>
-                        <span className="text-[11px] text-zinc-400">
+                        <span className="text-[11px] text-muted">
                           {new Date(ev.date).toLocaleDateString('vi-VN')}
                         </span>
                       </div>
 
                       {renderEventData(ev)}
 
-                      {ev.notes && (
-                        <p className="text-xs text-zinc-500 dark:text-zinc-400 italic">
-                          "{ev.notes}"
-                        </p>
-                      )}
+                      {ev.notes && <p className="text-xs text-muted italic">"{ev.notes}"</p>}
                     </div>
                   </div>
                 ))}

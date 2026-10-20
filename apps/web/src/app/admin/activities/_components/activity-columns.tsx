@@ -36,9 +36,7 @@ export function getActivityColumns(
       id: 'summary',
       header: 'Tóm tắt',
       cell: ({ row }) => (
-        <span className="text-slate-600">
-          {activitySummary(row.original.type, row.original.data)}
-        </span>
+        <span className="text-muted">{activitySummary(row.original.type, row.original.data)}</span>
       ),
     },
     {
@@ -48,7 +46,7 @@ export function getActivityColumns(
         const mats = row.original.materials ?? [];
         if (!mats.length) return '—';
         return (
-          <span className="text-xs text-slate-600">
+          <span className="text-xs text-muted">
             {mats
               .map(
                 (m) =>

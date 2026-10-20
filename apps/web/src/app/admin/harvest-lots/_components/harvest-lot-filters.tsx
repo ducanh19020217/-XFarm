@@ -41,12 +41,15 @@ export function HarvestLotFilters({
   items,
   onChange,
 }: HarvestLotFiltersProps) {
+  const selectClass =
+    'flex h-10 w-full rounded-md border border-line bg-surface px-3 text-sm text-fg focus:outline-none focus:ring-2 focus:ring-accent';
+
   return (
-    <div className="grid gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm md:grid-cols-3 lg:grid-cols-6 dark:border-slate-800 dark:bg-slate-950">
+    <div className="grid gap-3 rounded-lg border border-line bg-surface p-4 shadow-sm md:grid-cols-3 lg:grid-cols-6">
       <div className="space-y-1 lg:col-span-2">
         <Label htmlFor="search-filter">Tìm kiếm</Label>
         <div className="relative">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-400" />
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted" />
           <Input
             id="search-filter"
             aria-label="Tìm kiếm mã lô hoặc mã truy xuất"
@@ -65,7 +68,7 @@ export function HarvestLotFilters({
           aria-label="Lọc theo mùa vụ"
           value={cycleId}
           onChange={(e) => onChange('cycleId', e.target.value)}
-          className="flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm dark:border-slate-800 dark:bg-slate-900"
+          className={selectClass}
         >
           <option value="">Tất cả mùa vụ</option>
           {cycles.map((c) => (
@@ -83,7 +86,7 @@ export function HarvestLotFilters({
           aria-label="Lọc theo sản phẩm"
           value={itemId}
           onChange={(e) => onChange('itemId', e.target.value)}
-          className="flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm dark:border-slate-800 dark:bg-slate-900"
+          className={selectClass}
         >
           <option value="">Tất cả sản phẩm</option>
           {items.map((i) => (
@@ -101,7 +104,7 @@ export function HarvestLotFilters({
           aria-label="Lọc theo trạng thái công khai"
           value={isPublic}
           onChange={(e) => onChange('isPublic', e.target.value)}
-          className="flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm dark:border-slate-800 dark:bg-slate-900"
+          className={selectClass}
         >
           <option value="">Tất cả trạng thái</option>
           <option value="true">Công khai</option>

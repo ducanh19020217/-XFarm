@@ -64,15 +64,10 @@ export default function AreaMapOverview({
       const latlngs = geoJSONToLatLngs(area.geojson);
       if (latlngs.length < 3) return;
 
-      const style = AREA_TYPE_COLORS[area.type] || {
-        fill: '#10b981',
-        stroke: '#047857',
-      };
-
       const polygon = L.polygon(latlngs, {
-        color: style.stroke,
-        fillColor: style.fill,
-        fillOpacity: 0.35,
+        color: 'var(--t-accent)',
+        fillColor: 'var(--t-accent)',
+        fillOpacity: 0.3,
         weight: 2,
       });
 
@@ -81,15 +76,15 @@ export default function AreaMapOverview({
         area.areaM2 != null ? `${Number(area.areaM2).toLocaleString('vi-VN')} m²` : 'Chưa xác định';
 
       const popupContent = document.createElement('div');
-      popupContent.className = 'text-xs space-y-1 p-1';
+      popupContent.className = 'text-xs space-y-1 p-1 text-fg';
       popupContent.innerHTML = `
-        <div class="font-bold text-sm text-slate-900">${area.name}</div>
-        <div class="text-slate-500 font-mono">${area.code} • ${AREA_TYPE_LABELS[area.type] || area.type}</div>
-        <div class="text-slate-700 mt-1">Diện tích: <span class="font-medium">${areaM2Formatted}</span></div>
-        <div class="text-slate-700">Mùa vụ đang chạy: <span class="font-semibold text-emerald-600">${cyclesCount}</span></div>
-        ${area.description ? `<div class="text-slate-500 italic mt-0.5">${area.description}</div>` : ''}
-        <div class="pt-2 border-t border-slate-100 mt-1">
-          <a href="/admin/areas/${area.id}" class="text-emerald-600 font-semibold hover:underline inline-flex items-center gap-1">
+        <div class="font-bold text-sm text-fg">${area.name}</div>
+        <div class="text-muted font-mono">${area.code} • ${AREA_TYPE_LABELS[area.type] || area.type}</div>
+        <div class="text-fg-2 mt-1">Diện tích: <span class="font-medium text-fg">${areaM2Formatted}</span></div>
+        <div class="text-fg-2">Mùa vụ đang chạy: <span class="font-semibold text-accent">${cyclesCount}</span></div>
+        ${area.description ? `<div class="text-muted italic mt-0.5">${area.description}</div>` : ''}
+        <div class="pt-2 border-t border-line mt-1">
+          <a href="/admin/areas/${area.id}" class="text-accent font-semibold hover:underline inline-flex items-center gap-1">
             Xem chi tiết khu &rarr;
           </a>
         </div>
@@ -119,41 +114,37 @@ export default function AreaMapOverview({
   const areasWithPolygonCount = areas.filter((a) => a.geojson).length;
 
   return (
-    <div className="relative overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-800">
+    <div className="relative overflow-hidden rounded-lg border border-line bg-surface shadow-xs">
       {/* Map Header / Stats */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 bg-slate-50 px-4 py-2.5 text-xs text-slate-600 dark:border-slate-800 dark:bg-slate-900">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line bg-surface-2 px-4 py-2.5 text-xs text-muted">
         <div className="flex items-center gap-2">
-          <span className="font-semibold text-slate-800 dark:text-slate-200">
-            Bản đồ nông trại OpenStreetMap
-          </span>
-          <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">
+          <span className="font-semibold text-fg">Bản đồ nông trại OpenStreetMap</span>
+          <span className="rounded-full bg-accent-bg px-2 py-0.5 text-[11px] font-medium text-accent">
             {areasWithPolygonCount} / {areas.length} khu có polygon
           </span>
         </div>
-        <span className="text-slate-400">Nhấp vào từng đa giác để xem thông tin chi tiết</span>
+        <span className="text-muted">Nhấp vào từng đa giác để xem thông tin chi tiết</span>
       </div>
 
       {/* Map Canvas */}
       <div ref={mapContainerRef} className={className} />
 
       {/* Legend */}
-      <div className="border-t border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-950">
-        <div className="mb-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300">
-          Chú giải loại khu vực:
-        </div>
+      <div className="border-t border-line bg-surface p-3">
+        <div className="mb-1.5 text-xs font-semibold text-fg">Chú giải loại khu vực:</div>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs">
           {Object.values(AreaType).map((type) => {
             const style = AREA_TYPE_COLORS[type];
             return (
               <div key={type} className="flex items-center gap-1.5">
                 <span
-                  className="inline-block h-3 w-3 rounded border"
+                  className="inline-block h-3 w-3 rounded border border-line"
                   style={{
                     backgroundColor: style.fill,
                     borderColor: style.stroke,
                   }}
                 />
-                <span className="text-slate-600 dark:text-slate-400">{AREA_TYPE_LABELS[type]}</span>
+                <span className="text-muted">{AREA_TYPE_LABELS[type]}</span>
               </div>
             );
           })}

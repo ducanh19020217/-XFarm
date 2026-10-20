@@ -46,36 +46,33 @@ const CYCLE_KIND_CONFIG: Record<
 > = {
   [CycleKind.CROP]: {
     label: 'Trồng trọt',
-    dotClass: 'bg-emerald-500',
-    badgeClass:
-      'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800',
-    borderClass: 'border-l-4 border-l-emerald-500',
+    dotClass: 'bg-accent',
+    badgeClass: 'bg-accent-bg text-accent border border-accent/20',
+    borderClass: 'border-l-4 border-l-accent',
   },
   [CycleKind.LIVESTOCK]: {
     label: 'Chăn nuôi',
-    dotClass: 'bg-amber-500',
-    badgeClass:
-      'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200 dark:border-amber-800',
-    borderClass: 'border-l-4 border-l-amber-500',
+    dotClass: 'bg-warn',
+    badgeClass: 'bg-warn-bg text-warn border border-warn/20',
+    borderClass: 'border-l-4 border-l-warn',
   },
   [CycleKind.AQUA]: {
     label: 'Thủy sản',
-    dotClass: 'bg-sky-500',
-    badgeClass:
-      'bg-sky-50 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300 border-sky-200 dark:border-sky-800',
-    borderClass: 'border-l-4 border-l-sky-500',
+    dotClass: 'bg-info',
+    badgeClass: 'bg-info-bg text-info border border-info/20',
+    borderClass: 'border-l-4 border-l-info',
   },
 };
 
 const CYCLE_EVENT_KIND_LABELS: Record<string, { label: string; icon: React.ReactNode }> = {
-  start: { label: 'Bắt đầu', icon: <Flag className="h-3 w-3 text-emerald-600 inline mr-1" /> },
+  start: { label: 'Bắt đầu', icon: <Flag className="h-3 w-3 text-accent inline mr-1" /> },
   expectedEnd: {
     label: 'Dự kiến xong',
-    icon: <AlertCircle className="h-3 w-3 text-amber-600 inline mr-1" />,
+    icon: <AlertCircle className="h-3 w-3 text-warn inline mr-1" />,
   },
   end: {
     label: 'Kết thúc',
-    icon: <CheckCircle2 className="h-3 w-3 text-purple-600 inline mr-1" />,
+    icon: <CheckCircle2 className="h-3 w-3 text-ok inline mr-1" />,
   },
 };
 
@@ -258,7 +255,7 @@ export default function CalendarPage() {
       </PageHeader>
 
       {/* Filter & Month Navigation Bar */}
-      <div className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 rounded-xl border border-line bg-surface p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
         {/* Month Switcher */}
         <div className="flex items-center gap-2">
           <Button
@@ -271,7 +268,7 @@ export default function CalendarPage() {
             <ChevronLeft className="h-4 w-4" />
           </Button>
 
-          <div className="min-w-[140px] text-center font-semibold text-slate-800 dark:text-slate-100">
+          <div className="min-w-[140px] text-center font-semibold text-fg">
             Tháng {String(month).padStart(2, '0')}/{year}
           </div>
 
@@ -288,7 +285,7 @@ export default function CalendarPage() {
 
         {/* Filters */}
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-1.5 text-xs text-slate-500">
+          <div className="flex items-center gap-1.5 text-xs text-muted">
             <Filter className="h-3.5 w-3.5" />
             <span>Lọc:</span>
           </div>
@@ -296,7 +293,7 @@ export default function CalendarPage() {
           {/* Filter Area */}
           <div className="w-44">
             <Select value={areaId} onValueChange={(val) => setAreaId(val)}>
-              <SelectTrigger className="h-9 text-xs">
+              <SelectTrigger className="h-9 text-xs border-line bg-surface text-fg">
                 <SelectValue placeholder="Tất cả khu/lô" />
               </SelectTrigger>
               <SelectContent>
@@ -313,7 +310,7 @@ export default function CalendarPage() {
           {/* Filter Kind */}
           <div className="w-40">
             <Select value={kind} onValueChange={(val) => setKind(val)}>
-              <SelectTrigger className="h-9 text-xs">
+              <SelectTrigger className="h-9 text-xs border-line bg-surface text-fg">
                 <SelectValue placeholder="Tất cả loại vụ" />
               </SelectTrigger>
               <SelectContent>
@@ -331,21 +328,18 @@ export default function CalendarPage() {
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-4">
         {/* Calendar Grid (3 cols on xl) */}
         <div className="xl:col-span-3 space-y-3">
-          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
+          <div className="overflow-hidden rounded-xl border border-line bg-surface shadow-sm">
             {/* Weekday headers (Thứ 2 -> Chủ nhật) */}
-            <div className="grid grid-cols-7 border-b border-slate-200 bg-slate-50 text-center text-xs font-semibold text-slate-600 dark:border-slate-800 dark:bg-slate-900/50 dark:text-slate-400">
+            <div className="grid grid-cols-7 border-b border-line bg-surface-2 text-center text-xs font-semibold text-fg">
               {WEEKDAY_NAMES.map((w, idx) => (
-                <div
-                  key={w}
-                  className={`py-2.5 ${idx >= 5 ? 'text-rose-600 dark:text-rose-400' : ''}`}
-                >
+                <div key={w} className={`py-2.5 ${idx >= 5 ? 'text-crit' : ''}`}>
                   {w}
                 </div>
               ))}
             </div>
 
             {/* Grid days */}
-            <div className="grid grid-cols-7 divide-x divide-y divide-slate-100 dark:divide-slate-800/80">
+            <div className="grid grid-cols-7 divide-x divide-y divide-line">
               {gridDays.map((day: CalendarGridDay) => {
                 const dayData = eventsByDay[day.date];
                 const dayActivities = dayData?.activities || [];
@@ -372,34 +366,28 @@ export default function CalendarPage() {
                     onClick={() => setSelectedDate(day.date)}
                     className={`relative flex min-h-[96px] flex-col p-1.5 text-left transition-colors focus:outline-none md:min-h-[110px] ${
                       !day.isCurrentMonth
-                        ? 'bg-slate-50/50 text-slate-400 dark:bg-slate-900/20 dark:text-slate-600'
-                        : 'bg-white hover:bg-slate-50 dark:bg-slate-950 dark:hover:bg-slate-900/40'
-                    } ${
-                      isSelected
-                        ? 'ring-2 ring-inset ring-emerald-500 bg-emerald-50/20 dark:bg-emerald-950/20'
-                        : ''
-                    }`}
+                        ? 'bg-surface-2/40 text-muted'
+                        : 'bg-surface hover:bg-surface-2'
+                    } ${isSelected ? 'ring-2 ring-inset ring-accent bg-accent-bg/20' : ''}`}
                   >
                     {/* Day number header */}
                     <div className="flex items-center justify-between">
                       <span
                         className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold ${
                           day.isToday
-                            ? 'bg-emerald-600 text-white shadow-xs'
+                            ? 'bg-accent text-white shadow-xs'
                             : isSelected
-                              ? 'text-emerald-700 dark:text-emerald-400 font-bold'
+                              ? 'text-accent font-bold'
                               : day.isCurrentMonth
-                                ? 'text-slate-800 dark:text-slate-200'
-                                : 'text-slate-400 dark:text-slate-600'
+                                ? 'text-fg'
+                                : 'text-muted'
                         }`}
                       >
                         {day.day}
                       </span>
 
                       {totalItems > 0 && (
-                        <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500">
-                          {totalItems}
-                        </span>
+                        <span className="text-[10px] font-medium text-muted">{totalItems}</span>
                       )}
                     </div>
 
@@ -410,25 +398,25 @@ export default function CalendarPage() {
                         {cropCount > 0 && (
                           <span
                             title={`${cropCount} việc trồng trọt`}
-                            className="inline-block h-2 w-2 rounded-full bg-emerald-500"
+                            className="inline-block h-2 w-2 rounded-full bg-accent"
                           />
                         )}
                         {livestockCount > 0 && (
                           <span
                             title={`${livestockCount} việc chăn nuôi`}
-                            className="inline-block h-2 w-2 rounded-full bg-amber-500"
+                            className="inline-block h-2 w-2 rounded-full bg-warn"
                           />
                         )}
                         {aquaCount > 0 && (
                           <span
                             title={`${aquaCount} việc thủy sản`}
-                            className="inline-block h-2 w-2 rounded-full bg-sky-500"
+                            className="inline-block h-2 w-2 rounded-full bg-info"
                           />
                         )}
                         {otherActCount > 0 && (
                           <span
                             title={`${otherActCount} việc chung`}
-                            className="inline-block h-2 w-2 rounded-full bg-slate-400"
+                            className="inline-block h-2 w-2 rounded-full bg-muted"
                           />
                         )}
                       </div>
@@ -463,7 +451,7 @@ export default function CalendarPage() {
                       })}
 
                       {totalItems > 2 && (
-                        <div className="text-[9px] text-slate-400">+{totalItems - 2} mục khác</div>
+                        <div className="text-[9px] text-muted">+{totalItems - 2} mục khác</div>
                       )}
                     </div>
                   </button>
@@ -473,51 +461,47 @@ export default function CalendarPage() {
           </div>
 
           {/* Legend */}
-          <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-slate-200 bg-white p-3 text-xs text-slate-600 shadow-xs dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400">
+          <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-line bg-surface p-3 text-xs text-muted shadow-xs">
             <div className="flex flex-wrap items-center gap-4">
-              <span className="font-medium text-slate-700 dark:text-slate-300">
-                Chú thích loại mùa vụ:
-              </span>
+              <span className="font-medium text-fg">Chú thích loại mùa vụ:</span>
               <div className="flex items-center gap-1.5">
-                <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
+                <span className="h-2.5 w-2.5 rounded-full bg-accent" />
                 <span>Trồng trọt (CROP)</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="h-2.5 w-2.5 rounded-full bg-amber-500" />
+                <span className="h-2.5 w-2.5 rounded-full bg-warn" />
                 <span>Chăn nuôi (LIVESTOCK)</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="h-2.5 w-2.5 rounded-full bg-sky-500" />
+                <span className="h-2.5 w-2.5 rounded-full bg-info" />
                 <span>Thủy sản (AQUA)</span>
               </div>
             </div>
 
-            {isLoading && (
-              <span className="text-slate-400 animate-pulse text-[11px]">Đang tải...</span>
-            )}
+            {isLoading && <span className="text-muted animate-pulse text-[11px]">Đang tải...</span>}
           </div>
         </div>
 
         {/* Day Details Panel (1 col on xl) */}
-        <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+        <div className="space-y-4 rounded-xl border border-line bg-surface p-5 shadow-sm">
           <div>
-            <div className="text-xs uppercase font-semibold tracking-wider text-slate-400">
+            <div className="text-xs uppercase font-semibold tracking-wider text-muted">
               Chi tiết trong ngày
             </div>
-            <h3 className="mt-1 text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-              <CalendarIcon className="h-4 w-4 text-emerald-600" />
+            <h3 className="mt-1 text-base font-bold text-fg flex items-center gap-2">
+              <CalendarIcon className="h-4 w-4 text-accent" />
               Ngày {selectedDate.split('-').reverse().join('/')}
             </h3>
           </div>
 
           {/* Cycle Milestones */}
           <div className="space-y-3">
-            <div className="flex items-center justify-between border-b pb-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300">
+            <div className="flex items-center justify-between border-b border-line pb-1.5 text-xs font-semibold text-fg">
               <span>Mốc mùa vụ ({selectedDayData.cycleEvents.length})</span>
             </div>
 
             {selectedDayData.cycleEvents.length === 0 ? (
-              <p className="text-xs text-slate-400 italic">Không có mốc mùa vụ</p>
+              <p className="text-xs text-muted italic">Không có mốc mùa vụ</p>
             ) : (
               <div className="space-y-2">
                 {selectedDayData.cycleEvents.map((evt) => {
@@ -534,10 +518,7 @@ export default function CalendarPage() {
                     >
                       <div className="flex items-center justify-between gap-1">
                         <span className="font-semibold">{conf.label}</span>
-                        <Badge
-                          variant="outline"
-                          className="text-[10px] py-0 px-1.5 bg-white/60 dark:bg-black/30"
-                        >
+                        <Badge variant="outline" className="text-[10px] py-0 px-1.5 bg-surface/60">
                           {kindInfo.icon}
                           {kindInfo.label}
                         </Badge>
@@ -546,14 +527,14 @@ export default function CalendarPage() {
                       <div className="mt-1.5 font-medium">
                         <Link
                           href={`/admin/cycles?id=${evt.cycleId}`}
-                          className="hover:underline text-slate-900 dark:text-slate-100 flex items-center gap-1"
+                          className="hover:underline text-fg flex items-center gap-1"
                         >
-                          <Sprout className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                          <Sprout className="h-3.5 w-3.5 text-accent shrink-0" />
                           <span>{evt.name}</span>
                         </Link>
                       </div>
 
-                      <div className="mt-1 text-[11px] text-slate-500">
+                      <div className="mt-1 text-[11px] text-muted">
                         Mã vụ: <span className="font-mono">{evt.code}</span>
                       </div>
                     </div>
@@ -565,26 +546,25 @@ export default function CalendarPage() {
 
           {/* Activities List */}
           <div className="space-y-3 pt-2">
-            <div className="flex items-center justify-between border-b pb-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300">
+            <div className="flex items-center justify-between border-b border-line pb-1.5 text-xs font-semibold text-fg">
               <span>Nhật ký hoạt động ({selectedDayData.activities.length})</span>
             </div>
 
             {selectedDayData.activities.length === 0 ? (
-              <p className="text-xs text-slate-400 italic">Không có nhật ký công việc</p>
+              <p className="text-xs text-muted italic">Không có nhật ký công việc</p>
             ) : (
               <div className="space-y-2.5 max-h-[480px] overflow-y-auto pr-1">
                 {selectedDayData.activities.map((act) => {
-                  const kindConfig = act.cycleKind ? CYCLE_KIND_CONFIG[act.cycleKind] : null;
                   return (
                     <div
                       key={`act-${act.id}`}
-                      className="rounded-lg border border-slate-200 bg-slate-50/70 p-3 text-xs dark:border-slate-800 dark:bg-slate-900/60"
+                      className="rounded-lg border border-line bg-surface-2 p-3 text-xs"
                     >
                       <div className="flex items-center justify-between">
-                        <span className="font-semibold text-slate-900 dark:text-slate-100">
+                        <span className="font-semibold text-fg">
                           {ACTIVITY_TYPE_LABELS[act.type] || act.type}
                         </span>
-                        <span className="flex items-center gap-1 text-[11px] text-slate-500">
+                        <span className="flex items-center gap-1 text-[11px] text-muted">
                           <Clock className="h-3 w-3" />
                           {formatVietnamTime(act.performedAt)}
                         </span>
@@ -592,37 +572,31 @@ export default function CalendarPage() {
 
                       {act.cycle && (
                         <div className="mt-1.5 flex items-center gap-1.5 text-[11px]">
-                          <span className="text-slate-500">Vụ:</span>
+                          <span className="text-muted">Vụ:</span>
                           <Link
                             href={`/admin/cycles?id=${act.cycle.id}`}
-                            className="font-medium text-emerald-600 hover:underline truncate"
+                            className="font-medium text-accent hover:underline truncate"
                           >
                             {act.cycle.name} ({act.cycle.code})
                           </Link>
-                          {kindConfig && (
-                            <span
-                              className="ml-auto inline-block h-2 w-2 rounded-full shrink-0"
-                              style={{ backgroundColor: kindConfig.dotClass.replace('bg-', '') }}
-                            />
-                          )}
                         </div>
                       )}
 
-                      <div className="mt-1 flex items-center gap-1 text-[11px] text-slate-600 dark:text-slate-400">
-                        <MapPin className="h-3 w-3 text-slate-400" />
+                      <div className="mt-1 flex items-center gap-1 text-[11px] text-muted">
+                        <MapPin className="h-3 w-3 text-muted" />
                         <span>{act.area.name}</span>
-                        <span className="font-mono text-slate-400">({act.area.code})</span>
+                        <span className="font-mono">({act.area.code})</span>
                       </div>
 
                       {act.performedBy && (
-                        <div className="mt-1 flex items-center gap-1 text-[11px] text-slate-500">
+                        <div className="mt-1 flex items-center gap-1 text-[11px] text-muted">
                           <User className="h-3 w-3" />
                           <span>{act.performedBy.fullName}</span>
                         </div>
                       )}
 
                       {act.quantity !== null && act.quantity !== undefined && (
-                        <div className="mt-1 text-[11px] text-slate-700 dark:text-slate-300">
+                        <div className="mt-1 text-[11px] text-fg">
                           Lượng:{' '}
                           <span className="font-semibold">
                             {act.quantity} {act.unit || ''}
@@ -631,7 +605,7 @@ export default function CalendarPage() {
                       )}
 
                       {act.notes && (
-                        <div className="mt-1.5 rounded bg-white p-1.5 text-[11px] text-slate-600 italic border border-slate-100 dark:bg-slate-950 dark:border-slate-800 dark:text-slate-400">
+                        <div className="mt-1.5 rounded bg-surface p-1.5 text-[11px] text-muted italic border border-line">
                           &ldquo;{act.notes}&rdquo;
                         </div>
                       )}

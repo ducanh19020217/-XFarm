@@ -230,11 +230,7 @@ export function AnimalsTab({ userRole, groups }: AnimalsTabProps) {
         header: 'Thao tác',
         cell: ({ row }) => (
           <a href={`/admin/animals/${row.original.id}`}>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 px-2 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400"
-            >
+            <Button variant="ghost" size="sm" className="h-8 px-2 text-muted hover:text-fg">
               <Eye className="h-4 w-4 mr-1" /> Chi tiết
             </Button>
           </a>
@@ -247,15 +243,13 @@ export function AnimalsTab({ userRole, groups }: AnimalsTabProps) {
     <div className="space-y-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">
-            Danh sách cá thể vật nuôi
-          </h2>
-          <p className="text-sm text-zinc-500">
+          <h2 className="text-lg font-medium text-fg">Danh sách cá thể vật nuôi</h2>
+          <p className="text-sm text-muted">
             Quản lý mã tai, giới tính, ngày sinh và phả hệ từng con
           </p>
         </div>
         {canCreate && (
-          <Button onClick={handleOpenCreate} className="bg-emerald-600 hover:bg-emerald-700">
+          <Button onClick={handleOpenCreate}>
             <Plus className="h-4 w-4 mr-1.5" />
             Thêm cá thể mới
           </Button>
@@ -263,9 +257,9 @@ export function AnimalsTab({ userRole, groups }: AnimalsTabProps) {
       </div>
 
       {/* Thanh bộ lọc */}
-      <div className="flex flex-wrap items-center gap-3 rounded-lg border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900 shadow-sm">
-        <div className="flex items-center gap-1.5 text-sm font-medium text-zinc-700 dark:text-zinc-300">
-          <Filter className="h-4 w-4" />
+      <div className="flex flex-wrap items-center gap-3 rounded-lg border border-line bg-surface p-3 shadow-sm">
+        <div className="flex items-center gap-1.5 text-sm font-medium text-fg">
+          <Filter className="h-4 w-4 text-accent" />
           <span>Bộ lọc:</span>
         </div>
 
@@ -277,7 +271,7 @@ export function AnimalsTab({ userRole, groups }: AnimalsTabProps) {
               setPage(1);
             }}
           >
-            <SelectTrigger className="h-8 text-xs">
+            <SelectTrigger className="h-8 text-xs border-line bg-surface text-fg">
               <SelectValue placeholder="Trạng thái" />
             </SelectTrigger>
             <SelectContent>
@@ -303,7 +297,7 @@ export function AnimalsTab({ userRole, groups }: AnimalsTabProps) {
               setPage(1);
             }}
           >
-            <SelectTrigger className="h-8 text-xs">
+            <SelectTrigger className="h-8 text-xs border-line bg-surface text-fg">
               <SelectValue placeholder="Đàn vật nuôi" />
             </SelectTrigger>
             <SelectContent>
@@ -326,7 +320,7 @@ export function AnimalsTab({ userRole, groups }: AnimalsTabProps) {
               setGroupFilter('ALL');
               setPage(1);
             }}
-            className="h-8 text-xs text-zinc-500 hover:text-zinc-800"
+            className="h-8 text-xs text-muted hover:text-fg"
           >
             Xóa bộ lọc
           </Button>
@@ -357,7 +351,7 @@ export function AnimalsTab({ userRole, groups }: AnimalsTabProps) {
       >
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
           {formError && (
-            <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md dark:bg-red-950/50 dark:border-red-900">
+            <div className="p-3 text-sm text-crit bg-crit-bg border border-crit/20 rounded-md">
               {formError}
             </div>
           )}
@@ -371,7 +365,7 @@ export function AnimalsTab({ userRole, groups }: AnimalsTabProps) {
               {...form.register('tag')}
             />
             {form.formState.errors.tag && (
-              <p className="text-xs text-red-600">{form.formState.errors.tag.message}</p>
+              <p className="text-xs text-crit">{form.formState.errors.tag.message}</p>
             )}
           </div>
 
@@ -385,7 +379,7 @@ export function AnimalsTab({ userRole, groups }: AnimalsTabProps) {
                 {...form.register('species')}
               />
               {form.formState.errors.species && (
-                <p className="text-xs text-red-600">{form.formState.errors.species.message}</p>
+                <p className="text-xs text-crit">{form.formState.errors.species.message}</p>
               )}
             </div>
 
@@ -478,7 +472,7 @@ export function AnimalsTab({ userRole, groups }: AnimalsTabProps) {
                 ))}
               </SelectContent>
             </Select>
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-muted">
               * Hệ thống tự động lọc danh sách chỉ bao gồm cá thể mang giới tính Cái (FEMALE).
             </p>
           </div>
@@ -502,11 +496,7 @@ export function AnimalsTab({ userRole, groups }: AnimalsTabProps) {
             >
               Hủy bỏ
             </Button>
-            <Button
-              type="submit"
-              className="bg-emerald-600 hover:bg-emerald-700"
-              disabled={isSubmitting}
-            >
+            <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? 'Đang lưu...' : 'Thêm cá thể'}
             </Button>
           </div>

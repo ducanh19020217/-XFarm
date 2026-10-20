@@ -80,14 +80,14 @@ export default function AnimalsPage() {
       />
 
       {/* Tabs chuyển đổi giữa Đàn và Cá thể */}
-      <div className="flex border-b border-zinc-200 dark:border-zinc-800">
+      <div className="flex border-b border-line">
         <button
           type="button"
           onClick={() => setActiveTab('groups')}
           className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
             activeTab === 'groups'
-              ? 'border-emerald-600 text-emerald-600 dark:border-emerald-400 dark:text-emerald-400'
-              : 'border-transparent text-zinc-500 hover:text-zinc-700 hover:border-zinc-300 dark:text-zinc-400 dark:hover:text-zinc-200'
+              ? 'border-accent text-accent'
+              : 'border-transparent text-muted hover:text-fg hover:border-line-strong'
           }`}
         >
           <Layers className="h-4 w-4" />
@@ -99,8 +99,8 @@ export default function AnimalsPage() {
           onClick={() => setActiveTab('animals')}
           className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
             activeTab === 'animals'
-              ? 'border-emerald-600 text-emerald-600 dark:border-emerald-400 dark:text-emerald-400'
-              : 'border-transparent text-zinc-500 hover:text-zinc-700 hover:border-zinc-300 dark:text-zinc-400 dark:hover:text-zinc-200'
+              ? 'border-accent text-accent'
+              : 'border-transparent text-muted hover:text-fg hover:border-line-strong'
           }`}
         >
           <PawPrint className="h-4 w-4" />

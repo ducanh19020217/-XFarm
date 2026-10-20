@@ -24,9 +24,10 @@ export function CycleFilters({
   onStatusChange,
   onAreaChange,
 }: CycleFiltersProps) {
-  const selectClass = 'h-10 rounded-md border border-slate-300 bg-white px-3 text-sm';
+  const selectClass =
+    'h-10 rounded-md border border-line bg-surface px-3 text-sm text-fg focus:outline-none focus:ring-2 focus:ring-accent';
   return (
-    <div className="flex flex-wrap items-end gap-3 rounded-lg border bg-white p-4 shadow-sm">
+    <div className="flex flex-wrap items-end gap-3 rounded-lg border border-line bg-surface p-4 shadow-sm">
       <div className="space-y-1">
         <Label htmlFor="filter-kind">Loại</Label>
         <select

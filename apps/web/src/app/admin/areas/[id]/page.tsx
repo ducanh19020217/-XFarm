@@ -187,9 +187,9 @@ export default function AreaDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-72 items-center justify-center rounded-lg border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
-        <div className="flex items-center gap-2 text-sm text-slate-500">
-          <RefreshCw className="h-5 w-5 animate-spin text-emerald-600" />
+      <div className="flex h-72 items-center justify-center rounded-lg border border-line bg-surface">
+        <div className="flex items-center gap-2 text-sm text-muted">
+          <RefreshCw className="h-5 w-5 animate-spin text-accent" />
           <span>Đang tải thông tin khu/lô...</span>
         </div>
       </div>
@@ -204,8 +204,8 @@ export default function AreaDetailPage() {
             <ArrowLeft className="mr-1.5 h-4 w-4" /> Quay lại danh sách
           </Button>
         </Link>
-        <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-400">
-          <AlertCircle className="mx-auto mb-2 h-8 w-8 text-red-500" />
+        <div className="rounded-lg border border-crit/30 bg-crit-bg p-6 text-center text-crit">
+          <AlertCircle className="mx-auto mb-2 h-8 w-8 text-crit" />
           <h3 className="text-base font-semibold">Không tìm thấy khu vực</h3>
           <p className="mt-1 text-sm">{errorMessage || 'Khu vực không tồn tại hoặc đã bị xóa.'}</p>
         </div>
@@ -220,7 +220,7 @@ export default function AreaDetailPage() {
   return (
     <div className="space-y-6">
       {/* Top Header & Actions */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-4 dark:border-slate-800">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-line pb-4">
         <div className="flex items-center gap-3">
           <Button
             variant="outline"
@@ -229,15 +229,13 @@ export default function AreaDetailPage() {
             className="h-9 w-9 p-0"
             title="Quay lại danh sách khu/lô"
           >
-            <ArrowLeft className="h-4 w-4 text-slate-600" />
+            <ArrowLeft className="h-4 w-4 text-muted" />
           </Button>
 
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
-                {area.name}
-              </h1>
-              <span className="font-mono text-sm font-semibold text-slate-500">({area.code})</span>
+              <h1 className="text-xl font-bold tracking-tight text-fg">{area.name}</h1>
+              <span className="font-mono text-sm font-semibold text-muted">({area.code})</span>
               <Badge
                 variant="outline"
                 className="text-xs px-2 py-0.5"
@@ -251,7 +249,7 @@ export default function AreaDetailPage() {
               </Badge>
               <StatusBadge status={area.isActive} />
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-muted mt-0.5">
               Tạo ngày {new Date(area.createdAt).toLocaleDateString('vi-VN')} • Cập nhật lần cuối{' '}
               {new Date(area.updatedAt).toLocaleDateString('vi-VN')}
             </p>
@@ -266,7 +264,7 @@ export default function AreaDetailPage() {
             onClick={() => setQrDialogOpen(true)}
             title="In tem mã QR khu/lô"
           >
-            <QrCode className="mr-1.5 h-3.5 w-3.5 text-emerald-600" />
+            <QrCode className="mr-1.5 h-3.5 w-3.5 text-accent" />
             In QR khu/lô
           </Button>
 
@@ -287,11 +285,7 @@ export default function AreaDetailPage() {
               <Button
                 variant={area.isActive ? 'outline' : 'default'}
                 size="sm"
-                className={
-                  area.isActive
-                    ? 'text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950'
-                    : 'bg-emerald-600 text-white hover:bg-emerald-700'
-                }
+                className={area.isActive ? 'text-crit hover:bg-crit-bg hover:text-crit' : ''}
                 onClick={() => {
                   setStatusError(null);
                   setStatusDialogOpen(true);
@@ -319,46 +313,44 @@ export default function AreaDetailPage() {
         {/* Left Column: Thông tin tổng quan & Khu con */}
         <div className="space-y-6 lg:col-span-1">
           {/* Card Thông tin cơ bản */}
-          <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-950">
-            <h2 className="mb-4 text-sm font-bold text-slate-900 uppercase tracking-wider dark:text-slate-100 flex items-center gap-2">
-              <Layers className="h-4 w-4 text-emerald-600" />
+          <div className="rounded-lg border border-line bg-surface p-5 shadow-xs text-fg">
+            <h2 className="mb-4 text-sm font-bold text-fg uppercase tracking-wider flex items-center gap-2">
+              <Layers className="h-4 w-4 text-accent" />
               Thông tin chi tiết
             </h2>
 
             <dl className="space-y-3 text-xs">
               <div>
-                <dt className="text-slate-500 font-medium">Mã định danh</dt>
-                <dd className="font-mono font-semibold text-slate-800 dark:text-slate-200 mt-0.5">
-                  {area.code}
-                </dd>
+                <dt className="text-muted font-medium">Mã định danh</dt>
+                <dd className="font-mono font-semibold text-fg mt-0.5">{area.code}</dd>
               </div>
 
               <div>
-                <dt className="text-slate-500 font-medium">Phân loại khu</dt>
-                <dd className="font-medium text-slate-800 dark:text-slate-200 mt-0.5">
+                <dt className="text-muted font-medium">Phân loại khu</dt>
+                <dd className="font-medium text-fg mt-0.5">
                   {AREA_TYPE_LABELS[area.type] || area.type}
                 </dd>
               </div>
 
               <div>
-                <dt className="text-slate-500 font-medium">Khu cha trực thuộc</dt>
+                <dt className="text-muted font-medium">Khu cha trực thuộc</dt>
                 <dd className="mt-0.5">
                   {area.parent ? (
                     <Link
                       href={`/admin/areas/${area.parent.id}`}
-                      className="font-medium text-emerald-600 hover:underline inline-flex items-center gap-1"
+                      className="font-medium text-accent hover:underline inline-flex items-center gap-1"
                     >
                       {area.parent.name} ({area.parent.code}) &rarr;
                     </Link>
                   ) : (
-                    <span className="text-slate-400">Khu gốc (Root)</span>
+                    <span className="text-muted">Khu gốc (Root)</span>
                   )}
                 </dd>
               </div>
 
               <div>
-                <dt className="text-slate-500 font-medium">Diện tích canh tác</dt>
-                <dd className="font-semibold text-base text-slate-900 dark:text-slate-100 mt-0.5">
+                <dt className="text-muted font-medium">Diện tích canh tác</dt>
+                <dd className="font-semibold text-base text-fg mt-0.5">
                   {area.areaM2 != null
                     ? `${Number(area.areaM2).toLocaleString('vi-VN')} m²`
                     : 'Chưa đo đạc'}
@@ -366,15 +358,13 @@ export default function AreaDetailPage() {
               </div>
 
               <div>
-                <dt className="text-slate-500 font-medium">Số mùa vụ đang hoạt động</dt>
+                <dt className="text-muted font-medium">Số mùa vụ đang hoạt động</dt>
                 <dd className="mt-1 flex items-center gap-2">
-                  <Sprout className="h-4 w-4 text-emerald-600" />
-                  <span className="font-semibold text-emerald-700 dark:text-emerald-400">
-                    {cyclesCount} vụ đang chạy
-                  </span>
+                  <Sprout className="h-4 w-4 text-accent" />
+                  <span className="font-semibold text-accent">{cyclesCount} vụ đang chạy</span>
                   <Link
                     href={`/admin/cycles`}
-                    className="ml-auto text-[11px] text-emerald-600 hover:underline font-medium"
+                    className="ml-auto text-[11px] text-accent hover:underline font-medium"
                   >
                     Xem mùa vụ &rarr;
                   </Link>
@@ -382,11 +372,11 @@ export default function AreaDetailPage() {
               </div>
 
               {area.description && (
-                <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
-                  <dt className="text-slate-500 font-medium flex items-center gap-1">
+                <div className="pt-2 border-t border-line">
+                  <dt className="text-muted font-medium flex items-center gap-1">
                     <FileText className="h-3.5 w-3.5" /> Mô tả
                   </dt>
-                  <dd className="mt-1 text-slate-600 dark:text-slate-300 leading-relaxed bg-slate-50 dark:bg-slate-900 p-2.5 rounded">
+                  <dd className="mt-1 text-fg-2 leading-relaxed bg-surface-2 p-2.5 rounded border border-line">
                     {area.description}
                   </dd>
                 </div>
@@ -395,16 +385,16 @@ export default function AreaDetailPage() {
           </div>
 
           {/* Card Danh sách Khu con */}
-          <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-950">
+          <div className="rounded-lg border border-line bg-surface p-5 shadow-xs text-fg">
             <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider dark:text-slate-100 flex items-center gap-2">
-                <FolderTree className="h-4 w-4 text-emerald-600" />
+              <h2 className="text-sm font-bold text-fg uppercase tracking-wider flex items-center gap-2">
+                <FolderTree className="h-4 w-4 text-accent" />
                 Khu con trực thuộc ({childAreas.length})
               </h2>
             </div>
 
             {childAreas.length === 0 ? (
-              <p className="text-xs text-slate-400 italic">
+              <p className="text-xs text-muted italic">
                 Chưa có khu/lô con nào trực thuộc khu vực này.
               </p>
             ) : (
@@ -413,18 +403,18 @@ export default function AreaDetailPage() {
                   <Link
                     key={child.id}
                     href={`/admin/areas/${child.id}`}
-                    className="group flex items-center justify-between rounded-md border border-slate-100 p-2.5 text-xs transition-colors hover:border-emerald-200 hover:bg-emerald-50/50 dark:border-slate-800 dark:hover:bg-slate-900"
+                    className="group flex items-center justify-between rounded-md border border-line p-2.5 text-xs transition-colors hover:bg-hover"
                   >
                     <div>
-                      <div className="font-semibold text-slate-800 group-hover:text-emerald-600 dark:text-slate-200">
+                      <div className="font-semibold text-fg group-hover:text-accent">
                         {child.name}
                       </div>
-                      <div className="font-mono text-[11px] text-slate-400">
+                      <div className="font-mono text-[11px] text-muted">
                         {child.code} • {AREA_TYPE_LABELS[child.type]}
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="font-medium text-slate-600 dark:text-slate-300">
+                      <div className="font-medium text-fg-2">
                         {child.areaM2 ? `${Number(child.areaM2).toLocaleString('vi-VN')} m²` : '—'}
                       </div>
                       <StatusBadge status={child.isActive} />
@@ -438,20 +428,20 @@ export default function AreaDetailPage() {
 
         {/* Right Column: Bản đồ polygon Leaflet */}
         <div className="space-y-4 lg:col-span-2">
-          <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-950">
+          <div className="rounded-lg border border-line bg-surface p-4 shadow-xs text-fg">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
               <div>
-                <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-emerald-600" />
+                <h2 className="text-sm font-bold text-fg flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-accent" />
                   Bản đồ ranh giới & Polygon
                 </h2>
-                <p className="text-xs text-slate-500 mt-0.5">
+                <p className="text-xs text-muted mt-0.5">
                   Hiển thị ranh giới của khu và các khu con. Có thể vẽ, sửa đỉnh và lưu lại polygon.
                 </p>
               </div>
 
               {canWrite && (
-                <span className="text-xs text-emerald-700 bg-emerald-50 dark:bg-emerald-950 px-2.5 py-1 rounded-full font-medium">
+                <span className="text-xs text-accent bg-accent-bg px-2.5 py-1 rounded-full font-medium">
                   Chế độ chỉnh sửa polygon khả dụng
                 </span>
               )}

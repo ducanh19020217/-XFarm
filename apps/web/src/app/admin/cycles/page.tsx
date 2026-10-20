@@ -2,6 +2,8 @@
 
 import * as React from 'react';
 import { FormDialog, PageHeader, Toast, useToast } from '@xfarm/ui';
+import { CycleStatus } from '@xfarm/shared';
+import { CheckCircle2, Clock, Layers, MapPin } from 'lucide-react';
 import { apiFetch, ApiError, isAbortError } from '@/lib/api';
 import { useAdminUser } from '../admin-user-context';
 import { CycleFilters } from './_components/cycle-filters';
@@ -96,6 +98,9 @@ export default function CyclesPage() {
     setPage(1);
   };
 
+  const activeCount = cycles.filter((c) => c.status === CycleStatus.ACTIVE).length;
+  const completedCount = cycles.filter((c) => c.status === CycleStatus.CLOSED).length;
+
   return (
     <div className="space-y-6">
       <Toast message={message} onClose={closeToast} />
@@ -105,6 +110,38 @@ export default function CyclesPage() {
       >
         <CycleCreateButton canManage={canManage} onClick={() => setCreateOpen(true)} />
       </PageHeader>
+
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div className="rounded-lg border border-line bg-surface p-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-muted">Tổng mùa vụ</span>
+            <Layers className="h-4 w-4 text-accent" />
+          </div>
+          <p className="mt-2 text-2xl font-bold text-fg">{total}</p>
+        </div>
+        <div className="rounded-lg border border-line bg-surface p-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-muted">Đang thực hiện</span>
+            <Clock className="h-4 w-4 text-warn" />
+          </div>
+          <p className="mt-2 text-2xl font-bold text-fg">{activeCount}</p>
+        </div>
+        <div className="rounded-lg border border-line bg-surface p-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-muted">Đã thu hoạch / xong</span>
+            <CheckCircle2 className="h-4 w-4 text-ok" />
+          </div>
+          <p className="mt-2 text-2xl font-bold text-fg">{completedCount}</p>
+        </div>
+        <div className="rounded-lg border border-line bg-surface p-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-muted">Khu / Lô liên kết</span>
+            <MapPin className="h-4 w-4 text-info" />
+          </div>
+          <p className="mt-2 text-2xl font-bold text-fg">{areas.length}</p>
+        </div>
+      </div>
+
       <CycleFilters
         areas={areas}
         kind={kind}

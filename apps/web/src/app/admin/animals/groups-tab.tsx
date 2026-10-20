@@ -21,7 +21,7 @@ import {
   SelectContent,
   SelectItem,
 } from '@xfarm/ui';
-import { Plus, Edit2 } from 'lucide-react';
+import { Plus, Edit2, Layers, PawPrint, MapPin, Calendar } from 'lucide-react';
 import { apiFetch, ApiError, isAbortError } from '../../../lib/api';
 import { AnimalGroupItem, AreaSummary, CycleSummary, canManageAnimals } from './types';
 
@@ -232,7 +232,7 @@ export function GroupsTab({ userRole, cycles, areas }: GroupsTabProps) {
             variant="ghost"
             size="sm"
             onClick={() => handleOpenEdit(row.original)}
-            className="h-8 px-2 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400"
+            className="h-8 px-2 text-muted hover:text-fg"
           >
             <Edit2 className="h-4 w-4 mr-1" /> Sửa
           </Button>
@@ -243,23 +243,52 @@ export function GroupsTab({ userRole, cycles, areas }: GroupsTabProps) {
     return cols;
   }, [canEdit]);
 
+  const totalHeads = groups.reduce((acc, g) => acc + (Number(g.headCount) || 0), 0);
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">
-            Danh sách đàn vật nuôi
-          </h2>
-          <p className="text-sm text-zinc-500">
-            Quản lý đàn gia súc, gia cầm và thủy sản theo mùa vụ
-          </p>
+          <h2 className="text-lg font-medium text-fg">Danh sách đàn vật nuôi</h2>
+          <p className="text-sm text-muted">Quản lý đàn gia súc, gia cầm và thủy sản theo mùa vụ</p>
         </div>
         {canEdit && (
-          <Button onClick={handleOpenCreate} className="bg-emerald-600 hover:bg-emerald-700">
+          <Button onClick={handleOpenCreate}>
             <Plus className="h-4 w-4 mr-1.5" />
             Thêm đàn mới
           </Button>
         )}
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div className="rounded-lg border border-line bg-surface p-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-muted">Tổng số đàn</span>
+            <Layers className="h-4 w-4 text-accent" />
+          </div>
+          <p className="mt-2 text-2xl font-bold text-fg">{total}</p>
+        </div>
+        <div className="rounded-lg border border-line bg-surface p-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-muted">Số lượng con</span>
+            <PawPrint className="h-4 w-4 text-ok" />
+          </div>
+          <p className="mt-2 text-2xl font-bold text-fg">{totalHeads.toLocaleString('vi-VN')}</p>
+        </div>
+        <div className="rounded-lg border border-line bg-surface p-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-muted">Mùa vụ áp dụng</span>
+            <Calendar className="h-4 w-4 text-info" />
+          </div>
+          <p className="mt-2 text-2xl font-bold text-fg">{eligibleCycles.length}</p>
+        </div>
+        <div className="rounded-lg border border-line bg-surface p-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-muted">Khu / Chuồng</span>
+            <MapPin className="h-4 w-4 text-warn" />
+          </div>
+          <p className="mt-2 text-2xl font-bold text-fg">{areas.length}</p>
+        </div>
       </div>
 
       <DataTable
@@ -290,7 +319,7 @@ export function GroupsTab({ userRole, cycles, areas }: GroupsTabProps) {
       >
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
           {formError && (
-            <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md dark:bg-red-950/50 dark:border-red-900">
+            <div className="p-3 text-sm text-crit bg-crit-bg border border-crit/20 rounded-md">
               {formError}
             </div>
           )}
@@ -336,7 +365,7 @@ export function GroupsTab({ userRole, cycles, areas }: GroupsTabProps) {
               </Select>
             )}
             {form.formState.errors.cycleId && (
-              <p className="text-xs text-red-600">{form.formState.errors.cycleId.message}</p>
+              <p className="text-xs text-crit">{form.formState.errors.cycleId.message}</p>
             )}
           </div>
 
@@ -365,7 +394,7 @@ export function GroupsTab({ userRole, cycles, areas }: GroupsTabProps) {
               </SelectContent>
             </Select>
             {form.formState.errors.areaId && (
-              <p className="text-xs text-red-600">{form.formState.errors.areaId.message}</p>
+              <p className="text-xs text-crit">{form.formState.errors.areaId.message}</p>
             )}
           </div>
 
@@ -379,7 +408,7 @@ export function GroupsTab({ userRole, cycles, areas }: GroupsTabProps) {
                 {...form.register('species')}
               />
               {form.formState.errors.species && (
-                <p className="text-xs text-red-600">{form.formState.errors.species.message}</p>
+                <p className="text-xs text-crit">{form.formState.errors.species.message}</p>
               )}
             </div>
 
@@ -405,7 +434,7 @@ export function GroupsTab({ userRole, cycles, areas }: GroupsTabProps) {
               {...form.register('headCount', { valueAsNumber: true })}
             />
             {form.formState.errors.headCount && (
-              <p className="text-xs text-red-600">{form.formState.errors.headCount.message}</p>
+              <p className="text-xs text-crit">{form.formState.errors.headCount.message}</p>
             )}
           </div>
 
@@ -428,11 +457,7 @@ export function GroupsTab({ userRole, cycles, areas }: GroupsTabProps) {
             >
               Hủy bỏ
             </Button>
-            <Button
-              type="submit"
-              className="bg-emerald-600 hover:bg-emerald-700"
-              disabled={isSubmitting}
-            >
+            <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? 'Đang lưu...' : editingGroup ? 'Cập nhật' : 'Tạo mới'}
             </Button>
           </div>

@@ -17,7 +17,7 @@ export function AnimalStatusBadge({ status }: AnimalStatusBadgeProps) {
 
   if (status === AnimalStatus.SOLD) {
     return (
-      <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
+      <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-warn-bg text-warn border border-warn/20">
         {ANIMAL_STATUS_LABELS[AnimalStatus.SOLD]}
       </span>
     );

@@ -24,13 +24,15 @@ export function ActivityFilters({
   to,
   onChange,
 }: ActivityFiltersProps) {
+  const controlClass =
+    'h-9 rounded-md border border-line bg-surface px-3 text-sm text-fg focus:outline-none focus:ring-2 focus:ring-accent';
   return (
-    <div className="grid gap-3 rounded-lg border bg-white p-4 sm:grid-cols-2 lg:grid-cols-5">
+    <div className="grid gap-3 rounded-lg border border-line bg-surface p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-5">
       <select
         aria-label="Lọc theo loại"
         value={type}
         onChange={(event) => onChange('type', event.target.value)}
-        className="h-9 rounded-md border px-3 text-sm"
+        className={controlClass}
       >
         <option value="">Tất cả loại</option>
         {Object.entries(activityTypeLabels).map(([value, label]) => (
@@ -43,7 +45,7 @@ export function ActivityFilters({
         aria-label="Lọc theo khu"
         value={areaId}
         onChange={(event) => onChange('areaId', event.target.value)}
-        className="h-9 rounded-md border px-3 text-sm"
+        className={controlClass}
       >
         <option value="">Tất cả khu/lô</option>
         {areas.map((area) => (
@@ -56,7 +58,7 @@ export function ActivityFilters({
         aria-label="Lọc theo mùa vụ"
         value={cycleId}
         onChange={(event) => onChange('cycleId', event.target.value)}
-        className="h-9 rounded-md border px-3 text-sm"
+        className={controlClass}
       >
         <option value="">Tất cả mùa vụ</option>
         {cycles.map((cycle) => (
@@ -70,14 +72,14 @@ export function ActivityFilters({
         type="date"
         value={from}
         onChange={(event) => onChange('from', event.target.value)}
-        className="h-9 rounded-md border px-3 text-sm"
+        className={controlClass}
       />
       <input
         aria-label="Đến ngày"
         type="date"
         value={to}
         onChange={(event) => onChange('to', event.target.value)}
-        className="h-9 rounded-md border px-3 text-sm"
+        className={controlClass}
       />
     </div>
   );

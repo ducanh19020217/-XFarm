@@ -373,13 +373,16 @@ export function ActivityForm({
       {error && (
         <div
           role="alert"
-          className="rounded-md border border-red-200 bg-red-50 p-3 text-sm font-medium text-red-700"
+          className="rounded-md border border-crit/20 bg-crit-bg p-3 text-sm font-medium text-crit"
         >
           {error}
         </div>
       )}
       {uploadMessage && (
-        <p role="status" className="rounded-md bg-amber-50 p-3 text-sm text-amber-800">
+        <p
+          role="status"
+          className="rounded-md border border-warn/20 bg-warn-bg p-3 text-sm text-warn"
+        >
           {uploadMessage}
         </p>
       )}
@@ -390,7 +393,7 @@ export function ActivityForm({
             id="activity-type"
             value={type}
             onChange={(event) => changeType(event.target.value as ActivityType)}
-            className="flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm"
+            className="flex h-10 w-full rounded-md border border-line bg-surface px-3 text-sm text-fg focus:outline-none focus:ring-2 focus:ring-accent"
           >
             {Object.values(ActivityType).map((value) => (
               <option key={value} value={value}>
@@ -405,7 +408,7 @@ export function ActivityForm({
             id="activity-cycle"
             value={cycleId}
             onChange={(event) => setCycleId(event.target.value)}
-            className="flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm"
+            className="flex h-10 w-full rounded-md border border-line bg-surface px-3 text-sm text-fg focus:outline-none focus:ring-2 focus:ring-accent"
           >
             <option value="">Không gắn mùa vụ</option>
             {availableCycles.map((cycle) => (
@@ -422,7 +425,7 @@ export function ActivityForm({
             required
             value={areaId}
             onChange={(event) => setAreaId(event.target.value)}
-            className="flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm"
+            className="flex h-10 w-full rounded-md border border-line bg-surface px-3 text-sm text-fg focus:outline-none focus:ring-2 focus:ring-accent"
           >
             <option value="">Chọn khu/lô</option>
             {activeAreas.map((area) => (
@@ -444,8 +447,8 @@ export function ActivityForm({
         </div>
       </div>
       {type === ActivityType.HARVEST ? (
-        <fieldset className="space-y-4 rounded-md border border-emerald-200 bg-emerald-50/40 p-4">
-          <legend className="px-1 text-sm font-semibold text-emerald-800">
+        <fieldset className="space-y-4 rounded-md border border-accent/20 bg-accent-bg/30 p-4">
+          <legend className="px-1 text-sm font-semibold text-accent">
             Thông tin thu hoạch &amp; Nhập kho
           </legend>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -465,7 +468,7 @@ export function ActivityForm({
                     unit: current.unit || chosenItem?.unit || '',
                   }));
                 }}
-                className="flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm"
+                className="flex h-10 w-full rounded-md border border-line bg-surface px-3 text-sm text-fg focus:outline-none focus:ring-2 focus:ring-accent"
               >
                 <option value="">-- Chọn nông sản --</option>
                 {produceItems.map((item) => (
@@ -486,7 +489,7 @@ export function ActivityForm({
                 onChange={(event) =>
                   setData((current) => ({ ...current, warehouseId: event.target.value }))
                 }
-                className="flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm"
+                className="flex h-10 w-full rounded-md border border-line bg-surface px-3 text-sm text-fg focus:outline-none focus:ring-2 focus:ring-accent"
               >
                 <option value="">-- Chọn kho nhập --</option>
                 {activeWarehouses.map((wh) => (
@@ -561,7 +564,7 @@ export function ActivityForm({
           <div className="pt-1">
             <label
               htmlFor="harvest-is-public"
-              className="flex cursor-pointer items-center gap-2 text-sm font-medium text-slate-700"
+              className="flex cursor-pointer items-center gap-2 text-sm font-medium text-fg"
             >
               <input
                 id="harvest-is-public"
@@ -571,7 +574,7 @@ export function ActivityForm({
                 onChange={(event) =>
                   setData((current) => ({ ...current, isPublic: event.target.checked }))
                 }
-                className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                className="h-4 w-4 rounded border-line text-accent focus:ring-accent"
               />
               <span>Công khai truy xuất</span>
             </label>
@@ -579,8 +582,8 @@ export function ActivityForm({
         </fieldset>
       ) : (
         fields.length > 0 && (
-          <fieldset className="rounded-md border border-slate-200 p-4">
-            <legend className="px-1 text-sm font-medium">
+          <fieldset className="rounded-md border border-line p-4">
+            <legend className="px-1 text-sm font-medium text-fg">
               Chỉ số {activityTypeLabels[type].toLowerCase()}
             </legend>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -611,16 +614,16 @@ export function ActivityForm({
       )}
 
       {type !== ActivityType.HARVEST && (
-        <fieldset className="space-y-3 rounded-md border border-slate-200 p-4">
+        <fieldset className="space-y-3 rounded-md border border-line p-4">
           <div className="flex items-center justify-between">
-            <legend className="px-1 text-sm font-medium">Vật tư sử dụng</legend>
+            <legend className="px-1 text-sm font-medium text-fg">Vật tư sử dụng</legend>
             <Button type="button" variant="outline" size="sm" onClick={addMaterialRow}>
               <Plus className="mr-1 h-3.5 w-3.5" />
               Thêm vật tư
             </Button>
           </div>
           {materials.length === 0 ? (
-            <p className="text-sm text-slate-500">Chưa có vật tư nào được chọn.</p>
+            <p className="text-sm text-muted">Chưa có vật tư nào được chọn.</p>
           ) : (
             <div className="space-y-3">
               {materials.map((row, index) => {
@@ -636,7 +639,7 @@ export function ActivityForm({
                 return (
                   <div
                     key={index}
-                    className="grid grid-cols-1 items-end gap-3 rounded-md bg-slate-50 p-3 sm:grid-cols-12"
+                    className="grid grid-cols-1 items-end gap-3 rounded-md border border-line bg-surface-2 p-3 sm:grid-cols-12"
                   >
                     <div className="space-y-1 sm:col-span-5">
                       <Label htmlFor={`material-item-${index}`}>Vật tư</Label>
@@ -645,7 +648,7 @@ export function ActivityForm({
                         aria-label="Chọn vật tư"
                         value={row.itemId}
                         onChange={(event) => updateMaterialItem(index, event.target.value)}
-                        className="flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm"
+                        className="flex h-10 w-full rounded-md border border-line bg-surface px-3 text-sm text-fg focus:outline-none focus:ring-2 focus:ring-accent"
                       >
                         <option value="">-- Chọn vật tư còn tồn --</option>
                         {itemOptions.map((item) => (
@@ -669,10 +672,8 @@ export function ActivityForm({
                       />
                     </div>
                     <div className="space-y-1 sm:col-span-3">
-                      <span className="block text-xs font-medium text-slate-500">
-                        Tồn &amp; Đơn vị
-                      </span>
-                      <div className="flex h-10 items-center rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-700">
+                      <span className="block text-xs font-medium text-muted">Tồn &amp; Đơn vị</span>
+                      <div className="flex h-10 items-center rounded-md border border-line bg-surface px-3 text-sm text-fg">
                         {selectedItem ? (
                           <span>
                             Tồn:{' '}
@@ -680,7 +681,7 @@ export function ActivityForm({
                             {selectedItem.unit}
                           </span>
                         ) : (
-                          <span className="text-slate-400">—</span>
+                          <span className="text-muted">—</span>
                         )}
                       </div>
                     </div>
@@ -691,7 +692,7 @@ export function ActivityForm({
                         size="sm"
                         aria-label={`Xóa vật tư dòng ${index + 1}`}
                         onClick={() => removeMaterialRow(index)}
-                        className="text-red-600 hover:bg-red-50 hover:text-red-700"
+                        className="text-crit hover:bg-crit-bg hover:text-crit"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -710,7 +711,7 @@ export function ActivityForm({
           id="activity-notes"
           value={notes}
           onChange={(event) => setNotes(event.target.value)}
-          className="min-h-20 w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+          className="min-h-20 w-full rounded-md border border-line bg-surface px-3 py-2 text-sm text-fg placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent"
         />
       </div>
       <div className="space-y-2">
@@ -729,7 +730,7 @@ export function ActivityForm({
           {files.map((file) => (
             <span
               key={`${file.name}-${file.size}`}
-              className="rounded bg-slate-100 px-2 py-1 text-xs"
+              className="rounded border border-line bg-surface-2 px-2 py-1 text-xs text-fg"
             >
               {file.name}
               <button
