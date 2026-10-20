@@ -14,21 +14,14 @@ test('quy trình bán hàng admin: tạo khách -> tạo đơn 2 dòng -> xác n
 
   // Helper lấy tổng tồn kho của một mặt hàng tại kho cụ thể qua API
   const getItemStockInWh = async (itemId: string, warehouseId: string): Promise<number> => {
-    return page.evaluate(
-      async ({ apiBase, itemId, warehouseId }) => {
-        const res = await fetch(
-          `${apiBase}/stock/balances?itemId=${itemId}&warehouseId=${warehouseId}&includeZero=true&pageSize=1000`,
-          { credentials: 'include' },
-        );
-        if (!res.ok) return 0;
-        const json = await res.json().catch(() => null);
-        const rows = Array.isArray(json?.data) ? json.data : [];
-        return rows.reduce(
-          (sum: number, r: { quantity?: number | string }) => sum + Number(r.quantity || 0),
-          0,
-        );
-      },
-      { apiBase, itemId, warehouseId },
+    const res = await api<{ data: Array<{ quantity?: number | string }> }>(
+      page,
+      `/stock/balances?itemId=${itemId}&warehouseId=${warehouseId}&includeZero=true&pageSize=100`,
+    );
+    const rows = Array.isArray(res?.data) ? res.data : [];
+    return rows.reduce(
+      (sum: number, r: { quantity?: number | string }) => sum + Number(r.quantity || 0),
+      0,
     );
   };
 
@@ -50,19 +43,21 @@ test('quy trình bán hàng admin: tạo khách -> tạo đơn 2 dòng -> xác n
   const prod2 = productsRes.data[1];
   expect(prod1).toBeDefined();
   expect(prod2).toBeDefined();
-  const prod2ItemName = prod2.item?.name || 'Trứng gà';
+  const prod2ItemName = prod2.name;
 
-  // Đảm bảo prod2 có đủ tồn kho trong kho thành phẩm trước khi test
-  const currentStock2 = await getItemStockInWh(prod2.itemId, finishedWarehouse!.id);
-  if (currentStock2 < 10) {
-    await api(page, '/stock/receipts', {
-      method: 'POST',
-      body: JSON.stringify({
-        warehouseId: finishedWarehouse!.id,
-        notes: 'Nhập kho chuẩn bị test e2e bán hàng',
-        lines: [{ itemId: prod2.itemId, quantity: 50, unitCost: 15000 }],
-      }),
-    });
+  // Đảm bảo cả prod1 và prod2 có đủ tồn kho trong kho thành phẩm trước khi test
+  for (const prod of [prod1, prod2]) {
+    const currentStock = await getItemStockInWh(prod.itemId, finishedWarehouse!.id);
+    if (currentStock < 10) {
+      await api(page, '/stock/receipts', {
+        method: 'POST',
+        body: JSON.stringify({
+          warehouseId: finishedWarehouse!.id,
+          notes: 'Nhập kho chuẩn bị test e2e bán hàng',
+          lines: [{ itemId: prod.itemId, quantity: 50, unitCost: 15000 }],
+        }),
+      });
+    }
   }
 
   const initialStock1 = await getItemStockInWh(prod1.itemId, finishedWarehouse!.id);
