@@ -273,6 +273,20 @@ describe('Reports E2E', () => {
     expect(cost.body.data.revenue).toBe('60000.00');
     expect(cost.body.data.profit).toBe('-280000.00');
     expect(cost.body.data.outputQuantity).toBe('10.00');
+    const cycles = await request(app.getHttpServer())
+      .get('/api/v1/reports/cycles')
+      .set('Cookie', ownerCookies);
+    expect(cycles.status).toBe(200);
+    const listed = cycles.body.data.find((entry: { id: string }) => entry.id === cycleId);
+    expect(listed).toMatchObject({
+      materialCost: cost.body.data.materialCost,
+      expenseCost: cost.body.data.expenseCost,
+      laborCost: cost.body.data.laborCost,
+      totalCost: cost.body.data.totalCost,
+      revenue: cost.body.data.revenue,
+      profit: cost.body.data.profit,
+      outputQuantity: cost.body.data.outputQuantity,
+    });
     const products = await request(app.getHttpServer())
       .get('/api/v1/reports/products?from=2026-01-01&to=2026-12-31')
       .set('Cookie', ownerCookies);

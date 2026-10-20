@@ -8,8 +8,8 @@ function money(value: Prisma.Decimal) {
   return value.toDecimalPlaces(2).toFixed(2);
 }
 
-function quantity(value: Prisma.Decimal) {
-  return value.toDecimalPlaces(2).toFixed(2);
+function quantity(value: Prisma.Decimal | number | string) {
+  return new Prisma.Decimal(value).toDecimalPlaces(2).toFixed(2);
 }
 
 function vietnamMonth(date: Date) {
@@ -22,6 +22,18 @@ function vietnamYearStart(year: number) {
 
 function vietnamYearEnd(year: number) {
   return new Date(Date.UTC(year + 1, 0, 1) - VN_OFFSET_MS);
+}
+
+type CycleSummary = {
+  materialCost: Prisma.Decimal;
+  expenseCost: Prisma.Decimal;
+  laborCost: Prisma.Decimal;
+  revenue: Prisma.Decimal;
+  output: Prisma.Decimal;
+};
+
+function decimal(value: Prisma.Decimal | number | string | null | undefined) {
+  return new Prisma.Decimal(value ?? 0);
 }
 
 @Injectable()
@@ -54,13 +66,195 @@ export class ReportsService {
   }
 
   async getCycles(status?: string) {
-    const cycles = await prisma.cycle.findMany({
-      where: status ? { status: status as never } : undefined,
-      select: { id: true },
-      orderBy: [{ startDate: 'desc' }, { id: 'desc' }],
+    const statusFilter = status ? Prisma.sql`WHERE c."status" = ${status}` : Prisma.empty;
+    const cycles = await prisma.$queryRaw<
+      Array<{
+        id: string;
+        code: string;
+        name: string;
+        status: string;
+        areaId: string;
+        areaCode: string;
+        areaName: string;
+        production: Array<{
+          harvestLotId: string;
+          code: string;
+          itemId: string;
+          itemName: string;
+          quantity: Prisma.Decimal | number | string;
+          unit: string;
+          harvestedAt: Date;
+        }>;
+      }>
+    >`
+      SELECT c.id, c.code, c.name, c.status::text, a.id AS "areaId", a.code AS "areaCode",
+        a.name AS "areaName",
+        COALESCE(json_agg(json_build_object(
+          'harvestLotId', h.id, 'code', h.code, 'itemId', h."itemId",
+          'itemName', i.name, 'quantity', h.quantity, 'unit', h.unit,
+          'harvestedAt', h."harvestedAt"
+        ) ORDER BY h."harvestedAt" ASC, h.id ASC) FILTER (WHERE h.id IS NOT NULL), '[]') AS production
+      FROM cycles c
+      JOIN areas a ON a.id = c."areaId"
+      LEFT JOIN harvest_lots h ON h."cycleId" = c.id
+      LEFT JOIN items i ON i.id = h."itemId"
+      ${statusFilter}
+      GROUP BY c.id, c.code, c.name, c.status, a.id, a.code, a.name
+      ORDER BY c."startDate" DESC, c.id DESC
+    `;
+    const summaries = await this.getCycleSummaries(cycles.map((cycle) => cycle.id));
+    const data = cycles.map((cycle) => {
+      const summary = summaries.get(cycle.id)!;
+      summary.output = cycle.production.reduce(
+        (sum, lot) => sum.plus(new Prisma.Decimal(lot.quantity)),
+        new Prisma.Decimal(0),
+      );
+      return this.presentCycleSummary(
+        {
+          id: cycle.id,
+          code: cycle.code,
+          name: cycle.name,
+          status: cycle.status,
+          area: { id: cycle.areaId, code: cycle.areaCode, name: cycle.areaName },
+          harvestLots: cycle.production.map((lot) => ({
+            id: lot.harvestLotId,
+            code: lot.code,
+            itemId: lot.itemId,
+            quantity: new Prisma.Decimal(lot.quantity),
+            unit: lot.unit,
+            harvestedAt: new Date(lot.harvestedAt),
+            item: { id: lot.itemId, name: lot.itemName, unit: lot.unit },
+          })),
+        },
+        summary,
+      );
     });
-    const data = await Promise.all(cycles.map((cycle) => this.getCycleCost(cycle.id)));
     return { data, total: data.length };
+  }
+
+  private async getCycleSummaries(ids: string[]) {
+    const summaries = new Map<string, CycleSummary>();
+    for (const id of ids) {
+      summaries.set(id, {
+        materialCost: new Prisma.Decimal(0),
+        expenseCost: new Prisma.Decimal(0),
+        laborCost: new Prisma.Decimal(0),
+        revenue: new Prisma.Decimal(0),
+        output: new Prisma.Decimal(0),
+      });
+    }
+    if (ids.length === 0) return summaries;
+
+    const idList = Prisma.join(ids);
+    const [materials, expenses, labor, revenue] = await Promise.all([
+      prisma.$queryRaw<Array<{ cycleId: string; total: Prisma.Decimal }>>`
+        SELECT a."cycleId", COALESCE(SUM(am."quantity" * am."unitCost"), 0) AS total
+        FROM "activity_materials" am
+        JOIN "activities" a ON a.id = am."activityId"
+        WHERE a."cycleId" IN (${idList})
+        GROUP BY a."cycleId"
+      `,
+      prisma.$queryRaw<Array<{ cycleId: string; total: Prisma.Decimal }>>`
+        SELECT "cycleId", COALESCE(SUM(amount), 0) AS total
+        FROM "transactions"
+        WHERE type = 'EXPENSE' AND "cycleId" IN (${idList})
+        GROUP BY "cycleId"
+      `,
+      prisma.$queryRaw<Array<{ cycleId: string; total: Prisma.Decimal }>>`
+        WITH day_hours AS (
+          SELECT "employeeId", date, SUM(hours) AS total_hours
+          FROM "attendances"
+          GROUP BY "employeeId", date
+        ), line_costs AS (
+          SELECT a."cycleId",
+            CASE e."payType"
+              WHEN 'PIECE' THEN COALESCE(a."pieceQty", 0) * e."baseRate"
+              WHEN 'DAILY' THEN
+                CASE WHEN dh.total_hours > 0 THEN
+                  (CASE WHEN dh.total_hours >= 4 THEN e."baseRate" ELSE e."baseRate" / 2 END)
+                  * a.hours / dh.total_hours
+                ELSE 0 END
+              WHEN 'MONTHLY' THEN
+                CASE WHEN dh.total_hours > 0 THEN
+                  (CASE WHEN dh.total_hours >= 4 THEN e."baseRate" / 26 ELSE e."baseRate" / 52 END)
+                  * a.hours / dh.total_hours
+                ELSE 0 END
+              ELSE 0
+            END AS line_cost
+          FROM "attendances" a
+          JOIN "employees" e ON e.id = a."employeeId"
+          JOIN day_hours dh ON dh."employeeId" = a."employeeId" AND dh.date = a.date
+          WHERE a."cycleId" IN (${idList})
+        )
+        SELECT "cycleId", COALESCE(SUM(ROUND(line_cost)), 0) AS total
+        FROM line_costs
+        GROUP BY "cycleId"
+      `,
+      prisma.$queryRaw<Array<{ cycleId: string; total: Prisma.Decimal }>>`
+        SELECT hl."cycleId", COALESCE(SUM(sm.quantity * sol."unitPrice"), 0) AS total
+        FROM "stock_moves" sm
+        JOIN "stock_lots" sl ON sl.id = sm."stockLotId"
+        JOIN "harvest_lots" hl ON hl.id = sl."harvestLotId"
+        JOIN "sales_order_lines" sol ON sol.id = sm."refId"
+        JOIN "sales_orders" so ON so.id = sol."orderId"
+        WHERE sm.type = 'OUT' AND sm."refType" = 'SalesOrderLine'
+          AND so.status <> 'CANCELLED' AND hl."cycleId" IN (${idList})
+        GROUP BY hl."cycleId"
+      `,
+    ]);
+    for (const row of materials) summaries.get(row.cycleId)!.materialCost = decimal(row.total);
+    for (const row of expenses) summaries.get(row.cycleId)!.expenseCost = decimal(row.total);
+    for (const row of labor) summaries.get(row.cycleId)!.laborCost = decimal(row.total);
+    for (const row of revenue) summaries.get(row.cycleId)!.revenue = decimal(row.total);
+    return summaries;
+  }
+
+  private presentCycleSummary(
+    cycle: {
+      id: string;
+      code: string;
+      name: string;
+      status: string;
+      area: { id: string; code: string; name: string };
+      harvestLots: Array<{
+        id: string;
+        code: string;
+        itemId: string;
+        quantity: Prisma.Decimal;
+        unit: string;
+        harvestedAt: Date;
+        item: { id: string; name: string; unit: string };
+      }>;
+    },
+    summary: CycleSummary,
+  ) {
+    const totalCost = summary.materialCost.plus(summary.expenseCost).plus(summary.laborCost);
+    return {
+      id: cycle.id,
+      code: cycle.code,
+      name: cycle.name,
+      status: cycle.status,
+      area: cycle.area,
+      production: cycle.harvestLots.map((lot) => ({
+        harvestLotId: lot.id,
+        code: lot.code,
+        itemId: lot.itemId,
+        itemName: lot.item.name,
+        quantity: quantity(lot.quantity),
+        unit: lot.unit,
+        harvestedAt: lot.harvestedAt,
+      })),
+      outputQuantity: quantity(summary.output),
+      materialCost: money(summary.materialCost),
+      expenseCost: money(summary.expenseCost),
+      laborCost: money(summary.laborCost),
+      totalCost: money(totalCost),
+      revenue: money(summary.revenue),
+      profit: money(summary.revenue.minus(totalCost)),
+      costPerUnit: summary.output.isZero() ? '0.00' : money(totalCost.div(summary.output)),
+      costDetails: [],
+      revenueDetails: [],
+    };
   }
 
   async getCycleCost(id: string) {
@@ -87,6 +281,8 @@ export class ReportsService {
     });
     if (!cycle) throw new NotFoundException('Không tìm thấy mùa vụ');
 
+    const summary = (await this.getCycleSummaries([id])).get(id)!;
+
     const materialDetails = cycle.activities.flatMap((activity) =>
       activity.materials.map((material) => ({
         type: 'MATERIAL' as const,
@@ -107,14 +303,8 @@ export class ReportsService {
       description: transaction.category.name,
       amount: money(transaction.amount),
     }));
-    const materialCost = materialDetails.reduce(
-      (sum, detail) => sum.plus(new Prisma.Decimal(detail.amount)),
-      new Prisma.Decimal(0),
-    );
-    const expenseCost = cycle.transactions.reduce(
-      (sum, transaction) => sum.plus(transaction.amount),
-      new Prisma.Decimal(0),
-    );
+    const materialCost = summary.materialCost;
+    const expenseCost = summary.expenseCost;
     const labor = await this.cyclesService.getLaborCost(id);
     const laborCost = new Prisma.Decimal(labor.totalLaborCost);
     const laborDetails = labor.details.flatMap((employee) =>

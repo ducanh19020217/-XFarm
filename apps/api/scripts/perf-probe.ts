@@ -53,6 +53,7 @@ async function main() {
     },
     { name: 'dashboard/summary', path: () => '/api/v1/dashboard/summary' },
     { name: 'dashboard/charts', path: () => '/api/v1/dashboard/charts?months=12' },
+    { name: 'reports/cycles', path: () => '/api/v1/reports/cycles' },
   ];
   const results: Array<{
     endpoint: string;
