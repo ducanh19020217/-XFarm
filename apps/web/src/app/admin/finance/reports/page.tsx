@@ -136,6 +136,22 @@ export default function FinanceReportsPage() {
   const [cyclesLoading, setCyclesLoading] = React.useState(false);
   const [selectedCycle, setSelectedCycle] = React.useState<CycleReportItem | null>(null);
 
+  React.useEffect(() => {
+    if (!selectedCycle?.id) return;
+    if (selectedCycle.costDetails && selectedCycle.costDetails.length > 0) return;
+    let isCancelled = false;
+    apiFetch<{ data: CycleReportItem }>(`/reports/cycles/${selectedCycle.id}/cost`)
+      .then((res) => {
+        if (!isCancelled && res.data) {
+          setSelectedCycle((prev) => (prev?.id === res.data.id ? res.data : prev));
+        }
+      })
+      .catch(() => {});
+    return () => {
+      isCancelled = true;
+    };
+  }, [selectedCycle?.id]);
+
   // Tab 3: Top products state
   const [productFrom, setProductFrom] = React.useState<string>('');
   const [productTo, setProductTo] = React.useState<string>('');
