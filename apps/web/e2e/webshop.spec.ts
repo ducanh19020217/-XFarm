@@ -243,6 +243,11 @@ test.describe('Webshop E2E – Cửa hàng online', () => {
       .goto('/admin/sales/orders', { waitUntil: 'domcontentloaded' })
       .catch(() => null);
     if (adminOrdersRes && adminOrdersRes.status() === 200) {
+      const searchInput = page.getByPlaceholder(/tìm theo mã đơn/i);
+      if (await searchInput.isVisible()) {
+        await searchInput.fill(orderCode!);
+        await page.waitForTimeout(500);
+      }
       await expect(page.getByText(orderCode!)).toBeVisible();
     } else {
       // Kiểm tra qua API public order lookup
