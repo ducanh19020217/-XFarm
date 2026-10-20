@@ -17,6 +17,7 @@ import {
   Role,
 } from '@prisma/client';
 import { createHash } from 'node:crypto';
+import { resetDemo } from './seed-demo';
 
 const prisma = new PrismaClient();
 
@@ -152,7 +153,29 @@ async function resetDemoContent() {
 
 async function main() {
   const isReset = process.argv.includes('--reset-content');
+  const withDemo = process.argv.includes('--with-demo');
   if (isReset) {
+    const demo12CyclesCount = await prisma.cycle.count({
+      where: { code: { startsWith: 'DEMO12-' } },
+    });
+    const demo12OrdersCount = await prisma.salesOrder.count({
+      where: { code: { startsWith: 'DEMO12-' } },
+    });
+    const hasDemo12 = demo12CyclesCount > 0 || demo12OrdersCount > 0;
+
+    if (withDemo) {
+      console.log(
+        'Cờ --with-demo được kích hoạt: Đang xóa dữ liệu vận hành DEMO12- trước (nếu có)...',
+      );
+      await resetDemo(prisma);
+    } else if (hasDemo12) {
+      console.error(
+        'TỪ CHỐI: Không thể xóa nội dung demo (DEMO-) vì đang có dữ liệu vận hành (DEMO12-) tham chiếu. Vui lòng chạy lại kèm cờ --with-demo để xóa cả dữ liệu DEMO12-.',
+      );
+      process.exitCode = 1;
+      return;
+    }
+
     await resetDemoContent();
     return;
   }
