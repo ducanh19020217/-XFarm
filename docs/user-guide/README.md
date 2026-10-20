@@ -20,11 +20,12 @@ Hệ thống tài liệu hướng dẫn sử dụng bao gồm các phân hệ sa
 8. **[Website giới thiệu & Quản trị nội dung CMS](./website-and-cms.md)**: Quản lý thông tin giới thiệu nông trại, danh mục nông sản, viết bài chia sẻ kinh nghiệm trên blog và cấu hình mã thanh toán VietQR tự động.
 9. **[Nhân sự, Chấm công & Bảng lương](./human-resources.md)**: Quản lý hồ sơ người lao động, giao việc hằng ngày, theo dõi chấm công vào/ra ca, tính lương tự động và quy trình xét duyệt chi trả lương.
 10. **[Ứng dụng di động cho Công nhân (PWA & Dùng ngoại tuyến)](./worker-pwa.md)**: Hướng dẫn sử dụng giao diện di động trên điện thoại, nhận việc trong ngày, chấm công, ghi nhanh nhật ký ngoài đồng ruộng ngay cả khi mất sóng điện thoại (Offline).
+11. **[Bán hàng & Quản lý Khách hàng](./sales-and-customers.md)**: Quản lý thông tin khách hàng, phân loại đại lý/khách sỉ, lập đơn bán hàng, xác nhận xuất kho FIFO tự động, quản lý vận chuyển, hủy hoàn kho, ghi nhận thu tiền và in hóa đơn/phiếu giao hàng kèm VietQR.
+12. **[Cửa hàng trực tuyến (Webshop) & Bán hàng Online](./webshop.md)**: Hướng dẫn trải nghiệm mua sắm cho khách hàng (giỏ hàng, đặt hàng vãng lai, quét mã chuyển khoản VietQR, tra cứu đơn công khai) và quy trình xử lý đơn WEBSHOP nổi bật cho nhân viên bán hàng.
+13. **[Tài chính, Sổ quỹ & Phân tích Lãi lỗ](./finance.md)**: Quản lý cây danh mục thu chi, sổ quỹ giao dịch thủ công & tự động, thanh toán đơn mua hàng PO, quản lý công nợ khách hàng và báo cáo tài chính quản trị (dòng tiền 12 tháng, giá thành & lãi lỗ mùa vụ, doanh thu sản phẩm).
 
 > **Lưu ý về các phân hệ trong lộ trình phát triển**:
 > Các phân hệ sau trên thanh menu đang được đánh dấu **"Sắp có"** và sẽ được bổ sung, cập nhật tài liệu trong các giai đoạn tiếp theo của dự án:
-> - **Bán hàng & CRM** (`/admin/sales`): Đơn hàng bán lẻ, hợp đồng bán buôn, quản lý khách hàng và đại lý.
-> - **Tài chính & Thu chi** (`/admin/finance`): Quản lý sổ quỹ, phiếu thu, phiếu chi, dòng tiền và báo cáo kết quả kinh doanh.
 > - **Du lịch trải nghiệm** (`/admin/tours`): Đặt vé tour tham quan, trải nghiệm nông trại, quản lý lịch đoàn khách.
 > - **Thiết bị & IoT** (`/admin/iot`): Kết nối trạm quan trắc thời tiết, cảm biến độ ẩm đất, thiết bị tưới tự động.
 > - **Bảng tin tổng quan (Dashboard nâng cao)** (`/admin`): Trung tâm phân tích báo cáo đồ thị thông minh toàn diện.
@@ -71,21 +72,28 @@ Trong nông trại XFarm, mỗi thành viên đảm nhận một vị trí công
    - Quản lý đàn gia súc, ghi nhận các biến động lớn (phối giống, sinh sản, xuất bán, khai tử).
    - Lập các phiếu nhập, xuất, chuyển, kiểm kê kho; duyệt nhận hàng từ nhà cung cấp.
    - Giao việc cho công nhân, quản lý chấm công, xem cảnh báo kho bãi.
+   - Quản lý bán hàng, xác nhận xuất kho đơn hàng, tiếp nhận đơn webshop.
    - Không có quyền quản trị tài khoản người dùng và không có quyền bấm chi trả lương.
 
 3. **Kế toán trang trại (ACCOUNTANT)**:
    - Theo dõi số liệu kho, chi phí sản xuất, giá vốn và tiền lương.
    - Xem danh mục khu/lô, mùa vụ, nhật ký sản xuất để phục vụ tính giá thành (nhưng không chỉnh sửa quy trình canh tác).
-   - Quản lý danh mục nhà cung cấp, lập và gửi đơn đặt hàng (PO).
+   - Quản lý danh mục nhà cung cấp, lập và gửi đơn đặt hàng (PO), thực hiện **Trả tiền đơn mua hàng (PO)**.
+   - Quản lý phân hệ Tài chính: cây danh mục thu chi, sổ quỹ giao dịch tiền mặt/ngân hàng, theo dõi và đối soát công nợ khách hàng.
+   - Xem và phân tích các báo cáo tài chính: Dòng tiền 12 tháng, Báo cáo giá thành & lãi lỗ từng vụ mùa, Báo cáo doanh thu sản phẩm.
    - Xem tồn kho, thẻ kho, xem giá vốn (`unitCost`, `totalCost`).
    - Lập bảng tính lương tháng cho toàn bộ nhân viên, thực hiện **Duyệt bảng lương** gửi Chủ trại thanh toán.
    - Không được thao tác trực tiếp các phiếu xuất nhập kho thực tế (nhập kho phải do Quản lý/Thủ kho thực hiện).
 
 4. **Nhân viên Bán hàng & Tiếp thị (SALES)**:
-   - Phụ trách truyền thông hình ảnh nông trại và giới thiệu sản phẩm ra thị trường.
+   - Phụ trách truyền thông hình ảnh nông trại và phân phối sản phẩm ra thị trường.
+   - Quản lý hồ sơ khách hàng, phân loại khách lẻ, khách sỉ, đại lý và theo dõi công nợ của khách.
+   - Lập và xử lý đơn bán hàng tại quầy (`ADMIN`), tiếp nhận và xử lý đơn hàng trực tuyến (`WEBSHOP`).
+   - Thực hiện quy trình đơn hàng: xác nhận xuất kho theo FIFO, chuyển đóng gói, giao hàng, hoàn tất và ghi nhận thu tiền.
+   - In ấn hóa đơn bán lẻ và phiếu giao hàng kèm mã VietQR cho khách.
    - Quản trị nội dung website: Đăng sản phẩm mới lên website giới thiệu, viết bài chia sẻ quy trình canh tác hữu cơ trên blog.
    - Tra cứu danh mục mùa vụ, sản phẩm thu hoạch và mã QR truy xuất nguồn gốc để gửi thông tin cho khách hàng.
-   - Không được phép truy cập vào sổ sách kế toán, bảng lương nhân viên, phiếu kho hay chỉnh sửa cài đặt cấu hình nông trại.
+   - **Bảo mật**: Không được phép truy cập vào sổ quỹ kế toán chi tiết, không xem báo cáo tài chính quản trị/giá thành mùa vụ, bảng lương nhân viên hay phiếu điều chỉnh kho.
 
 5. **Công nhân nông trại (WORKER)**:
    - Lực lượng lao động trực tiếp ngoài đồng ruộng, chuồng trại và ao nuôi.
@@ -111,10 +119,19 @@ Trong nông trại XFarm, mỗi thành viên đảm nhận một vị trí công
 | **Danh mục kho & Tồn kho** (`/admin/inventory`) | Toàn quyền | Toàn quyền | Xem (gồm giá vốn) | Chỉ xem vật tư | Chỉ xem số lượng tồn |
 | **Phiếu kho (Nhập/Xuất/Kiểm)** | Toàn quyền | Toàn quyền | Chỉ xem phiếu | Không | Không |
 | **Nhà cung cấp & Đơn mua hàng (PO)** | Toàn quyền | Toàn quyền | Lập & Duyệt đặt hàng | Không | Không |
+| **Trả tiền đơn mua hàng (PO Pay)** | Toàn quyền | Toàn quyền | Duyệt & Chi trả | Không | Không |
 | **Thu hoạch & Tem QR** (`/admin/harvest-lots`) | Toàn quyền | Toàn quyền | Chỉ xem | Chỉ xem & Lấy link | Không |
 | **Cảnh báo thông minh** (`/admin/alerts`) | Toàn quyền | Toàn quyền | Không | Không | Không |
 | **Website: Sản phẩm & Bài viết** | Toàn quyền | Toàn quyền | Chỉ xem | Đăng & Sửa | Không |
 | **Website: Cài đặt nông trại & VietQR** | Toàn quyền | Toàn quyền | Không | Không | Không |
+| **Khách hàng** (`/admin/sales/customers`) | Toàn quyền | Toàn quyền | Xem & Quản lý nợ | Toàn quyền | Không |
+| **Đơn bán hàng** (`/admin/sales/orders`) | Toàn quyền | Toàn quyền | Xem & Thu tiền | Toàn quyền | Không |
+| **In hóa đơn & Phiếu giao hàng** | Toàn quyền | Toàn quyền | In được | In được | Không |
+| **Cửa hàng Webshop (Khách đặt)** | Toàn quyền | Toàn quyền | Xem đơn | Tiếp nhận đơn | Khách công khai |
+| **Danh mục thu chi** (`/admin/finance/categories`) | Toàn quyền | Xem & Tạo | Toàn quyền | Không | Không |
+| **Sổ quỹ & Giao dịch** (`/admin/finance/transactions`) | Toàn quyền | Xem & Chi ngoài | Toàn quyền | Không | Không |
+| **Công nợ phải thu** (`/admin/finance/receivables`) | Toàn quyền | Xem | Toàn quyền | Xem khách nợ | Không |
+| **Báo cáo tài chính & Giá thành** (`/admin/finance/reports`) | Toàn quyền | Toàn quyền | Toàn quyền | **Bị chặn** | **Bị chặn** |
 | **Hồ sơ nhân viên & Giao việc** | Toàn quyền | Toàn quyền | Chỉ xem hồ sơ | Không | Nhận việc của mình |
 | **Chấm công** (`/admin/hr/attendance`) | Toàn quyền | Toàn quyền | Xem & Tính lương | Không | Tự chấm công của mình |
 | **Bảng lương: Lập & Duyệt** | Duyệt & Chi | Không | Lập & Trình duyệt | Không | Không |
@@ -149,3 +166,4 @@ Khi đăng nhập thành công vào hệ thống, màn hình làm việc đượ
 - **Bảo mật tài khoản**: Không chia sẻ mật khẩu của bạn cho người khác. Khi công nhân dùng chung máy tính bảng của đội, cần đăng xuất tài khoản khi bàn giao ca.
 - **Tính toàn vẹn của dữ liệu kho**: Hệ thống vận hành theo nguyên tắc tự động xuất kho theo lô hạn dùng trước (FIFO) và **tuyệt đối chặn tồn kho âm**. Nếu số lượng trong kho không đủ, phiếu xuất kho sẽ bị hệ thống từ chối.
 - **Truy xuất nguồn gốc minh bạch**: Dữ liệu nhật ký canh tác và lô thu hoạch khi đã bật "Công khai truy xuất" sẽ hiển thị trực tiếp cho người tiêu dùng tra cứu qua mã QR. Do đó, các kỹ sư và công nhân cần ghi chép trung thực, chính xác các loại phân bón và thời gian cách ly.
+- **Kỷ luật sổ quỹ tài chính**: Mọi giao dịch thu chi phát sinh tự động từ Bán hàng và Mua hàng đều có tính toàn vẹn cao, không được sửa/xóa thủ công để đảm bảo số liệu báo cáo luôn phản ánh trung thực thực trạng tài chính của nông trại.
