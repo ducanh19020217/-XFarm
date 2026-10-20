@@ -149,7 +149,7 @@ export default function SalesOrderDetailPage() {
             </Button>
           </Link>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">{order.code}</h1>
+            <h1 className="text-xl font-bold text-fg">{order.code}</h1>
             <ChannelBadge channel={order.channel} status={order.status} />
             <OrderStatusBadge status={order.status} />
             <PaymentStatusBadge status={order.paymentStatus} />
@@ -160,13 +160,13 @@ export default function SalesOrderDetailPage() {
         <div className="flex flex-wrap items-center gap-2">
           {/* Nút in */}
           <Link href={`/admin/sales/orders/${order.id}/print?type=invoice`}>
-            <Button variant="outline" size="sm" className="flex items-center gap-1.5">
+            <Button variant="outline" size="sm" className="flex items-center gap-1.5 border-line text-fg">
               <Printer className="h-4 w-4" />
               <span>In hóa đơn</span>
             </Button>
           </Link>
           <Link href={`/admin/sales/orders/${order.id}/print?type=delivery`}>
-            <Button variant="outline" size="sm" className="flex items-center gap-1.5">
+            <Button variant="outline" size="sm" className="flex items-center gap-1.5 border-line text-fg">
               <Printer className="h-4 w-4" />
               <span>Phiếu giao hàng</span>
             </Button>
@@ -180,7 +180,7 @@ export default function SalesOrderDetailPage() {
                   <Button
                     size="sm"
                     onClick={() => setConfirmDialogOpen(true)}
-                    className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white"
+                    className="flex items-center gap-1.5 bg-accent hover:bg-accent-hover text-white"
                   >
                     <Check className="h-4 w-4" />
                     <span>Xác nhận đơn</span>
@@ -189,7 +189,7 @@ export default function SalesOrderDetailPage() {
                     variant="outline"
                     size="sm"
                     onClick={() => setCancelDialogOpen(true)}
-                    className="text-rose-600 hover:bg-rose-50 hover:text-rose-700 border-rose-300"
+                    className="text-crit hover:bg-crit-bg hover:text-crit border-crit/30"
                   >
                     <XCircle className="h-4 w-4 mr-1" /> Hủy đơn
                   </Button>
@@ -202,7 +202,7 @@ export default function SalesOrderDetailPage() {
                     size="sm"
                     onClick={() => handleStatusTransition('PACKING')}
                     disabled={isTransitioning}
-                    className="flex items-center gap-1.5 bg-purple-600 hover:bg-purple-700 text-white"
+                    className="flex items-center gap-1.5 bg-accent hover:bg-accent-hover text-white"
                   >
                     <Package className="h-4 w-4" />
                     <span>Đóng gói</span>
@@ -211,7 +211,7 @@ export default function SalesOrderDetailPage() {
                     variant="outline"
                     size="sm"
                     onClick={() => setCancelDialogOpen(true)}
-                    className="text-rose-600 hover:bg-rose-50 hover:text-rose-700 border-rose-300"
+                    className="text-crit hover:bg-crit-bg hover:text-crit border-crit/30"
                   >
                     <XCircle className="h-4 w-4 mr-1" /> Hủy đơn
                   </Button>
@@ -224,7 +224,7 @@ export default function SalesOrderDetailPage() {
                     size="sm"
                     onClick={() => handleStatusTransition('SHIPPING')}
                     disabled={isTransitioning}
-                    className="flex items-center gap-1.5 bg-cyan-600 hover:bg-cyan-700 text-white"
+                    className="flex items-center gap-1.5 bg-info text-white hover:bg-info/90"
                   >
                     <Truck className="h-4 w-4" />
                     <span>Giao hàng</span>
@@ -233,7 +233,7 @@ export default function SalesOrderDetailPage() {
                     variant="outline"
                     size="sm"
                     onClick={() => setCancelDialogOpen(true)}
-                    className="text-rose-600 hover:bg-rose-50 hover:text-rose-700 border-rose-300"
+                    className="text-crit hover:bg-crit-bg hover:text-crit border-crit/30"
                   >
                     <XCircle className="h-4 w-4 mr-1" /> Hủy đơn
                   </Button>
@@ -245,7 +245,7 @@ export default function SalesOrderDetailPage() {
                   size="sm"
                   onClick={() => handleStatusTransition('COMPLETED')}
                   disabled={isTransitioning}
-                  className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white"
+                  className="flex items-center gap-1.5 bg-ok hover:bg-ok-fill text-white"
                 >
                   <CheckCheck className="h-4 w-4" />
                   <span>Hoàn tất</span>
@@ -258,84 +258,84 @@ export default function SalesOrderDetailPage() {
 
       {/* Thông tin đơn hàng và khách hàng */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-3">
-          <div className="flex items-center gap-2 border-b border-slate-100 pb-2 dark:border-slate-800 font-semibold text-sm text-slate-900 dark:text-slate-100">
-            <User className="h-4 w-4 text-emerald-600" />
+        <div className="rounded-lg border border-line bg-surface p-5 shadow-xs text-fg space-y-3">
+          <div className="flex items-center gap-2 border-b border-line pb-2 font-semibold text-sm text-fg">
+            <User className="h-4 w-4 text-accent" />
             <span>Khách hàng</span>
           </div>
           <div className="space-y-1.5 text-sm">
-            <div className="font-semibold text-slate-900 dark:text-slate-100">
+            <div className="font-semibold text-fg">
               <Link
                 href={`/admin/sales/customers/${order.customer.id}`}
-                className="hover:underline text-emerald-700 dark:text-emerald-400"
+                className="hover:underline text-accent"
               >
                 {order.customer.name}
               </Link>
             </div>
-            <div className="text-slate-600 dark:text-slate-400">
+            <div className="text-muted">
               Số điện thoại:{' '}
-              <span className="font-medium text-slate-800 dark:text-slate-200">
+              <span className="font-medium text-fg">
                 {order.customer.phone}
               </span>
             </div>
             {order.customer.email && (
-              <div className="text-slate-600 dark:text-slate-400">
-                Email: <span>{order.customer.email}</span>
+              <div className="text-muted">
+                Email: <span className="text-fg">{order.customer.email}</span>
               </div>
             )}
           </div>
         </div>
 
-        <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-3">
-          <div className="flex items-center gap-2 border-b border-slate-100 pb-2 dark:border-slate-800 font-semibold text-sm text-slate-900 dark:text-slate-100">
-            <MapPin className="h-4 w-4 text-emerald-600" />
+        <div className="rounded-lg border border-line bg-surface p-5 shadow-xs text-fg space-y-3">
+          <div className="flex items-center gap-2 border-b border-line pb-2 font-semibold text-sm text-fg">
+            <MapPin className="h-4 w-4 text-accent" />
             <span>Giao nhận & Xuất kho</span>
           </div>
           <div className="space-y-1.5 text-sm">
-            <div className="text-slate-600 dark:text-slate-400">
+            <div className="text-muted">
               Địa chỉ:{' '}
-              <span className="font-medium text-slate-800 dark:text-slate-200">
+              <span className="font-medium text-fg">
                 {order.shippingAddress}
               </span>
             </div>
-            <div className="text-slate-600 dark:text-slate-400">
+            <div className="text-muted">
               Kho xuất:{' '}
               {order.warehouse ? (
-                <span className="font-semibold text-slate-900 dark:text-slate-100">
+                <span className="font-semibold text-fg">
                   {order.warehouse.name} ({order.warehouse.code})
                 </span>
               ) : (
-                <span className="text-slate-400 italic">Chưa chọn kho xuất</span>
+                <span className="text-muted italic">Chưa chọn kho xuất</span>
               )}
             </div>
             {order.notes && (
-              <div className="text-slate-600 dark:text-slate-400">
-                Ghi chú: <span className="italic">{order.notes}</span>
+              <div className="text-muted">
+                Ghi chú: <span className="italic text-fg">{order.notes}</span>
               </div>
             )}
           </div>
         </div>
 
-        <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-3">
-          <div className="flex items-center gap-2 border-b border-slate-100 pb-2 dark:border-slate-800 font-semibold text-sm text-slate-900 dark:text-slate-100">
-            <Clock className="h-4 w-4 text-emerald-600" />
+        <div className="rounded-lg border border-line bg-surface p-5 shadow-xs text-fg space-y-3">
+          <div className="flex items-center gap-2 border-b border-line pb-2 font-semibold text-sm text-fg">
+            <Clock className="h-4 w-4 text-accent" />
             <span>Thời gian & Thanh toán</span>
           </div>
           <div className="space-y-1.5 text-sm">
-            <div className="text-slate-600 dark:text-slate-400">
+            <div className="text-muted">
               Ngày tạo:{' '}
-              <span className="font-medium text-slate-800 dark:text-slate-200">
+              <span className="font-medium text-fg">
                 {formatDate(order.createdAt)}
               </span>
             </div>
             {order.confirmedAt && (
-              <div className="text-slate-600 dark:text-slate-400">
-                Ngày xác nhận: <span>{formatDate(order.confirmedAt)}</span>
+              <div className="text-muted">
+                Ngày xác nhận: <span className="text-fg">{formatDate(order.confirmedAt)}</span>
               </div>
             )}
-            <div className="text-slate-600 dark:text-slate-400">
+            <div className="text-muted">
               Phương thức:{' '}
-              <span className="font-medium text-slate-800 dark:text-slate-200">
+              <span className="font-medium text-fg">
                 {paymentMethodLabels[order.paymentMethod] || order.paymentMethod}
               </span>
             </div>
@@ -344,14 +344,14 @@ export default function SalesOrderDetailPage() {
       </div>
 
       {/* Bảng các dòng hàng */}
-      <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-4">
-        <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100 border-b border-slate-100 pb-3 dark:border-slate-800">
+      <div className="rounded-lg border border-line bg-surface p-5 shadow-xs text-fg space-y-4">
+        <h2 className="text-base font-semibold text-fg border-b border-line pb-3">
           Danh sách mặt hàng ({order.lines.length})
         </h2>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
-            <thead className="bg-slate-50 font-semibold text-slate-600 border-b border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700">
+            <thead className="bg-surface-2 font-semibold text-muted border-b border-line">
               <tr>
                 <th className="py-3 px-4">STT</th>
                 <th className="py-3 px-4">Tên sản phẩm / Hàng hóa</th>
@@ -362,28 +362,28 @@ export default function SalesOrderDetailPage() {
                 <th className="py-3 px-4 text-right">Thành tiền</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+            <tbody className="divide-y divide-line">
               {order.lines.map((line, idx) => {
                 const qty = Number(line.quantity);
                 const price = Number(line.unitPrice);
                 const lineTotal = qty * price;
                 return (
-                  <tr key={line.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50">
-                    <td className="py-3 px-4 text-slate-400">{idx + 1}</td>
-                    <td className="py-3 px-4 font-medium text-slate-900 dark:text-slate-100">
+                  <tr key={line.id} className="hover:bg-hover">
+                    <td className="py-3 px-4 text-muted">{idx + 1}</td>
+                    <td className="py-3 px-4 font-medium text-fg">
                       {line.product?.name || line.item?.name || 'Sản phẩm'}
                     </td>
-                    <td className="py-3 px-4 text-xs font-mono text-slate-500">
+                    <td className="py-3 px-4 text-xs font-mono text-muted">
                       {line.item?.sku || '—'}
                     </td>
-                    <td className="py-3 px-4 text-center text-slate-500">
+                    <td className="py-3 px-4 text-center text-muted">
                       {line.item?.unit || line.product?.unit || '—'}
                     </td>
-                    <td className="py-3 px-4 text-right font-medium">{qty}</td>
-                    <td className="py-3 px-4 text-right text-slate-600 dark:text-slate-300">
+                    <td className="py-3 px-4 text-right font-medium text-fg">{qty}</td>
+                    <td className="py-3 px-4 text-right text-muted">
                       {formatCurrency(price)}
                     </td>
-                    <td className="py-3 px-4 text-right font-semibold text-slate-900 dark:text-slate-100">
+                    <td className="py-3 px-4 text-right font-semibold text-fg">
                       {formatCurrency(lineTotal)}
                     </td>
                   </tr>
@@ -394,31 +394,31 @@ export default function SalesOrderDetailPage() {
         </div>
 
         {/* Tổng kết tiền */}
-        <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+        <div className="pt-4 border-t border-line flex justify-end">
           <div className="w-72 space-y-2 text-sm">
-            <div className="flex justify-between text-slate-600 dark:text-slate-400">
+            <div className="flex justify-between text-muted">
               <span>Tạm tính:</span>
-              <span className="font-medium text-slate-900 dark:text-slate-100">
+              <span className="font-medium text-fg">
                 {formatCurrency(order.subtotal)}
               </span>
             </div>
             {Number(order.discount) > 0 && (
-              <div className="flex justify-between text-slate-600 dark:text-slate-400">
+              <div className="flex justify-between text-muted">
                 <span>Chiết khấu:</span>
-                <span className="font-medium text-rose-600">-{formatCurrency(order.discount)}</span>
+                <span className="font-medium text-crit">-{formatCurrency(order.discount)}</span>
               </div>
             )}
             {Number(order.shippingFee) > 0 && (
-              <div className="flex justify-between text-slate-600 dark:text-slate-400">
+              <div className="flex justify-between text-muted">
                 <span>Phí vận chuyển:</span>
-                <span className="font-medium text-slate-900 dark:text-slate-100">
+                <span className="font-medium text-fg">
                   +{formatCurrency(order.shippingFee)}
                 </span>
               </div>
             )}
-            <div className="pt-2 border-t border-slate-200 dark:border-slate-700 flex justify-between text-base font-bold">
-              <span>Tổng thanh toán:</span>
-              <span className="text-emerald-700 dark:text-emerald-400">
+            <div className="pt-2 border-t border-line flex justify-between text-base font-bold">
+              <span className="text-fg">Tổng thanh toán:</span>
+              <span className="text-accent">
                 {formatCurrency(order.total)}
               </span>
             </div>
@@ -427,16 +427,16 @@ export default function SalesOrderDetailPage() {
       </div>
 
       {/* Lô đã xuất kho (stockMoves) */}
-      <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-4">
-        <div className="flex items-center gap-2 border-b border-slate-100 pb-3 dark:border-slate-800">
-          <Layers className="h-5 w-5 text-emerald-600" />
-          <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">
+      <div className="rounded-lg border border-line bg-surface p-5 shadow-xs text-fg space-y-4">
+        <div className="flex items-center gap-2 border-b border-line pb-3">
+          <Layers className="h-5 w-5 text-accent" />
+          <h2 className="text-base font-semibold text-fg">
             Lô hàng đã xuất kho theo FIFO ({order.stockMoves?.length || 0})
           </h2>
         </div>
 
         {!order.stockMoves || order.stockMoves.length === 0 ? (
-          <div className="rounded-md border border-dashed border-slate-200 p-6 text-center text-sm text-slate-500 dark:border-slate-800">
+          <div className="rounded-md border border-dashed border-line p-6 text-center text-sm text-muted">
             {order.status === 'PENDING'
               ? 'Chưa xuất kho (đơn hàng đang chờ xác nhận)'
               : order.status === 'CANCELLED'
@@ -444,9 +444,9 @@ export default function SalesOrderDetailPage() {
                 : 'Chưa có thông tin xuất lô'}
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-md border border-slate-200 dark:border-slate-800">
+          <div className="overflow-x-auto rounded-md border border-line">
             <table className="w-full text-left text-sm">
-              <thead className="bg-slate-50 font-semibold text-slate-600 border-b border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700">
+              <thead className="bg-surface-2 font-semibold text-muted border-b border-line">
                 <tr>
                   <th className="py-2.5 px-3">Mã lô xuất</th>
                   <th className="py-2.5 px-3 text-right">Số lượng xuất</th>
@@ -454,19 +454,19 @@ export default function SalesOrderDetailPage() {
                   <th className="py-2.5 px-3">Thời gian xuất</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              <tbody className="divide-y divide-line">
                 {order.stockMoves.map((move) => (
-                  <tr key={move.id}>
-                    <td className="py-2.5 px-3 font-mono font-medium text-emerald-700 dark:text-emerald-400">
+                  <tr key={move.id} className="hover:bg-hover">
+                    <td className="py-2.5 px-3 font-mono font-medium text-accent">
                       {move.stockLot?.lotCode || 'Lô mặc định'}
                     </td>
-                    <td className="py-2.5 px-3 text-right font-medium">
+                    <td className="py-2.5 px-3 text-right font-medium text-fg">
                       {move.quantity.toString()}
                     </td>
-                    <td className="py-2.5 px-3 text-right text-slate-600 dark:text-slate-400">
+                    <td className="py-2.5 px-3 text-right text-muted">
                       {formatCurrency(move.unitCost)}
                     </td>
-                    <td className="py-2.5 px-3 text-xs text-slate-500">
+                    <td className="py-2.5 px-3 text-xs text-muted">
                       {formatDate(move.movedAt || move.createdAt)}
                     </td>
                   </tr>

@@ -75,24 +75,24 @@ export function PaymentRecordCard({ order, onPaymentSuccess, userRole }: Payment
   };
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-5">
-      <div className="flex items-center justify-between border-b border-slate-100 pb-3 dark:border-slate-800">
+    <div className="rounded-lg border border-line bg-surface p-5 shadow-xs text-fg space-y-5">
+      <div className="flex items-center justify-between border-b border-line pb-3">
         <div className="flex items-center gap-2">
-          <CreditCard className="h-5 w-5 text-emerald-600" />
-          <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">
+          <CreditCard className="h-5 w-5 text-accent" />
+          <h2 className="text-base font-semibold text-fg">
             Thanh toán & Thu tiền
           </h2>
         </div>
         <div className="text-xs">
-          <span className="text-slate-500">Đã thu: </span>
-          <span className="font-semibold text-slate-900 dark:text-slate-100">
+          <span className="text-muted">Đã thu: </span>
+          <span className="font-semibold text-fg">
             {formatCurrency(totalPaid)}
           </span>
-          <span className="text-slate-400 mx-1">/</span>
-          <span className="text-slate-500">Còn lại: </span>
+          <span className="text-muted mx-1">/</span>
+          <span className="text-muted">Còn lại: </span>
           <span
             className={`font-semibold ${
-              remaining > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600'
+              remaining > 0 ? 'text-crit' : 'text-ok'
             }`}
           >
             {formatCurrency(remaining)}
@@ -102,17 +102,17 @@ export function PaymentRecordCard({ order, onPaymentSuccess, userRole }: Payment
 
       {/* Lịch sử thanh toán */}
       <div className="space-y-3">
-        <h3 className="text-xs font-semibold uppercase text-slate-500 tracking-wider">
+        <h3 className="text-xs font-semibold uppercase text-muted tracking-wider">
           Lịch sử các lần thu ({order.payments?.length || 0})
         </h3>
         {!order.payments || order.payments.length === 0 ? (
-          <div className="rounded-md border border-dashed border-slate-200 p-4 text-center text-xs text-slate-500 dark:border-slate-800">
+          <div className="rounded-md border border-dashed border-line p-4 text-center text-xs text-muted">
             Chưa có ghi nhận thanh toán nào cho đơn hàng này
           </div>
         ) : (
-          <div className="rounded-md border border-slate-200 overflow-hidden dark:border-slate-800">
+          <div className="rounded-md border border-line overflow-hidden">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 font-semibold text-slate-600 border-b border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700">
+              <thead className="bg-surface-2 font-semibold text-muted border-b border-line">
                 <tr>
                   <th className="py-2 px-3">Thời gian</th>
                   <th className="py-2 px-3">Phương thức</th>
@@ -120,25 +120,25 @@ export function PaymentRecordCard({ order, onPaymentSuccess, userRole }: Payment
                   <th className="py-2 px-3 text-right">Số tiền</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              <tbody className="divide-y divide-line">
                 {order.payments.map((p, idx) => (
-                  <tr key={p.id || idx}>
-                    <td className="py-2 px-3 text-slate-600 dark:text-slate-400">
+                  <tr key={p.id || idx} className="hover:bg-hover">
+                    <td className="py-2 px-3 text-muted">
                       {formatDate(p.paidAt)}
                     </td>
-                    <td className="py-2 px-3 font-medium text-slate-900 dark:text-slate-100">
+                    <td className="py-2 px-3 font-medium text-fg">
                       {paymentMethodLabels[p.method] || p.method}
                     </td>
-                    <td className="py-2 px-3 text-slate-500">
+                    <td className="py-2 px-3 text-muted">
                       {p.notes ? (
                         <div>
                           <div>{p.notes}</div>
                           {p.transactionId && (
-                            <div className="text-[10px] text-slate-400">
+                            <div className="text-[10px] text-muted">
                               GD:{' '}
                               <Link
                                 href="/admin/finance/transactions"
-                                className="text-emerald-600 hover:underline dark:text-emerald-400"
+                                className="text-accent hover:underline"
                               >
                                 {p.transactionId}
                               </Link>
@@ -149,7 +149,7 @@ export function PaymentRecordCard({ order, onPaymentSuccess, userRole }: Payment
                         <div className="text-xs">
                           <Link
                             href="/admin/finance/transactions"
-                            className="text-emerald-600 hover:underline dark:text-emerald-400"
+                            className="text-accent hover:underline"
                           >
                             {p.transactionId}
                           </Link>
@@ -158,7 +158,7 @@ export function PaymentRecordCard({ order, onPaymentSuccess, userRole }: Payment
                         '—'
                       )}
                     </td>
-                    <td className="py-2 px-3 text-right font-semibold text-emerald-700 dark:text-emerald-400">
+                    <td className="py-2 px-3 text-right font-semibold text-accent">
                       {formatCurrency(p.amount)}
                     </td>
                   </tr>
@@ -173,20 +173,20 @@ export function PaymentRecordCard({ order, onPaymentSuccess, userRole }: Payment
       {canRecordPayment && order.status !== 'CANCELLED' && remaining > 0 && (
         <form
           onSubmit={handleSubmit}
-          className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-3"
+          className="pt-4 border-t border-line space-y-3"
         >
-          <h3 className="text-xs font-semibold uppercase text-slate-500 tracking-wider">
+          <h3 className="text-xs font-semibold uppercase text-muted tracking-wider">
             Ghi nhận thu tiền mới
           </h3>
 
           {error && (
-            <div className="p-3 text-xs rounded bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-900">
+            <div className="p-3 text-xs rounded bg-crit-bg text-crit border border-crit/20">
               {error}
             </div>
           )}
 
           {success && (
-            <div className="flex items-center gap-1.5 p-3 text-xs rounded bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900">
+            <div className="flex items-center gap-1.5 p-3 text-xs rounded bg-ok-bg text-ok border border-ok/20">
               <CheckCircle2 className="h-4 w-4" />
               <span>Ghi nhận thu tiền thành công!</span>
             </div>
@@ -211,7 +211,7 @@ export function PaymentRecordCard({ order, onPaymentSuccess, userRole }: Payment
               </Label>
               <select
                 id="payment-method-select"
-                className="flex h-9 w-full rounded-md border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-slate-950 dark:border-slate-800 dark:bg-slate-900"
+                className="flex h-9 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm shadow-xs text-fg focus:outline-none focus:ring-1 focus:ring-accent"
                 value={method}
                 onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                   setMethod(e.target.value as PaymentMethod)
@@ -236,12 +236,13 @@ export function PaymentRecordCard({ order, onPaymentSuccess, userRole }: Payment
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNotes(e.target.value)}
                 placeholder="VD: Chuyển khoản số GD..."
                 disabled={isSubmitting}
+                className="bg-surface border-line text-fg"
               />
             </div>
           </div>
 
           <div className="flex justify-end pt-1">
-            <Button type="submit" size="sm" disabled={isSubmitting}>
+            <Button type="submit" size="sm" disabled={isSubmitting} className="bg-accent hover:bg-accent-hover text-white">
               {isSubmitting ? 'Đang ghi nhận...' : 'Ghi nhận thanh toán'}
             </Button>
           </div>

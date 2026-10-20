@@ -60,7 +60,7 @@ export default function CustomerDetailPage() {
   }, [params.id]);
 
   if (loading) {
-    return <div className="py-12 text-center text-sm text-slate-500">Đang tải thông tin...</div>;
+    return <div className="py-12 text-center text-sm text-muted">Đang tải thông tin...</div>;
   }
 
   if (error || !customer) {
@@ -69,7 +69,7 @@ export default function CustomerDetailPage() {
         <Button variant="ghost" onClick={() => router.push('/admin/sales/customers')}>
           <ArrowLeft className="h-4 w-4 mr-2" /> Quay lại
         </Button>
-        <div className="p-6 text-center text-rose-500 bg-rose-50 rounded-lg dark:bg-rose-950/30">
+        <div className="p-6 text-center text-crit bg-crit-bg border border-crit/20 rounded-lg">
           {error || 'Không tìm thấy thông tin khách hàng'}
         </div>
       </div>
@@ -89,54 +89,54 @@ export default function CustomerDetailPage() {
         description={`Mã khách hàng: ${customer.code}`}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 rounded-lg border border-slate-200 p-5 bg-white shadow-sm dark:bg-slate-900 dark:border-slate-800">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 rounded-lg border border-line p-5 bg-surface shadow-xs text-fg">
         <div className="space-y-2 text-sm">
           <div className="flex items-center gap-2">
-            <span className="text-lg font-bold text-slate-900 dark:text-slate-100">
+            <span className="text-lg font-bold text-fg">
               {customer.name}
             </span>
             <CustomerTypeBadge type={customer.type} />
             <StatusBadge status={customer.isActive} />
           </div>
-          <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
-            <Phone className="h-4 w-4 text-slate-400" />
-            <span>{customer.phone}</span>
+          <div className="flex items-center gap-2 text-muted">
+            <Phone className="h-4 w-4 text-muted" />
+            <span className="text-fg">{customer.phone}</span>
           </div>
           {customer.email && (
-            <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
-              <Mail className="h-4 w-4 text-slate-400" />
-              <span>{customer.email}</span>
+            <div className="flex items-center gap-2 text-muted">
+              <Mail className="h-4 w-4 text-muted" />
+              <span className="text-fg">{customer.email}</span>
             </div>
           )}
           {customer.address && (
-            <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
-              <MapPin className="h-4 w-4 text-slate-400" />
-              <span>{customer.address}</span>
+            <div className="flex items-center gap-2 text-muted">
+              <MapPin className="h-4 w-4 text-muted" />
+              <span className="text-fg">{customer.address}</span>
             </div>
           )}
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
-            <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
-              <ShoppingBag className="h-4 w-4 text-emerald-600" />
+          <div className="rounded-lg border border-line bg-surface-2 p-4 text-fg">
+            <div className="flex items-center gap-2 text-xs text-muted mb-1">
+              <ShoppingBag className="h-4 w-4 text-accent" />
               <span>Tổng tiền đã mua</span>
             </div>
-            <div className="text-xl font-bold text-slate-900 dark:text-slate-100">
+            <div className="text-xl font-bold text-fg">
               {formatCurrency(customer.totalPurchase)}
             </div>
           </div>
 
-          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
-            <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
-              <CreditCard className="h-4 w-4 text-rose-600" />
+          <div className="rounded-lg border border-line bg-surface-2 p-4 text-fg">
+            <div className="flex items-center gap-2 text-xs text-muted mb-1">
+              <CreditCard className="h-4 w-4 text-crit" />
               <span>Công nợ hiện tại</span>
             </div>
             <div
               className={`text-xl font-bold ${
                 Number(customer.debt) > 0
-                  ? 'text-rose-600 dark:text-rose-400'
-                  : 'text-slate-900 dark:text-slate-100'
+                  ? 'text-crit'
+                  : 'text-fg'
               }`}
             >
               {formatCurrency(customer.debt)}
@@ -146,18 +146,18 @@ export default function CustomerDetailPage() {
       </div>
 
       <div className="space-y-4">
-        <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">
+        <h3 className="text-base font-semibold text-fg">
           Lịch sử đơn hàng ({orders.length})
         </h3>
 
         {orders.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-slate-200 p-8 text-center text-sm text-slate-500 dark:border-slate-800">
+          <div className="rounded-lg border border-dashed border-line p-8 text-center text-sm text-muted">
             Khách hàng chưa có đơn hàng nào
           </div>
         ) : (
-          <div className="rounded-lg border border-slate-200 bg-white overflow-hidden shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="rounded-lg border border-line bg-surface overflow-hidden shadow-xs text-fg">
             <table className="w-full text-left text-sm">
-              <thead className="bg-slate-50 text-xs font-semibold text-slate-600 border-b border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700">
+              <thead className="bg-surface-2 text-xs font-semibold text-muted border-b border-line">
                 <tr>
                   <th className="py-3 px-4">Mã đơn</th>
                   <th className="py-3 px-4">Ngày đặt</th>
@@ -167,18 +167,18 @@ export default function CustomerDetailPage() {
                   <th className="py-3 px-4 text-right">Tổng tiền</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              <tbody className="divide-y divide-line">
                 {orders.map((order) => (
-                  <tr key={order.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50">
+                  <tr key={order.id} className="hover:bg-hover">
                     <td className="py-3 px-4 font-medium">
                       <Link
                         href={`/admin/sales/orders/${order.id}`}
-                        className="text-emerald-700 hover:text-emerald-900 hover:underline dark:text-emerald-400"
+                        className="text-accent hover:underline"
                       >
                         {order.code}
                       </Link>
                     </td>
-                    <td className="py-3 px-4 text-xs text-slate-500">
+                    <td className="py-3 px-4 text-xs text-muted">
                       {formatDate(order.createdAt)}
                     </td>
                     <td className="py-3 px-4">
@@ -190,7 +190,7 @@ export default function CustomerDetailPage() {
                     <td className="py-3 px-4">
                       <PaymentStatusBadge status={order.paymentStatus} />
                     </td>
-                    <td className="py-3 px-4 text-right font-medium">
+                    <td className="py-3 px-4 text-right font-medium text-fg">
                       {formatCurrency(order.total)}
                     </td>
                   </tr>

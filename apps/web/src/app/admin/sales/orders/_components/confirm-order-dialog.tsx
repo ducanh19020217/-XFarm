@@ -102,20 +102,20 @@ export function ConfirmOrderDialog({
         {errorMessage && (
           <div
             data-testid="confirm-order-error"
-            className="flex items-start gap-2 p-3.5 text-sm rounded-lg bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-900"
+            className="flex items-start gap-2 p-3.5 text-sm rounded-lg bg-crit-bg text-crit border border-crit/20"
           >
-            <AlertTriangle className="h-5 w-5 text-rose-600 shrink-0 mt-0.5" />
+            <AlertTriangle className="h-5 w-5 text-crit shrink-0 mt-0.5" />
             <div className="font-medium">{errorMessage}</div>
           </div>
         )}
 
         <div className="space-y-2">
           <Label htmlFor="warehouse-select">
-            Kho xuất hàng <span className="text-rose-500">*</span>
+            Kho xuất hàng <span className="text-crit">*</span>
           </Label>
           <select
             id="warehouse-select"
-            className="flex h-9 w-full rounded-md border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-slate-950 dark:border-slate-800 dark:bg-slate-900"
+            className="flex h-9 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm shadow-xs text-fg focus:outline-none focus:ring-1 focus:ring-accent"
             value={selectedWarehouseId}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
               setSelectedWarehouseId(e.target.value)
@@ -129,21 +129,26 @@ export function ConfirmOrderDialog({
               </option>
             ))}
           </select>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-muted">
             Hệ thống sẽ tự động tìm các lô hàng có hạn sử dụng hoặc ngày nhập cũ nhất để xuất trước.
           </p>
         </div>
 
-        <div className="flex justify-end gap-2 pt-4 border-t border-slate-100 dark:border-slate-800">
+        <div className="flex justify-end gap-2 pt-4 border-t border-line">
           <Button
             type="button"
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={isSubmitting}
+            className="border-line text-fg"
           >
             Hủy
           </Button>
-          <Button type="submit" disabled={isSubmitting || !selectedWarehouseId}>
+          <Button
+            type="submit"
+            disabled={isSubmitting || !selectedWarehouseId}
+            className="bg-accent hover:bg-accent-hover text-white"
+          >
             {isSubmitting ? 'Đang xuất kho...' : 'Xác nhận xuất kho'}
           </Button>
         </div>

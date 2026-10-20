@@ -233,15 +233,15 @@ export default function NewSalesOrderPage() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {globalError && (
-          <div className="p-4 rounded-lg bg-rose-50 text-rose-700 border border-rose-200 text-sm dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-900">
+          <div className="p-4 rounded-lg bg-crit-bg text-crit border border-crit/20 text-sm">
             {globalError}
           </div>
         )}
 
         {/* Khối chọn khách hàng */}
-        <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-100 pb-3 dark:border-slate-800">
-            <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">
+        <div className="rounded-lg border border-line bg-surface p-5 shadow-xs text-fg space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-line pb-3">
+            <h2 className="text-base font-semibold text-fg">
               Thông tin khách hàng
             </h2>
             <Button
@@ -249,7 +249,7 @@ export default function NewSalesOrderPage() {
               variant="outline"
               size="sm"
               onClick={() => setQuickCustomerOpen(true)}
-              className="flex items-center gap-1.5 self-start text-emerald-700 border-emerald-300 hover:bg-emerald-50 dark:text-emerald-400 dark:border-emerald-800"
+              className="flex items-center gap-1.5 self-start text-accent border-line hover:bg-hover"
             >
               <UserPlus className="h-4 w-4" />
               <span>Tạo nhanh khách hàng</span>
@@ -259,7 +259,7 @@ export default function NewSalesOrderPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
               <Label htmlFor="customer-select">
-                Chọn khách hàng <span className="text-rose-500">*</span>
+                Chọn khách hàng <span className="text-crit">*</span>
               </Label>
               <div className="space-y-2">
                 <Input
@@ -269,11 +269,11 @@ export default function NewSalesOrderPage() {
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     setCustomerSearch(e.target.value)
                   }
-                  className="text-xs"
+                  className="text-xs bg-surface border-line text-fg"
                 />
                 <select
                   id="customer-select"
-                  className="flex h-9 w-full rounded-md border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-slate-950 dark:border-slate-800 dark:bg-slate-900"
+                  className="flex h-9 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm shadow-xs text-fg focus:outline-none focus:ring-1 focus:ring-accent"
                   value={selectedCustomerId}
                   onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                     handleSelectCustomer(e.target.value)
@@ -289,13 +289,13 @@ export default function NewSalesOrderPage() {
                 </select>
               </div>
               {formErrors.customerId && (
-                <p className="text-xs text-rose-500 mt-1">{formErrors.customerId}</p>
+                <p className="text-xs text-crit mt-1">{formErrors.customerId}</p>
               )}
             </div>
 
             <div className="space-y-1">
               <Label htmlFor="shipping-address">
-                Địa chỉ giao hàng <span className="text-rose-500">*</span>
+                Địa chỉ giao hàng <span className="text-crit">*</span>
               </Label>
               <Input
                 id="shipping-address"
@@ -304,18 +304,19 @@ export default function NewSalesOrderPage() {
                   setShippingAddress(e.target.value)
                 }
                 placeholder="Nhập địa chỉ giao hàng"
+                className="bg-surface border-line text-fg"
               />
               {formErrors.shippingAddress && (
-                <p className="text-xs text-rose-500 mt-1">{formErrors.shippingAddress}</p>
+                <p className="text-xs text-crit mt-1">{formErrors.shippingAddress}</p>
               )}
             </div>
           </div>
         </div>
 
         {/* Khối chọn sản phẩm */}
-        <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3 dark:border-slate-800">
-            <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">
+        <div className="rounded-lg border border-line bg-surface p-5 shadow-xs text-fg space-y-4">
+          <div className="flex items-center justify-between border-b border-line pb-3">
+            <h2 className="text-base font-semibold text-fg">
               Chi tiết mặt hàng ({lines.length})
             </h2>
             <Button
@@ -323,7 +324,7 @@ export default function NewSalesOrderPage() {
               variant="outline"
               size="sm"
               onClick={addLine}
-              className="flex items-center gap-1.5"
+              className="flex items-center gap-1.5 border-line text-fg"
             >
               <Plus className="h-4 w-4" />
               <span>Thêm dòng</span>
@@ -331,7 +332,7 @@ export default function NewSalesOrderPage() {
           </div>
 
           <div className="space-y-3">
-            <div className="hidden md:grid grid-cols-12 gap-3 text-xs font-semibold text-slate-500 uppercase px-2">
+            <div className="hidden md:grid grid-cols-12 gap-3 text-xs font-semibold text-muted uppercase px-2">
               <div className="col-span-5">Sản phẩm / Hàng hóa</div>
               <div className="col-span-2">Số lượng</div>
               <div className="col-span-2">Đơn vị</div>
@@ -343,14 +344,14 @@ export default function NewSalesOrderPage() {
               return (
                 <div
                   key={idx}
-                  className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center p-3 rounded-lg border border-slate-100 bg-slate-50/50 dark:bg-slate-950/40 dark:border-slate-800"
+                  className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center p-3 rounded-lg border border-line bg-surface-2 text-fg"
                 >
                   <div className="col-span-5 space-y-1">
                     <Label className="md:hidden text-xs">Sản phẩm</Label>
                     <select
                       id={`order-line-product-${idx}`}
                       aria-label={`Sản phẩm dòng ${idx + 1}`}
-                      className="flex h-9 w-full rounded-md border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-slate-950 dark:border-slate-800 dark:bg-slate-900"
+                      className="flex h-9 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm shadow-xs text-fg focus:outline-none focus:ring-1 focus:ring-accent"
                       value={line.productId}
                       onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                         handleProductChange(idx, e.target.value)
@@ -378,6 +379,7 @@ export default function NewSalesOrderPage() {
                         handleQtyChange(idx, parseFloat(e.target.value) || 0)
                       }
                       placeholder="SL"
+                      className="bg-surface border-line text-fg"
                     />
                   </div>
 
@@ -386,7 +388,7 @@ export default function NewSalesOrderPage() {
                     <Input
                       value={line.unit || '—'}
                       disabled
-                      className="bg-white dark:bg-slate-900"
+                      className="bg-surface border-line text-muted"
                     />
                   </div>
 
@@ -408,7 +410,7 @@ export default function NewSalesOrderPage() {
                       size="sm"
                       onClick={() => removeLine(idx)}
                       disabled={lines.length <= 1}
-                      className="h-8 w-8 p-0 text-slate-400 hover:text-rose-600 disabled:opacity-30"
+                      className="h-8 w-8 p-0 text-muted hover:text-crit disabled:opacity-30"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -421,8 +423,8 @@ export default function NewSalesOrderPage() {
 
         {/* Khối thanh toán và tổng tạm tính */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-4">
-            <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100 border-b border-slate-100 pb-3 dark:border-slate-800">
+          <div className="rounded-lg border border-line bg-surface p-5 shadow-xs text-fg space-y-4">
+            <h2 className="text-base font-semibold text-fg border-b border-line pb-3">
               Phương thức thanh toán & Ghi chú
             </h2>
 
@@ -430,7 +432,7 @@ export default function NewSalesOrderPage() {
               <Label htmlFor="payment-method">Phương thức thanh toán</Label>
               <select
                 id="payment-method"
-                className="flex h-9 w-full rounded-md border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-slate-950 dark:border-slate-800 dark:bg-slate-900"
+                className="flex h-9 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm shadow-xs text-fg focus:outline-none focus:ring-1 focus:ring-accent"
                 value={paymentMethod}
                 onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                   setPaymentMethod(e.target.value as PaymentMethod)
@@ -452,26 +454,26 @@ export default function NewSalesOrderPage() {
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Ghi chú thêm về đơn hàng hoặc yêu cầu của khách..."
                 rows={3}
-                className="w-full rounded-md border border-slate-200 bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-950 dark:border-slate-800 dark:focus-visible:ring-slate-300"
+                className="w-full rounded-md border border-line bg-surface px-3 py-2 text-sm shadow-xs text-fg placeholder:text-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
               />
             </div>
           </div>
 
-          <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-4">
-            <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100 border-b border-slate-100 pb-3 dark:border-slate-800">
+          <div className="rounded-lg border border-line bg-surface p-5 shadow-xs text-fg space-y-4">
+            <h2 className="text-base font-semibold text-fg border-b border-line pb-3">
               Tổng tính tiền
             </h2>
 
             <div className="space-y-3 text-sm">
-              <div className="flex justify-between items-center text-slate-600 dark:text-slate-300">
+              <div className="flex justify-between items-center text-muted">
                 <span>Tạm tính (tiền hàng):</span>
-                <span className="font-semibold text-slate-900 dark:text-slate-100">
+                <span className="font-semibold text-fg">
                   {formatCurrency(subtotal)}
                 </span>
               </div>
 
               <div className="flex justify-between items-center gap-4">
-                <span className="text-slate-600 dark:text-slate-300">Chiết khấu giảm giá:</span>
+                <span className="text-muted">Chiết khấu giảm giá:</span>
                 <div className="w-40">
                   <MoneyInput
                     id="order-discount"
@@ -483,7 +485,7 @@ export default function NewSalesOrderPage() {
               </div>
 
               <div className="flex justify-between items-center gap-4">
-                <span className="text-slate-600 dark:text-slate-300">Phí vận chuyển:</span>
+                <span className="text-muted">Phí vận chuyển:</span>
                 <div className="w-40">
                   <MoneyInput
                     id="order-shipping-fee"
@@ -494,11 +496,11 @@ export default function NewSalesOrderPage() {
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-base">
-                <span className="font-bold text-slate-900 dark:text-slate-100">
+              <div className="pt-3 border-t border-line flex justify-between items-center text-base">
+                <span className="font-bold text-fg">
                   Tổng thanh toán:
                 </span>
-                <span className="text-xl font-bold text-emerald-700 dark:text-emerald-400">
+                <span className="text-xl font-bold text-accent">
                   {formatCurrency(total)}
                 </span>
               </div>
@@ -506,13 +508,13 @@ export default function NewSalesOrderPage() {
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
+        <div className="flex justify-end gap-3 pt-4 border-t border-line">
           <Link href="/admin/sales/orders">
-            <Button type="button" variant="outline" disabled={isSubmitting}>
+            <Button type="button" variant="outline" disabled={isSubmitting} className="border-line text-fg">
               Hủy
             </Button>
           </Link>
-          <Button type="submit" disabled={isSubmitting} className="min-w-32">
+          <Button type="submit" disabled={isSubmitting} className="min-w-32 bg-accent hover:bg-accent-hover text-white">
             {isSubmitting ? 'Đang tạo đơn...' : 'Tạo đơn hàng'}
           </Button>
         </div>

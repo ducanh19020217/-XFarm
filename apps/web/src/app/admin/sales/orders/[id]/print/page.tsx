@@ -113,7 +113,7 @@ export default function SalesOrderPrintPage() {
 
   if (loading) {
     return (
-      <div className="py-12 text-center text-sm text-slate-500">Đang chuẩn bị trang in...</div>
+      <div className="py-12 text-center text-sm text-muted">Đang chuẩn bị trang in...</div>
     );
   }
 
@@ -125,7 +125,7 @@ export default function SalesOrderPrintPage() {
             <ArrowLeft className="h-4 w-4 mr-2" /> Quay lại đơn hàng
           </Button>
         </Link>
-        <div className="p-4 text-center text-rose-500 bg-rose-50 rounded dark:bg-rose-950/30">
+        <div className="p-4 text-center text-crit bg-crit-bg border border-crit/20 rounded-lg">
           {error || 'Không tìm thấy dữ liệu in'}
         </div>
       </div>
@@ -139,21 +139,21 @@ export default function SalesOrderPrintPage() {
   return (
     <div className="space-y-6 print:space-y-0">
       {/* Thanh điều khiển (ẩn khi in) */}
-      <div className="print:hidden flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="print:hidden flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 rounded-lg border border-line bg-surface shadow-xs text-fg">
         <div className="flex items-center gap-3">
           <Link href={`/admin/sales/orders/${order.id}`}>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="border-line text-fg">
               <ArrowLeft className="h-4 w-4 mr-1.5" /> Quay lại đơn
             </Button>
           </Link>
-          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-md dark:bg-slate-800">
+          <div className="flex items-center gap-1 bg-surface-2 p-1 rounded-md border border-line">
             <button
               type="button"
               onClick={() => handleSwitchType('invoice')}
-              className={`px-3 py-1 text-xs font-medium rounded ${
+              className={`px-3 py-1 text-xs font-medium rounded transition-colors ${
                 isInvoice
-                  ? 'bg-white shadow text-slate-900 dark:bg-slate-900 dark:text-slate-100'
-                  : 'text-slate-600 hover:text-slate-900 dark:text-slate-400'
+                  ? 'bg-surface shadow-xs text-fg font-semibold'
+                  : 'text-muted hover:text-fg'
               }`}
             >
               Hóa đơn bán hàng
@@ -161,10 +161,10 @@ export default function SalesOrderPrintPage() {
             <button
               type="button"
               onClick={() => handleSwitchType('delivery')}
-              className={`px-3 py-1 text-xs font-medium rounded ${
+              className={`px-3 py-1 text-xs font-medium rounded transition-colors ${
                 !isInvoice
-                  ? 'bg-white shadow text-slate-900 dark:bg-slate-900 dark:text-slate-100'
-                  : 'text-slate-600 hover:text-slate-900 dark:text-slate-400'
+                  ? 'bg-surface shadow-xs text-fg font-semibold'
+                  : 'text-muted hover:text-fg'
               }`}
             >
               Phiếu giao hàng
@@ -178,41 +178,41 @@ export default function SalesOrderPrintPage() {
         </Button>
       </div>
 
-      {/* Bản in khổ A4 (210mm) */}
-      <div className="mx-auto bg-white text-slate-900 p-8 sm:p-12 shadow-md print:shadow-none print:p-0 max-w-[210mm] min-h-[297mm] text-[13px] leading-normal font-sans border border-slate-200 print:border-none">
+      {/* Bản in khổ A4 (210mm) - Luôn giữ nền trắng khi in */}
+      <div className="mx-auto bg-surface text-fg p-8 sm:p-12 shadow-md print:bg-white print:text-black print:shadow-none print:p-0 max-w-[210mm] min-h-[297mm] text-[13px] leading-normal font-sans border border-line print:border-none">
         {/* Header trang trại */}
-        <div className="flex justify-between items-start border-b-2 border-slate-900 pb-4">
+        <div className="flex justify-between items-start border-b-2 border-line print:border-black pb-4">
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-slate-950 uppercase">
+            <h1 className="text-xl font-bold tracking-tight text-fg print:text-black uppercase">
               {site['farm.name'] || 'XFarm – Nông trại sinh thái'}
             </h1>
-            <p className="text-xs italic text-slate-600">
+            <p className="text-xs italic text-muted print:text-black">
               {site['farm.slogan'] || 'Tươi lành từ đất, an tâm đến bàn ăn'}
             </p>
-            <p className="text-xs text-slate-600 mt-1">
+            <p className="text-xs text-muted print:text-black mt-1">
               Địa chỉ: {site['contact.address'] || 'XFarm, Hà Nội'}
             </p>
-            <p className="text-xs text-slate-600">
+            <p className="text-xs text-muted print:text-black">
               Điện thoại: {site['contact.phone'] || '0901 234 567'} | Email:{' '}
               {site['contact.email'] || 'hello@xfarm.local'}
             </p>
           </div>
           <div className="text-right">
-            <div className="text-sm font-semibold font-mono">{order.code}</div>
-            <div className="text-xs text-slate-500">{formatDate(order.createdAt)}</div>
+            <div className="text-sm font-semibold font-mono text-fg print:text-black">{order.code}</div>
+            <div className="text-xs text-muted print:text-black">{formatDate(order.createdAt)}</div>
           </div>
         </div>
 
         {/* Tiêu đề chứng từ */}
         <div className="text-center my-6">
-          <h2 className="text-xl font-bold uppercase tracking-wider text-slate-900">
+          <h2 className="text-xl font-bold uppercase tracking-wider text-fg print:text-black">
             {isInvoice ? 'HÓA ĐƠN BÁN HÀNG' : 'PHIẾU GIAO HÀNG / XUẤT KHO'}
           </h2>
-          <p className="text-xs text-slate-500 mt-0.5">Mã đơn: {order.code}</p>
+          <p className="text-xs text-muted print:text-black mt-0.5">Mã đơn: {order.code}</p>
         </div>
 
         {/* Thông tin khách hàng và giao nhận */}
-        <div className="grid grid-cols-2 gap-4 mb-6 text-xs">
+        <div className="grid grid-cols-2 gap-4 mb-6 text-xs text-fg print:text-black">
           <div className="space-y-1">
             <p>
               <span className="font-semibold">Khách hàng:</span> {order.customer.name}
@@ -249,7 +249,7 @@ export default function SalesOrderPrintPage() {
         <div className="mb-6">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="border-y border-slate-900 bg-slate-50 print:bg-transparent">
+              <tr className="border-y border-line print:border-black bg-surface-2 print:bg-transparent">
                 <th className="py-2 px-2 text-center w-8">STT</th>
                 <th className="py-2 px-2">Tên sản phẩm / Quy cách</th>
                 <th className="py-2 px-2 text-center w-16">ĐVT</th>
@@ -258,17 +258,17 @@ export default function SalesOrderPrintPage() {
                 <th className="py-2 px-2 text-right w-28">Thành tiền</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200">
+            <tbody className="divide-y divide-line print:divide-black">
               {order.lines.map((line, idx) => {
                 const qty = Number(line.quantity);
                 const price = Number(line.unitPrice);
                 return (
                   <tr key={line.id}>
-                    <td className="py-2 px-2 text-center text-slate-500">{idx + 1}</td>
+                    <td className="py-2 px-2 text-center text-muted print:text-black">{idx + 1}</td>
                     <td className="py-2 px-2 font-medium">
                       {line.product?.name || line.item?.name || 'Sản phẩm'}
                     </td>
-                    <td className="py-2 px-2 text-center text-slate-600">
+                    <td className="py-2 px-2 text-center text-muted print:text-black">
                       {line.item?.unit || line.product?.unit || '—'}
                     </td>
                     <td className="py-2 px-2 text-right font-medium">{qty}</td>
@@ -284,25 +284,25 @@ export default function SalesOrderPrintPage() {
         </div>
 
         {/* Tổng kết tiền */}
-        <div className="flex justify-end mb-6 text-xs">
-          <div className="w-64 space-y-1.5 border-t border-slate-300 pt-2">
+        <div className="flex justify-end mb-6 text-xs text-fg print:text-black">
+          <div className="w-64 space-y-1.5 border-t border-line print:border-black pt-2">
             <div className="flex justify-between">
               <span>Tạm tính tiền hàng:</span>
               <span className="font-medium">{formatCurrency(order.subtotal)}</span>
             </div>
             {Number(order.discount) > 0 && (
-              <div className="flex justify-between text-slate-600">
+              <div className="flex justify-between text-muted print:text-black">
                 <span>Chiết khấu:</span>
                 <span>-{formatCurrency(order.discount)}</span>
               </div>
             )}
             {Number(order.shippingFee) > 0 && (
-              <div className="flex justify-between text-slate-600">
+              <div className="flex justify-between text-muted print:text-black">
                 <span>Phí vận chuyển:</span>
                 <span>+{formatCurrency(order.shippingFee)}</span>
               </div>
             )}
-            <div className="flex justify-between text-sm font-bold border-t border-slate-900 pt-1.5">
+            <div className="flex justify-between text-sm font-bold border-t border-line print:border-black pt-1.5">
               <span>Tổng thanh toán:</span>
               <span>{formatCurrency(order.total)}</span>
             </div>
@@ -313,10 +313,10 @@ export default function SalesOrderPrintPage() {
         {showVietQr && (
           <div
             data-testid="vietqr-block"
-            className="my-6 p-4 rounded border border-slate-300 flex items-center justify-between gap-4 bg-slate-50/50 print:bg-transparent"
+            className="my-6 p-4 rounded border border-line print:border-black flex items-center justify-between gap-4 bg-surface-2/50 print:bg-transparent"
           >
-            <div className="space-y-1 text-xs">
-              <div className="font-bold text-sm text-slate-900">
+            <div className="space-y-1 text-xs text-fg print:text-black">
+              <div className="font-bold text-sm text-fg print:text-black">
                 THANH TOÁN CHUYỂN KHOẢN QUA VIETQR
               </div>
               <p>
@@ -330,11 +330,11 @@ export default function SalesOrderPrintPage() {
               </p>
               <p>
                 <span className="font-semibold">Số tiền:</span>{' '}
-                <span className="font-bold text-emerald-800">{formatCurrency(order.total)}</span>
+                <span className="font-bold text-accent print:text-black">{formatCurrency(order.total)}</span>
               </p>
               <p>
                 <span className="font-semibold">Nội dung chuyển khoản:</span>{' '}
-                <span className="font-mono font-bold bg-slate-200 px-1 py-0.5 rounded">
+                <span className="font-mono font-bold bg-surface-2 print:bg-transparent border border-line print:border-none px-1.5 py-0.5 rounded text-fg print:text-black">
                   {order.code}
                 </span>
               </p>
@@ -345,14 +345,14 @@ export default function SalesOrderPrintPage() {
                 <img
                   src={qrCodeDataUrl}
                   alt={`VietQR thanh toan ${order.code}`}
-                  className="w-28 h-28 border border-slate-300 rounded p-1 bg-white"
+                  className="w-28 h-28 border border-line print:border-black rounded p-1 bg-white"
                 />
               ) : (
-                <div className="w-28 h-28 border border-dashed border-slate-300 flex items-center justify-center text-[10px] text-slate-400">
+                <div className="w-28 h-28 border border-dashed border-line print:border-black flex items-center justify-center text-[10px] text-muted print:text-black">
                   Mã VietQR
                 </div>
               )}
-              <div className="text-[10px] font-semibold text-slate-600 mt-1">
+              <div className="text-[10px] font-semibold text-muted print:text-black mt-1">
                 Quét mã để thanh toán
               </div>
             </div>
@@ -360,18 +360,18 @@ export default function SalesOrderPrintPage() {
         )}
 
         {/* Chữ ký */}
-        <div className="grid grid-cols-3 gap-4 text-center text-xs mt-12 pt-6">
+        <div className="grid grid-cols-3 gap-4 text-center text-xs mt-12 pt-6 text-fg print:text-black">
           <div className="space-y-14">
             <p className="font-semibold">Người lập phiếu</p>
-            <p className="italic text-[11px] text-slate-500">(Ký, ghi rõ họ tên)</p>
+            <p className="italic text-[11px] text-muted print:text-black">(Ký, ghi rõ họ tên)</p>
           </div>
           <div className="space-y-14">
             <p className="font-semibold">Người giao hàng</p>
-            <p className="italic text-[11px] text-slate-500">(Ký, ghi rõ họ tên)</p>
+            <p className="italic text-[11px] text-muted print:text-black">(Ký, ghi rõ họ tên)</p>
           </div>
           <div className="space-y-14">
             <p className="font-semibold">Khách hàng nhận</p>
-            <p className="italic text-[11px] text-slate-500">(Ký, ghi rõ họ tên)</p>
+            <p className="italic text-[11px] text-muted print:text-black">(Ký, ghi rõ họ tên)</p>
           </div>
         </div>
       </div>

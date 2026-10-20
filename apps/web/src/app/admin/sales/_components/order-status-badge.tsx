@@ -15,55 +15,37 @@ export function OrderStatusBadge({ status }: { status: SalesOrderStatus | string
   switch (status) {
     case SalesOrderStatus.PENDING:
       return (
-        <Badge
-          variant="secondary"
-          className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 font-medium"
-        >
+        <Badge variant="secondary" className="bg-warn-bg text-warn border-transparent font-medium">
           {label}
         </Badge>
       );
     case SalesOrderStatus.CONFIRMED:
       return (
-        <Badge
-          variant="info"
-          className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 font-medium"
-        >
+        <Badge variant="info" className="bg-info-bg text-info border-transparent font-medium">
           {label}
         </Badge>
       );
     case SalesOrderStatus.PACKING:
       return (
-        <Badge
-          variant="secondary"
-          className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400 font-medium"
-        >
+        <Badge variant="secondary" className="bg-accent-bg text-accent border-transparent font-medium">
           {label}
         </Badge>
       );
     case SalesOrderStatus.SHIPPING:
       return (
-        <Badge
-          variant="info"
-          className="bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-400 font-medium"
-        >
+        <Badge variant="info" className="bg-info-bg text-info border-transparent font-medium">
           {label}
         </Badge>
       );
     case SalesOrderStatus.COMPLETED:
       return (
-        <Badge
-          variant="default"
-          className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400 font-medium"
-        >
+        <Badge variant="default" className="bg-ok-bg text-ok border-transparent font-medium">
           {label}
         </Badge>
       );
     case SalesOrderStatus.CANCELLED:
       return (
-        <Badge
-          variant="destructive"
-          className="bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-400 font-medium"
-        >
+        <Badge variant="destructive" className="bg-crit-bg text-crit border-transparent font-medium">
           {label}
         </Badge>
       );
@@ -77,29 +59,20 @@ export function PaymentStatusBadge({ status }: { status: PaymentStatus | string 
   switch (status) {
     case PaymentStatus.PAID:
       return (
-        <Badge
-          variant="default"
-          className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400 font-medium"
-        >
+        <Badge variant="default" className="bg-ok-bg text-ok border-transparent font-medium">
           {label}
         </Badge>
       );
     case PaymentStatus.PARTIAL:
       return (
-        <Badge
-          variant="warning"
-          className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 font-medium"
-        >
+        <Badge variant="warning" className="bg-warn-bg text-warn border-transparent font-medium">
           {label}
         </Badge>
       );
     case PaymentStatus.UNPAID:
     default:
       return (
-        <Badge
-          variant="destructive"
-          className="bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-400 font-medium"
-        >
+        <Badge variant="destructive" className="bg-crit-bg text-crit border-transparent font-medium">
           {label}
         </Badge>
       );
@@ -121,7 +94,7 @@ export function ChannelBadge({
     return (
       <span
         data-testid="badge-webshop-pending"
-        className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500 text-white shadow-sm animate-pulse ring-2 ring-amber-300 dark:ring-amber-600"
+        className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-warn-fill text-white shadow-xs animate-pulse ring-2 ring-warn-bg"
       >
         <span className="h-1.5 w-1.5 rounded-full bg-white animate-ping" />
         WEBSHOP MỚI
@@ -133,7 +106,7 @@ export function ChannelBadge({
     return (
       <Badge
         variant="secondary"
-        className="bg-amber-100 text-amber-900 dark:bg-amber-950/50 dark:text-amber-300 font-medium border border-amber-300 dark:border-amber-700"
+        className="bg-warn-bg text-warn font-medium border border-line"
       >
         {channelLabels[SalesChannel.WEBSHOP]}
       </Badge>
@@ -143,7 +116,7 @@ export function ChannelBadge({
   return (
     <Badge
       variant="outline"
-      className="bg-slate-50 text-slate-700 dark:bg-slate-900 dark:text-slate-300 font-medium"
+      className="bg-surface-2 text-fg font-medium border border-line"
     >
       {channelLabels[SalesChannel.ADMIN] || channel}
     </Badge>
@@ -157,7 +130,7 @@ export function CustomerTypeBadge({ type }: { type: CustomerType | string }) {
       return (
         <Badge
           variant="info"
-          className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+          className="bg-info-bg text-info border-transparent"
         >
           {label}
         </Badge>
@@ -166,7 +139,7 @@ export function CustomerTypeBadge({ type }: { type: CustomerType | string }) {
       return (
         <Badge
           variant="secondary"
-          className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300"
+          className="bg-accent-bg text-accent border-transparent"
         >
           {label}
         </Badge>
@@ -176,7 +149,7 @@ export function CustomerTypeBadge({ type }: { type: CustomerType | string }) {
       return (
         <Badge
           variant="outline"
-          className="bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300"
+          className="bg-surface-2 text-fg border border-line"
         >
           {label}
         </Badge>
