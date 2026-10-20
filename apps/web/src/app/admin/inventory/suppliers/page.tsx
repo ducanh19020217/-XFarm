@@ -168,7 +168,7 @@ export default function SuppliersPage() {
         accessorKey: 'code',
         header: 'Mã NCC',
         cell: ({ row }) => (
-          <span className="font-mono text-xs font-medium text-zinc-900 dark:text-zinc-100 bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded">
+          <span className="font-mono text-xs font-medium text-fg bg-surface-2 border border-line px-2 py-1 rounded">
             {row.original.code}
           </span>
         ),
@@ -178,8 +178,8 @@ export default function SuppliersPage() {
         header: 'Tên nhà cung cấp',
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
-            <Truck className="h-4 w-4 text-zinc-400" />
-            <span className="font-medium text-zinc-900 dark:text-zinc-100">
+            <Truck className="h-4 w-4 text-muted" />
+            <span className="font-medium text-fg">
               {row.original.name}
             </span>
           </div>
@@ -190,10 +190,10 @@ export default function SuppliersPage() {
         header: 'Số điện thoại',
         cell: ({ row }) => {
           const phone = row.original.phone;
-          if (!phone) return <span className="text-zinc-400 text-sm">-</span>;
+          if (!phone) return <span className="text-muted text-sm">-</span>;
           return (
-            <div className="flex items-center gap-1.5 text-sm text-zinc-700 dark:text-zinc-300">
-              <Phone className="h-3.5 w-3.5 text-zinc-400" />
+            <div className="flex items-center gap-1.5 text-sm text-fg-2">
+              <Phone className="h-3.5 w-3.5 text-muted" />
               <span>{phone}</span>
             </div>
           );
@@ -204,10 +204,10 @@ export default function SuppliersPage() {
         header: 'Địa chỉ',
         cell: ({ row }) => {
           const address = row.original.address;
-          if (!address) return <span className="text-zinc-400 text-sm">-</span>;
+          if (!address) return <span className="text-muted text-sm">-</span>;
           return (
-            <div className="flex items-center gap-1.5 text-sm text-zinc-700 dark:text-zinc-300 max-w-xs truncate">
-              <MapPin className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
+            <div className="flex items-center gap-1.5 text-sm text-fg-2 max-w-xs truncate">
+              <MapPin className="h-3.5 w-3.5 text-muted shrink-0" />
               <span className="truncate">{address}</span>
             </div>
           );
@@ -218,10 +218,10 @@ export default function SuppliersPage() {
         header: 'Mã số thuế',
         cell: ({ row }) => {
           const taxCode = row.original.taxCode;
-          if (!taxCode) return <span className="text-zinc-400 text-sm">-</span>;
+          if (!taxCode) return <span className="text-muted text-sm">-</span>;
           return (
-            <div className="flex items-center gap-1.5 text-sm text-zinc-700 dark:text-zinc-300">
-              <Building className="h-3.5 w-3.5 text-zinc-400" />
+            <div className="flex items-center gap-1.5 text-sm text-fg-2">
+              <Building className="h-3.5 w-3.5 text-muted" />
               <span className="font-mono text-xs">{taxCode}</span>
             </div>
           );
@@ -260,8 +260,8 @@ export default function SuppliersPage() {
                       size="sm"
                       className={
                         isLocked
-                          ? 'text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/30'
-                          : 'text-amber-600 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-950/30'
+                          ? 'text-ok hover:bg-ok-bg'
+                          : 'text-warn hover:bg-warn-bg'
                       }
                       onClick={() => setConfirmLockSupplier(sup)}
                       title={isLocked ? 'Mở khóa nhà cung cấp' : 'Khóa nhà cung cấp'}
@@ -271,7 +271,7 @@ export default function SuppliersPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30"
+                      className="text-crit hover:bg-crit-bg"
                       onClick={() => setConfirmDeleteSupplier(sup)}
                       title="Xóa nhà cung cấp"
                     >

@@ -32,7 +32,7 @@ export function CatalogTabs({ active }: CatalogTabsProps) {
   ] as const;
 
   return (
-    <div className="flex border-b border-zinc-200 dark:border-zinc-800 mb-6">
+    <div className="flex border-b border-line mb-6">
       <nav className="flex space-x-2" aria-label="Tabs">
         {tabs.map((tab) => {
           const Icon = tab.icon;
@@ -44,8 +44,8 @@ export function CatalogTabs({ active }: CatalogTabsProps) {
               className={cn(
                 'inline-flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-medium transition-colors',
                 isActive
-                  ? 'border-emerald-600 text-emerald-600 dark:border-emerald-400 dark:text-emerald-400'
-                  : 'border-transparent text-zinc-500 hover:border-zinc-300 hover:text-zinc-700 dark:text-zinc-400 dark:hover:border-zinc-700 dark:hover:text-zinc-200',
+                  ? 'border-accent text-accent'
+                  : 'border-transparent text-muted hover:border-line hover:text-fg',
               )}
               aria-current={isActive ? 'page' : undefined}
             >

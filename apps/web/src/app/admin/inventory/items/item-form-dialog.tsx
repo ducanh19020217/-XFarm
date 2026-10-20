@@ -113,7 +113,7 @@ export function ItemFormDialog({
         {error && (
           <div
             role="alert"
-            className="rounded-md bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-400"
+            className="rounded-md bg-crit-bg p-3 text-sm text-crit border border-crit/30"
           >
             {error}
           </div>
@@ -122,7 +122,7 @@ export function ItemFormDialog({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1 sm:col-span-1">
             <Label htmlFor="item-sku">
-              Mã SKU <span className="text-xs text-zinc-400 font-normal">(tùy chọn)</span>
+              Mã SKU <span className="text-xs text-muted font-normal">(tùy chọn)</span>
             </Label>
             <Input
               id="item-sku"
@@ -131,17 +131,17 @@ export function ItemFormDialog({
               {...form.register('sku')}
             />
             {errors.sku && (
-              <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.sku.message}</p>
+              <p className="text-xs text-crit mt-1">{errors.sku.message}</p>
             )}
           </div>
 
           <div className="space-y-1 sm:col-span-1">
             <Label htmlFor="item-category">
-              Nhóm hàng <span className="text-red-500">*</span>
+              Nhóm hàng <span className="text-crit">*</span>
             </Label>
             <select
               id="item-category"
-              className="flex h-9 w-full rounded-md border border-zinc-200 bg-white px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-zinc-950 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-900 dark:focus-visible:ring-zinc-300"
+              className="flex h-10 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm text-fg shadow-xs transition-colors focus:outline-none focus:ring-2 focus:ring-accent/20 disabled:cursor-not-allowed disabled:opacity-50"
               disabled={isLoading}
               {...form.register('category')}
             >
@@ -152,7 +152,7 @@ export function ItemFormDialog({
               ))}
             </select>
             {errors.category && (
-              <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+              <p className="text-xs text-crit mt-1">
                 {errors.category.message}
               </p>
             )}
@@ -161,7 +161,7 @@ export function ItemFormDialog({
 
         <div className="space-y-1">
           <Label htmlFor="item-name">
-            Tên vật tư / hàng hóa <span className="text-red-500">*</span>
+            Tên vật tư / hàng hóa <span className="text-crit">*</span>
           </Label>
           <Input
             id="item-name"
@@ -170,14 +170,14 @@ export function ItemFormDialog({
             {...form.register('name')}
           />
           {errors.name && (
-            <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.name.message}</p>
+            <p className="text-xs text-crit mt-1">{errors.name.message}</p>
           )}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1">
             <Label htmlFor="item-unit">
-              Đơn vị tính <span className="text-red-500">*</span>
+              Đơn vị tính <span className="text-crit">*</span>
             </Label>
             <Input
               id="item-unit"
@@ -186,14 +186,14 @@ export function ItemFormDialog({
               {...form.register('unit')}
             />
             {errors.unit && (
-              <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.unit.message}</p>
+              <p className="text-xs text-crit mt-1">{errors.unit.message}</p>
             )}
           </div>
 
           <div className="space-y-1">
             <Label htmlFor="item-min-stock">
               Tồn tối thiểu (định mức){' '}
-              <span className="text-xs text-zinc-400 font-normal">(tùy chọn)</span>
+              <span className="text-xs text-muted font-normal">(tùy chọn)</span>
             </Label>
             <Input
               id="item-min-stock"
@@ -206,7 +206,7 @@ export function ItemFormDialog({
               })}
             />
             {errors.minStock && (
-              <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+              <p className="text-xs text-crit mt-1">
                 {errors.minStock.message}
               </p>
             )}
@@ -217,16 +217,16 @@ export function ItemFormDialog({
           <input
             type="checkbox"
             id="item-is-sellable"
-            className="h-4 w-4 rounded-sm border-zinc-300 text-emerald-600 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-900"
+            className="h-4 w-4 rounded-sm border-line text-accent focus:ring-accent"
             disabled={isLoading}
             {...form.register('isSellable')}
           />
-          <Label htmlFor="item-is-sellable" className="cursor-pointer text-sm font-normal">
+          <Label htmlFor="item-is-sellable" className="cursor-pointer text-sm font-normal text-fg">
             Hàng hóa được phép bán trực tiếp (nông sản, thành phẩm)
           </Label>
         </div>
 
-        <div className="flex justify-end gap-2 pt-4 border-t border-zinc-100 dark:border-zinc-800">
+        <div className="flex justify-end gap-2 pt-4 border-t border-line">
           <Button
             type="button"
             variant="outline"

@@ -152,7 +152,7 @@ export default function ItemsPage() {
         accessorKey: 'sku',
         header: 'Mã SKU',
         cell: ({ row }) => (
-          <span className="font-mono text-xs font-medium text-zinc-900 dark:text-zinc-100 bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded">
+          <span className="font-mono text-xs font-medium text-fg bg-surface-2 border border-line px-2 py-1 rounded">
             {row.original.sku}
           </span>
         ),
@@ -162,11 +162,11 @@ export default function ItemsPage() {
         header: 'Tên vật tư / hàng hóa',
         cell: ({ row }) => (
           <div className="flex flex-col">
-            <span className="font-medium text-zinc-900 dark:text-zinc-100">
+            <span className="font-medium text-fg">
               {row.original.name}
             </span>
             {row.original.isSellable && (
-              <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+              <span className="text-xs text-ok font-medium">
                 Được phép bán
               </span>
             )}
@@ -185,16 +185,16 @@ export default function ItemsPage() {
       {
         accessorKey: 'unit',
         header: 'ĐVT',
-        cell: ({ row }) => <span className="text-sm text-zinc-600">{row.original.unit}</span>,
+        cell: ({ row }) => <span className="text-sm text-fg-2">{row.original.unit}</span>,
       },
       {
         accessorKey: 'minStock',
         header: 'Định mức tồn',
         cell: ({ row }) => {
           const min = row.original.minStock;
-          if (min === null || min === undefined) return <span className="text-zinc-400">-</span>;
+          if (min === null || min === undefined) return <span className="text-muted">-</span>;
           return (
-            <span className="text-sm text-zinc-700 dark:text-zinc-300">
+            <span className="text-sm text-fg-2">
               {new Intl.NumberFormat('vi-VN').format(Number(min))} {row.original.unit}
             </span>
           );
@@ -215,7 +215,7 @@ export default function ItemsPage() {
             <div className="flex items-center gap-1.5">
               <span
                 className={`text-sm font-semibold ${
-                  isBelow ? 'text-red-600 dark:text-red-400' : 'text-zinc-900 dark:text-zinc-100'
+                  isBelow ? 'text-crit' : 'text-fg'
                 }`}
               >
                 {formattedOnHand} {item.unit}
@@ -223,7 +223,7 @@ export default function ItemsPage() {
               {isBelow && (
                 <span
                   title="Tồn dưới mức tối thiểu"
-                  className="inline-flex items-center text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/50 px-1.5 py-0.5 rounded font-medium gap-0.5"
+                  className="inline-flex items-center text-xs text-crit bg-crit-bg px-1.5 py-0.5 rounded font-medium gap-0.5"
                 >
                   <AlertTriangle className="h-3 w-3" />
                   Dưới định mức
@@ -263,8 +263,8 @@ export default function ItemsPage() {
                       size="sm"
                       className={
                         item.isActive
-                          ? 'text-amber-600 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-950/30'
-                          : 'text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/30'
+                          ? 'text-warn hover:bg-warn-bg'
+                          : 'text-ok hover:bg-ok-bg'
                       }
                       onClick={() => setConfirmLockItem(item)}
                       title={item.isActive ? 'Khóa vật tư' : 'Mở khóa vật tư'}
@@ -317,7 +317,7 @@ export default function ItemsPage() {
                 setCategory(e.target.value);
                 setPage(1);
               }}
-              className="flex h-9 w-full rounded-md border border-zinc-200 bg-white px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-zinc-950 dark:border-zinc-800 dark:bg-zinc-900"
+              className="flex h-10 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm text-fg shadow-xs transition-colors focus:outline-none focus:ring-2 focus:ring-accent/20"
             >
               <option value="ALL">Tất cả nhóm hàng</option>
               {Object.values(ItemCategory).map((cat) => (
@@ -336,7 +336,7 @@ export default function ItemsPage() {
                 setBelowMinStock(e.target.value);
                 setPage(1);
               }}
-              className="flex h-9 w-full rounded-md border border-zinc-200 bg-white px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-zinc-950 dark:border-zinc-800 dark:bg-zinc-900"
+              className="flex h-10 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm text-fg shadow-xs transition-colors focus:outline-none focus:ring-2 focus:ring-accent/20"
             >
               <option value="ALL">Tất cả mức tồn</option>
               <option value="true">Dưới định mức tồn</option>

@@ -212,7 +212,7 @@ export function CountForm({ warehouses, items, onSuccess, onCancel }: CountFormP
       {formError && (
         <div
           role="alert"
-          className="flex items-start gap-2 rounded-md bg-red-50 p-3 text-sm text-red-700 border border-red-200"
+          className="flex items-start gap-2 rounded-md bg-crit-bg p-3 text-sm text-crit border border-crit/30"
         >
           <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
           <span>{formError}</span>
@@ -227,7 +227,7 @@ export function CountForm({ warehouses, items, onSuccess, onCancel }: CountFormP
             id="count-warehouse"
             value={warehouseId}
             onChange={(e) => setWarehouseId(e.target.value)}
-            className="flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm focus:border-emerald-600 focus:outline-none"
+            className="flex h-10 w-full rounded-md border border-line bg-surface px-3 text-sm text-fg focus:outline-none focus:ring-2 focus:ring-accent/20"
           >
             <option value="">Chọn kho kiểm kê</option>
             {warehouses.map((w) => (
@@ -265,7 +265,7 @@ export function CountForm({ warehouses, items, onSuccess, onCancel }: CountFormP
         <div className="flex items-center justify-between">
           <div>
             <Label className="text-sm font-semibold">Danh sách kiểm kê</Label>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-muted">
               Nhập số lượng đếm thực tế; hệ thống hiển thị tồn sổ sách để đối chiếu.
             </p>
           </div>
@@ -274,27 +274,27 @@ export function CountForm({ warehouses, items, onSuccess, onCancel }: CountFormP
             variant="outline"
             size="sm"
             onClick={addLine}
-            className="text-emerald-700 hover:text-emerald-800"
+            className="text-accent hover:text-accent/80"
           >
             <Plus className="h-4 w-4 mr-1" />
             Thêm dòng
           </Button>
         </div>
 
-        <div className="overflow-x-auto rounded-md border border-slate-200">
+        <div className="overflow-x-auto rounded-md border border-line">
           <table className="w-full text-left text-sm">
-            <thead className="bg-slate-50 text-xs uppercase text-slate-500">
+            <thead className="bg-surface-2 text-xs uppercase text-muted">
               <tr>
                 <th className="px-3 py-2 w-10">STT</th>
                 <th className="px-3 py-2 min-w-[220px]">Vật tư *</th>
                 <th className="px-3 py-2 w-28">Mã lô</th>
-                <th className="px-3 py-2 w-32 bg-slate-100/70 text-right">Tồn sổ sách</th>
+                <th className="px-3 py-2 w-32 bg-surface-2 text-right">Tồn sổ sách</th>
                 <th className="px-3 py-2 w-36">Số đếm thực tế *</th>
                 <th className="px-3 py-2 w-28 text-right">Chênh lệch</th>
                 <th className="px-2 py-2 w-10"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 bg-white">
+            <tbody className="divide-y divide-line bg-surface">
               {lines.map((line, idx) => {
                 const selectedItem = items.find((it) => it.id === line.itemId);
                 const actual = line.actualQuantity === '' ? 0 : Number(line.actualQuantity);
@@ -302,13 +302,13 @@ export function CountForm({ warehouses, items, onSuccess, onCancel }: CountFormP
 
                 return (
                   <tr key={line.id} className="align-top">
-                    <td className="px-3 py-2.5 text-slate-500">{idx + 1}</td>
+                    <td className="px-3 py-2.5 text-muted">{idx + 1}</td>
                     <td className="px-3 py-2">
                       <select
                         aria-label={`Vật tư dòng ${idx + 1}`}
                         value={line.itemId}
                         onChange={(e) => updateLine(idx, 'itemId', e.target.value)}
-                        className="flex h-9 w-full rounded border border-slate-300 bg-white px-2 text-sm focus:border-emerald-600 focus:outline-none"
+                        className="flex h-9 w-full rounded border border-line bg-surface px-2 text-sm text-fg focus:outline-none focus:ring-2 focus:ring-accent/20"
                       >
                         <option value="">Chọn vật tư</option>
                         {items.map((it) => (
@@ -318,12 +318,12 @@ export function CountForm({ warehouses, items, onSuccess, onCancel }: CountFormP
                         ))}
                       </select>
                       {selectedItem && (
-                        <span className="text-[11px] text-slate-500 block mt-0.5">
+                        <span className="text-[11px] text-muted block mt-0.5">
                           ĐVT: {selectedItem.unit}
                         </span>
                       )}
                       {lineErrors[idx] && (
-                        <span className="text-xs text-red-600 block mt-0.5">{lineErrors[idx]}</span>
+                        <span className="text-xs text-crit block mt-0.5">{lineErrors[idx]}</span>
                       )}
                     </td>
                     <td className="px-3 py-2">
@@ -336,7 +336,7 @@ export function CountForm({ warehouses, items, onSuccess, onCancel }: CountFormP
                         className="h-9 text-xs"
                       />
                     </td>
-                    <td className="px-3 py-2.5 bg-slate-50/50 text-right font-medium text-slate-700">
+                    <td className="px-3 py-2.5 bg-surface-2/40 text-right font-medium text-fg-2">
                       {formatNumber(line.bookQuantity)} {selectedItem?.unit || ''}
                     </td>
                     <td className="px-3 py-2">
@@ -360,10 +360,10 @@ export function CountForm({ warehouses, items, onSuccess, onCancel }: CountFormP
                       <span
                         className={
                           diff === 0
-                            ? 'text-slate-500'
+                            ? 'text-muted'
                             : diff > 0
-                              ? 'text-emerald-600'
-                              : 'text-red-600'
+                              ? 'text-ok'
+                              : 'text-crit'
                         }
                       >
                         {diff > 0 ? `+${formatNumber(diff)}` : formatNumber(diff)}
@@ -375,7 +375,7 @@ export function CountForm({ warehouses, items, onSuccess, onCancel }: CountFormP
                         aria-label={`Xóa dòng ${idx + 1}`}
                         disabled={lines.length <= 1}
                         onClick={() => removeLine(idx)}
-                        className="p-1 text-slate-400 hover:text-red-600 disabled:opacity-30 disabled:hover:text-slate-400"
+                        className="p-1 text-muted hover:text-crit disabled:opacity-30 disabled:hover:text-muted"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -389,14 +389,14 @@ export function CountForm({ warehouses, items, onSuccess, onCancel }: CountFormP
       </div>
 
       {/* Action buttons */}
-      <div className="flex justify-end gap-3 pt-2 border-t border-slate-200">
+      <div className="flex justify-end gap-3 pt-2 border-t border-line">
         <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
           Hủy
         </Button>
         <Button
           type="submit"
           disabled={isSubmitting}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white"
+          className="bg-accent hover:bg-accent/90 text-white"
         >
           {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           Tạo phiếu kiểm kê

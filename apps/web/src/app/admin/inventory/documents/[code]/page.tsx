@@ -80,7 +80,7 @@ export default function StockDocumentDetailPage() {
       <div>
         <Link
           href="/admin/inventory/documents"
-          className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
+          className="inline-flex items-center text-sm font-medium text-muted hover:text-fg"
         >
           <ArrowLeft className="h-4 w-4 mr-1.5" />
           Quay lại danh sách phiếu kho
@@ -90,24 +90,24 @@ export default function StockDocumentDetailPage() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
-              Chi tiết phiếu: <span className="font-mono text-emerald-600">{code}</span>
+            <h1 className="text-2xl font-bold tracking-tight text-fg">
+              Chi tiết phiếu: <span className="font-mono text-accent">{code}</span>
             </h1>
             <Badge variant={typeInfo.badgeVariant}>{typeInfo.label}</Badge>
           </div>
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="text-sm text-muted mt-1">
             Xem thông tin chứng từ và danh sách các mặt hàng phát sinh biến động kho.
           </p>
         </div>
       </div>
 
       {loading ? (
-        <div className="rounded-lg border border-slate-200 bg-white p-8 text-center text-slate-500 dark:border-slate-800 dark:bg-slate-950">
+        <div className="rounded-lg border border-line bg-surface p-8 text-center text-muted">
           Đang tải dữ liệu phiếu kho...
         </div>
       ) : !document ? (
-        <div className="rounded-lg border border-slate-200 bg-white p-8 text-center dark:border-slate-800 dark:bg-slate-950">
-          <p className="text-slate-600 dark:text-slate-400">
+        <div className="rounded-lg border border-line bg-surface p-8 text-center">
+          <p className="text-fg-2">
             Không tìm thấy thông tin cho mã phiếu <strong>{code}</strong> hoặc chứng từ chưa được
             tạo.
           </p>
@@ -123,22 +123,22 @@ export default function StockDocumentDetailPage() {
         <>
           {/* Document metadata cards */}
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-              <div className="flex items-center gap-2 text-slate-500 text-xs font-medium">
+            <div className="rounded-lg border border-line bg-surface p-4 shadow-sm">
+              <div className="flex items-center gap-2 text-muted text-xs font-medium">
                 <Calendar className="h-4 w-4" />
                 <span>Thời gian ghi nhận</span>
               </div>
-              <div className="mt-2 text-sm font-semibold text-slate-900 dark:text-slate-100 font-mono">
+              <div className="mt-2 text-sm font-semibold text-fg font-mono">
                 {formatDateTime(document.movedAt)}
               </div>
             </div>
 
-            <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-              <div className="flex items-center gap-2 text-slate-500 text-xs font-medium">
+            <div className="rounded-lg border border-line bg-surface p-4 shadow-sm">
+              <div className="flex items-center gap-2 text-muted text-xs font-medium">
                 <Building className="h-4 w-4" />
                 <span>Kho liên quan</span>
               </div>
-              <div className="mt-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
+              <div className="mt-2 text-sm font-semibold text-fg">
                 {document.fromWarehouseName && document.toWarehouseName ? (
                   <span>
                     {document.fromWarehouseName} ➔ {document.toWarehouseName}
@@ -152,22 +152,22 @@ export default function StockDocumentDetailPage() {
               </div>
             </div>
 
-            <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-              <div className="flex items-center gap-2 text-slate-500 text-xs font-medium">
+            <div className="rounded-lg border border-line bg-surface p-4 shadow-sm">
+              <div className="flex items-center gap-2 text-muted text-xs font-medium">
                 <Package className="h-4 w-4" />
                 <span>Tổng số dòng / Số lượng</span>
               </div>
-              <div className="mt-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
+              <div className="mt-2 text-sm font-semibold text-fg">
                 {document.lines?.length || 0} dòng • {formatNumber(totalQuantity)} SP
               </div>
             </div>
 
-            <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-              <div className="flex items-center gap-2 text-slate-500 text-xs font-medium">
-                <DollarSign className="h-4 w-4 text-emerald-600" />
+            <div className="rounded-lg border border-line bg-surface p-4 shadow-sm">
+              <div className="flex items-center gap-2 text-muted text-xs font-medium">
+                <DollarSign className="h-4 w-4 text-ok" />
                 <span>Tổng giá trị</span>
               </div>
-              <div className="mt-2 text-sm font-bold text-emerald-600 dark:text-emerald-400">
+              <div className="mt-2 text-sm font-bold text-ok">
                 {isCount ? '—' : formatCurrency(totalAmount)}
               </div>
             </div>
@@ -175,8 +175,8 @@ export default function StockDocumentDetailPage() {
 
           {/* Notes banner if present */}
           {document.notes && (
-            <div className="rounded-lg border border-blue-100 bg-blue-50/50 p-4 text-sm text-blue-900 dark:border-blue-900/30 dark:bg-blue-950/20 dark:text-blue-300 flex items-start gap-2">
-              <Info className="h-4 w-4 shrink-0 mt-0.5 text-blue-600" />
+            <div className="rounded-lg border border-accent/20 bg-accent-bg p-4 text-sm text-fg flex items-start gap-2">
+              <Info className="h-4 w-4 shrink-0 mt-0.5 text-accent" />
               <div>
                 <span className="font-semibold">Ghi chú phiếu:</span> {document.notes}
               </div>
@@ -184,16 +184,16 @@ export default function StockDocumentDetailPage() {
           )}
 
           {/* Lines Table */}
-          <div className="rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950 overflow-hidden">
-            <div className="border-b border-slate-200 px-4 py-3 bg-slate-50/50 dark:border-slate-800 dark:bg-slate-900/50">
-              <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+          <div className="rounded-lg border border-line bg-surface shadow-sm overflow-hidden">
+            <div className="border-b border-line px-4 py-3 bg-surface-2">
+              <h2 className="text-sm font-semibold text-fg">
                 Chi tiết các dòng hàng
               </h2>
             </div>
 
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
-                <thead className="bg-slate-50 text-xs uppercase text-slate-500 dark:bg-slate-900 dark:text-slate-400">
+                <thead className="bg-surface-2 text-xs uppercase text-muted">
                   <tr>
                     <th className="px-4 py-3 w-12">STT</th>
                     <th className="px-4 py-3">Vật tư</th>
@@ -215,10 +215,10 @@ export default function StockDocumentDetailPage() {
                     )}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                <tbody className="divide-y divide-line">
                   {!document.lines || document.lines.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="px-4 py-6 text-center text-slate-500">
+                      <td colSpan={8} className="px-4 py-6 text-center text-muted">
                         Chưa có dữ liệu dòng hàng cho phiếu này.
                       </td>
                     </tr>
@@ -236,54 +236,54 @@ export default function StockDocumentDetailPage() {
                       return (
                         <tr
                           key={line.id || idx}
-                          className="hover:bg-slate-50/50 dark:hover:bg-slate-900/50"
+                          className="hover:bg-hover"
                         >
-                          <td className="px-4 py-3 text-slate-500 font-mono text-xs">{idx + 1}</td>
+                          <td className="px-4 py-3 text-muted font-mono text-xs">{idx + 1}</td>
                           <td className="px-4 py-3">
-                            <span className="font-medium text-slate-900 dark:text-slate-100">
+                            <span className="font-medium text-fg">
                               {line.itemName || line.itemId}
                             </span>
                             {line.itemSku && (
-                              <span className="block text-xs font-mono text-slate-500">
+                              <span className="block text-xs font-mono text-muted">
                                 SKU: {line.itemSku}
                               </span>
                             )}
                           </td>
-                          <td className="px-4 py-3 text-slate-600 dark:text-slate-400">
+                          <td className="px-4 py-3 text-fg-2">
                             {line.unit || '—'}
                           </td>
-                          <td className="px-4 py-3 font-mono text-xs text-slate-600 dark:text-slate-400">
+                          <td className="px-4 py-3 font-mono text-xs text-muted">
                             {line.lotCode || '—'}
                           </td>
                           <td className="px-4 py-3">
                             {expiry ? (
                               <Badge variant={expiry.variant}>
                                 {expiry.isExpired
-                                  ? 'Hết hạn'
+                                   ? 'Hết hạn'
                                   : expiry.isExpiringSoon
                                     ? expiry.label
                                     : expiry.formattedDate}
                               </Badge>
                             ) : (
-                              <span className="text-slate-400 text-xs">—</span>
+                              <span className="text-muted text-xs">—</span>
                             )}
                           </td>
                           {isCount ? (
                             <>
-                              <td className="px-4 py-3 text-right font-medium text-slate-700 dark:text-slate-300">
+                              <td className="px-4 py-3 text-right font-medium text-fg-2">
                                 {formatNumber(bookQty)}
                               </td>
-                              <td className="px-4 py-3 text-right font-semibold text-slate-900 dark:text-slate-100">
+                              <td className="px-4 py-3 text-right font-semibold text-fg">
                                 {formatNumber(actualQty)}
                               </td>
                               <td className="px-4 py-3 text-right font-semibold">
                                 <span
                                   className={
                                     diff === 0
-                                      ? 'text-slate-500'
+                                      ? 'text-muted'
                                       : diff > 0
-                                        ? 'text-emerald-600'
-                                        : 'text-red-600'
+                                        ? 'text-ok'
+                                        : 'text-crit'
                                   }
                                 >
                                   {diff > 0 ? `+${formatNumber(diff)}` : formatNumber(diff)}
@@ -292,13 +292,13 @@ export default function StockDocumentDetailPage() {
                             </>
                           ) : (
                             <>
-                              <td className="px-4 py-3 text-right font-semibold text-slate-900 dark:text-slate-100">
+                              <td className="px-4 py-3 text-right font-semibold text-fg">
                                 {formatNumber(qty)}
                               </td>
-                              <td className="px-4 py-3 text-right text-slate-600 dark:text-slate-300">
+                              <td className="px-4 py-3 text-right text-fg-2">
                                 {formatCurrency(cost)}
                               </td>
-                              <td className="px-4 py-3 text-right font-semibold text-emerald-600 dark:text-emerald-400">
+                              <td className="px-4 py-3 text-right font-semibold text-ok">
                                 {formatCurrency(lineTotal)}
                               </td>
                             </>
@@ -313,11 +313,11 @@ export default function StockDocumentDetailPage() {
 
             {/* Total footer */}
             {!isCount && document.lines && document.lines.length > 0 && (
-              <div className="flex items-center justify-end gap-6 bg-slate-50/50 px-6 py-4 border-t border-slate-200 dark:border-slate-800 dark:bg-slate-900/50">
-                <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
+              <div className="flex items-center justify-end gap-6 bg-surface-2 px-6 py-4 border-t border-line">
+                <span className="text-sm font-medium text-muted">
                   Tổng thành tiền phiếu:
                 </span>
-                <span className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
+                <span className="text-xl font-bold text-ok">
                   {formatCurrency(totalAmount)}
                 </span>
               </div>
