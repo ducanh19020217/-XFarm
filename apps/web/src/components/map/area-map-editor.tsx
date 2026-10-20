@@ -142,23 +142,18 @@ export default function AreaMapEditor({
     if (currentGeoJson) {
       const latlngs = geoJSONToLatLngs(currentGeoJson);
       if (latlngs.length >= 3) {
-        const style = AREA_TYPE_COLORS[area.type] || {
-          fill: '#10b981',
-          stroke: '#047857',
-        };
-
         const poly = L.polygon(latlngs, {
-          color: style.stroke,
-          fillColor: style.fill,
-          fillOpacity: 0.4,
+          color: 'var(--t-accent)',
+          fillColor: 'var(--t-accent)',
+          fillOpacity: 0.35,
           weight: 3,
         }).addTo(map);
 
         poly.bindPopup(`
-          <div class="text-xs p-1">
-            <strong>${area.name}</strong> (${area.code})<br/>
-            Loại: ${AREA_TYPE_LABELS[area.type] || area.type}<br/>
-            Ranh giới khu vực hiện tại
+          <div class="text-xs p-1 text-fg">
+            <strong class="text-fg">${area.name}</strong> <span class="text-muted">(${area.code})</span><br/>
+            <span class="text-fg-2">Loại: ${AREA_TYPE_LABELS[area.type] || area.type}</span><br/>
+            <span class="text-accent font-medium">Ranh giới khu vực hiện tại</span>
           </div>
         `);
 
@@ -206,11 +201,11 @@ export default function AreaMapEditor({
       });
 
       childPoly.bindPopup(`
-        <div class="text-xs p-1">
-          <div class="font-semibold text-slate-800">${child.name}</div>
-          <div class="text-slate-500 font-mono text-[11px]">${child.code} • ${AREA_TYPE_LABELS[child.type] || child.type}</div>
-          <div class="text-slate-600 mt-1">Khu con trực thuộc</div>
-          <a href="/admin/areas/${child.id}" class="text-emerald-600 text-[11px] font-medium hover:underline inline-block mt-1">
+        <div class="text-xs p-1 text-fg">
+          <div class="font-semibold text-fg">${child.name}</div>
+          <div class="text-muted font-mono text-[11px]">${child.code} • ${AREA_TYPE_LABELS[child.type] || child.type}</div>
+          <div class="text-fg-2 mt-1">Khu con trực thuộc</div>
+          <a href="/admin/areas/${child.id}" class="text-accent text-[11px] font-medium hover:underline inline-block mt-1">
             Xem chi tiết &rarr;
           </a>
         </div>
@@ -275,7 +270,7 @@ export default function AreaMapEditor({
     <div className="space-y-3">
       {/* Action Toolbar */}
       {!readOnly && (
-        <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-200 bg-white p-3 shadow-xs dark:border-slate-800 dark:bg-slate-950">
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-line bg-surface p-3 shadow-xs text-fg">
           <div className="flex flex-wrap items-center gap-2">
             <Button
               type="button"
@@ -284,7 +279,7 @@ export default function AreaMapEditor({
               onClick={handleStartDraw}
               className="text-xs"
             >
-              <PenTool className="mr-1.5 h-3.5 w-3.5 text-emerald-600" />
+              <PenTool className="mr-1.5 h-3.5 w-3.5 text-accent" />
               {currentGeoJson ? 'Vẽ lại đa giác' : 'Vẽ đa giác mới'}
             </Button>
 
@@ -306,7 +301,7 @@ export default function AreaMapEditor({
                   variant="outline"
                   size="sm"
                   onClick={handleDeletePolygon}
-                  className="text-xs text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950"
+                  className="text-xs text-crit hover:bg-crit-bg hover:text-crit"
                 >
                   <Trash2 className="mr-1.5 h-3.5 w-3.5" />
                   Xóa đa giác
@@ -318,12 +313,12 @@ export default function AreaMapEditor({
           {onSave && (
             <div className="flex items-center gap-2">
               {saveSuccess && (
-                <span className="flex items-center gap-1 text-xs font-medium text-emerald-600">
+                <span className="flex items-center gap-1 text-xs font-medium text-ok">
                   <CheckCircle className="h-4 w-4" /> Đã lưu thành công
                 </span>
               )}
               {errorMessage && (
-                <span className="flex items-center gap-1 text-xs text-red-600">
+                <span className="flex items-center gap-1 text-xs text-crit">
                   <AlertCircle className="h-4 w-4" /> {errorMessage}
                 </span>
               )}
@@ -332,7 +327,6 @@ export default function AreaMapEditor({
                 size="sm"
                 onClick={handleSave}
                 disabled={isSaving}
-                className="bg-emerald-600 text-white hover:bg-emerald-700"
               >
                 {isSaving ? (
                   <>
@@ -352,34 +346,34 @@ export default function AreaMapEditor({
       )}
 
       {/* Map Canvas */}
-      <div className="relative overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-800">
+      <div className="relative overflow-hidden rounded-lg border border-line bg-surface shadow-xs">
         <div ref={mapContainerRef} className={className} />
 
         {/* Legend / Info bar at bottom */}
-        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 bg-slate-50/90 px-3 py-2 text-xs text-slate-600 backdrop-blur-xs dark:border-slate-800 dark:bg-slate-900/90">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line bg-surface-2 px-3 py-2 text-xs text-muted">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1.5">
               <span
-                className="inline-block h-3 w-3 rounded border"
+                className="inline-block h-3 w-3 rounded border border-line"
                 style={{
-                  backgroundColor: AREA_TYPE_COLORS[area.type]?.fill || '#10b981',
-                  borderColor: AREA_TYPE_COLORS[area.type]?.stroke || '#047857',
+                  backgroundColor: AREA_TYPE_COLORS[area.type]?.fill || 'var(--t-accent)',
+                  borderColor: AREA_TYPE_COLORS[area.type]?.stroke || 'var(--t-accent)',
                 }}
               />
-              <span className="font-medium text-slate-700 dark:text-slate-300">
+              <span className="font-medium text-fg">
                 {area.name} ({AREA_TYPE_LABELS[area.type]})
               </span>
             </div>
 
             {childrenAreas.length > 0 && (
-              <div className="flex items-center gap-1.5 text-slate-500">
-                <span className="inline-block h-2.5 w-2.5 rounded border border-dashed border-blue-500 bg-blue-200/50" />
+              <div className="flex items-center gap-1.5 text-muted">
+                <span className="inline-block h-2.5 w-2.5 rounded border border-dashed border-info bg-info/20" />
                 <span>{childrenAreas.length} khu con trực thuộc</span>
               </div>
             )}
           </div>
 
-          <div className="text-[11px] text-slate-400">
+          <div className="text-[11px] text-muted">
             {currentGeoJson
               ? `Tọa độ: ${currentGeoJson.coordinates[0]?.length || 0} điểm đỉnh`
               : 'Chưa có tọa độ ranh giới polygon'}
