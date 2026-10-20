@@ -47,7 +47,13 @@ pnpm i
 ```bash
 pnpm db:migrate
 pnpm db:seed
+# Nạp dữ liệu demo xác định cho 12 tháng gần nhất (có thể chạy lặp lại)
+pnpm db:seed:demo
+# Xóa riêng dữ liệu demo rồi tạo lại
+pnpm --filter @xfarm/db exec dotenv -e ../../.env -- tsx prisma/seed-demo.ts --reset-demo
 ```
+
+`db:seed:demo` thêm các mùa vụ, nhật ký, vật tư, thu hoạch, đơn bán đã thu tiền, chi phí, chấm công/bảng lương, booking tour đã thanh toán và dữ liệu cảm biến 2 giờ/lần trong 30 ngày. Dữ liệu có tiền tố `DEMO-` và không thay đổi seed nền.
 
 ### Bước 5: Chạy kiểm thử chất lượng và build
 
