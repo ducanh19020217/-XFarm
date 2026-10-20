@@ -411,6 +411,7 @@ model Activity {
   @@index([cycleId, performedAt])
   @@index([areaId, performedAt])
   @@index([type])
+  @@index([performedById, performedAt])
   @@map("activities")
 }
 
@@ -609,6 +610,9 @@ model StockMove {
   @@index([refType, refId])
   @@index([fromWarehouseId])
   @@index([toWarehouseId])
+  @@index([movedAt])
+  @@index([fromWarehouseId, movedAt])
+  @@index([toWarehouseId, movedAt])
   @@map("stock_moves")
 }
 
@@ -1005,6 +1009,7 @@ model Transaction {
   @@index([type, date])
   @@index([cycleId])
   @@index([refType, refId])
+  @@index([categoryId, date])
   @@map("transactions")
 }
 
@@ -1083,6 +1088,7 @@ model Booking {
   @@index([status, createdAt])
   @@index([customerId])
   @@index([phone])
+  @@index([slotId, createdAt])
   @@map("bookings")
 }
 
