@@ -139,9 +139,7 @@ export default function ReceivablesPage() {
       header: 'Mã KH',
       accessorKey: 'customerCode',
       cell: ({ row }) => (
-        <span className="font-mono text-xs font-semibold text-slate-700 dark:text-slate-300">
-          {row.original.customerCode}
-        </span>
+        <span className="font-mono text-xs font-semibold text-fg">{row.original.customerCode}</span>
       ),
     },
     {
@@ -149,49 +147,33 @@ export default function ReceivablesPage() {
       accessorKey: 'customerName',
       cell: ({ row }) => (
         <div>
-          <div className="font-medium text-slate-900 dark:text-slate-100">
-            {row.original.customerName}
-          </div>
-          <div className="text-xs text-slate-500">{row.original.customerPhone}</div>
+          <div className="font-medium text-fg">{row.original.customerName}</div>
+          <div className="text-xs text-muted">{row.original.customerPhone}</div>
         </div>
       ),
     },
     {
       header: 'Số đơn nợ',
       accessorKey: 'orderCount',
-      cell: ({ row }) => (
-        <span className="font-medium text-slate-700 dark:text-slate-300">
-          {row.original.orderCount} đơn
-        </span>
-      ),
+      cell: ({ row }) => <span className="font-medium text-fg">{row.original.orderCount} đơn</span>,
     },
     {
       header: 'Tổng tiền mua',
       accessorKey: 'totalOrders',
-      cell: ({ row }) => (
-        <span className="text-slate-700 dark:text-slate-300">
-          {formatVND(row.original.totalOrders)}
-        </span>
-      ),
+      cell: ({ row }) => <span className="text-fg">{formatVND(row.original.totalOrders)}</span>,
     },
     {
       header: 'Đã thanh toán',
       accessorKey: 'totalPaid',
       cell: ({ row }) => (
-        <span className="text-emerald-700 dark:text-emerald-400 font-medium">
-          {formatVND(row.original.totalPaid)}
-        </span>
+        <span className="text-ok font-medium">{formatVND(row.original.totalPaid)}</span>
       ),
     },
     {
       header: 'Còn nợ phải thu',
       accessorKey: 'debt',
       cell: ({ row }) => (
-        <span
-          className={`font-bold ${
-            row.original.debt > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-slate-500'
-          }`}
-        >
+        <span className={`font-bold ${row.original.debt > 0 ? 'text-warn' : 'text-muted'}`}>
           {formatVND(row.original.debt)}
         </span>
       ),
@@ -207,7 +189,7 @@ export default function ReceivablesPage() {
             setSelectedCustomerFilter(row.original.customerId);
             setActiveTab('order');
           }}
-          className="text-xs"
+          className="text-xs border-line text-fg hover:bg-hover"
         >
           Xem các đơn
           <ArrowRight className="ml-1 h-3 w-3" />
@@ -223,7 +205,7 @@ export default function ReceivablesPage() {
       cell: ({ row }) => (
         <Link
           href={`/admin/sales/orders/${row.original.orderId}`}
-          className="font-medium text-emerald-600 hover:underline dark:text-emerald-400 inline-flex items-center gap-1"
+          className="font-medium text-accent hover:underline inline-flex items-center gap-1"
         >
           {row.original.orderCode}
           <ExternalLink className="h-3 w-3" />
@@ -235,10 +217,8 @@ export default function ReceivablesPage() {
       accessorKey: 'customerName',
       cell: ({ row }) => (
         <div>
-          <div className="font-medium text-slate-900 dark:text-slate-100">
-            {row.original.customerName}
-          </div>
-          <div className="text-xs text-slate-500">{row.original.customerPhone}</div>
+          <div className="font-medium text-fg">{row.original.customerName}</div>
+          <div className="text-xs text-muted">{row.original.customerPhone}</div>
         </div>
       ),
     },
@@ -246,7 +226,7 @@ export default function ReceivablesPage() {
       header: 'Ngày đặt',
       accessorKey: 'createdAt',
       cell: ({ row }) => (
-        <span className="text-xs text-slate-500">{formatDate(row.original.createdAt)}</span>
+        <span className="text-xs text-muted">{formatDate(row.original.createdAt)}</span>
       ),
     },
     {
@@ -262,26 +242,20 @@ export default function ReceivablesPage() {
     {
       header: 'Tổng tiền',
       accessorKey: 'total',
-      cell: ({ row }) => (
-        <span className="text-slate-700 dark:text-slate-300">{formatVND(row.original.total)}</span>
-      ),
+      cell: ({ row }) => <span className="text-fg">{formatVND(row.original.total)}</span>,
     },
     {
       header: 'Đã trả',
       accessorKey: 'paid',
       cell: ({ row }) => (
-        <span className="text-emerald-700 dark:text-emerald-400 font-medium">
-          {formatVND(row.original.paid)}
-        </span>
+        <span className="text-ok font-medium">{formatVND(row.original.paid)}</span>
       ),
     },
     {
       header: 'Còn nợ',
       accessorKey: 'remaining',
       cell: ({ row }) => (
-        <span className="font-bold text-amber-600 dark:text-amber-400">
-          {formatVND(row.original.remaining)}
-        </span>
+        <span className="font-bold text-warn">{formatVND(row.original.remaining)}</span>
       ),
     },
     {
@@ -290,14 +264,14 @@ export default function ReceivablesPage() {
       cell: ({ row }) => {
         if (row.original.isOverdue) {
           return (
-            <span className="inline-flex items-center gap-1 rounded bg-rose-100 px-2 py-0.5 text-xs font-semibold text-rose-800 dark:bg-rose-950/40 dark:text-rose-400">
+            <span className="inline-flex items-center gap-1 rounded bg-crit-bg px-2 py-0.5 text-xs font-semibold text-crit">
               <AlertTriangle className="h-3 w-3" />
               Quá hạn {row.original.daysOverdue} ngày
             </span>
           );
         }
         return (
-          <span className="inline-flex items-center gap-1 rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+          <span className="inline-flex items-center gap-1 rounded bg-surface-2 border border-line px-2 py-0.5 text-xs font-medium text-muted">
             <Clock className="h-3 w-3" />
             Trong hạn
           </span>
@@ -312,7 +286,7 @@ export default function ReceivablesPage() {
           size="sm"
           variant="outline"
           asChild
-          className="text-xs text-emerald-700 hover:bg-emerald-50"
+          className="text-xs border-line text-accent hover:bg-hover hover:text-accent-hover"
         >
           <Link href={`/admin/sales/orders/${row.original.orderId}`}>Ghi thu</Link>
         </Button>
@@ -331,66 +305,56 @@ export default function ReceivablesPage() {
 
       {/* Summary KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="rounded-lg border bg-white p-4 shadow-sm border-amber-200 bg-amber-50/20 dark:border-amber-900 dark:bg-amber-950/20">
+        <div className="rounded-lg border border-warn/30 bg-warn-bg/20 p-4 shadow-xs text-warn">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wider">
-              Tổng nợ phải thu
-            </span>
-            <DollarSign className="h-4 w-4 text-amber-600" />
+            <span className="text-xs font-semibold uppercase tracking-wider">Tổng nợ phải thu</span>
+            <DollarSign className="h-4 w-4" />
           </div>
-          <p className="text-2xl font-bold text-amber-700 dark:text-amber-400 mt-2">
-            {formatVND(summary.totalReceivable)}
-          </p>
+          <p className="text-2xl font-bold mt-2">{formatVND(summary.totalReceivable)}</p>
         </div>
 
-        <div className="rounded-lg border bg-white p-4 shadow-sm border-rose-200 bg-rose-50/20 dark:border-rose-900 dark:bg-rose-950/20">
+        <div className="rounded-lg border border-crit/30 bg-crit-bg/20 p-4 shadow-xs text-crit">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-rose-700 dark:text-rose-400 uppercase tracking-wider">
+            <span className="text-xs font-semibold uppercase tracking-wider">
               Nợ quá hạn (&gt; 7 ngày)
             </span>
-            <AlertTriangle className="h-4 w-4 text-rose-600" />
+            <AlertTriangle className="h-4 w-4" />
           </div>
-          <p className="text-2xl font-bold text-rose-700 dark:text-rose-400 mt-2">
-            {formatVND(summary.totalOverdue)}
-          </p>
+          <p className="text-2xl font-bold mt-2">{formatVND(summary.totalOverdue)}</p>
         </div>
 
-        <div className="rounded-lg border bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div className="rounded-lg border border-line bg-surface p-4 shadow-xs text-fg">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-muted uppercase tracking-wider">
               Khách hàng còn nợ
             </span>
-            <Users className="h-4 w-4 text-slate-400" />
+            <Users className="h-4 w-4 text-muted" />
           </div>
-          <p className="text-2xl font-bold text-slate-900 dark:text-slate-100 mt-2">
-            {summary.customerCount}
-          </p>
+          <p className="text-2xl font-bold text-fg mt-2">{summary.customerCount}</p>
         </div>
 
-        <div className="rounded-lg border bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div className="rounded-lg border border-line bg-surface p-4 shadow-xs text-fg">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-muted uppercase tracking-wider">
               Đơn chưa thanh toán đủ
             </span>
-            <Clock className="h-4 w-4 text-slate-400" />
+            <Clock className="h-4 w-4 text-muted" />
           </div>
-          <p className="text-2xl font-bold text-slate-900 dark:text-slate-100 mt-2">
-            {summary.orderCount}
-          </p>
+          <p className="text-2xl font-bold text-fg mt-2">{summary.orderCount}</p>
         </div>
       </div>
 
       {/* Tabs and Search Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-line bg-surface p-3 sm:p-4 text-fg shadow-xs">
         {/* Navigation Tabs */}
-        <div className="flex items-center rounded-lg border bg-slate-100 p-1 dark:border-slate-800 dark:bg-slate-900">
+        <div className="flex items-center rounded-lg border border-line bg-surface-2 p-1">
           <button
             type="button"
             onClick={() => setActiveTab('customer')}
             className={`rounded-md px-4 py-1.5 text-sm font-medium transition-colors ${
               activeTab === 'customer'
-                ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-800 dark:text-slate-100'
-                : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
+                ? 'bg-surface text-fg shadow-xs font-semibold'
+                : 'text-muted hover:text-fg'
             }`}
           >
             Theo khách hàng ({byCustomer.length})
@@ -400,8 +364,8 @@ export default function ReceivablesPage() {
             onClick={() => setActiveTab('order')}
             className={`rounded-md px-4 py-1.5 text-sm font-medium transition-colors ${
               activeTab === 'order'
-                ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-800 dark:text-slate-100'
-                : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
+                ? 'bg-surface text-fg shadow-xs font-semibold'
+                : 'text-muted hover:text-fg'
             }`}
           >
             Đơn nợ &amp; Quá hạn ({filteredOrders.length})
@@ -411,16 +375,14 @@ export default function ReceivablesPage() {
         {/* Search & Overdue Toggle */}
         <div className="flex items-center gap-3">
           {activeTab === 'order' && (
-            <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300 cursor-pointer select-none">
+            <label className="flex items-center gap-2 text-sm text-fg cursor-pointer select-none">
               <input
                 type="checkbox"
                 checked={onlyOverdue}
                 onChange={(e) => setOnlyOverdue(e.target.checked)}
-                className="h-4 w-4 rounded border-slate-300 text-rose-600 focus:ring-rose-500"
+                className="h-4 w-4 rounded border-line text-crit focus:ring-crit"
               />
-              <span className="font-medium text-rose-700 dark:text-rose-400">
-                Chỉ hiện đơn quá hạn
-              </span>
+              <span className="font-medium text-crit">Chỉ hiện đơn quá hạn</span>
             </label>
           )}
 
@@ -429,7 +391,7 @@ export default function ReceivablesPage() {
               size="sm"
               variant="outline"
               onClick={() => setSelectedCustomerFilter(null)}
-              className="text-xs"
+              className="text-xs border-line text-fg hover:bg-hover"
             >
               Bỏ lọc khách hàng
             </Button>
@@ -440,13 +402,14 @@ export default function ReceivablesPage() {
               placeholder="Tìm theo tên khách, SĐT, mã đơn..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+              className="bg-surface border-line text-fg"
             />
           </div>
         </div>
       </div>
 
       {/* Content Tables */}
-      <div className="rounded-lg border bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="rounded-lg border border-line bg-surface shadow-xs overflow-hidden">
         {activeTab === 'customer' ? (
           <DataTable columns={customerColumns} data={byCustomer} isLoading={loading} />
         ) : (

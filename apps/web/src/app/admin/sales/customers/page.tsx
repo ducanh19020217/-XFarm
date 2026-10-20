@@ -105,7 +105,7 @@ export default function CustomersPage() {
           <button
             type="button"
             onClick={() => setViewingCustomerId(row.original.id)}
-            className="font-medium text-emerald-700 hover:text-emerald-900 hover:underline dark:text-emerald-400"
+            className="font-medium text-accent hover:underline"
           >
             {row.original.code}
           </button>
@@ -114,9 +114,7 @@ export default function CustomersPage() {
       {
         accessorKey: 'name',
         header: 'Tên khách hàng',
-        cell: ({ row }) => (
-          <div className="font-medium text-slate-900 dark:text-slate-100">{row.original.name}</div>
-        ),
+        cell: ({ row }) => <div className="font-medium text-fg">{row.original.name}</div>,
       },
       {
         accessorKey: 'phone',
@@ -125,7 +123,7 @@ export default function CustomersPage() {
       {
         accessorKey: 'email',
         header: 'Email',
-        cell: ({ row }) => <span className="text-slate-500">{row.original.email || '—'}</span>,
+        cell: ({ row }) => <span className="text-muted">{row.original.email || '—'}</span>,
       },
       {
         accessorKey: 'type',
@@ -149,7 +147,7 @@ export default function CustomersPage() {
                 size="sm"
                 onClick={() => setViewingCustomerId(item.id)}
                 title="Xem chi tiết"
-                className="h-8 w-8 p-0 text-slate-600 hover:text-slate-900"
+                className="h-8 w-8 p-0 text-muted hover:text-fg"
               >
                 <Eye className="h-4 w-4" />
               </Button>
@@ -160,7 +158,7 @@ export default function CustomersPage() {
                     size="sm"
                     onClick={() => setEditingCustomer(item)}
                     title="Chỉnh sửa"
-                    className="h-8 w-8 p-0 text-slate-600 hover:text-slate-900"
+                    className="h-8 w-8 p-0 text-muted hover:text-fg"
                   >
                     <Edit2 className="h-4 w-4" />
                   </Button>
@@ -170,9 +168,7 @@ export default function CustomersPage() {
                     onClick={() => setToggleCustomer(item)}
                     title={item.isActive ? 'Khóa khách hàng' : 'Mở khóa khách hàng'}
                     className={`h-8 w-8 p-0 ${
-                      item.isActive
-                        ? 'text-rose-600 hover:text-rose-800'
-                        : 'text-emerald-600 hover:text-emerald-800'
+                      item.isActive ? 'text-crit hover:text-crit/80' : 'text-ok hover:text-ok/80'
                     }`}
                   >
                     {item.isActive ? <Lock className="h-4 w-4" /> : <Unlock className="h-4 w-4" />}
@@ -187,30 +183,52 @@ export default function CustomersPage() {
     [canWrite],
   );
 
+  const activeCount = customers.filter((c) => c.isActive).length;
+  const lockedCount = customers.filter((c) => !c.isActive).length;
+
   return (
     <div className="space-y-6">
       {toastMessage && <Toast message={toastMessage} onClose={closeToast} />}
 
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <PageHeader
-          title="Khách hàng"
-          description="Quản lý thông tin khách hàng, công nợ và lịch sử mua hàng"
-        />
+      <PageHeader
+        title="Khách hàng"
+        description="Quản lý thông tin khách hàng, công nợ và lịch sử mua hàng"
+      >
         {canWrite && (
           <Button
             onClick={() => setCreateOpen(true)}
-            className="flex items-center gap-2 self-start"
+            className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-white"
           >
             <Plus className="h-4 w-4" />
             <span>Thêm khách hàng</span>
           </Button>
         )}
+      </PageHeader>
+
+      {/* Thẻ thống kê */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="rounded-lg border border-line bg-surface p-4 shadow-xs text-fg">
+          <div className="text-xs font-semibold uppercase text-muted tracking-wider">
+            Tổng khách hàng
+          </div>
+          <p className="text-2xl font-bold mt-1 text-fg">{total}</p>
+        </div>
+        <div className="rounded-lg border border-ok/30 bg-ok-bg/20 p-4 shadow-xs text-ok">
+          <div className="text-xs font-semibold uppercase tracking-wider">Đang hoạt động</div>
+          <p className="text-2xl font-bold mt-1 text-ok">{activeCount}</p>
+        </div>
+        <div className="rounded-lg border border-crit/30 bg-crit-bg/20 p-4 shadow-xs text-crit">
+          <div className="text-xs font-semibold uppercase tracking-wider">Tạm khóa</div>
+          <p className="text-2xl font-bold mt-1 text-crit">{lockedCount}</p>
+        </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-        <div className="w-full sm:w-56">
+      {/* Thanh lọc */}
+      <div className="rounded-lg border border-line bg-surface p-3 sm:p-4 text-fg shadow-xs">
+        <div className="w-full sm:w-64">
           <select
-            className="flex h-9 w-full rounded-md border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-slate-950 dark:border-slate-800 dark:bg-slate-900"
+            aria-label="Lọc theo loại khách"
+            className="flex h-9 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm shadow-xs text-fg focus:outline-none focus:ring-1 focus:ring-accent"
             value={typeFilter}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
               setTypeFilter(e.target.value);

@@ -122,74 +122,82 @@ export function CustomerFormDialog({
       description={
         isEdit ? 'Cập nhật thông tin khách hàng' : 'Nhập thông tin để tạo khách hàng mới'
       }
-      className="sm:max-w-[500px]"
+      className="sm:max-w-[540px]"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         {globalError && (
-          <div className="p-3 text-sm rounded bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-900">
+          <div className="p-3 text-sm rounded bg-crit-bg text-crit border border-crit/20">
             {globalError}
           </div>
         )}
 
-        <div className="space-y-1">
-          <Label htmlFor="customer-name">
-            Tên khách hàng <span className="text-rose-500">*</span>
-          </Label>
-          <Input
-            id="customer-name"
-            value={name}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
-            placeholder="Ví dụ: Nguyễn Văn A"
-            disabled={isSubmitting}
-          />
-          {errors.name && <p className="text-xs text-rose-500 mt-1">{errors.name}</p>}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-1">
+            <Label htmlFor="customer-name">
+              Tên khách hàng <span className="text-crit">*</span>
+            </Label>
+            <Input
+              id="customer-name"
+              value={name}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
+              placeholder="Ví dụ: Nguyễn Văn A"
+              disabled={isSubmitting}
+              className="bg-surface border-line text-fg"
+            />
+            {errors.name && <p className="text-xs text-crit mt-1">{errors.name}</p>}
+          </div>
+
+          <div className="space-y-1">
+            <Label htmlFor="customer-phone">
+              Số điện thoại <span className="text-crit">*</span>
+            </Label>
+            <Input
+              id="customer-phone"
+              value={phone}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhone(e.target.value)}
+              placeholder="Ví dụ: 0912345678"
+              disabled={isSubmitting}
+              className="bg-surface border-line text-fg"
+            />
+            {errors.phone && <p className="text-xs text-crit mt-1">{errors.phone}</p>}
+          </div>
         </div>
 
-        <div className="space-y-1">
-          <Label htmlFor="customer-phone">
-            Số điện thoại <span className="text-rose-500">*</span>
-          </Label>
-          <Input
-            id="customer-phone"
-            value={phone}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhone(e.target.value)}
-            placeholder="Ví dụ: 0912345678"
-            disabled={isSubmitting}
-          />
-          {errors.phone && <p className="text-xs text-rose-500 mt-1">{errors.phone}</p>}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-1">
+            <Label htmlFor="customer-email">Email</Label>
+            <Input
+              id="customer-email"
+              type="email"
+              value={email}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+              placeholder="khachhang@example.com"
+              disabled={isSubmitting}
+              className="bg-surface border-line text-fg"
+            />
+            {errors.email && <p className="text-xs text-crit mt-1">{errors.email}</p>}
+          </div>
+
+          <div className="space-y-1">
+            <Label htmlFor="customer-address">Địa chỉ</Label>
+            <Input
+              id="customer-address"
+              value={address}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddress(e.target.value)}
+              placeholder="Số nhà, đường, quận/huyện..."
+              disabled={isSubmitting}
+              className="bg-surface border-line text-fg"
+            />
+            {errors.address && <p className="text-xs text-crit mt-1">{errors.address}</p>}
+          </div>
         </div>
 
-        <div className="space-y-1">
-          <Label htmlFor="customer-email">Email</Label>
-          <Input
-            id="customer-email"
-            type="email"
-            value={email}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
-            placeholder="khachhang@example.com"
-            disabled={isSubmitting}
-          />
-          {errors.email && <p className="text-xs text-rose-500 mt-1">{errors.email}</p>}
-        </div>
-
-        <div className="space-y-1">
-          <Label htmlFor="customer-address">Địa chỉ</Label>
-          <Input
-            id="customer-address"
-            value={address}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddress(e.target.value)}
-            placeholder="Số nhà, đường, quận/huyện, tỉnh/thành phố"
-            disabled={isSubmitting}
-          />
-          {errors.address && <p className="text-xs text-rose-500 mt-1">{errors.address}</p>}
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1">
             <Label htmlFor="customer-type">Loại khách hàng</Label>
             <select
               id="customer-type"
-              className="flex h-9 w-full rounded-md border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-slate-950 dark:border-slate-800 dark:bg-slate-900"
+              className="flex h-9 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm shadow-xs text-fg focus:outline-none focus:ring-1 focus:ring-accent"
               value={type}
               onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                 setType(e.target.value as CustomerType)
@@ -208,7 +216,7 @@ export function CustomerFormDialog({
             <Label htmlFor="customer-status">Trạng thái</Label>
             <select
               id="customer-status"
-              className="flex h-9 w-full rounded-md border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-slate-950 dark:border-slate-800 dark:bg-slate-900"
+              className="flex h-9 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm shadow-xs text-fg focus:outline-none focus:ring-1 focus:ring-accent"
               value={isActive ? 'true' : 'false'}
               onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                 setIsActive(e.target.value === 'true')
@@ -221,16 +229,21 @@ export function CustomerFormDialog({
           </div>
         </div>
 
-        <div className="flex justify-end gap-2 pt-4 border-t border-slate-100 dark:border-slate-800">
+        <div className="flex justify-end gap-2 pt-4 border-t border-line">
           <Button
             type="button"
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={isSubmitting}
+            className="border-line text-fg"
           >
             Hủy
           </Button>
-          <Button type="submit" disabled={isSubmitting}>
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            className="bg-accent hover:bg-accent-hover text-white"
+          >
             {isSubmitting ? 'Đang lưu...' : isEdit ? 'Cập nhật' : 'Tạo khách hàng'}
           </Button>
         </div>

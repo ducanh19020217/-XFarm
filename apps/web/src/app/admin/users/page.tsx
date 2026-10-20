@@ -27,7 +27,17 @@ import {
   SelectContent,
   SelectItem,
 } from '@xfarm/ui';
-import { Plus, Edit2, Lock, Unlock, Loader2 } from 'lucide-react';
+import {
+  Plus,
+  Edit2,
+  Lock,
+  Unlock,
+  Loader2,
+  Users as UsersIcon,
+  UserCheck,
+  UserX,
+  Shield,
+} from 'lucide-react';
 import { apiFetch, ApiError, isAbortError } from '@/lib/api';
 
 interface UserItem {
@@ -186,17 +196,15 @@ export default function UsersPage() {
       header: 'Họ và tên',
       cell: ({ row }) => (
         <div>
-          <span className="font-medium text-slate-900 dark:text-slate-100">
-            {row.original.fullName}
-          </span>
-          <span className="block text-xs text-slate-400">{row.original.email}</span>
+          <span className="font-medium text-fg">{row.original.fullName}</span>
+          <span className="block text-xs text-muted">{row.original.email}</span>
         </div>
       ),
     },
     {
       accessorKey: 'phone',
       header: 'Số điện thoại',
-      cell: ({ row }) => row.original.phone || '—',
+      cell: ({ row }) => <span className="text-fg">{row.original.phone || '—'}</span>,
     },
     {
       accessorKey: 'role',
@@ -211,7 +219,11 @@ export default function UsersPage() {
     {
       accessorKey: 'createdAt',
       header: 'Ngày tạo',
-      cell: ({ row }) => new Date(row.original.createdAt).toLocaleDateString('vi-VN'),
+      cell: ({ row }) => (
+        <span className="text-muted text-xs">
+          {new Date(row.original.createdAt).toLocaleDateString('vi-VN')}
+        </span>
+      ),
     },
     {
       id: 'actions',
@@ -234,6 +246,7 @@ export default function UsersPage() {
                   password: '',
                 });
               }}
+              className="border-line text-fg hover:bg-hover hover:text-accent"
               title="Chỉnh sửa người dùng"
             >
               <Edit2 className="h-3.5 w-3.5" />
@@ -243,8 +256,8 @@ export default function UsersPage() {
               size="sm"
               className={
                 u.isActive
-                  ? 'text-red-600 hover:bg-red-50 hover:text-red-700'
-                  : 'bg-emerald-600 text-white'
+                  ? 'border-line text-crit hover:bg-crit-bg/20'
+                  : 'bg-accent hover:bg-accent-hover text-on-accent font-medium'
               }
               onClick={() => setStatusUser(u)}
               title={u.isActive ? 'Khóa người dùng' : 'Mở khóa người dùng'}
@@ -256,6 +269,10 @@ export default function UsersPage() {
       },
     },
   ];
+
+  const activeCount = users.filter((u) => u.isActive).length;
+  const lockedCount = users.filter((u) => !u.isActive).length;
+  const managerCount = users.filter((u) => u.role === Role.OWNER || u.role === Role.MANAGER).length;
 
   return (
     <div className="space-y-6">
@@ -275,27 +292,69 @@ export default function UsersPage() {
               role: Role.WORKER,
             });
           }}
+          className="bg-accent hover:bg-accent-hover text-on-accent font-medium"
         >
           <Plus className="h-4 w-4 mr-1.5" />
           Thêm người dùng mới
         </Button>
       </PageHeader>
 
-      <DataTable
-        columns={columns}
-        data={users}
-        total={total}
-        page={page}
-        pageSize={pageSize}
-        onPageChange={setPage}
-        searchValue={search}
-        onSearchChange={(val) => {
-          setSearch(val);
-          setPage(1);
-        }}
-        searchPlaceholder="Tìm theo tên, email, số điện thoại..."
-        isLoading={isLoading}
-      />
+      {/* Stat KPI Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="rounded-lg border border-line bg-surface p-4 shadow-xs text-fg">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-muted uppercase tracking-wider">
+              Tổng tài khoản
+            </span>
+            <UsersIcon className="h-4 w-4 text-muted" />
+          </div>
+          <p className="text-2xl font-bold mt-2 text-fg">{total}</p>
+        </div>
+
+        <div className="rounded-lg border border-ok/30 bg-ok-bg/20 p-4 shadow-xs text-ok">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold uppercase tracking-wider">Đang hoạt động</span>
+            <UserCheck className="h-4 w-4" />
+          </div>
+          <p className="text-2xl font-bold mt-2">{activeCount}</p>
+        </div>
+
+        <div className="rounded-lg border border-crit/30 bg-crit-bg/20 p-4 shadow-xs text-crit">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold uppercase tracking-wider">Đã khóa</span>
+            <UserX className="h-4 w-4" />
+          </div>
+          <p className="text-2xl font-bold mt-2">{lockedCount}</p>
+        </div>
+
+        <div className="rounded-lg border border-info/30 bg-info-bg/20 p-4 shadow-xs text-info">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold uppercase tracking-wider">
+              Quản lý / Chủ trại
+            </span>
+            <Shield className="h-4 w-4" />
+          </div>
+          <p className="text-2xl font-bold mt-2">{managerCount}</p>
+        </div>
+      </div>
+
+      <div className="rounded-lg border border-line bg-surface shadow-xs overflow-hidden">
+        <DataTable
+          columns={columns}
+          data={users}
+          total={total}
+          page={page}
+          pageSize={pageSize}
+          onPageChange={setPage}
+          searchValue={search}
+          onSearchChange={(val) => {
+            setSearch(val);
+            setPage(1);
+          }}
+          searchPlaceholder="Tìm theo tên, email, số điện thoại..."
+          isLoading={isLoading}
+        />
+      </div>
 
       {/* Form Dialog: Create User */}
       <FormDialog
@@ -305,72 +364,88 @@ export default function UsersPage() {
         description="Nhập thông tin để tạo tài khoản nhân sự mới cho hệ thống"
       >
         {formError && (
-          <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-600">
+          <div className="mb-4 rounded-md border border-crit/30 bg-crit-bg/20 p-3 text-sm text-crit">
             {formError}
           </div>
         )}
         <form onSubmit={createForm.handleSubmit(handleCreateSubmit)} className="space-y-4">
-          <div className="space-y-1">
-            <Label htmlFor="create-email">Địa chỉ Email *</Label>
-            <Input
-              id="create-email"
-              type="email"
-              placeholder="nhanvien@xfarm.local"
-              disabled={isSubmitting}
-              {...createForm.register('email')}
-            />
-            {createForm.formState.errors.email && (
-              <p className="text-xs text-red-600">{createForm.formState.errors.email.message}</p>
-            )}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div className="space-y-1">
+              <Label htmlFor="create-email" className="text-fg">
+                Email *
+              </Label>
+              <Input
+                id="create-email"
+                type="email"
+                placeholder="nhanvien@xfarm.local"
+                disabled={isSubmitting}
+                className="bg-surface border-line text-fg"
+                {...createForm.register('email')}
+              />
+              {createForm.formState.errors.email && (
+                <p className="text-xs text-crit">{createForm.formState.errors.email.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="create-password" className="text-fg">
+                Mật khẩu *
+              </Label>
+              <Input
+                id="create-password"
+                type="password"
+                placeholder="Tối thiểu 6 ký tự"
+                disabled={isSubmitting}
+                className="bg-surface border-line text-fg"
+                {...createForm.register('password')}
+              />
+              {createForm.formState.errors.password && (
+                <p className="text-xs text-crit">{createForm.formState.errors.password.message}</p>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div className="space-y-1">
+              <Label htmlFor="create-fullname" className="text-fg">
+                Họ và tên *
+              </Label>
+              <Input
+                id="create-fullname"
+                placeholder="Nguyễn Văn A"
+                disabled={isSubmitting}
+                className="bg-surface border-line text-fg"
+                {...createForm.register('fullName')}
+              />
+              {createForm.formState.errors.fullName && (
+                <p className="text-xs text-crit">{createForm.formState.errors.fullName.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="create-phone" className="text-fg">
+                Số điện thoại
+              </Label>
+              <Input
+                id="create-phone"
+                placeholder="0912345678"
+                disabled={isSubmitting}
+                className="bg-surface border-line text-fg"
+                {...createForm.register('phone')}
+              />
+            </div>
           </div>
 
           <div className="space-y-1">
-            <Label htmlFor="create-password">Mật khẩu *</Label>
-            <Input
-              id="create-password"
-              type="password"
-              placeholder="Tối thiểu 6 ký tự"
-              disabled={isSubmitting}
-              {...createForm.register('password')}
-            />
-            {createForm.formState.errors.password && (
-              <p className="text-xs text-red-600">{createForm.formState.errors.password.message}</p>
-            )}
-          </div>
-
-          <div className="space-y-1">
-            <Label htmlFor="create-fullname">Họ và tên *</Label>
-            <Input
-              id="create-fullname"
-              placeholder="Nguyễn Văn A"
-              disabled={isSubmitting}
-              {...createForm.register('fullName')}
-            />
-            {createForm.formState.errors.fullName && (
-              <p className="text-xs text-red-600">{createForm.formState.errors.fullName.message}</p>
-            )}
-          </div>
-
-          <div className="space-y-1">
-            <Label htmlFor="create-phone">Số điện thoại</Label>
-            <Input
-              id="create-phone"
-              placeholder="0912345678"
-              disabled={isSubmitting}
-              {...createForm.register('phone')}
-            />
-          </div>
-
-          <div className="space-y-1">
-            <Label>Vai trò hệ thống *</Label>
+            <Label className="text-fg">Vai trò hệ thống *</Label>
             <Select
               defaultValue={createForm.getValues('role')}
               onValueChange={(val) => createForm.setValue('role', val as Role)}
             >
-              <SelectTrigger>
+              <SelectTrigger className="bg-surface border-line text-fg">
                 <SelectValue placeholder="Chọn vai trò" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-surface border-line text-fg">
                 <SelectItem value={Role.OWNER}>Chủ trại (OWNER)</SelectItem>
                 <SelectItem value={Role.MANAGER}>Quản lý (MANAGER)</SelectItem>
                 <SelectItem value={Role.ACCOUNTANT}>Kế toán (ACCOUNTANT)</SelectItem>
@@ -386,10 +461,15 @@ export default function UsersPage() {
               variant="outline"
               onClick={() => setCreateOpen(false)}
               disabled={isSubmitting}
+              className="border-line text-fg hover:bg-hover"
             >
               Hủy bỏ
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="bg-accent hover:bg-accent-hover text-on-accent font-medium"
+            >
               {isSubmitting ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
@@ -411,55 +491,79 @@ export default function UsersPage() {
         description="Cập nhật thông tin nhân viên hoặc cấp lại mật khẩu"
       >
         {formError && (
-          <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-600">
+          <div className="mb-4 rounded-md border border-crit/30 bg-crit-bg/20 p-3 text-sm text-crit">
             {formError}
           </div>
         )}
         <form onSubmit={editForm.handleSubmit(handleEditSubmit)} className="space-y-4">
-          <div className="space-y-1">
-            <Label htmlFor="edit-email">Địa chỉ Email</Label>
-            <Input
-              id="edit-email"
-              type="email"
-              disabled={isSubmitting}
-              {...editForm.register('email')}
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div className="space-y-1">
+              <Label htmlFor="edit-email" className="text-fg">
+                Địa chỉ Email
+              </Label>
+              <Input
+                id="edit-email"
+                type="email"
+                disabled={isSubmitting}
+                className="bg-surface border-line text-fg"
+                {...editForm.register('email')}
+              />
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="edit-password" className="text-fg">
+                Mật khẩu mới (để trống nếu không đổi)
+              </Label>
+              <Input
+                id="edit-password"
+                type="password"
+                placeholder="••••••••"
+                disabled={isSubmitting}
+                className="bg-surface border-line text-fg"
+                {...editForm.register('password')}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div className="space-y-1">
+              <Label htmlFor="edit-fullname" className="text-fg">
+                Họ và tên *
+              </Label>
+              <Input
+                id="edit-fullname"
+                disabled={isSubmitting}
+                className="bg-surface border-line text-fg"
+                {...editForm.register('fullName')}
+              />
+              {editForm.formState.errors.fullName && (
+                <p className="text-xs text-crit">{editForm.formState.errors.fullName.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="edit-phone" className="text-fg">
+                Số điện thoại
+              </Label>
+              <Input
+                id="edit-phone"
+                disabled={isSubmitting}
+                className="bg-surface border-line text-fg"
+                {...editForm.register('phone')}
+              />
+            </div>
           </div>
 
           <div className="space-y-1">
-            <Label htmlFor="edit-password">Mật khẩu mới (để trống nếu không đổi)</Label>
-            <Input
-              id="edit-password"
-              type="password"
-              placeholder="••••••••"
-              disabled={isSubmitting}
-              {...editForm.register('password')}
-            />
-          </div>
-
-          <div className="space-y-1">
-            <Label htmlFor="edit-fullname">Họ và tên *</Label>
-            <Input id="edit-fullname" disabled={isSubmitting} {...editForm.register('fullName')} />
-            {editForm.formState.errors.fullName && (
-              <p className="text-xs text-red-600">{editForm.formState.errors.fullName.message}</p>
-            )}
-          </div>
-
-          <div className="space-y-1">
-            <Label htmlFor="edit-phone">Số điện thoại</Label>
-            <Input id="edit-phone" disabled={isSubmitting} {...editForm.register('phone')} />
-          </div>
-
-          <div className="space-y-1">
-            <Label>Vai trò hệ thống *</Label>
+            <Label className="text-fg">Vai trò hệ thống *</Label>
             <Select
               defaultValue={editUser?.role}
               onValueChange={(val) => editForm.setValue('role', val as Role)}
             >
-              <SelectTrigger>
+              <SelectTrigger className="bg-surface border-line text-fg">
                 <SelectValue placeholder="Chọn vai trò" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-surface border-line text-fg">
                 <SelectItem value={Role.OWNER}>Chủ trại (OWNER)</SelectItem>
                 <SelectItem value={Role.MANAGER}>Quản lý (MANAGER)</SelectItem>
                 <SelectItem value={Role.ACCOUNTANT}>Kế toán (ACCOUNTANT)</SelectItem>
@@ -475,10 +579,15 @@ export default function UsersPage() {
               variant="outline"
               onClick={() => setEditUser(null)}
               disabled={isSubmitting}
+              className="border-line text-fg hover:bg-hover"
             >
               Hủy bỏ
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="bg-accent hover:bg-accent-hover text-on-accent font-medium"
+            >
               {isSubmitting ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />

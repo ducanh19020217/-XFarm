@@ -72,7 +72,7 @@ export default function SalesOrdersPage() {
         cell: ({ row }) => (
           <Link
             href={`/admin/sales/orders/${row.original.id}`}
-            className="font-medium text-emerald-700 hover:text-emerald-900 hover:underline dark:text-emerald-400"
+            className="font-medium text-accent hover:underline"
           >
             {row.original.code}
           </Link>
@@ -83,10 +83,8 @@ export default function SalesOrdersPage() {
         header: 'Khách hàng',
         cell: ({ row }) => (
           <div>
-            <div className="font-medium text-slate-900 dark:text-slate-100">
-              {row.original.customer?.name}
-            </div>
-            <div className="text-xs text-slate-500">{row.original.customer?.phone}</div>
+            <div className="font-medium text-fg">{row.original.customer?.name}</div>
+            <div className="text-xs text-muted">{row.original.customer?.phone}</div>
           </div>
         ),
       },
@@ -101,9 +99,7 @@ export default function SalesOrdersPage() {
         accessorKey: 'createdAt',
         header: 'Ngày tạo',
         cell: ({ row }) => (
-          <span className="text-xs text-slate-600 dark:text-slate-400">
-            {formatDate(row.original.createdAt)}
-          </span>
+          <span className="text-xs text-muted">{formatDate(row.original.createdAt)}</span>
         ),
       },
       {
@@ -120,9 +116,7 @@ export default function SalesOrdersPage() {
         accessorKey: 'total',
         header: 'Tổng tiền',
         cell: ({ row }) => (
-          <span className="font-semibold text-slate-900 dark:text-slate-100">
-            {formatCurrency(row.original.total)}
-          </span>
+          <span className="font-semibold text-fg">{formatCurrency(row.original.total)}</span>
         ),
       },
       {
@@ -137,7 +131,7 @@ export default function SalesOrdersPage() {
                   variant="ghost"
                   size="sm"
                   title="Xem chi tiết"
-                  className="h-8 w-8 p-0 text-slate-600 hover:text-slate-900"
+                  className="h-8 w-8 p-0 text-muted hover:text-fg"
                 >
                   <Eye className="h-4 w-4" />
                 </Button>
@@ -147,7 +141,7 @@ export default function SalesOrdersPage() {
                   variant="ghost"
                   size="sm"
                   title="In hóa đơn"
-                  className="h-8 w-8 p-0 text-slate-600 hover:text-slate-900"
+                  className="h-8 w-8 p-0 text-muted hover:text-fg"
                 >
                   <Printer className="h-4 w-4" />
                 </Button>
@@ -160,79 +154,104 @@ export default function SalesOrdersPage() {
     [],
   );
 
+  const pendingCount = orders.filter((o) => o.status === 'PENDING').length;
+  const paidCount = orders.filter((o) => o.paymentStatus === 'PAID').length;
+
   return (
     <div className="space-y-6">
       {toastMessage && <Toast message={toastMessage} onClose={closeToast} />}
 
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <PageHeader
-          title="Đơn hàng bán"
-          description="Quản lý và xử lý đơn hàng từ các kênh bán hàng (Admin, Webshop)"
-        />
+      <PageHeader
+        title="Đơn hàng bán"
+        description="Quản lý và xử lý đơn hàng từ các kênh bán hàng (Admin, Webshop)"
+      >
         {canCreate && (
           <Link href="/admin/sales/orders/new">
-            <Button className="flex items-center gap-2 self-start">
+            <Button className="flex items-center gap-2">
               <Plus className="h-4 w-4" />
               <span>Tạo đơn hàng</span>
             </Button>
           </Link>
         )}
+      </PageHeader>
+
+      {/* Thẻ thống kê nhanh */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="rounded-lg border border-line bg-surface p-4 shadow-xs text-fg">
+          <div className="text-xs font-semibold uppercase text-muted tracking-wider">
+            Tổng số đơn
+          </div>
+          <p className="text-2xl font-bold mt-1 text-fg">{total}</p>
+        </div>
+        <div className="rounded-lg border border-warn/30 bg-warn-bg/20 p-4 shadow-xs text-warn">
+          <div className="text-xs font-semibold uppercase tracking-wider">Chờ xác nhận</div>
+          <p className="text-2xl font-bold mt-1 text-warn">{pendingCount}</p>
+        </div>
+        <div className="rounded-lg border border-ok/30 bg-ok-bg/20 p-4 shadow-xs text-ok">
+          <div className="text-xs font-semibold uppercase tracking-wider">Đã thanh toán đủ</div>
+          <p className="text-2xl font-bold mt-1 text-ok">{paidCount}</p>
+        </div>
       </div>
 
       {/* Bộ lọc trạng thái / thanh toán / kênh */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div>
-          <select
-            className="flex h-9 w-full rounded-md border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-slate-950 dark:border-slate-800 dark:bg-slate-900"
-            value={status}
-            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-              setStatus(e.target.value);
-              setPage(1);
-            }}
-          >
-            <option value="">Tất cả trạng thái đơn</option>
-            {Object.entries(orderStatusLabels).map(([key, label]) => (
-              <option key={key} value={key}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </div>
+      <div className="rounded-lg border border-line bg-surface p-3 sm:p-4 text-fg shadow-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <select
+              aria-label="Lọc trạng thái đơn"
+              className="flex h-9 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm shadow-xs text-fg focus:outline-none focus:ring-1 focus:ring-accent"
+              value={status}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                setStatus(e.target.value);
+                setPage(1);
+              }}
+            >
+              <option value="">Tất cả trạng thái đơn</option>
+              {Object.entries(orderStatusLabels).map(([key, label]) => (
+                <option key={key} value={key}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        <div>
-          <select
-            className="flex h-9 w-full rounded-md border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-slate-950 dark:border-slate-800 dark:bg-slate-900"
-            value={paymentStatus}
-            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-              setPaymentStatus(e.target.value);
-              setPage(1);
-            }}
-          >
-            <option value="">Tất cả trạng thái thanh toán</option>
-            {Object.entries(paymentStatusLabels).map(([key, label]) => (
-              <option key={key} value={key}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </div>
+          <div>
+            <select
+              aria-label="Lọc trạng thái thanh toán"
+              className="flex h-9 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm shadow-xs text-fg focus:outline-none focus:ring-1 focus:ring-accent"
+              value={paymentStatus}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                setPaymentStatus(e.target.value);
+                setPage(1);
+              }}
+            >
+              <option value="">Tất cả trạng thái thanh toán</option>
+              {Object.entries(paymentStatusLabels).map(([key, label]) => (
+                <option key={key} value={key}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        <div>
-          <select
-            className="flex h-9 w-full rounded-md border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-slate-950 dark:border-slate-800 dark:bg-slate-900"
-            value={channel}
-            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-              setChannel(e.target.value);
-              setPage(1);
-            }}
-          >
-            <option value="">Tất cả kênh bán</option>
-            {Object.entries(channelLabels).map(([key, label]) => (
-              <option key={key} value={key}>
-                {label}
-              </option>
-            ))}
-          </select>
+          <div>
+            <select
+              aria-label="Lọc kênh bán"
+              className="flex h-9 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm shadow-xs text-fg focus:outline-none focus:ring-1 focus:ring-accent"
+              value={channel}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                setChannel(e.target.value);
+                setPage(1);
+              }}
+            >
+              <option value="">Tất cả kênh bán</option>
+              {Object.entries(channelLabels).map(([key, label]) => (
+                <option key={key} value={key}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 

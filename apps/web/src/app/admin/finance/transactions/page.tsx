@@ -341,18 +341,14 @@ export default function TransactionsPage() {
       header: 'Mã GD',
       accessorKey: 'code',
       cell: ({ row }) => (
-        <span className="font-mono text-xs font-semibold text-slate-800 dark:text-slate-200">
-          {row.original.code}
-        </span>
+        <span className="font-mono text-xs font-semibold text-fg">{row.original.code}</span>
       ),
     },
     {
       header: 'Ngày',
       accessorKey: 'date',
       cell: ({ row }) => (
-        <span className="text-xs text-slate-600 dark:text-slate-400">
-          {formatDate(row.original.date)}
-        </span>
+        <span className="text-xs text-muted">{formatDate(row.original.date)}</span>
       ),
     },
     {
@@ -363,9 +359,7 @@ export default function TransactionsPage() {
         return (
           <span
             className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-semibold ${
-              isIncome
-                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400'
-                : 'bg-rose-100 text-rose-800 dark:bg-rose-950/40 dark:text-rose-400'
+              isIncome ? 'bg-ok-bg text-ok' : 'bg-crit-bg text-crit'
             }`}
           >
             {isIncome ? (
@@ -382,9 +376,7 @@ export default function TransactionsPage() {
       header: 'Danh mục',
       accessorKey: 'category',
       cell: ({ row }) => (
-        <span className="font-medium text-slate-800 dark:text-slate-200">
-          {row.original.category?.name || '-'}
-        </span>
+        <span className="font-medium text-fg">{row.original.category?.name || '-'}</span>
       ),
     },
     {
@@ -392,10 +384,10 @@ export default function TransactionsPage() {
       accessorKey: 'cycle',
       cell: ({ row }) => {
         const cycle = row.original.cycle;
-        if (!cycle) return <span className="text-slate-400 text-xs">-</span>;
+        if (!cycle) return <span className="text-muted text-xs">-</span>;
         return (
-          <span className="text-xs text-slate-700 dark:text-slate-300">
-            {cycle.name} <span className="text-slate-400">({cycle.code})</span>
+          <span className="text-xs text-fg">
+            {cycle.name} <span className="text-muted">({cycle.code})</span>
           </span>
         );
       },
@@ -406,13 +398,7 @@ export default function TransactionsPage() {
       cell: ({ row }) => {
         const isIncome = row.original.type === TransactionType.INCOME;
         return (
-          <span
-            className={`font-semibold ${
-              isIncome
-                ? 'text-emerald-600 dark:text-emerald-400'
-                : 'text-rose-600 dark:text-rose-400'
-            }`}
-          >
+          <span className={`font-semibold ${isIncome ? 'text-ok' : 'text-crit'}`}>
             {isIncome ? '+' : '-'}
             {formatVND(row.original.amount)}
           </span>
@@ -423,7 +409,7 @@ export default function TransactionsPage() {
       header: 'Hình thức',
       accessorKey: 'method',
       cell: ({ row }) => (
-        <span className="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+        <span className="rounded bg-surface-2 border border-line px-2 py-0.5 text-xs text-fg">
           {methodLabels[row.original.method] || row.original.method}
         </span>
       ),
@@ -438,7 +424,7 @@ export default function TransactionsPage() {
           return (
             <Link
               href={targetId ? `/admin/sales/orders/${targetId}` : '/admin/sales/orders'}
-              className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 hover:underline dark:text-emerald-400"
+              className="inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline"
             >
               Đơn bán {orderCode ? `(${orderCode})` : ''} <ExternalLink className="h-3 w-3" />
             </Link>
@@ -450,13 +436,13 @@ export default function TransactionsPage() {
           return (
             <Link
               href={targetId ? `/admin/purchase-orders/${targetId}` : '/admin/purchase-orders'}
-              className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:underline dark:text-blue-400"
+              className="inline-flex items-center gap-1 text-xs font-medium text-info hover:underline"
             >
               Đơn mua PO {poCode ? `(${poCode})` : ''} <ExternalLink className="h-3 w-3" />
             </Link>
           );
         }
-        return <span className="text-xs text-slate-400">Thủ công</span>;
+        return <span className="text-xs text-muted">Thủ công</span>;
       },
     },
     {
@@ -464,12 +450,12 @@ export default function TransactionsPage() {
       accessorKey: 'mediaIds',
       cell: ({ row }) => {
         const count = row.original.mediaIds?.length || 0;
-        if (count === 0) return <span className="text-slate-400 text-xs">-</span>;
+        if (count === 0) return <span className="text-muted text-xs">-</span>;
         return (
           <button
             type="button"
             onClick={() => setPreviewMediaIds(row.original.mediaIds)}
-            className="inline-flex items-center gap-1 rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300"
+            className="inline-flex items-center gap-1 rounded bg-surface-2 border border-line px-2 py-0.5 text-xs text-fg hover:bg-hover"
           >
             <ImageIcon className="h-3 w-3" />
             {count} ảnh
@@ -482,7 +468,7 @@ export default function TransactionsPage() {
       accessorKey: 'notes',
       cell: ({ row }) => (
         <span
-          className="text-xs text-slate-500 max-w-[150px] truncate block"
+          className="text-xs text-muted max-w-[150px] truncate block"
           title={row.original.notes || ''}
         >
           {row.original.notes || '-'}
@@ -496,7 +482,7 @@ export default function TransactionsPage() {
         const isAutomatic = Boolean(row.original.refType);
         // Giao dịch tự động không có nút sửa / xóa
         if (isAutomatic) {
-          return <span className="text-xs text-slate-400 italic">Tự động</span>;
+          return <span className="text-xs text-muted italic">Tự động</span>;
         }
 
         return (
@@ -505,7 +491,7 @@ export default function TransactionsPage() {
               size="sm"
               variant="outline"
               onClick={() => openEditDialog(row.original)}
-              className="h-7 px-2 text-xs text-slate-700 hover:text-blue-600"
+              className="h-7 px-2 text-xs border-line text-muted hover:text-fg"
               title="Sửa giao dịch"
             >
               <Edit2 className="h-3.5 w-3.5" />
@@ -517,7 +503,7 @@ export default function TransactionsPage() {
                 setTxToDelete(row.original);
                 setDeleteConfirmOpen(true);
               }}
-              className="h-7 px-2 text-xs text-red-600 hover:bg-red-50"
+              className="h-7 px-2 text-xs text-crit hover:bg-crit-bg border-crit/30"
               title="Xóa giao dịch"
             >
               <Trash2 className="h-3.5 w-3.5" />
@@ -538,7 +524,7 @@ export default function TransactionsPage() {
       >
         <Button
           onClick={openCreateDialog}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white"
+          className="bg-accent hover:bg-accent-hover text-on-accent font-medium"
         >
           <Plus className="mr-1.5 h-4 w-4" />
           Tạo giao dịch
@@ -547,51 +533,41 @@ export default function TransactionsPage() {
 
       {/* Tổng thu - Tổng chi - Chênh lệch của bộ lọc */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="rounded-lg border bg-white p-4 shadow-sm border-emerald-200 bg-emerald-50/20 dark:border-emerald-900 dark:bg-emerald-950/20">
+        <div className="rounded-lg border border-ok/30 bg-ok-bg/20 p-4 shadow-xs text-ok">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">
+            <span className="text-xs font-semibold uppercase tracking-wider">
               Tổng thu (Bộ lọc)
             </span>
-            <ArrowDownRight className="h-4 w-4 text-emerald-600" />
+            <ArrowDownRight className="h-4 w-4" />
           </div>
-          <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-400 mt-2">
-            {formatVND(totalIncome)}
-          </p>
+          <p className="text-2xl font-bold mt-2">{formatVND(totalIncome)}</p>
         </div>
 
-        <div className="rounded-lg border bg-white p-4 shadow-sm border-rose-200 bg-rose-50/20 dark:border-rose-900 dark:bg-rose-950/20">
+        <div className="rounded-lg border border-crit/30 bg-crit-bg/20 p-4 shadow-xs text-crit">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-rose-700 dark:text-rose-400 uppercase tracking-wider">
+            <span className="text-xs font-semibold uppercase tracking-wider">
               Tổng chi (Bộ lọc)
             </span>
-            <ArrowUpRight className="h-4 w-4 text-rose-600" />
+            <ArrowUpRight className="h-4 w-4" />
           </div>
-          <p className="text-2xl font-bold text-rose-700 dark:text-rose-400 mt-2">
-            {formatVND(totalExpense)}
-          </p>
+          <p className="text-2xl font-bold mt-2">{formatVND(totalExpense)}</p>
         </div>
 
-        <div className="rounded-lg border bg-white p-4 shadow-sm border-slate-200 dark:border-slate-800 dark:bg-slate-900">
+        <div className="rounded-lg border border-line bg-surface p-4 shadow-xs text-fg">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-muted uppercase tracking-wider">
               Chênh lệch (Thu - Chi)
             </span>
-            <DollarSign className="h-4 w-4 text-slate-500" />
+            <DollarSign className="h-4 w-4 text-muted" />
           </div>
-          <p
-            className={`text-2xl font-bold mt-2 ${
-              netBalance >= 0
-                ? 'text-emerald-600 dark:text-emerald-400'
-                : 'text-rose-600 dark:text-rose-400'
-            }`}
-          >
+          <p className={`text-2xl font-bold mt-2 ${netBalance >= 0 ? 'text-ok' : 'text-crit'}`}>
             {formatVND(netBalance)}
           </p>
         </div>
       </div>
 
       {/* Filter bar */}
-      <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="flex flex-wrap items-center gap-3 rounded-lg border border-line bg-surface p-3 sm:p-4 text-fg shadow-xs">
         <div className="min-w-[180px] flex-1">
           <Input
             placeholder="Tìm theo mã giao dịch, ghi chú..."
@@ -600,13 +576,14 @@ export default function TransactionsPage() {
               setSearch(e.target.value);
               setPage(1);
             }}
+            className="bg-surface border-line text-fg"
           />
         </div>
 
         <div className="w-36">
           <select
             aria-label="Loại giao dịch"
-            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring dark:bg-slate-800"
+            className="flex h-9 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm shadow-xs text-fg focus:outline-none focus:ring-1 focus:ring-accent"
             value={typeFilter}
             onChange={(e) => {
               setTypeFilter(e.target.value);
@@ -622,7 +599,7 @@ export default function TransactionsPage() {
         <div className="w-44">
           <select
             aria-label="Danh mục thu chi"
-            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring dark:bg-slate-800"
+            className="flex h-9 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm shadow-xs text-fg focus:outline-none focus:ring-1 focus:ring-accent"
             value={categoryFilter}
             onChange={(e) => {
               setCategoryFilter(e.target.value);
@@ -641,7 +618,7 @@ export default function TransactionsPage() {
         <div className="w-44">
           <select
             aria-label="Mùa vụ"
-            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring dark:bg-slate-800"
+            className="flex h-9 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm shadow-xs text-fg focus:outline-none focus:ring-1 focus:ring-accent"
             value={cycleFilter}
             onChange={(e) => {
               setCycleFilter(e.target.value);
@@ -666,9 +643,9 @@ export default function TransactionsPage() {
               setFromDate(e.target.value);
               setPage(1);
             }}
-            className="w-36"
+            className="w-36 bg-surface border-line text-fg"
           />
-          <span className="text-slate-400 text-xs">đến</span>
+          <span className="text-muted text-xs">đến</span>
           <Input
             type="date"
             aria-label="Đến ngày"
@@ -677,13 +654,13 @@ export default function TransactionsPage() {
               setToDate(e.target.value);
               setPage(1);
             }}
-            className="w-36"
+            className="w-36 bg-surface border-line text-fg"
           />
         </div>
       </div>
 
       {/* Transactions Table */}
-      <div className="rounded-lg border bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="rounded-lg border border-line bg-surface shadow-xs overflow-hidden">
         <DataTable
           columns={columns}
           data={transactions}
@@ -697,12 +674,12 @@ export default function TransactionsPage() {
 
       {/* Form Dialog Tạo/Sửa giao dịch thủ công */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg bg-surface border-line text-fg">
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="text-fg">
               {editingTx ? 'Chỉnh sửa giao dịch' : 'Tạo giao dịch thu / chi mới'}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-muted">
               Nhập các thông tin chứng từ thu/chi và đính kèm hóa đơn chứng từ.
             </DialogDescription>
           </DialogHeader>
@@ -710,10 +687,12 @@ export default function TransactionsPage() {
           <form onSubmit={handleFormSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="tx-type">Loại giao dịch *</Label>
+                <Label htmlFor="tx-type" className="text-fg">
+                  Loại giao dịch *
+                </Label>
                 <select
                   id="tx-type"
-                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring dark:bg-slate-800"
+                  className="flex h-9 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm shadow-xs text-fg focus:outline-none focus:ring-1 focus:ring-accent"
                   value={formType}
                   onChange={(e) => {
                     const nextType = e.target.value as TransactionType;
@@ -727,10 +706,12 @@ export default function TransactionsPage() {
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="tx-category">Danh mục thu/chi *</Label>
+                <Label htmlFor="tx-category" className="text-fg">
+                  Danh mục thu/chi *
+                </Label>
                 <select
                   id="tx-category"
-                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring dark:bg-slate-800"
+                  className="flex h-9 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm shadow-xs text-fg focus:outline-none focus:ring-1 focus:ring-accent"
                   value={formCategoryId}
                   onChange={(e) => setFormCategoryId(e.target.value)}
                 >
@@ -746,32 +727,40 @@ export default function TransactionsPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="tx-amount">Số tiền (₫) *</Label>
+                <Label htmlFor="tx-amount" className="text-fg">
+                  Số tiền (₫) *
+                </Label>
                 <MoneyInput
                   id="tx-amount"
                   value={formAmount}
                   onChange={(val) => setFormAmount(val)}
                   placeholder="0"
+                  className="bg-surface border-line text-fg"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="tx-date">Ngày giao dịch *</Label>
+                <Label htmlFor="tx-date" className="text-fg">
+                  Ngày giao dịch *
+                </Label>
                 <Input
                   id="tx-date"
                   type="date"
                   value={formDate}
                   onChange={(e) => setFormDate(e.target.value)}
+                  className="bg-surface border-line text-fg"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="tx-cycle">Mùa vụ (tùy chọn)</Label>
+                <Label htmlFor="tx-cycle" className="text-fg">
+                  Mùa vụ (tùy chọn)
+                </Label>
                 <select
                   id="tx-cycle"
-                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring dark:bg-slate-800"
+                  className="flex h-9 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm shadow-xs text-fg focus:outline-none focus:ring-1 focus:ring-accent"
                   value={formCycleId}
                   onChange={(e) => setFormCycleId(e.target.value)}
                 >
@@ -785,10 +774,12 @@ export default function TransactionsPage() {
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="tx-method">Phương thức *</Label>
+                <Label htmlFor="tx-method" className="text-fg">
+                  Phương thức *
+                </Label>
                 <select
                   id="tx-method"
-                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring dark:bg-slate-800"
+                  className="flex h-9 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm shadow-xs text-fg focus:outline-none focus:ring-1 focus:ring-accent"
                   value={formMethod}
                   onChange={(e) => setFormMethod(e.target.value as PaymentMethod)}
                 >
@@ -801,21 +792,24 @@ export default function TransactionsPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="tx-notes">Ghi chú diễn giải</Label>
+              <Label htmlFor="tx-notes" className="text-fg">
+                Ghi chú diễn giải
+              </Label>
               <Input
                 id="tx-notes"
                 value={formNotes}
                 onChange={(e) => setFormNotes(e.target.value)}
                 placeholder="VD: Mua phân bón đợt 2, tiền điện tưới tiêu..."
+                className="bg-surface border-line text-fg"
               />
             </div>
 
             <div className="space-y-1.5">
-              <Label>Ảnh chứng từ (Hóa đơn / Biên lai)</Label>
+              <Label className="text-fg">Ảnh chứng từ (Hóa đơn / Biên lai)</Label>
               <MultiImageUpload value={formMediaIds} onChange={(ids) => setFormMediaIds(ids)} />
             </div>
 
-            {formError && <p className="text-xs text-red-600">{formError}</p>}
+            {formError && <p className="text-xs text-crit">{formError}</p>}
 
             <DialogFooter className="mt-4">
               <Button
@@ -823,13 +817,14 @@ export default function TransactionsPage() {
                 variant="outline"
                 disabled={submitting}
                 onClick={() => setDialogOpen(false)}
+                className="border-line text-fg hover:bg-hover"
               >
                 Hủy
               </Button>
               <Button
                 type="submit"
                 disabled={submitting}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                className="bg-accent hover:bg-accent-hover text-on-accent font-medium"
               >
                 {submitting ? 'Đang lưu...' : editingTx ? 'Cập nhật' : 'Tạo giao dịch'}
               </Button>
@@ -855,15 +850,15 @@ export default function TransactionsPage() {
         open={Boolean(previewMediaIds)}
         onOpenChange={(open) => !open && setPreviewMediaIds(null)}
       >
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl bg-surface border-line text-fg">
           <DialogHeader>
-            <DialogTitle>Ảnh chứng từ đính kèm</DialogTitle>
+            <DialogTitle className="text-fg">Ảnh chứng từ đính kèm</DialogTitle>
           </DialogHeader>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-2 max-h-[60vh] overflow-y-auto">
             {previewMediaIds?.map((id, idx) => (
               <div
                 key={id || idx}
-                className="h-44 rounded-lg overflow-hidden border border-slate-200 bg-slate-100 dark:border-slate-800 dark:bg-slate-900"
+                className="h-44 rounded-lg overflow-hidden border border-line bg-surface-2"
               >
                 <img
                   src={`/api/v1/media/${id}`}

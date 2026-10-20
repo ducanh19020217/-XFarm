@@ -24,7 +24,6 @@ import {
   SelectValue,
   SelectContent,
   SelectItem,
-  Badge,
 } from '@xfarm/ui';
 import { Plus, Edit2, Trash2, Loader2, Image as ImageIcon } from 'lucide-react';
 import { apiFetch, ApiError, isAbortError } from '@/lib/api';
@@ -263,7 +262,7 @@ export default function ProductsCmsPage() {
       cell: ({ row }) => {
         const firstMedia = row.original.mediaIds?.[0];
         return (
-          <div className="h-12 w-12 rounded-md border border-slate-200 bg-slate-100 overflow-hidden flex items-center justify-center dark:border-slate-800 dark:bg-slate-900">
+          <div className="h-12 w-12 rounded-md border border-line bg-surface-2 overflow-hidden flex items-center justify-center">
             {firstMedia ? (
               <img
                 src={firstMedia}
@@ -274,7 +273,7 @@ export default function ProductsCmsPage() {
                 }}
               />
             ) : (
-              <ImageIcon className="h-5 w-5 text-slate-400" />
+              <ImageIcon className="h-5 w-5 text-muted" />
             )}
           </div>
         );
@@ -285,10 +284,8 @@ export default function ProductsCmsPage() {
       header: 'Tên sản phẩm',
       cell: ({ row }) => (
         <div>
-          <span className="font-medium text-slate-900 dark:text-slate-100">
-            {row.original.name}
-          </span>
-          <span className="block text-xs text-slate-400">/{row.original.slug}</span>
+          <span className="font-medium text-fg">{row.original.name}</span>
+          <span className="block text-xs text-muted">/{row.original.slug}</span>
         </div>
       ),
     },
@@ -296,7 +293,7 @@ export default function ProductsCmsPage() {
       accessorKey: 'price',
       header: 'Giá bán',
       cell: ({ row }) => (
-        <span className="font-semibold text-emerald-700 dark:text-emerald-400">
+        <span className="font-semibold text-ok">
           {Number(row.original.price).toLocaleString('vi-VN')} ₫ / {row.original.unit}
         </span>
       ),
@@ -306,19 +303,19 @@ export default function ProductsCmsPage() {
       header: 'Trạng thái',
       cell: ({ row }) =>
         row.original.isPublished ? (
-          <Badge className="bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300">
+          <span className="inline-flex items-center rounded px-2 py-0.5 text-xs font-semibold bg-ok-bg text-ok">
             Đã xuất bản
-          </Badge>
+          </span>
         ) : (
-          <Badge variant="secondary" className="text-slate-600 dark:text-slate-400">
+          <span className="inline-flex items-center rounded px-2 py-0.5 text-xs font-semibold bg-surface-2 text-muted border border-line">
             Bản nháp
-          </Badge>
+          </span>
         ),
     },
     {
       accessorKey: 'sortOrder',
       header: 'Thứ tự',
-      cell: ({ row }) => <span className="text-sm text-slate-600">{row.original.sortOrder}</span>,
+      cell: ({ row }) => <span className="text-sm text-muted">{row.original.sortOrder}</span>,
     },
     {
       id: 'actions',
@@ -332,6 +329,7 @@ export default function ProductsCmsPage() {
               variant="outline"
               size="sm"
               onClick={() => openEditDialog(p)}
+              className="border-line text-fg hover:bg-hover hover:text-accent"
               title="Chỉnh sửa sản phẩm"
             >
               <Edit2 className="h-3.5 w-3.5" />
@@ -339,7 +337,7 @@ export default function ProductsCmsPage() {
             <Button
               variant="outline"
               size="sm"
-              className="text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950"
+              className="border-line text-crit hover:bg-crit-bg/20"
               onClick={() => setDeletingProduct(p)}
               title="Xóa sản phẩm"
             >
@@ -358,28 +356,33 @@ export default function ProductsCmsPage() {
         description="Quản lý danh sách sản phẩm nông sản trưng bày và bán trên website"
       >
         {canEdit && (
-          <Button onClick={openCreateDialog}>
+          <Button
+            onClick={openCreateDialog}
+            className="bg-accent hover:bg-accent-hover text-on-accent font-medium"
+          >
             <Plus className="h-4 w-4 mr-1.5" />
             Thêm sản phẩm mới
           </Button>
         )}
       </PageHeader>
 
-      <DataTable
-        columns={columns}
-        data={products}
-        total={total}
-        page={page}
-        pageSize={pageSize}
-        onPageChange={setPage}
-        searchValue={search}
-        onSearchChange={(val) => {
-          setSearch(val);
-          setPage(1);
-        }}
-        searchPlaceholder="Tìm theo tên sản phẩm..."
-        isLoading={isLoading}
-      />
+      <div className="rounded-lg border border-line bg-surface shadow-xs overflow-hidden">
+        <DataTable
+          columns={columns}
+          data={products}
+          total={total}
+          page={page}
+          pageSize={pageSize}
+          onPageChange={setPage}
+          searchValue={search}
+          onSearchChange={(val) => {
+            setSearch(val);
+            setPage(1);
+          }}
+          searchPlaceholder="Tìm theo tên sản phẩm..."
+          isLoading={isLoading}
+        />
+      </div>
 
       {/* Form Dialog for Create / Edit */}
       <FormDialog
@@ -389,7 +392,7 @@ export default function ProductsCmsPage() {
         description="Điền thông tin chi tiết sản phẩm hiển thị trên website"
       >
         {formError && (
-          <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-600">
+          <div className="mb-4 rounded-md border border-crit/30 bg-crit-bg/20 p-3 text-sm text-crit">
             {formError}
           </div>
         )}
@@ -400,16 +403,18 @@ export default function ProductsCmsPage() {
         >
           {/* Select Sellable Item */}
           <div className="space-y-1">
-            <Label htmlFor="item-select">Vật tư / nông sản kho bán được *</Label>
+            <Label htmlFor="item-select" className="text-fg">
+              Vật tư / nông sản kho bán được *
+            </Label>
             <Select
               defaultValue={form.getValues('itemId')}
               onValueChange={handleItemSelect}
               disabled={isSubmitting}
             >
-              <SelectTrigger id="item-select">
+              <SelectTrigger id="item-select" className="bg-surface border-line text-fg">
                 <SelectValue placeholder="Chọn vật tư kho có thể bán..." />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-surface border-line text-fg">
                 {sellableItems.map((item) => (
                   <SelectItem key={item.id} value={item.id}>
                     [{item.sku}] {item.name} ({item.unit})
@@ -418,38 +423,44 @@ export default function ProductsCmsPage() {
               </SelectContent>
             </Select>
             {form.formState.errors.itemId && (
-              <p className="text-xs text-red-600">{form.formState.errors.itemId.message}</p>
+              <p className="text-xs text-crit">{form.formState.errors.itemId.message}</p>
             )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Name */}
             <div className="space-y-1">
-              <Label htmlFor="product-name">Tên sản phẩm *</Label>
+              <Label htmlFor="product-name" className="text-fg">
+                Tên sản phẩm *
+              </Label>
               <Input
                 id="product-name"
                 placeholder="VD: Rau muống hữu cơ"
                 disabled={isSubmitting}
+                className="bg-surface border-line text-fg"
                 {...form.register('name')}
                 onChange={handleNameChange}
               />
               {form.formState.errors.name && (
-                <p className="text-xs text-red-600">{form.formState.errors.name.message}</p>
+                <p className="text-xs text-crit">{form.formState.errors.name.message}</p>
               )}
             </div>
 
             {/* Slug */}
             <div className="space-y-1">
-              <Label htmlFor="product-slug">Đường dẫn tĩnh (Slug)</Label>
+              <Label htmlFor="product-slug" className="text-fg">
+                Đường dẫn tĩnh (Slug)
+              </Label>
               <Input
                 id="product-slug"
                 placeholder="VD: rau-muong-huu-co"
                 disabled={isSubmitting}
+                className="bg-surface border-line text-fg"
                 {...form.register('slug')}
                 onChange={handleSlugChange}
               />
               {form.formState.errors.slug && (
-                <p className="text-xs text-red-600">{form.formState.errors.slug.message}</p>
+                <p className="text-xs text-crit">{form.formState.errors.slug.message}</p>
               )}
             </div>
           </div>
@@ -457,7 +468,9 @@ export default function ProductsCmsPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Price with MoneyInput */}
             <div className="space-y-1">
-              <Label htmlFor="product-price">Giá bán (VNĐ) *</Label>
+              <Label htmlFor="product-price" className="text-fg">
+                Giá bán (VNĐ) *
+              </Label>
               <Controller
                 control={form.control}
                 name="price"
@@ -467,35 +480,42 @@ export default function ProductsCmsPage() {
                     value={field.value}
                     onChange={(val) => field.onChange(val)}
                     disabled={isSubmitting}
+                    className="bg-surface border-line text-fg"
                   />
                 )}
               />
               {form.formState.errors.price && (
-                <p className="text-xs text-red-600">{form.formState.errors.price.message}</p>
+                <p className="text-xs text-crit">{form.formState.errors.price.message}</p>
               )}
             </div>
 
             {/* Unit */}
             <div className="space-y-1">
-              <Label htmlFor="product-unit">Đơn vị tính *</Label>
+              <Label htmlFor="product-unit" className="text-fg">
+                Đơn vị tính *
+              </Label>
               <Input
                 id="product-unit"
                 placeholder="VD: kg, bó, túi"
                 disabled={isSubmitting}
+                className="bg-surface border-line text-fg"
                 {...form.register('unit')}
               />
               {form.formState.errors.unit && (
-                <p className="text-xs text-red-600">{form.formState.errors.unit.message}</p>
+                <p className="text-xs text-crit">{form.formState.errors.unit.message}</p>
               )}
             </div>
 
             {/* Sort Order */}
             <div className="space-y-1">
-              <Label htmlFor="product-sort">Thứ tự hiển thị</Label>
+              <Label htmlFor="product-sort" className="text-fg">
+                Thứ tự hiển thị
+              </Label>
               <Input
                 id="product-sort"
                 type="number"
                 disabled={isSubmitting}
+                className="bg-surface border-line text-fg"
                 {...form.register('sortOrder', { valueAsNumber: true })}
               />
             </div>
@@ -503,7 +523,7 @@ export default function ProductsCmsPage() {
 
           {/* Description (RichTextEditor) */}
           <div className="space-y-1">
-            <Label>Mô tả chi tiết sản phẩm *</Label>
+            <Label className="text-fg">Mô tả chi tiết sản phẩm *</Label>
             <Controller
               control={form.control}
               name="description"
@@ -517,13 +537,13 @@ export default function ProductsCmsPage() {
               )}
             />
             {form.formState.errors.description && (
-              <p className="text-xs text-red-600">{form.formState.errors.description.message}</p>
+              <p className="text-xs text-crit">{form.formState.errors.description.message}</p>
             )}
           </div>
 
           {/* Media Images */}
           <div className="space-y-1">
-            <Label>Hình ảnh sản phẩm</Label>
+            <Label className="text-fg">Hình ảnh sản phẩm</Label>
             <Controller
               control={form.control}
               name="mediaIds"
@@ -542,29 +562,31 @@ export default function ProductsCmsPage() {
             <input
               type="checkbox"
               id="product-published"
-              className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+              className="h-4 w-4 rounded border-line text-accent focus:ring-accent"
               disabled={isSubmitting}
               {...form.register('isPublished')}
             />
-            <Label
-              htmlFor="product-published"
-              className="cursor-pointer font-medium text-slate-700 dark:text-slate-300"
-            >
+            <Label htmlFor="product-published" className="cursor-pointer font-medium text-fg">
               Xuất bản ngay (hiển thị trên trang chủ và danh mục sản phẩm)
             </Label>
           </div>
 
           {/* Dialog Action Buttons */}
-          <div className="flex justify-end gap-2 pt-4 border-t border-slate-200 dark:border-slate-800">
+          <div className="flex justify-end gap-2 pt-4 border-t border-line">
             <Button
               type="button"
               variant="outline"
               onClick={() => setDialogOpen(false)}
               disabled={isSubmitting}
+              className="border-line text-fg hover:bg-hover"
             >
               Hủy bỏ
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="bg-accent hover:bg-accent-hover text-on-accent font-medium"
+            >
               {isSubmitting ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
