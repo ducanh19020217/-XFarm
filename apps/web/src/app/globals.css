@@ -1,16 +1,17 @@
 @import 'tailwindcss';
+@import '../styles/theme.css';
 @source '../../../../packages/ui/src';
 @import 'leaflet/dist/leaflet.css';
 @import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  --background: var(--t-bg);
+  --foreground: var(--t-text);
 }
 
 body {
-  background-color: var(--background);
-  color: var(--foreground);
+  background-color: var(--t-bg);
+  color: var(--t-text);
   font-family:
     system-ui,
     -apple-system,

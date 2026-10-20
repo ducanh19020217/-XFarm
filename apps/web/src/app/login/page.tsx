@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema, type LoginInput } from '@xfarm/shared';
-import { Button, Input, Label } from '@xfarm/ui';
+import { Button, Input, Label, ThemeToggle } from '@xfarm/ui';
 import { Sprout, Loader2, AlertCircle } from 'lucide-react';
 import { apiFetch, ApiError } from '@/lib/api';
 
@@ -50,22 +50,22 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4 bg-slate-50 dark:bg-slate-900">
-      <div className="w-full max-w-md space-y-8 rounded-xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+    <div className="relative flex min-h-screen items-center justify-center p-4 bg-app text-fg">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle align="right" />
+      </div>
+
+      <div className="w-full max-w-md space-y-6 rounded-xl border border-line bg-surface p-8 shadow-md">
         <div className="text-center space-y-2">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-accent-bg text-accent">
             <Sprout className="h-7 w-7" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
-            Đăng nhập XFarm
-          </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
-            Hệ thống quản lý và vận hành nông trại sinh thái
-          </p>
+          <h1 className="text-2xl font-bold tracking-tight text-fg">Đăng nhập XFarm</h1>
+          <p className="text-sm text-muted">Hệ thống quản lý và vận hành nông trại sinh thái</p>
         </div>
 
         {errorMessage && (
-          <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/50 dark:text-red-400">
+          <div className="flex items-center gap-2 rounded-lg border border-crit/30 bg-crit-bg p-3 text-sm text-crit">
             <AlertCircle className="h-4 w-4 shrink-0" />
             <span>{errorMessage}</span>
           </div>
@@ -82,7 +82,7 @@ export default function LoginPage() {
               disabled={isLoading}
               {...register('email')}
             />
-            {errors.email && <p className="text-xs text-red-600">{errors.email.message}</p>}
+            {errors.email && <p className="text-xs text-crit">{errors.email.message}</p>}
           </div>
 
           <div className="space-y-1">
@@ -95,7 +95,7 @@ export default function LoginPage() {
               disabled={isLoading}
               {...register('password')}
             />
-            {errors.password && <p className="text-xs text-red-600">{errors.password.message}</p>}
+            {errors.password && <p className="text-xs text-crit">{errors.password.message}</p>}
           </div>
 
           <Button type="submit" className="w-full mt-2" disabled={isLoading}>
@@ -110,7 +110,7 @@ export default function LoginPage() {
           </Button>
         </form>
 
-        <div className="text-center text-xs text-slate-400">
+        <div className="text-center text-xs text-muted">
           Tài khoản mặc định: admin@xfarm.local / Admin@123
         </div>
       </div>

@@ -20,7 +20,7 @@ export function StatusBadge({
     );
   }
 
-  // Handle roles
+  // Handle roles and business statuses
   switch (status) {
     case 'PLANNED':
       return <Badge variant="secondary">Kế hoạch</Badge>;
@@ -29,14 +29,7 @@ export function StatusBadge({
     case 'HARVESTING':
       return <Badge variant="warning">Đang thu hoạch</Badge>;
     case 'CLOSED':
-      return (
-        <Badge
-          variant="default"
-          className="bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
-        >
-          Đã đóng
-        </Badge>
-      );
+      return <Badge variant="secondary">Đã đóng</Badge>;
     case 'CANCELLED':
       return <Badge variant="destructive">Đã hủy</Badge>;
     case 'DRAFT':
@@ -48,27 +41,13 @@ export function StatusBadge({
     case 'RECEIVED':
       return <Badge variant="default">Đã nhận đủ</Badge>;
     case 'OWNER':
-      return (
-        <Badge
-          variant="default"
-          className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400"
-        >
-          Chủ trại
-        </Badge>
-      );
+      return <Badge variant="accent">Chủ trại</Badge>;
     case 'MANAGER':
       return <Badge variant="info">Quản lý</Badge>;
     case 'ACCOUNTANT':
       return <Badge variant="warning">Kế toán</Badge>;
     case 'SALES':
-      return (
-        <Badge
-          variant="default"
-          className="bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-400"
-        >
-          Bán hàng
-        </Badge>
-      );
+      return <Badge variant="chip">Bán hàng</Badge>;
     case 'WORKER':
       return <Badge variant="secondary">Công nhân</Badge>;
     default:

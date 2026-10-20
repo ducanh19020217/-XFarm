@@ -1,4 +1,5 @@
 export * from './lib/utils';
+export * from './lib/chart-colors';
 export * from './components/button';
 export * from './components/input';
 export * from './components/label';
@@ -12,3 +13,4 @@ export * from './components/page-header';
 export * from './components/status-badge';
 export * from './components/confirm-dialog';
 export * from './components/toast';
+export * from './components/theme';

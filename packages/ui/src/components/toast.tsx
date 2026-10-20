@@ -19,13 +19,13 @@ export function Toast({ message, onClose, variant = 'error' }: ToastProps) {
 
   const styles =
     variant === 'success'
-      ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-      : 'border-red-200 bg-red-50 text-red-700';
+      ? 'border border-ok/30 bg-ok-bg text-ok'
+      : 'border border-crit/30 bg-crit-bg text-crit';
 
   return (
     <div
       role="status"
-      className={`fixed right-6 top-6 z-50 rounded-md border px-4 py-3 text-sm shadow-lg ${styles}`}
+      className={`fixed right-6 top-6 z-50 rounded-lg border px-4 py-2.5 text-sm font-medium shadow-md transition-all ${styles}`}
     >
       {message}
     </div>

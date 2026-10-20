@@ -13,6 +13,7 @@ import {
   ComposedChart,
 } from 'recharts';
 import { Calendar, Eye, Layers, Loader2, ShieldAlert, Trophy } from 'lucide-react';
+import { useChartColors } from '@/lib/chart-colors';
 import {
   Button,
   DataTable,
@@ -119,6 +120,7 @@ function formatDate(dateStr: string | null | undefined): string {
 export default function FinanceReportsPage() {
   const user = useAdminUser();
   const { message, showToast, closeToast } = useToast();
+  const colors = useChartColors();
 
   const [activeTab, setActiveTab] = React.useState<'cashflow' | 'cycles' | 'products'>('cashflow');
 
@@ -504,11 +506,17 @@ export default function FinanceReportsPage() {
                     data={chartData}
                     margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                    <XAxis dataKey="name" stroke="#64748b" fontSize={12} />
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={colors.grid} />
+                    <XAxis
+                      dataKey="name"
+                      stroke={colors.axis}
+                      fontSize={12}
+                      tick={{ fill: colors.axis }}
+                    />
                     <YAxis
-                      stroke="#64748b"
+                      stroke={colors.axis}
                       fontSize={11}
+                      tick={{ fill: colors.axis }}
                       tickFormatter={(val) => {
                         if (val >= 1000000) return `${(val / 1000000).toFixed(1)}M`;
                         if (val >= 1000) return `${(val / 1000).toFixed(0)}k`;
@@ -516,6 +524,15 @@ export default function FinanceReportsPage() {
                       }}
                     />
                     <Tooltip
+                      contentStyle={{
+                        backgroundColor: colors.tooltipBg,
+                        borderColor: colors.tooltipBorder,
+                        color: colors.tooltipText,
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                      }}
+                      itemStyle={{ color: colors.tooltipText }}
+                      labelStyle={{ color: colors.tooltipText, fontWeight: 600 }}
                       formatter={(value: unknown, name: unknown) => [
                         formatVND(value as number),
                         name === 'income'

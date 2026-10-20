@@ -47,18 +47,18 @@ export function DataTable<TData, TValue>({
       {onSearchChange && (
         <div className="flex items-center justify-between">
           <div className="relative w-full max-w-sm">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-zinc-400" />
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted" />
             <Input
               placeholder={searchPlaceholder}
               value={searchValue}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => onSearchChange(e.target.value)}
-              className="pl-9 bg-white dark:bg-zinc-900"
+              className="pl-9 bg-surface text-fg border-line"
             />
           </div>
         </div>
       )}
 
-      <div className="rounded-md border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 shadow-sm overflow-hidden">
+      <div className="rounded-lg border border-line bg-surface shadow-xs overflow-hidden">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -76,9 +76,9 @@ export function DataTable<TData, TValue>({
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-28 text-center text-zinc-500">
+                <TableCell colSpan={columns.length} className="h-28 text-center text-muted">
                   <div className="flex items-center justify-center gap-2">
-                    <Loader2 className="h-5 w-5 animate-spin" />
+                    <Loader2 className="h-5 w-5 animate-spin text-accent" />
                     <span>Đang tải dữ liệu...</span>
                   </div>
                 </TableCell>
@@ -95,7 +95,7 @@ export function DataTable<TData, TValue>({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center text-zinc-500">
+                <TableCell colSpan={columns.length} className="h-24 text-center text-muted">
                   Không có dữ liệu.
                 </TableCell>
               </TableRow>
@@ -105,10 +105,10 @@ export function DataTable<TData, TValue>({
       </div>
 
       {onPageChange && (
-        <div className="flex items-center justify-between text-sm text-zinc-500 px-1">
+        <div className="flex items-center justify-between text-sm text-muted px-1">
           <div>
-            Tổng số: <span className="font-medium text-zinc-900 dark:text-zinc-100">{total}</span>{' '}
-            bản ghi (Trang {page} / {totalPages})
+            Tổng số: <span className="font-medium text-fg">{total}</span> bản ghi (Trang {page} /{' '}
+            {totalPages})
           </div>
           <div className="flex items-center space-x-2">
             <Button
