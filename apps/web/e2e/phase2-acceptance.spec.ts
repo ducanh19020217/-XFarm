@@ -55,7 +55,7 @@ test.describe('Nghiệm thu GĐ2 qua giao diện', () => {
     await selectOptionByText(page.getByLabel('Chọn vật tư'), itemName);
     await page.getByLabel('Số lượng vật tư').fill('3');
     await page.getByRole('button', { name: /lưu nhật ký/i }).click();
-    await expect(page.getByText(itemName).first()).toBeVisible();
+    await expect(page.getByRole('cell', { name: /bón phân/i }).first()).toBeVisible();
 
     await page.goto('/admin/inventory');
     await page.getByPlaceholder(/tìm kiếm theo mã sku hoặc tên vật tư/i).fill(sku);
