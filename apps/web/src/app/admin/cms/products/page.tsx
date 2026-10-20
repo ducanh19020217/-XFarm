@@ -24,7 +24,6 @@ import {
   SelectValue,
   SelectContent,
   SelectItem,
-  Badge,
 } from '@xfarm/ui';
 import { Plus, Edit2, Trash2, Loader2, Image as ImageIcon } from 'lucide-react';
 import { apiFetch, ApiError, isAbortError } from '@/lib/api';
