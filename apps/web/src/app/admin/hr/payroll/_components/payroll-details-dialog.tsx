@@ -55,15 +55,11 @@ export function PayrollDetailsDialog({ open, onOpenChange, payroll }: PayrollDet
           </div>
           <div>
             <span className="text-xs text-muted">Hình thức:</span>
-            <p className="font-semibold text-fg">
-              {getPayTypeLabel(emp?.payType || '')}
-            </p>
+            <p className="font-semibold text-fg">{getPayTypeLabel(emp?.payType || '')}</p>
           </div>
           <div>
             <span className="text-xs text-muted">Lương cơ sở:</span>
-            <p className="font-semibold text-fg">
-              {formatCurrency(emp?.baseRate)}
-            </p>
+            <p className="font-semibold text-fg">{formatCurrency(emp?.baseRate)}</p>
           </div>
           <div>
             <span className="text-xs text-muted">Trạng thái:</span>
@@ -75,16 +71,12 @@ export function PayrollDetailsDialog({ open, onOpenChange, payroll }: PayrollDet
 
         {/* Calculation summary */}
         <div className="rounded-lg border border-line p-3 text-sm text-fg bg-surface">
-          <h4 className="font-semibold text-fg mb-2">
-            Công thức & Tổng hợp kỳ:
-          </h4>
+          <h4 className="font-semibold text-fg mb-2">Công thức & Tổng hợp kỳ:</h4>
           <div className="grid grid-cols-1 gap-2 text-xs sm:grid-cols-3">
             {details.days !== undefined && (
               <div>
                 <span className="text-muted">Số ngày công: </span>
-                <span className="font-semibold text-fg">
-                  {details.days} ngày
-                </span>
+                <span className="font-semibold text-fg">{details.days} ngày</span>
               </div>
             )}
             {details.actualDays !== undefined && (
@@ -98,17 +90,13 @@ export function PayrollDetailsDialog({ open, onOpenChange, payroll }: PayrollDet
             {details.hours !== undefined && (
               <div>
                 <span className="text-muted">Tổng số giờ làm: </span>
-                <span className="font-semibold text-fg">
-                  {details.hours} giờ
-                </span>
+                <span className="font-semibold text-fg">{details.hours} giờ</span>
               </div>
             )}
             {details.pieceQty !== undefined && (
               <div>
                 <span className="text-muted">Số lượng sản phẩm: </span>
-                <span className="font-semibold text-fg">
-                  {details.pieceQty} SP
-                </span>
+                <span className="font-semibold text-fg">{details.pieceQty} SP</span>
               </div>
             )}
             <div>

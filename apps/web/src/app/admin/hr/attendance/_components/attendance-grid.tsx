@@ -104,18 +104,14 @@ export function AttendanceGrid({
         <thead>
           <tr className="border-b border-line bg-surface-2">
             {/* Employee info column */}
-            <th className="min-w-[200px] p-3.5 font-semibold text-fg-2">
-              Nhân viên
-            </th>
+            <th className="min-w-[200px] p-3.5 font-semibold text-fg-2">Nhân viên</th>
 
             {/* 7 Day columns */}
             {days.map((day) => (
               <th
                 key={day.dateStr}
                 className={`min-w-[100px] p-3 text-center font-medium ${
-                  day.isToday
-                    ? 'bg-accent-bg text-accent'
-                    : 'text-fg-2'
+                  day.isToday ? 'bg-accent-bg text-accent' : 'text-fg-2'
                 }`}
               >
                 <div className="font-semibold">{day.dayLabel}</div>
@@ -147,9 +143,7 @@ export function AttendanceGrid({
                       <User className="h-4 w-4" />
                     </div>
                     <div>
-                      <div className="font-semibold text-fg">
-                        {emp.fullName}
-                      </div>
+                      <div className="font-semibold text-fg">{emp.fullName}</div>
                       <div className="flex items-center gap-1.5 text-xs text-muted">
                         <span>{emp.code}</span>
                         <span>•</span>
@@ -174,9 +168,7 @@ export function AttendanceGrid({
                       data-testid={`attendance-cell-${emp.id}-${day.dateStr}`}
                       onClick={() => canEdit && onCellClick(emp, day.dateStr, att || null)}
                       className={`p-2.5 text-center transition-colors select-none ${
-                        canEdit
-                          ? 'cursor-pointer hover:bg-hover'
-                          : ''
+                        canEdit ? 'cursor-pointer hover:bg-hover' : ''
                       } ${day.isToday ? 'bg-accent-bg/20' : ''}`}
                       title={
                         canEdit
@@ -220,10 +212,7 @@ export function AttendanceGrid({
             {days.map((day) => {
               const dayTotal = getDayTotalHours(day.dateStr);
               return (
-                <td
-                  key={day.dateStr}
-                  className="p-3 text-center text-xs text-muted"
-                >
+                <td key={day.dateStr} className="p-3 text-center text-xs text-muted">
                   {formatHours(dayTotal)}
                 </td>
               );

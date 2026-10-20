@@ -299,23 +299,27 @@ export default function TourDetailPage() {
     setBulkSuccessMsg(null);
 
     try {
-      const res = await apiFetch<{ data: { count: number } }>(`/tours/${tourId}/slots/bulk`, {
-        method: 'POST',
-        body: JSON.stringify({
-          from: bulkFrom,
-          to: bulkTo,
-          weekdays: bulkWeekdays,
-          times: bulkTimes,
-          capacity: bulkCapacity,
-        }),
-      });
+      const res = await apiFetch<{ created: number; skipped: number }>(
+        `/tours/${tourId}/slots/bulk`,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            from: bulkFrom,
+            to: bulkTo,
+            weekdays: bulkWeekdays,
+            times: bulkTimes,
+            capacity: bulkCapacity,
+          }),
+        },
+      );
 
-      const count = res.data?.count ?? 0;
-      setBulkSuccessMsg(`Đã tạo ${count} suất trải nghiệm thành công.`);
+      setBulkSuccessMsg(
+        `Tạo slot thành công: đã tạo ${res.created} suất, bỏ qua ${res.skipped} suất đã tồn tại.`,
+      );
       void fetchSlots();
       setTimeout(() => {
         setBulkDialogOpen(false);
-      }, 1200);
+      }, 1500);
     } catch (err) {
       if (err instanceof ApiError) {
         setBulkError(err.message || 'Không thể tạo slot hàng loạt.');
@@ -383,7 +387,7 @@ export default function TourDetailPage() {
     setEditError(null);
 
     try {
-      await apiFetch(`/tours/${tourId}/slots/${editingSlot.id}`, {
+      await apiFetch(`/tour-slots/${editingSlot.id}`, {
         method: 'PATCH',
         body: JSON.stringify({
           capacity: editCapacity,
@@ -406,7 +410,7 @@ export default function TourDetailPage() {
 
   const handleToggleSlotActive = async (slot: TourSlotItem) => {
     try {
-      await apiFetch(`/tours/${tourId}/slots/${slot.id}`, {
+      await apiFetch(`/tour-slots/${slot.id}`, {
         method: 'PATCH',
         body: JSON.stringify({
           isActive: !slot.isActive,
@@ -421,7 +425,7 @@ export default function TourDetailPage() {
   const handleDeleteSlot = async () => {
     if (!deletingSlot) return;
     try {
-      await apiFetch(`/tours/${tourId}/slots/${deletingSlot.id}`, { method: 'DELETE' });
+      await apiFetch(`/tour-slots/${deletingSlot.id}`, { method: 'DELETE' });
       setDeletingSlot(null);
       void fetchSlots();
     } catch (err) {
@@ -519,9 +523,7 @@ export default function TourDetailPage() {
             <ArrowLeft className="h-3.5 w-3.5" />
             Danh sách tour
           </Link>
-          <h1 className="text-2xl font-bold tracking-tight text-fg">
-            {tour.name}
-          </h1>
+          <h1 className="text-2xl font-bold tracking-tight text-fg">{tour.name}</h1>
           <div className="flex flex-wrap items-center gap-3 text-xs text-muted">
             <span className="flex items-center gap-1">
               <Clock className="h-3.5 w-3.5" />
@@ -534,10 +536,7 @@ export default function TourDetailPage() {
             </span>
             <span>•</span>
             <span>
-              Người lớn:{' '}
-              <b className="text-accent">
-                {formatMoney(tour.priceAdult)}
-              </b>
+              Người lớn: <b className="text-accent">{formatMoney(tour.priceAdult)}</b>
             </span>
             <span>•</span>
             <span>
@@ -545,14 +544,14 @@ export default function TourDetailPage() {
             </span>
             <span>•</span>
             {tour.isPublished ? (
-              <Badge
-                variant="default"
-                className="bg-ok-bg text-ok border-ok/20 text-[10px] h-5"
-              >
+              <Badge variant="default" className="bg-ok-bg text-ok border-ok/20 text-[10px] h-5">
                 Đã xuất bản
               </Badge>
             ) : (
-              <Badge variant="secondary" className="bg-surface-2 text-muted border-line text-[10px] h-5">
+              <Badge
+                variant="secondary"
+                className="bg-surface-2 text-muted border-line text-[10px] h-5"
+              >
                 Bản nháp
               </Badge>
             )}
@@ -570,11 +569,7 @@ export default function TourDetailPage() {
               <Plus className="h-3.5 w-3.5" />
               Thêm suất đơn
             </Button>
-            <Button
-              size="sm"
-              onClick={openBulkDialog}
-              className="gap-1.5 text-xs"
-            >
+            <Button size="sm" onClick={openBulkDialog} className="gap-1.5 text-xs">
               <CalendarIcon className="h-3.5 w-3.5" />
               Tạo slot hàng loạt
             </Button>
@@ -626,9 +621,7 @@ export default function TourDetailPage() {
               type="button"
               onClick={() => setViewMode('WEEK')}
               className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
-                viewMode === 'WEEK'
-                  ? 'bg-surface text-fg shadow-xs'
-                  : 'text-muted hover:text-fg'
+                viewMode === 'WEEK' ? 'bg-surface text-fg shadow-xs' : 'text-muted hover:text-fg'
               }`}
             >
               Theo tuần
@@ -637,9 +630,7 @@ export default function TourDetailPage() {
               type="button"
               onClick={() => setViewMode('MONTH')}
               className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
-                viewMode === 'MONTH'
-                  ? 'bg-surface text-fg shadow-xs'
-                  : 'text-muted hover:text-fg'
+                viewMode === 'MONTH' ? 'bg-surface text-fg shadow-xs' : 'text-muted hover:text-fg'
               }`}
             >
               Theo tháng
@@ -657,23 +648,15 @@ export default function TourDetailPage() {
               <div
                 key={day.dateStr}
                 className={`flex flex-col rounded-xl border bg-surface p-3 shadow-xs transition-all text-fg ${
-                  day.isToday
-                    ? 'border-accent ring-1 ring-accent/30'
-                    : 'border-line'
+                  day.isToday ? 'border-accent ring-1 ring-accent/30' : 'border-line'
                 }`}
               >
                 {/* Day Header */}
                 <div className="flex items-center justify-between border-b border-line/60 pb-2 mb-2">
                   <div>
-                    <span className="block text-xs font-medium text-muted">
-                      {day.label}
-                    </span>
+                    <span className="block text-xs font-medium text-muted">{day.label}</span>
                     <span
-                      className={`text-base font-bold ${
-                        day.isToday
-                          ? 'text-accent'
-                          : 'text-fg'
-                      }`}
+                      className={`text-base font-bold ${day.isToday ? 'text-accent' : 'text-fg'}`}
                     >
                       {day.dateNum}
                     </span>
@@ -1053,10 +1036,7 @@ export default function TourDetailPage() {
             >
               Hủy
             </Button>
-            <Button
-              type="submit"
-              disabled={isSubmittingBulk}
-            >
+            <Button type="submit" disabled={isSubmittingBulk}>
               {isSubmittingBulk ? 'Đang tạo...' : 'Tạo hàng loạt suất'}
             </Button>
           </div>
@@ -1124,10 +1104,7 @@ export default function TourDetailPage() {
             >
               Hủy
             </Button>
-            <Button
-              type="submit"
-              disabled={isSubmittingSingle}
-            >
+            <Button type="submit" disabled={isSubmittingSingle}>
               {isSubmittingSingle ? 'Đang tạo...' : 'Tạo suất'}
             </Button>
           </div>
@@ -1167,7 +1144,8 @@ export default function TourDetailPage() {
             />
             {editingSlot && (
               <p className="text-[11px] text-muted">
-                Đã có <b className="text-fg">{editingSlot.bookedCount}</b> khách đặt chỗ cho suất này.
+                Đã có <b className="text-fg">{editingSlot.bookedCount}</b> khách đặt chỗ cho suất
+                này.
               </p>
             )}
           </div>
@@ -1194,10 +1172,7 @@ export default function TourDetailPage() {
             >
               Hủy
             </Button>
-            <Button
-              type="submit"
-              disabled={isSubmittingEdit}
-            >
+            <Button type="submit" disabled={isSubmittingEdit}>
               {isSubmittingEdit ? 'Đang cập nhật...' : 'Cập nhật suất'}
             </Button>
           </div>

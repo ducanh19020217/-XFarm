@@ -201,9 +201,7 @@ export default function PayrollPage() {
           </div>
           <div>
             <p className="text-xs font-medium text-muted">Tổng quỹ lương kỳ này</p>
-            <p className="text-xl font-bold text-fg">
-              {formatCurrency(stats.totalAmount)}
-            </p>
+            <p className="text-xl font-bold text-fg">{formatCurrency(stats.totalAmount)}</p>
           </div>
         </div>
 
@@ -213,9 +211,7 @@ export default function PayrollPage() {
           </div>
           <div>
             <p className="text-xs font-medium text-muted">Số nhân viên trong kỳ</p>
-            <p className="text-xl font-bold text-fg">
-              {stats.totalCount} người
-            </p>
+            <p className="text-xl font-bold text-fg">{stats.totalCount} người</p>
           </div>
         </div>
 

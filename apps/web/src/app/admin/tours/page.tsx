@@ -161,8 +161,10 @@ export default function AdminToursPage() {
       slug: tour.slug,
       description: tour.description || '',
       durationMinutes: tour.durationMinutes,
-      priceAdult: typeof tour.priceAdult === 'string' ? parseFloat(tour.priceAdult) : tour.priceAdult,
-      priceChild: typeof tour.priceChild === 'string' ? parseFloat(tour.priceChild) : tour.priceChild,
+      priceAdult:
+        typeof tour.priceAdult === 'string' ? parseFloat(tour.priceAdult) : tour.priceAdult,
+      priceChild:
+        typeof tour.priceChild === 'string' ? parseFloat(tour.priceChild) : tour.priceChild,
       capacity: tour.capacity,
       mediaIds: tour.mediaIds || [],
       isPublished: tour.isPublished,
@@ -235,14 +237,8 @@ export default function AdminToursPage() {
     }
   };
 
-  const publishedCount = React.useMemo(
-    () => tours.filter((t) => t.isPublished).length,
-    [tours],
-  );
-  const draftCount = React.useMemo(
-    () => tours.filter((t) => !t.isPublished).length,
-    [tours],
-  );
+  const publishedCount = React.useMemo(() => tours.filter((t) => t.isPublished).length, [tours]);
+  const draftCount = React.useMemo(() => tours.filter((t) => !t.isPublished).length, [tours]);
 
   const columns = React.useMemo<ColumnDef<TourItem>[]>(
     () => [
@@ -277,9 +273,7 @@ export default function AdminToursPage() {
                 >
                   {item.name}
                 </Link>
-                <span className="font-mono text-xs text-muted">
-                  /{item.slug}
-                </span>
+                <span className="font-mono text-xs text-muted">/{item.slug}</span>
               </div>
             </div>
           );
@@ -289,9 +283,7 @@ export default function AdminToursPage() {
         accessorKey: 'durationMinutes',
         header: 'Thời lượng',
         cell: ({ row }) => (
-          <span className="text-sm font-medium text-fg-2">
-            {row.original.durationMinutes} phút
-          </span>
+          <span className="text-sm font-medium text-fg-2">{row.original.durationMinutes} phút</span>
         ),
       },
       {
@@ -307,18 +299,14 @@ export default function AdminToursPage() {
         accessorKey: 'priceChild',
         header: 'Giá trẻ em',
         cell: ({ row }) => (
-          <span className="text-sm text-fg-2">
-            {formatMoney(row.original.priceChild)}
-          </span>
+          <span className="text-sm text-fg-2">{formatMoney(row.original.priceChild)}</span>
         ),
       },
       {
         accessorKey: 'capacity',
         header: 'Sức chứa',
         cell: ({ row }) => (
-          <span className="text-sm text-fg-2">
-            {row.original.capacity} khách / suất
-          </span>
+          <span className="text-sm text-fg-2">{row.original.capacity} khách / suất</span>
         ),
       },
       {
@@ -558,9 +546,7 @@ export default function AdminToursPage() {
                 }
               />
               {form.formState.errors.durationMinutes && (
-                <p className="text-xs text-crit">
-                  {form.formState.errors.durationMinutes.message}
-                </p>
+                <p className="text-xs text-crit">{form.formState.errors.durationMinutes.message}</p>
               )}
             </div>
 
@@ -702,10 +688,7 @@ export default function AdminToursPage() {
             >
               Hủy
             </Button>
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-            >
+            <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? 'Đang lưu...' : editingTour ? 'Lưu thay đổi' : 'Tạo tour'}
             </Button>
           </div>

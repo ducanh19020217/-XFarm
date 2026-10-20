@@ -135,9 +135,7 @@ export function TaskKanban({
                         </div>
 
                         {task.description && (
-                          <p className="text-xs text-muted line-clamp-2">
-                            {task.description}
-                          </p>
+                          <p className="text-xs text-muted line-clamp-2">{task.description}</p>
                         )}
                       </div>
 

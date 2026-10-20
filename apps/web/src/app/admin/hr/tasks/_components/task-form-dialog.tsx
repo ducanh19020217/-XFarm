@@ -152,9 +152,7 @@ export function TaskFormDialog({
             className="flex w-full rounded-md border border-line bg-surface px-3 py-2 text-sm text-fg shadow-xs transition-colors placeholder:text-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent disabled:cursor-not-allowed disabled:opacity-50"
             {...register('description')}
           />
-          {errors.description && (
-            <p className="text-xs text-crit">{errors.description.message}</p>
-          )}
+          {errors.description && <p className="text-xs text-crit">{errors.description.message}</p>}
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -180,9 +178,7 @@ export function TaskFormDialog({
                 </Select>
               )}
             />
-            {errors.assigneeId && (
-              <p className="text-xs text-crit">{errors.assigneeId.message}</p>
-            )}
+            {errors.assigneeId && <p className="text-xs text-crit">{errors.assigneeId.message}</p>}
           </div>
 
           <div className="space-y-1">

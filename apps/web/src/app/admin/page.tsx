@@ -331,9 +331,7 @@ export default function AdminDashboardPage() {
                 data-testid="production-chart"
               >
                 <h2 className="font-semibold text-fg">Sản lượng theo mùa vụ</h2>
-                <p className="mb-4 text-sm text-muted">
-                  Tổng sản lượng thu hoạch trong 12 tháng
-                </p>
+                <p className="mb-4 text-sm text-muted">Tổng sản lượng thu hoạch trong 12 tháng</p>
                 <div className="h-72">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={productionData} margin={{ left: 8, right: 8, top: 8 }}>

@@ -77,11 +77,7 @@ export function PayrollTable({
         cell: ({ row }) => {
           const details = row.original.details || {};
           if (details.days !== undefined) {
-            return (
-              <span className="font-medium text-fg">
-                {details.days} ngày
-              </span>
-            );
+            return <span className="font-medium text-fg">{details.days} ngày</span>;
           }
           if (details.actualDays !== undefined) {
             return (
@@ -91,18 +87,10 @@ export function PayrollTable({
             );
           }
           if (details.pieceQty !== undefined) {
-            return (
-              <span className="font-medium text-warn">
-                {details.pieceQty} SP
-              </span>
-            );
+            return <span className="font-medium text-warn">{details.pieceQty} SP</span>;
           }
           if (details.hours !== undefined) {
-            return (
-              <span className="font-medium text-fg">
-                {details.hours} giờ
-              </span>
-            );
+            return <span className="font-medium text-fg">{details.hours} giờ</span>;
           }
           return <span className="text-muted">-</span>;
         },

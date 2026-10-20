@@ -276,9 +276,7 @@ export function EditAttendanceDialog({
               }}
               disabled={submitting}
             />
-            <p className="text-[11px] text-muted">
-              Dành cho nhân viên hưởng lương theo sản phẩm
-            </p>
+            <p className="text-[11px] text-muted">Dành cho nhân viên hưởng lương theo sản phẩm</p>
             {fieldErrors.pieceQty && (
               <p className="text-xs text-crit font-medium">{fieldErrors.pieceQty}</p>
             )}

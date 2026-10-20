@@ -124,10 +124,7 @@ export default function EmployeesPage() {
     }
   };
 
-  const activeCount = React.useMemo(
-    () => employees.filter((e) => e.isActive).length,
-    [employees],
-  );
+  const activeCount = React.useMemo(() => employees.filter((e) => e.isActive).length, [employees]);
   const inactiveCount = React.useMemo(
     () => employees.filter((e) => !e.isActive).length,
     [employees],
@@ -138,9 +135,7 @@ export default function EmployeesPage() {
       {
         accessorKey: 'code',
         header: 'Mã NV',
-        cell: ({ row }) => (
-          <span className="font-semibold text-accent">{row.original.code}</span>
-        ),
+        cell: ({ row }) => <span className="font-semibold text-accent">{row.original.code}</span>,
       },
       {
         accessorKey: 'fullName',
@@ -148,9 +143,7 @@ export default function EmployeesPage() {
         cell: ({ row }) => (
           <div>
             <div className="font-medium text-fg">{row.original.fullName}</div>
-            {row.original.phone && (
-              <div className="text-xs text-muted">{row.original.phone}</div>
-            )}
+            {row.original.phone && <div className="text-xs text-muted">{row.original.phone}</div>}
           </div>
         ),
       },
@@ -232,9 +225,7 @@ export default function EmployeesPage() {
                       onClick={() => setLockEmployee(emp)}
                       title={emp.isActive ? 'Khóa nhân viên' : 'Mở khóa nhân viên'}
                       className={
-                        emp.isActive
-                          ? 'text-warn hover:bg-warn-bg'
-                          : 'text-ok hover:bg-ok-bg'
+                        emp.isActive ? 'text-warn hover:bg-warn-bg' : 'text-ok hover:bg-ok-bg'
                       }
                     >
                       {emp.isActive ? <Lock className="h-4 w-4" /> : <Unlock className="h-4 w-4" />}

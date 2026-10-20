@@ -42,9 +42,7 @@ export function TaskTable({
         header: 'Công việc',
         cell: ({ row }) => (
           <div>
-            <div className="font-semibold text-fg">
-              {row.original.title}
-            </div>
+            <div className="font-semibold text-fg">{row.original.title}</div>
             {row.original.description && (
               <div className="text-xs text-muted line-clamp-1">{row.original.description}</div>
             )}
@@ -103,13 +101,14 @@ export function TaskTable({
           return (
             <div className="flex items-center gap-1.5">
               <Clock className={`h-3.5 w-3.5 ${isOverdue ? 'text-crit' : 'text-muted'}`} />
-              <span
-                className={`text-xs ${isOverdue ? 'font-semibold text-crit' : 'text-muted'}`}
-              >
+              <span className={`text-xs ${isOverdue ? 'font-semibold text-crit' : 'text-muted'}`}>
                 {formatDateTime(row.original.dueDate)}
               </span>
               {isOverdue && (
-                <Badge variant="destructive" className="text-[10px] px-1 py-0 bg-crit-bg text-crit border-crit/20">
+                <Badge
+                  variant="destructive"
+                  className="text-[10px] px-1 py-0 bg-crit-bg text-crit border-crit/20"
+                >
                   Quá hạn
                 </Badge>
               )}

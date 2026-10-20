@@ -334,19 +334,13 @@ export default function AdminBookingsPage() {
     switch (status) {
       case BookingStatus.PENDING:
         return (
-          <Badge
-            variant="outline"
-            className="border-warn/30 bg-warn-bg text-warn"
-          >
+          <Badge variant="outline" className="border-warn/30 bg-warn-bg text-warn">
             Chờ xác nhận
           </Badge>
         );
       case BookingStatus.CONFIRMED:
         return (
-          <Badge
-            variant="outline"
-            className="border-info/30 bg-info-bg text-info"
-          >
+          <Badge variant="outline" className="border-info/30 bg-info-bg text-info">
             Đã xác nhận
           </Badge>
         );
@@ -357,9 +351,17 @@ export default function AdminBookingsPage() {
           </Badge>
         );
       case BookingStatus.CANCELLED:
-        return <Badge variant="destructive" className="bg-crit-bg text-crit border-crit/20">Đã hủy</Badge>;
+        return (
+          <Badge variant="destructive" className="bg-crit-bg text-crit border-crit/20">
+            Đã hủy
+          </Badge>
+        );
       default:
-        return <Badge variant="outline" className="border-line text-muted">{status}</Badge>;
+        return (
+          <Badge variant="outline" className="border-line text-muted">
+            {status}
+          </Badge>
+        );
     }
   };
 
@@ -367,19 +369,13 @@ export default function AdminBookingsPage() {
     switch (status) {
       case PaymentStatus.UNPAID:
         return (
-          <Badge
-            variant="outline"
-            className="border-crit/30 bg-crit-bg text-crit"
-          >
+          <Badge variant="outline" className="border-crit/30 bg-crit-bg text-crit">
             Chưa thanh toán
           </Badge>
         );
       case PaymentStatus.PARTIAL:
         return (
-          <Badge
-            variant="outline"
-            className="border-warn/30 bg-warn-bg text-warn"
-          >
+          <Badge variant="outline" className="border-warn/30 bg-warn-bg text-warn">
             Một phần
           </Badge>
         );
@@ -390,7 +386,11 @@ export default function AdminBookingsPage() {
           </Badge>
         );
       default:
-        return <Badge variant="outline" className="border-line text-muted">{status}</Badge>;
+        return (
+          <Badge variant="outline" className="border-line text-muted">
+            {status}
+          </Badge>
+        );
     }
   };
 
@@ -435,9 +435,7 @@ export default function AdminBookingsPage() {
           const startAt = item.slot?.startAt;
           return (
             <div className="space-y-0.5">
-              <span className="font-medium text-fg block">
-                {tourName}
-              </span>
+              <span className="font-medium text-fg block">{tourName}</span>
               <span className="flex items-center gap-1 text-xs text-muted">
                 <Calendar className="h-3 w-3" />
                 {startAt ? toVietnamDateString(startAt) : ''} lúc{' '}
@@ -454,9 +452,7 @@ export default function AdminBookingsPage() {
           const item = row.original;
           return (
             <div className="space-y-0.5">
-              <span className="font-medium text-fg block">
-                {item.customerName}
-              </span>
+              <span className="font-medium text-fg block">{item.customerName}</span>
               <span className="text-xs text-muted block">{item.phone}</span>
             </div>
           );
@@ -831,9 +827,7 @@ export default function AdminBookingsPage() {
                 <div className="space-y-1.5 text-xs text-fg-2">
                   <div>
                     <span className="text-muted">Họ và tên:</span>{' '}
-                    <span className="font-semibold text-fg">
-                      {selectedBooking.customerName}
-                    </span>
+                    <span className="font-semibold text-fg">{selectedBooking.customerName}</span>
                   </div>
                   <div>
                     <span className="text-muted">Số điện thoại:</span>{' '}
@@ -864,15 +858,11 @@ export default function AdminBookingsPage() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
                 <div className="rounded-md bg-surface-2 p-3 border border-line">
                   <span className="text-xs text-muted block">Số người lớn</span>
-                  <span className="text-lg font-bold text-fg">
-                    {selectedBooking.adults}
-                  </span>
+                  <span className="text-lg font-bold text-fg">{selectedBooking.adults}</span>
                 </div>
                 <div className="rounded-md bg-surface-2 p-3 border border-line">
                   <span className="text-xs text-muted block">Số trẻ em</span>
-                  <span className="text-lg font-bold text-fg">
-                    {selectedBooking.children}
-                  </span>
+                  <span className="text-lg font-bold text-fg">{selectedBooking.children}</span>
                 </div>
                 <div className="rounded-md bg-surface-2 p-3 border border-line">
                   <span className="text-xs text-muted block">Tổng tiền</span>
@@ -890,9 +880,7 @@ export default function AdminBookingsPage() {
                     const remaining = Math.max(0, Number(selectedBooking.total) - paid);
                     return (
                       <span
-                        className={`text-lg font-bold ${
-                          remaining > 0 ? 'text-warn' : 'text-ok'
-                        }`}
+                        className={`text-lg font-bold ${remaining > 0 ? 'text-warn' : 'text-ok'}`}
                       >
                         {formatMoney(remaining)}
                       </span>
@@ -935,12 +923,8 @@ export default function AdminBookingsPage() {
                       key={p.id}
                       className="grid grid-cols-4 p-2 items-center text-fg hover:bg-hover/30"
                     >
-                      <span className="font-mono font-medium text-accent">
-                        {p.code}
-                      </span>
-                      <span className="font-semibold text-fg">
-                        {formatMoney(p.amount)}
-                      </span>
+                      <span className="font-mono font-medium text-accent">{p.code}</span>
+                      <span className="font-semibold text-fg">{formatMoney(p.amount)}</span>
                       <span>{PAYMENT_METHOD_LABELS[p.method] || p.method}</span>
                       <span className="text-muted">{formatVietnamDateTime(p.createdAt)}</span>
                     </div>
@@ -1031,10 +1015,7 @@ export default function AdminBookingsPage() {
             >
               Hủy
             </Button>
-            <Button
-              type="submit"
-              disabled={isSubmittingPayment}
-            >
+            <Button type="submit" disabled={isSubmittingPayment}>
               {isSubmittingPayment ? 'Đang xử lý...' : 'Xác nhận thu tiền'}
             </Button>
           </div>

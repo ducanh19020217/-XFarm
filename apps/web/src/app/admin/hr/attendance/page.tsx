@@ -207,9 +207,7 @@ export default function AttendancePage() {
           </div>
           <div>
             <p className="text-xs font-medium text-muted">Tổng giờ công tuần</p>
-            <p className="text-xl font-bold text-fg">
-              {formatHours(stats.totalHours)}
-            </p>
+            <p className="text-xl font-bold text-fg">{formatHours(stats.totalHours)}</p>
           </div>
         </div>
 
@@ -231,9 +229,7 @@ export default function AttendancePage() {
           </div>
           <div>
             <p className="text-xs font-medium text-muted">Trung bình giờ / người</p>
-            <p className="text-xl font-bold text-fg">
-              {stats.avgHours}h
-            </p>
+            <p className="text-xl font-bold text-fg">{stats.avgHours}h</p>
           </div>
         </div>
       </div>
