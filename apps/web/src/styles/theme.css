@@ -15,6 +15,7 @@
   --t-accent-fade: #bbf7d0;
   --t-accent-on-fade: #14532d;
   --t-accent-bg: #ecfdf3;
+  --t-accent-contrast: #ffffff;
   --t-crit: #c91a03;
   --t-crit-fill: #fc4d36;
   --t-crit-bg: rgba(201, 26, 3, 0.1);
@@ -47,6 +48,7 @@ html.dark,
   --t-accent-fade: #14532d;
   --t-accent-on-fade: #bbf7d0;
   --t-accent-bg: #0f2e1f;
+  --t-accent-contrast: #052e16;
   --t-crit: #e8705c;
   --t-crit-fill: #e8705c;
   --t-crit-bg: rgba(252, 77, 54, 0.16);
@@ -80,6 +82,7 @@ html.dark,
   --color-accent-fade: var(--t-accent-fade);
   --color-accent-on-fade: var(--t-accent-on-fade);
   --color-accent-bg: var(--t-accent-bg);
+  --color-accent-contrast: var(--t-accent-contrast);
   --color-crit: var(--t-crit);
   --color-crit-fill: var(--t-crit-fill);
   --color-crit-bg: var(--t-crit-bg);
