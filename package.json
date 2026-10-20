@@ -14,6 +14,7 @@
     "test:ui": "pnpm --filter @xfarm/web test:ui",
     "db:migrate": "pnpm --filter @xfarm/db db:migrate",
     "db:seed": "pnpm --filter @xfarm/db db:seed",
+    "db:seed:content": "pnpm --filter @xfarm/db db:seed:content",
     "db:studio": "pnpm --filter @xfarm/db db:studio",
     "db:reset": "pnpm --filter @xfarm/db db:reset"
   },
