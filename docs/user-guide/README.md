@@ -23,12 +23,9 @@ Hệ thống tài liệu hướng dẫn sử dụng bao gồm các phân hệ sa
 11. **[Bán hàng & Quản lý Khách hàng](./sales-and-customers.md)**: Quản lý thông tin khách hàng, phân loại đại lý/khách sỉ, lập đơn bán hàng, xác nhận xuất kho FIFO tự động, quản lý vận chuyển, hủy hoàn kho, ghi nhận thu tiền và in hóa đơn/phiếu giao hàng kèm VietQR.
 12. **[Cửa hàng trực tuyến (Webshop) & Bán hàng Online](./webshop.md)**: Hướng dẫn trải nghiệm mua sắm cho khách hàng (giỏ hàng, đặt hàng vãng lai, quét mã chuyển khoản VietQR, tra cứu đơn công khai) và quy trình xử lý đơn WEBSHOP nổi bật cho nhân viên bán hàng.
 13. **[Tài chính, Sổ quỹ & Phân tích Lãi lỗ](./finance.md)**: Quản lý cây danh mục thu chi, sổ quỹ giao dịch thủ công & tự động, thanh toán đơn mua hàng PO, quản lý công nợ khách hàng và báo cáo tài chính quản trị (dòng tiền 12 tháng, giá thành & lãi lỗ mùa vụ, doanh thu sản phẩm).
-
-> **Lưu ý về các phân hệ trong lộ trình phát triển**:
-> Các phân hệ sau trên thanh menu đang được đánh dấu **"Sắp có"** và sẽ được bổ sung, cập nhật tài liệu trong các giai đoạn tiếp theo của dự án:
-> - **Du lịch trải nghiệm** (`/admin/tours`): Đặt vé tour tham quan, trải nghiệm nông trại, quản lý lịch đoàn khách.
-> - **Thiết bị & IoT** (`/admin/iot`): Kết nối trạm quan trắc thời tiết, cảm biến độ ẩm đất, thiết bị tưới tự động.
-> - **Bảng tin tổng quan (Dashboard nâng cao)** (`/admin`): Trung tâm phân tích báo cáo đồ thị thông minh toàn diện.
+14. **[Du lịch trải nghiệm & Đặt chỗ](./tours-and-bookings.md)**: Quản lý tour, tạo suất tham quan, tiếp nhận booking công khai, xác nhận/thu tiền và tra cứu đặt chỗ.
+15. **[Thiết bị, IoT & Cảm biến](./equipment-and-iot.md)**: Theo dõi tài sản và lịch bảo trì, quản lý cảm biến, khóa API, ngưỡng cảnh báo và biểu đồ dữ liệu theo thời gian.
+16. **[Bảng điều khiển Tổng quan](./dashboard.md)**: Xem nhanh mùa vụ, doanh thu, booking, tồn kho, công việc, cảnh báo và biểu đồ vận hành trong 12 tháng.
 
 ---
 
