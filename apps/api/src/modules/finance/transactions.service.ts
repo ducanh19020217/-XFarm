@@ -89,23 +89,31 @@ export class TransactionsService {
       .filter((t) => (t.refType === 'PurchaseOrder' || t.refType === 'PO') && t.refId)
       .map((t) => t.refId as string);
 
-    const [payments, pos] = await Promise.all([
-      paymentIds.length > 0
-        ? prisma.payment.findMany({
-            where: { id: { in: paymentIds } },
-            include: { order: { select: { id: true, code: true } } },
-          })
-        : [],
-      poIds.length > 0
-        ? prisma.purchaseOrder.findMany({
-            where: { id: { in: poIds } },
-            select: { id: true, code: true },
-          })
-        : [],
-    ]);
-
-    const paymentMap = new Map(payments.map((p) => [p.id, p]));
-    const poMap = new Map(pos.map((p) => [p.id, p]));
+    const references =
+      paymentIds.length > 0 || poIds.length > 0
+        ? await prisma.$queryRaw<
+            Array<{
+              refType: string | null;
+              refId: string | null;
+              paymentId: string | null;
+              orderId: string | null;
+              orderCode: string | null;
+              poId: string | null;
+              poCode: string | null;
+            }>
+          >(Prisma.sql`
+            SELECT t."refType", t."refId", p.id AS "paymentId", p."orderId",
+              so.code AS "orderCode", po.id AS "poId", po.code AS "poCode"
+            FROM transactions t
+            LEFT JOIN payments p ON t."refType" = 'Payment' AND p.id = t."refId"
+            LEFT JOIN sales_orders so ON so.id = p."orderId"
+            LEFT JOIN purchase_orders po ON t."refType" IN ('PurchaseOrder', 'PO') AND po.id = t."refId"
+            WHERE t.id IN (${Prisma.join(data.map((transaction) => transaction.id))})
+          `)
+        : [];
+    const referenceMap = new Map(
+      references.map((reference) => [`${reference.refType}:${reference.refId}`, reference]),
+    );
 
     const enriched = data.map((t) => {
       let orderId: string | undefined;
@@ -114,15 +122,15 @@ export class TransactionsService {
       let poCode: string | undefined;
 
       if (t.refType === 'Payment' && t.refId) {
-        const pm = paymentMap.get(t.refId);
-        orderId = pm?.orderId ?? undefined;
-        orderCode = pm?.order?.code ?? undefined;
+        const reference = referenceMap.get(`${t.refType}:${t.refId}`);
+        orderId = reference?.orderId ?? undefined;
+        orderCode = reference?.orderCode ?? undefined;
       } else if (t.refType === 'SalesOrder' && t.refId) {
         orderId = t.refId;
       } else if ((t.refType === 'PurchaseOrder' || t.refType === 'PO') && t.refId) {
-        const po = poMap.get(t.refId);
-        poId = po?.id ?? t.refId;
-        poCode = po?.code ?? undefined;
+        const reference = referenceMap.get(`${t.refType}:${t.refId}`);
+        poId = reference?.poId ?? t.refId;
+        poCode = reference?.poCode ?? undefined;
       }
 
       return {

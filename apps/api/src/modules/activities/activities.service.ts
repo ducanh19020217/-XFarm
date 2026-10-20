@@ -378,14 +378,18 @@ export class ActivitiesService {
     const [activities, total] = await Promise.all([
       prisma.activity.findMany({
         where,
-        include: this.activityInclude,
+        include: {
+          performedBy: { select: { id: true, fullName: true, email: true } },
+          area: true,
+          cycle: { select: { id: true, code: true, name: true, areaId: true, status: true } },
+        },
         orderBy: [{ performedAt: 'desc' }, { createdAt: 'desc' }, { id: 'desc' }],
         skip: (page - 1) * pageSize,
         take: pageSize,
       }),
       prisma.activity.count({ where }),
     ]);
-    return { data: await this.withMedia(activities), total, page, pageSize };
+    return { data: activities, total, page, pageSize };
   }
 
   async findOne(id: string, userId: string, role: string) {
