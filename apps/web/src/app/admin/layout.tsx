@@ -18,6 +18,8 @@ import {
   Compass,
   Briefcase,
   Cpu,
+  Wrench,
+  LineChart,
   LogOut,
   Menu,
   X,
@@ -172,10 +174,22 @@ const navItems: NavItem[] = [
     isReady: true,
   },
   {
-    title: 'Thiết bị & IoT',
-    href: '/admin/iot',
+    title: 'Thiết bị',
+    href: '/admin/equipment',
+    icon: Wrench,
+    isReady: true,
+  },
+  {
+    title: 'IoT & Cảm biến',
+    href: '/admin/iot/sensors',
     icon: Cpu,
-    isReady: false,
+    isReady: true,
+  },
+  {
+    title: 'Biểu đồ IoT',
+    href: '/admin/iot/charts',
+    icon: LineChart,
+    isReady: true,
   },
 ];
 

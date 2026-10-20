@@ -133,6 +133,11 @@ async function main() {
       '/tours',
       '/public/tours',
       '/public/bookings/lookup?code=TEST&phone=0900000000',
+      '/equipment',
+      '/maintenance-schedules',
+      '/sensors',
+      '/alert-rules',
+      '/iot/latest?areaId=smoke-area',
     ];
 
     for (const item of routes) {

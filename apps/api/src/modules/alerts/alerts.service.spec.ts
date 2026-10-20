@@ -5,6 +5,7 @@ import {
   formatVNDate,
   getVNDateKey,
   getVNInventoryCheckBoundaries,
+  getVNMaintenanceCheckBoundaries,
 } from './alerts.service';
 
 jest.mock('@xfarm/db', () => ({
@@ -16,6 +17,9 @@ jest.mock('@xfarm/db', () => ({
       findMany: jest.fn(),
     },
     stockMove: {
+      findMany: jest.fn(),
+    },
+    maintenanceSchedule: {
       findMany: jest.fn(),
     },
     alert: {
@@ -559,6 +563,53 @@ describe('AlertsService', () => {
       const count = await service.getUnreadCount();
       expect(count).toBe(3);
       expect(prisma.alert.count).toHaveBeenCalledWith({ where: { readAt: null } });
+    });
+  });
+
+  describe('runMaintenanceCheck & boundaries', () => {
+    it('getVNMaintenanceCheckBoundaries tính toán đúng ngày kết thúc sau 3 ngày theo giờ VN', () => {
+      const ref = new Date('2026-10-19T03:00:00.000Z'); // 10:00 VN
+      const boundaries = getVNMaintenanceCheckBoundaries(ref);
+      expect(boundaries.todayStart).toBeInstanceOf(Date);
+      expect(boundaries.threeDaysLaterEnd).toBeInstanceOf(Date);
+      expect(boundaries.threeDaysLaterEnd.getTime()).toBeGreaterThan(
+        boundaries.todayStart.getTime(),
+      );
+    });
+
+    it('runMaintenanceCheck tạo cảnh báo MAINTENANCE_DUE cho lịch đến hạn trong 3 ngày', async () => {
+      const nextDue = new Date('2026-10-21T00:00:00.000Z');
+      const mockSchedules = [
+        {
+          id: 'sch-1',
+          name: 'Bảo dưỡng máy bơm',
+          nextDueDate: nextDue,
+          equipment: {
+            id: 'eq-1',
+            code: 'EQ-0001',
+            name: 'Máy bơm khu rau',
+          },
+        },
+      ];
+
+      (prisma.maintenanceSchedule.findMany as jest.Mock).mockResolvedValue(mockSchedules);
+      (prisma.alert.upsert as jest.Mock).mockResolvedValue({ id: 'alert-1' });
+
+      const res = await service.runMaintenanceCheck(new Date('2026-10-19T00:00:00.000Z'));
+      expect(res.dueCount).toBe(1);
+      expect(res.totalAlertsCreated).toBe(1);
+
+      expect(prisma.alert.upsert).toHaveBeenCalledWith({
+        where: { dedupeKey: 'maint:sch-1:2026-10-21' },
+        create: {
+          type: 'MAINTENANCE_DUE',
+          message: expect.stringContaining('Máy bơm khu rau'),
+          refType: 'EQUIPMENT',
+          refId: 'eq-1',
+          dedupeKey: 'maint:sch-1:2026-10-21',
+        },
+        update: {},
+      });
     });
   });
 });

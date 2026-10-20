@@ -30,6 +30,12 @@ export async function cleanupDatabase(client: DatabaseClient = defaultPrisma): P
       await tx.purchaseOrderLine.deleteMany();
       await tx.purchaseOrder.deleteMany();
       await tx.supplier.deleteMany();
+      await tx.sensorReading.deleteMany();
+      await tx.alertRule.deleteMany();
+      await tx.sensor.deleteMany();
+      await tx.maintenanceLog.deleteMany();
+      await tx.maintenanceSchedule.deleteMany();
+      await tx.equipment.deleteMany();
       await tx.alert.deleteMany();
       await tx.animalEvent.deleteMany();
       await tx.animal.deleteMany();
@@ -42,7 +48,7 @@ export async function cleanupDatabase(client: DatabaseClient = defaultPrisma): P
         DO $$
         DECLARE table_name text;
         BEGIN
-          FOREACH table_name IN ARRAY ARRAY['sensor_readings', 'alerts_rules', 'sensors', 'equipment', 'maintenance_logs', 'maintenance_schedules'] LOOP
+          FOREACH table_name IN ARRAY ARRAY['sensor_readings', 'alert_rules', 'sensors', 'equipment', 'maintenance_logs', 'maintenance_schedules'] LOOP
             IF to_regclass(format('public.%I', table_name)) IS NOT NULL THEN
               EXECUTE format('DELETE FROM %I', table_name);
             END IF;
@@ -101,6 +107,12 @@ export async function cleanupProductionData(client: DatabaseClient = defaultPris
     await tx.payroll.deleteMany();
     await tx.attendance.deleteMany();
     await tx.task.deleteMany();
+    await tx.sensorReading.deleteMany();
+    await tx.alertRule.deleteMany();
+    await tx.sensor.deleteMany();
+    await tx.maintenanceLog.deleteMany();
+    await tx.maintenanceSchedule.deleteMany();
+    await tx.equipment.deleteMany();
     await tx.harvestLot.deleteMany();
     await tx.activityMaterial.deleteMany();
     await tx.stockMove.deleteMany();
@@ -114,7 +126,7 @@ export async function cleanupProductionData(client: DatabaseClient = defaultPris
       DO $$
       DECLARE table_name text;
       BEGIN
-        FOREACH table_name IN ARRAY ARRAY['sensor_readings', 'alerts_rules', 'sensors', 'equipment', 'maintenance_logs', 'maintenance_schedules'] LOOP
+        FOREACH table_name IN ARRAY ARRAY['sensor_readings', 'alert_rules', 'sensors', 'equipment', 'maintenance_logs', 'maintenance_schedules'] LOOP
           IF to_regclass(format('public.%I', table_name)) IS NOT NULL THEN
             EXECUTE format('DELETE FROM %I', table_name);
           END IF;
