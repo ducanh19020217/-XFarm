@@ -43,10 +43,10 @@ test.describe('PWA Offline IndexedDB Queue & Idempotent Auto-Sync (p6-pwa-offlin
     await expect(areaSelect).toBeEnabled();
 
     // Lấy số lượng nhật ký ban đầu qua API để kiểm tra sau đồng bộ
-    const initialActivitiesRes = await api<{ total: number; data: Array<{ id: string; notes?: string }> }>(
-      page,
-      '/activities?pageSize=10',
-    );
+    const initialActivitiesRes = await api<{
+      total: number;
+      data: Array<{ id: string; notes?: string }>;
+    }>(page, '/activities?pageSize=10');
     const initialCount = initialActivitiesRes?.total ?? 0;
 
     // 3. Ngắt kết nối mạng (Offline)
@@ -124,10 +124,10 @@ test.describe('PWA Offline IndexedDB Queue & Idempotent Auto-Sync (p6-pwa-offlin
     await page.reload();
     await expect(page.getByText(/hàng đợi trống/i)).toBeVisible();
 
-    const afterReloadRes = await api<{ total: number; data: Array<{ id: string; notes?: string }> }>(
-      page,
-      '/activities?pageSize=10',
-    );
+    const afterReloadRes = await api<{
+      total: number;
+      data: Array<{ id: string; notes?: string }>;
+    }>(page, '/activities?pageSize=10');
     expect(afterReloadRes?.total).toBe(initialCount + 2);
   });
 });

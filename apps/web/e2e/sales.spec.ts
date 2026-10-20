@@ -35,7 +35,14 @@ test('quy trình bán hàng admin: tạo khách -> tạo đơn 2 dòng -> xác n
   expect(finishedWarehouse, 'Kho thành phẩm phải tồn tại').toBeDefined();
 
   const productsRes = await api<{
-    data: Array<{ id: string; name: string; itemId: string; price: number; unit: string; item?: { name: string } }>;
+    data: Array<{
+      id: string;
+      name: string;
+      itemId: string;
+      price: number;
+      unit: string;
+      item?: { name: string };
+    }>;
   }>(page, '/products?isPublished=true&pageSize=100');
   expect(productsRes.data.length).toBeGreaterThanOrEqual(2);
 

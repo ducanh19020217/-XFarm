@@ -37,10 +37,10 @@ test.describe('Nghiệm thu GĐ 6 (Phase 6 Acceptance Criteria)', () => {
     await expect(areaSelect).toBeEnabled();
 
     // Đếm số lượng hoạt động ban đầu qua API
-    const initialActivitiesRes = await api<{ total: number; data: Array<{ id: string; notes?: string }> }>(
-      page,
-      '/activities?pageSize=10',
-    );
+    const initialActivitiesRes = await api<{
+      total: number;
+      data: Array<{ id: string; notes?: string }>;
+    }>(page, '/activities?pageSize=10');
     const initialCount = initialActivitiesRes?.total ?? 0;
 
     // 3. Ngắt mạng (Offline)
@@ -114,10 +114,10 @@ test.describe('Nghiệm thu GĐ 6 (Phase 6 Acceptance Criteria)', () => {
     await page.reload();
     await expect(page.getByText(/hàng đợi trống/i)).toBeVisible();
 
-    const afterReloadRes = await api<{ total: number; data: Array<{ id: string; notes?: string }> }>(
-      page,
-      '/activities?pageSize=10',
-    );
+    const afterReloadRes = await api<{
+      total: number;
+      data: Array<{ id: string; notes?: string }>;
+    }>(page, '/activities?pageSize=10');
     expect(afterReloadRes?.total).toBe(initialCount + 2);
   });
 
