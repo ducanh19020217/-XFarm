@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD, APP_INTERCEPTOR, APP_FILTER, APP_PIPE } from '@nestjs/core';
-import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { ZodValidationPipe } from 'nestjs-zod';
 
 import { AuthModule } from './modules/auth/auth.module';
@@ -39,6 +39,7 @@ import { SensorsModule } from './modules/sensors/sensors.module';
 import { AlertRulesModule } from './modules/alert-rules/alert-rules.module';
 import { SequenceModule } from './common/sequence/sequence.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
+import { XFarmThrottlerGuard } from './common/guards/throttler.guard';
 
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
@@ -107,7 +108,7 @@ import { HealthController } from './health.controller';
     },
     {
       provide: APP_GUARD,
-      useClass: ThrottlerGuard,
+      useClass: XFarmThrottlerGuard,
     },
     {
       provide: APP_INTERCEPTOR,
