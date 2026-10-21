@@ -27,7 +27,6 @@ export default defineConfig({
   use: {
     ...devices['Desktop Chrome'],
     baseURL,
-    channel: 'chrome',
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
   },
