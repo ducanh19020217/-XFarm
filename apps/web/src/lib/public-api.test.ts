@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import {
   formatCurrency,
   formatDate,
@@ -10,6 +10,8 @@ import {
   getSiteSettings,
   getPublicTours,
   getPublicTourBySlug,
+  createPublicBooking,
+  lookupPublicBooking,
 } from './public-api';
 
 describe('public-api helpers', () => {
@@ -124,5 +126,69 @@ describe('public-api fetch functions (with fallback)', () => {
     const tour = await getPublicTourBySlug('mot-ngay-lam-nong-dan');
     expect(tour).not.toBeNull();
     expect(tour?.name).toBe('Một ngày làm nông dân nhí & gia đình');
+  });
+});
+
+describe('public-api in demo mode (NEXT_PUBLIC_DEMO=1)', () => {
+  const origEnv = process.env.NEXT_PUBLIC_DEMO;
+
+  beforeEach(() => {
+    process.env.NEXT_PUBLIC_DEMO = '1';
+    vi.restoreAllMocks();
+  });
+
+  afterEach(() => {
+    if (origEnv !== undefined) {
+      process.env.NEXT_PUBLIC_DEMO = origEnv;
+    } else {
+      delete process.env.NEXT_PUBLIC_DEMO;
+    }
+  });
+
+  it('returns demo site settings without calling fetch', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch');
+    const settings = await getSiteSettings();
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(settings['farm.name']).toBe('XFarm – Nông trại sinh thái');
+    expect(settings['home.banners']).toHaveLength(3);
+  });
+
+  it('returns demo products without calling fetch', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch');
+    const products = await getPublicProducts();
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(products.length).toBeGreaterThanOrEqual(6);
+    expect(products[0].slug).toBe('cai-ngot-huu-co');
+  });
+
+  it('returns demo product by slug without calling fetch', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch');
+    const product = await getPublicProductBySlug('cai-ngot-huu-co');
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(product).not.toBeNull();
+    expect(product?.name).toBe('Cải ngọt hữu cơ');
+  });
+
+  it('returns demo tours without calling fetch', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch');
+    const tours = await getPublicTours();
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(tours.length).toBeGreaterThanOrEqual(2);
+    expect(tours[0].slug).toBe('mot-ngay-lam-nong-dan');
+  });
+
+  it('prevents backend actions with friendly demo message', async () => {
+    await expect(
+      createPublicBooking({
+        slotId: 'slot-1',
+        customerName: 'Test',
+        phone: '0901234567',
+        adults: 1,
+      }),
+    ).rejects.toThrow('Đây là bản demo, thao tác không được gửi đi.');
+
+    await expect(lookupPublicBooking('CODE', '0901234567')).rejects.toThrow(
+      'Đây là bản demo, thao tác không được gửi đi.',
+    );
   });
 });
