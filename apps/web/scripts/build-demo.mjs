@@ -24,6 +24,7 @@ const ogTourFile = path.join(appDir, '(public)/tour/[slug]/opengraph-image.tsx')
 const tempOgTourFile = path.join(webDir, '.temp-og-tour.tsx');
 
 const outDir = path.join(webDir, 'out');
+const nextDir = path.join(webDir, '.next');
 
 const demoNoticePageContent = `'use client';
 
@@ -57,6 +58,36 @@ export default function DemoRestrictedPage() {
   );
 }
 `;
+
+function getDemoAdminPaths(directory, relativeDirectory = '') {
+  const paths = [];
+
+  for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+    const entryPath = path.join(directory, entry.name);
+    const relativePath = path.join(relativeDirectory, entry.name);
+
+    if (entry.isDirectory()) {
+      paths.push(...getDemoAdminPaths(entryPath, relativePath));
+      continue;
+    }
+
+    if (entry.name !== 'page.tsx' && entry.name !== 'page.ts') continue;
+    if (!relativeDirectory) continue;
+
+    const segments = relativeDirectory
+      .split(path.sep)
+      .map((segment) =>
+        segment.replace(/^\[\[?\.\.\.(.+?)\]\]?$/, 'demo').replace(/^\[(.+?)\]$/, 'demo'),
+      );
+    paths.push(segments);
+  }
+
+  return paths;
+}
+
+function createDemoAdminPage() {
+  return demoNoticePageContent;
+}
 
 let cleanedUp = false;
 
@@ -124,6 +155,12 @@ function restore() {
       console.error('[build:demo] Failed to restore tour OG image:', err);
     }
   }
+
+  // Demo compilation creates route type declarations for temporary placeholders.
+  // Remove them so a subsequent regular typecheck only sees restored source files.
+  if (fs.existsSync(nextDir)) {
+    fs.rmSync(nextDir, { recursive: true, force: true });
+  }
 }
 
 process.on('SIGINT', () => {
@@ -144,6 +181,16 @@ async function main() {
     fs.renameSync(adminDir, tempAdminDir);
     fs.mkdirSync(adminDir, { recursive: true });
     fs.writeFileSync(path.join(adminDir, 'page.tsx'), demoNoticePageContent, 'utf-8');
+
+    const adminPaths = getDemoAdminPaths(tempAdminDir);
+    for (const routeSegments of adminPaths) {
+      const demoSegments = routeSegments.map((segment) =>
+        segment.replace(/^\[\[?\.\.\.(.+?)\]\]?$/, 'demo').replace(/^\[(.+?)\]$/, 'demo'),
+      );
+      const routeDir = path.join(adminDir, ...demoSegments);
+      fs.mkdirSync(routeDir, { recursive: true });
+      fs.writeFileSync(path.join(routeDir, 'page.tsx'), createDemoAdminPage(), 'utf-8');
+    }
 
     // Preserve types needed by mobile-api / offline-queue
     const typesSrc = path.join(tempAdminDir, 'hr/common/types.ts');

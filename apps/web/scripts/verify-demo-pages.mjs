@@ -201,6 +201,7 @@ async function verify() {
       '/-XFarm/lien-he',
       '/-XFarm/tra-cuu-don',
       '/-XFarm/admin',
+      '/-XFarm/admin/m',
       '/-XFarm/login',
     ];
 
