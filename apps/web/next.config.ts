@@ -41,8 +41,9 @@ const nextConfig: NextConfig = {
   env: {
     WEB_URL: process.env.WEB_URL,
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
-    DEMO_BASE_PATH: process.env.DEMO_BASE_PATH || '/-XFarm',
-    NEXT_PUBLIC_BASE_PATH: process.env.DEMO_BASE_PATH || '/-XFarm',
+    // Only demo/static-export builds get a base path; normal builds must keep asset URLs unprefixed.
+    DEMO_BASE_PATH: isDemo ? process.env.DEMO_BASE_PATH || '/-XFarm' : '',
+    NEXT_PUBLIC_BASE_PATH: isDemo ? process.env.DEMO_BASE_PATH || '/-XFarm' : '',
   },
   ...(isDemo
     ? {}

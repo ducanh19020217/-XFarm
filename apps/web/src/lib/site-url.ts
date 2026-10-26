@@ -24,7 +24,7 @@ export function getAssetPath(path: string): string {
   }
   const isDemo =
     typeof process !== 'undefined' &&
-    (process.env.NEXT_PUBLIC_DEMO === '1' || Boolean(process.env.DEMO_BASE_PATH));
+    process.env.NEXT_PUBLIC_DEMO === '1';
   const basePath = isDemo
     ? process.env.DEMO_BASE_PATH || process.env.NEXT_PUBLIC_BASE_PATH || '/-XFarm'
     : '';
