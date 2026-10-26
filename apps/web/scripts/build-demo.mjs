@@ -274,6 +274,17 @@ async function main() {
     fs.writeFileSync(nojekyllPath, '', 'utf-8');
     console.log(`[build:demo] Created ${nojekyllPath}`);
 
+    // GitHub Pages serves 404.html for URLs whose dynamic segment was not
+    // known at build time. Reuse the restricted admin page as that fallback
+    // so arbitrary admin/PWA URLs still show the demo notice instead of a
+    // blank or real application page.
+    const adminPlaceholder = path.join(outDir, 'admin.html');
+    const notFoundPath = path.join(outDir, '404.html');
+    if (fs.existsSync(adminPlaceholder)) {
+      fs.copyFileSync(adminPlaceholder, notFoundPath);
+      console.log(`[build:demo] Created ${notFoundPath} for arbitrary restricted routes`);
+    }
+
     const indexTxt = path.join(outDir, 'index.txt');
     if (fs.existsSync(indexTxt)) {
       const xfarmTxt = path.join(outDir, '-XFarm.txt');

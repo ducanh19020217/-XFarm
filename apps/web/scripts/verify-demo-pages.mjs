@@ -107,6 +107,13 @@ async function verify() {
 
   const errors = [];
   const networkErrors = [];
+  const expectedFallbackPaths = [
+    '/-XFarm/admin/animals/999',
+    '/-XFarm/admin/equipment/real-id',
+    '/-XFarm/admin/m/quick-log/unknown-worker-route',
+  ];
+
+  const isExpectedFallback = (url) => expectedFallbackPaths.some((route) => url.includes(route));
 
   let browser;
   try {
@@ -140,6 +147,7 @@ async function verify() {
       if (msg.type() === 'error') {
         const text = msg.text();
         if (text.includes('openstreetmap.org')) return;
+        if (text.includes('status of 404') && isExpectedFallback(page.url())) return;
         console.error('[console.error]', text);
         errors.push(`Console error: ${text}`);
       }
@@ -151,7 +159,8 @@ async function verify() {
       if (
         status >= 400 &&
         !url.includes('/favicon.ico') &&
-        url.startsWith(`http://localhost:${port}`)
+        url.startsWith(`http://localhost:${port}`) &&
+        !isExpectedFallback(url)
       ) {
         console.error(`[HTTP ${status}] ${url}`);
         networkErrors.push(`[${status}] ${url}`);
@@ -207,6 +216,8 @@ async function verify() {
       '/-XFarm/login',
     ];
 
+    const fallbackRoutes = expectedFallbackPaths;
+
     console.log(`[test] Verifying ${routesToTest.length} routes...`);
     for (const route of routesToTest) {
       const url = `http://localhost:${port}${route}`;
@@ -216,6 +227,22 @@ async function verify() {
         throw new Error(`Route ${route} returned status ${response?.status()}`);
       }
       console.log(`  ✓ [${response.status()}] ${route}`);
+    }
+
+    console.log(`[test] Verifying ${fallbackRoutes.length} arbitrary restricted routes...`);
+    for (const route of fallbackRoutes) {
+      const url = `http://localhost:${port}${route}`;
+      const response = await page.goto(url, { waitUntil: 'domcontentloaded' });
+      await page.waitForLoadState('networkidle', { timeout: 4000 }).catch(() => {});
+      const bodyText = await page.locator('body').innerText();
+      if (
+        !response ||
+        response.status() !== 404 ||
+        !bodyText.includes('Tính năng quản trị chỉ có ở bản cài đặt đầy đủ')
+      ) {
+        throw new Error(`Fallback route ${route} did not render the restricted demo page`);
+      }
+      console.log(`  ✓ [404 fallback] ${route}`);
     }
 
     if (errors.length > 0) {
