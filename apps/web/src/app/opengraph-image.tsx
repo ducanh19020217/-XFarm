@@ -2,6 +2,7 @@ import { ImageResponse } from 'next/og';
 import { getSiteSettings } from '@/lib/public-api';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-static';
 export const alt = 'XFarm - Nông trại sinh thái';
 export const size = {
   width: 1200,

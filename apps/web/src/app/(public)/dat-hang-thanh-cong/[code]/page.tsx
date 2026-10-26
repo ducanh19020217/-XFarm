@@ -1,6 +1,10 @@
 import type { Metadata } from 'next';
 import { SuccessView } from './success-view';
 
+export function generateStaticParams() {
+  return [{ code: 'XF-ORD-DEMO-01' }];
+}
+
 interface SuccessPageProps {
   params: Promise<{ code: string }>;
 }

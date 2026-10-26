@@ -1,6 +1,17 @@
 import { API_BASE_URL } from './api';
+import {
+  DEMO_SITE_SETTINGS,
+  DEMO_PRODUCTS,
+  DEMO_POSTS,
+  DEMO_TOURS,
+  DEMO_PAGES,
+  DEMO_BOOKINGS,
+  DEMO_TRACE_DATA,
+} from '@/demo/fixtures';
 
 export { API_BASE_URL } from './api';
+
+const isDemo = () => process.env.NEXT_PUBLIC_DEMO === '1';
 
 export interface PublicProduct {
   id: string;
@@ -285,6 +296,9 @@ export const FALLBACK_PAGES: Record<string, PublicPage> = {
  * Fetch public site settings
  */
 export async function getSiteSettings(): Promise<PublicSiteSettings> {
+  if (isDemo()) {
+    return DEMO_SITE_SETTINGS;
+  }
   try {
     const res = await fetch(`${API_BASE_URL}/public/site-settings`, {
       next: { revalidate: 60 },
@@ -312,6 +326,9 @@ export async function getSiteSettings(): Promise<PublicSiteSettings> {
  * Fetch all published public products
  */
 export async function getPublicProducts(): Promise<PublicProduct[]> {
+  if (isDemo()) {
+    return DEMO_PRODUCTS;
+  }
   try {
     const res = await fetch(`${API_BASE_URL}/public/products`, {
       next: { revalidate: 60 },
@@ -340,6 +357,10 @@ export async function getPublicProducts(): Promise<PublicProduct[]> {
  * Fetch public product by slug
  */
 export async function getPublicProductBySlug(slug: string): Promise<PublicProduct | null> {
+  if (isDemo()) {
+    const found = DEMO_PRODUCTS.find((p) => p.slug === slug);
+    return found || null;
+  }
   try {
     const res = await fetch(`${API_BASE_URL}/public/products/${encodeURIComponent(slug)}`, {
       next: { revalidate: 60 },
@@ -369,6 +390,18 @@ export async function getPublicPosts(params?: {
 }): Promise<{ data: PublicPost[]; total: number; page: number; pageSize: number }> {
   const page = Math.max(1, params?.page || 1);
   const pageSize = Math.max(1, params?.pageSize || 6);
+
+  if (isDemo()) {
+    const publishedOnly = DEMO_POSTS.filter((p) => p.status !== 'DRAFT');
+    const start = (page - 1) * pageSize;
+    const paged = publishedOnly.slice(start, start + pageSize);
+    return {
+      data: paged,
+      total: publishedOnly.length,
+      page,
+      pageSize,
+    };
+  }
 
   try {
     const res = await fetch(`${API_BASE_URL}/public/posts?page=${page}&pageSize=${pageSize}`, {
@@ -407,6 +440,13 @@ export async function getPublicPosts(params?: {
  * Fetch public post by slug (only returns if published)
  */
 export async function getPublicPostBySlug(slug: string): Promise<PublicPost | null> {
+  if (isDemo()) {
+    const found = DEMO_POSTS.find((p) => p.slug === slug);
+    if (found && found.status === 'PUBLISHED') {
+      return found;
+    }
+    return null;
+  }
   try {
     const res = await fetch(`${API_BASE_URL}/public/posts/${encodeURIComponent(slug)}`, {
       next: { revalidate: 60 },
@@ -435,6 +475,9 @@ export async function getPublicPostBySlug(slug: string): Promise<PublicPost | nu
  * Fetch public page by slug
  */
 export async function getPublicPageBySlug(slug: string): Promise<PublicPage | null> {
+  if (isDemo()) {
+    return DEMO_PAGES[slug] || null;
+  }
   try {
     const res = await fetch(`${API_BASE_URL}/public/pages/${encodeURIComponent(slug)}`, {
       next: { revalidate: 60 },
@@ -529,6 +572,16 @@ export async function getPublicTours(query?: {
   page?: number;
   pageSize?: number;
 }): Promise<PublicTour[]> {
+  if (isDemo()) {
+    let result = [...DEMO_TOURS];
+    if (query?.search) {
+      const q = query.search.toLowerCase();
+      result = result.filter(
+        (t) => t.name.toLowerCase().includes(q) || t.description.toLowerCase().includes(q),
+      );
+    }
+    return result;
+  }
   try {
     const searchParams = new URLSearchParams();
     if (query?.search) searchParams.set('search', query.search);
@@ -562,6 +615,10 @@ export async function getPublicTours(query?: {
  * Fetch public tour by slug (with available slots)
  */
 export async function getPublicTourBySlug(slug: string): Promise<PublicTour | null> {
+  if (isDemo()) {
+    const found = DEMO_TOURS.find((t) => t.slug === slug);
+    return found || null;
+  }
   try {
     const res = await fetch(`${API_BASE_URL}/public/tours/${encodeURIComponent(slug)}`, {
       next: { revalidate: 60 },
@@ -610,6 +667,9 @@ export async function createPublicBooking(data: {
   notes?: string;
   paymentMethod?: string;
 }): Promise<PublicBookingView> {
+  if (isDemo()) {
+    throw new Error('Đây là bản demo, thao tác không được gửi đi.');
+  }
   const res = await fetch(`${API_BASE_URL}/public/bookings`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -629,6 +689,9 @@ export async function createPublicBooking(data: {
  * Lookup public booking by code and phone
  */
 export async function lookupPublicBooking(code: string, phone: string): Promise<PublicBookingView> {
+  if (isDemo()) {
+    throw new Error('Đây là bản demo, thao tác không được gửi đi.');
+  }
   const params = new URLSearchParams({ code, phone });
   const res = await fetch(`${API_BASE_URL}/public/bookings/lookup?${params.toString()}`, {
     cache: 'no-store',
@@ -647,6 +710,9 @@ export async function lookupPublicBooking(code: string, phone: string): Promise<
  * Get public booking by code (for booking success page)
  */
 export async function getPublicBookingByCode(code: string): Promise<PublicBookingView | null> {
+  if (isDemo()) {
+    return DEMO_BOOKINGS[code] || DEMO_BOOKINGS['XF-BK-DEMO-01'] || null;
+  }
   try {
     const res = await fetch(`${API_BASE_URL}/public/bookings/${encodeURIComponent(code)}`, {
       cache: 'no-store',
@@ -659,4 +725,35 @@ export async function getPublicBookingByCode(code: string): Promise<PublicBookin
     // fallback
   }
   return null;
+}
+
+/**
+ * Get public trace data by code
+ */
+export async function getPublicTraceData(code: string): Promise<Record<string, unknown> | null> {
+  if (isDemo()) {
+    return (DEMO_TRACE_DATA[code] as unknown as Record<string, unknown>) || null;
+  }
+  const url = `${API_BASE_URL}/public/trace/${encodeURIComponent(code)}`;
+  try {
+    const res = await fetch(url, {
+      cache: 'no-store',
+      headers: {
+        Accept: 'application/json',
+      },
+    });
+
+    if (res.status === 404 || !res.ok) {
+      return null;
+    }
+
+    const json = await res.json();
+    const data = (json.data ?? json) as Record<string, unknown>;
+    if (!data || !data.lot) {
+      return null;
+    }
+    return data;
+  } catch {
+    return null;
+  }
 }

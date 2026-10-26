@@ -56,9 +56,15 @@ export function LookupView() {
   });
 
   const performLookup = useCallback(async (data: WebshopOrderLookupInput) => {
-    setLoading(true);
     setErrorMsg(null);
     setOrder(null);
+
+    if (process.env.NEXT_PUBLIC_DEMO === '1') {
+      setErrorMsg('Đây là bản demo, thao tác không được gửi đi.');
+      return;
+    }
+
+    setLoading(true);
 
     try {
       const query = new URLSearchParams({

@@ -3,9 +3,14 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { ChevronRight, ArrowLeft, Calendar, User } from 'lucide-react';
-import { getPublicPostBySlug, formatDate, getSiteSettings } from '@/lib/public-api';
-import { getSiteUrl } from '@/lib/site-url';
+import { getPublicPostBySlug, getPublicPosts, formatDate, getSiteSettings } from '@/lib/public-api';
+import { getSiteUrl, getAssetPath } from '@/lib/site-url';
 import { sanitizeHtml } from '@/lib/sanitize';
+
+export async function generateStaticParams() {
+  const result = await getPublicPosts({ page: 1, pageSize: 100 });
+  return (result.data || []).map((p) => ({ slug: p.slug }));
+}
 
 interface BlogPostDetailPageProps {
   params: Promise<{ slug: string }>;
@@ -158,7 +163,7 @@ export default async function BlogPostDetailPage({ params }: BlogPostDetailPageP
             coverSrc.startsWith('/')) && (
             <div className="relative aspect-16/9 w-full rounded-3xl overflow-hidden bg-surface-2 shadow-xs border border-line">
               <Image
-                src={coverSrc}
+                src={getAssetPath(coverSrc)}
                 alt={post.title}
                 fill
                 priority

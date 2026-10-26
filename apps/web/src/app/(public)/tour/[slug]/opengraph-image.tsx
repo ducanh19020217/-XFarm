@@ -2,6 +2,7 @@ import { ImageResponse } from 'next/og';
 import { getPublicTourBySlug, formatCurrency } from '@/lib/public-api';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-static';
 export const alt = 'Tour du lịch trải nghiệm XFarm';
 export const size = {
   width: 1200,

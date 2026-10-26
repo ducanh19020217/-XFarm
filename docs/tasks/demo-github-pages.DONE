@@ -1,0 +1,40 @@
+# Hoàn thành task: demo-github-pages
+
+## 1. Tóm tắt việc đã làm
+- **Bộ dữ liệu mẫu tự đủ (Fixtures)**:
+  - Tạo `apps/web/src/demo/fixtures.ts` chứa dữ liệu tĩnh không có thông tin thật hay tên công ty thương mại (8 sản phẩm sạch, 3 bài viết blog canh tác hữu cơ, 3 tour trải nghiệm sinh thái tuần hoàn, 3 lô thu hoạch minh bạch kèm mã truy xuất `RAU-2026-001`, `TRUNG-2026-002`, `CA-2026-003`, cấu hình trang trại và đơn hàng/booking mẫu).
+  - Tích hợp cờ `NEXT_PUBLIC_DEMO=1` vào `apps/web/src/lib/public-api.ts`: trả về trực tiếp fixtures mà không gửi bất kỳ HTTP `fetch` nào tới backend.
+  - Viết bộ unit test toàn diện cho demo mode trong `apps/web/src/lib/public-api.test.ts` (16 tests pass).
+- **Trải nghiệm người dùng và giao diện demo**:
+  - Thêm banner nhỏ cố định trên tất cả các trang công khai: "Bản demo – dữ liệu mẫu" kèm link dẫn về GitHub repository `https://github.com/ducanh19020217/-XFarm`.
+  - Cập nhật các form tương tác (`thanh-toan/checkout-view.tsx`, `tour/[slug]/_components/booking-section.tsx`, `lien-he/contact-form.tsx`, `tra-cuu-don/lookup-view.tsx`, `tour/tra-cuu/_components/lookup-client.tsx`) để hiển thị thông báo thân thiện: "Đây là bản demo, thao tác không được gửi đi", không phát sinh lỗi mạng.
+  - Hỗ trợ giỏ hàng qua localStorage (`gio-hang/cart-view.tsx`).
+- **Cấu hình Static Export**:
+  - `apps/web/next.config.ts`: khi `NEXT_PUBLIC_DEMO=1`, tự động chuyển sang `output: 'export'`, `basePath: '/-XFarm'` (cho phép ghi đè qua `DEMO_BASE_PATH`), `images: { unoptimized: true }`, tắt Serwist PWA và API rewrites.
+  - Bổ sung helper `getAssetPath` (`apps/web/src/lib/site-url.ts`) tiền tố chính xác `/-XFarm` cho tất cả ảnh SVG mẫu (`public/demo/*.svg`).
+  - Thêm `generateStaticParams` cho tất cả các dynamic route công khai (`san-pham/[slug]`, `blog/[slug]`, `tour/[slug]`, `trace/[code]`, `dat-hang-thanh-cong/[code]`, `tour/dat-cho-thanh-cong/[code]`).
+  - Cấu hình `export const dynamic = 'force-static'` cho `robots.ts`, `sitemap.ts`, `manifest.ts`, `opengraph-image.tsx`.
+- **Pipeline Build & Verify Demo**:
+  - Tạo `apps/web/scripts/build-demo.mjs` (`pnpm --filter web build:demo`): tạm thời stash các trang SSR admin/login/middleware, inject trang tĩnh thông báo "Bản demo giới hạn: Tính năng quản trị chỉ có ở bản cài đặt đầy đủ", xuất ra `apps/web/out`, tự động tạo tệp `.nojekyll` và `-XFarm.txt`, sau đó khôi phục nguyên trạng tệp nguồn trong khối `finally`.
+  - Tạo `apps/web/scripts/verify-demo-pages.mjs`: khởi động HTTP server tĩnh phục vụ `apps/web/out` dưới `/-XFarm/` và dùng Playwright kiểm tra 22 route chính cùng 3 route fallback hạn chế, bắt lỗi 404 ngoài dự kiến và console error.
+- **CI/CD GitHub Actions**:
+  - Tạo `.github/workflows/pages.yml`: kích hoạt khi push lên `main` (có lọc path `apps/web/**`, `packages/**`, `.github/workflows/pages.yml`) hoặc chạy thủ công `workflow_dispatch`.
+  - Cấu hình Node 22 LTS, pnpm 9, `pnpm --filter web build:demo`, upload artifact `apps/web/out` và deploy lên GitHub Pages với quyền `pages: write`, `id-token: write`.
+- **Chụp ảnh màn hình & Tài liệu**:
+  - Đường dẫn ảnh chụp trang chủ:
+    - Desktop (1440px): `docs/screenshots/demo-home-1440.png`
+    - Mobile (375px): `docs/screenshots/demo-home-375.png`
+  - Cập nhật `README.md` (mục 6: Bản demo tĩnh GitHub Pages, link truy cập, lệnh build và hướng dẫn kích hoạt Settings → Pages → Source: GitHub Actions).
+  - Ghi nhận `DECISION-018` vào `docs/DECISIONS.md`.
+
+## 2. Kết quả các lệnh kiểm tra
+- `pnpm format:check`: PASS (All matched files use Prettier code style!)
+- `pnpm lint`: PASS (8/8 turbo tasks successful, 0 errors)
+- `pnpm typecheck`: PASS (8/8 turbo tasks successful, 0 errors)
+- `pnpm test`: PASS (Web: 43 test files, 321 tests passed; Shared: 21 test files, 152 tests passed; API: 3 suites, 30 tests passed; 8/8 tasks successful)
+- `pnpm --filter web build:demo`: PASS (115/115 static pages prerendered ra `apps/web/out`)
+- `node apps/web/scripts/verify-demo-pages.mjs`: PASS (22 route chính HTTP 200; 3 route fallback hạn chế trả HTTP 404 có chủ đích; 0 lỗi console)
+- `pnpm --filter web build`: PASS (76/76 pages, chế độ production tiêu chuẩn giữ nguyên 100% tính năng SSR/PWA)
+
+## 3. Những việc chưa làm được và lý do
+- Không có. Toàn bộ phạm vi và yêu cầu trong `docs/tasks/demo-github-pages.md` và `.agenthub/task.md` đã được thực hiện trọn vẹn.

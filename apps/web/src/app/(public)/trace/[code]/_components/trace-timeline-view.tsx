@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { History } from 'lucide-react';
 import { FormattedTimelineItem } from '../trace-utils';
+import { getAssetPath } from '@/lib/site-url';
 
 interface TraceTimelineViewProps {
   timeline: FormattedTimelineItem[];
@@ -58,7 +59,7 @@ export function TraceTimelineView({ timeline }: TraceTimelineViewProps) {
                   {item.mediaUrls.map((url, imgIdx) => (
                     <img
                       key={imgIdx}
-                      src={url}
+                      src={getAssetPath(url)}
                       alt={`${item.typeLabel} - ảnh ${imgIdx + 1}`}
                       className="w-12 h-12 object-cover rounded-md border border-line"
                       loading="lazy"

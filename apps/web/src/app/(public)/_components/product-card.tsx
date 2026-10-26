@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ShoppingBag, ArrowRight } from 'lucide-react';
 import { formatCurrency, type PublicProduct } from '@/lib/public-api';
+import { getAssetPath } from '@/lib/site-url';
 import { AddToCartButton } from './add-to-cart-button';
 
 interface ProductCardProps {
@@ -21,7 +22,7 @@ export function ProductCard({ product }: ProductCardProps) {
           imageSrc.startsWith('https://') ||
           imageSrc.startsWith('/')) ? (
           <Image
-            src={imageSrc}
+            src={getAssetPath(imageSrc)}
             alt={product.name}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"

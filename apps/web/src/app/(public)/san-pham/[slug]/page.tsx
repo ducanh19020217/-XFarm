@@ -3,10 +3,15 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { ChevronRight, ArrowLeft, ShieldCheck, Truck, RefreshCw } from 'lucide-react';
-import { getPublicProductBySlug, formatCurrency } from '@/lib/public-api';
-import { getSiteUrl } from '@/lib/site-url';
+import { getPublicProductBySlug, getPublicProducts, formatCurrency } from '@/lib/public-api';
+import { getSiteUrl, getAssetPath } from '@/lib/site-url';
 import { sanitizeHtml } from '@/lib/sanitize';
 import { AddToCartButton } from '../../_components/add-to-cart-button';
+
+export async function generateStaticParams() {
+  const products = await getPublicProducts();
+  return products.map((p) => ({ slug: p.slug }));
+}
 
 interface ProductDetailPageProps {
   params: Promise<{ slug: string }>;
@@ -127,7 +132,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
               imageSrc.startsWith('https://') ||
               imageSrc.startsWith('/')) ? (
               <Image
-                src={imageSrc}
+                src={getAssetPath(imageSrc)}
                 alt={product.name}
                 fill
                 priority

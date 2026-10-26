@@ -14,36 +14,31 @@ import { TraceLotCard } from './_components/trace-lot-card';
 import { TraceTimelineView } from './_components/trace-timeline-view';
 import { TraceLightbox } from './_components/trace-lightbox';
 import { TraceFooter } from './_components/trace-footer';
-import { API_BASE_URL } from '@/lib/public-api';
+import {
+  API_BASE_URL,
+  getPublicTraceData,
+  getSiteSettings as getGlobalSiteSettings,
+} from '@/lib/public-api';
 
-export const dynamic = 'force-dynamic';
+export function generateStaticParams() {
+  return [{ code: 'RAU-2026-001' }, { code: 'TRUNG-2026-002' }, { code: 'CA-2026-003' }];
+}
 
 async function getTraceData(code: string): Promise<PublicTraceData | null> {
-  const url = `${API_BASE_URL}/public/trace/${encodeURIComponent(code)}`;
-  try {
-    const res = await fetch(url, {
-      cache: 'no-store',
-      headers: {
-        Accept: 'application/json',
-      },
-    });
-
-    if (res.status === 404 || !res.ok) {
-      return null;
-    }
-
-    const json = await res.json();
-    const data = (json.data ?? json) as PublicTraceData;
-    if (!data || !data.lot) {
-      return null;
-    }
-    return data;
-  } catch {
-    return null;
-  }
+  return (await getPublicTraceData(code)) as PublicTraceData | null;
 }
 
 async function getSiteSettings(): Promise<PublicSiteSettings> {
+  if (process.env.NEXT_PUBLIC_DEMO === '1') {
+    const data = await getGlobalSiteSettings();
+    return {
+      farmName: data['farm.name'] || DEFAULT_SITE_SETTINGS.farmName,
+      slogan: data['farm.slogan'] || DEFAULT_SITE_SETTINGS.slogan,
+      phone: data['contact.phone'] || DEFAULT_SITE_SETTINGS.phone,
+      email: data['contact.email'] || DEFAULT_SITE_SETTINGS.email,
+      address: data['contact.address'] || DEFAULT_SITE_SETTINGS.address,
+    };
+  }
   const url = `${API_BASE_URL}/public/site-settings`;
   try {
     const res = await fetch(url, {

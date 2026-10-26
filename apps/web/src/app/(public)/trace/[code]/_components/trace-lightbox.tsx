@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { X, ChevronLeft, ChevronRight, Image as ImageIcon } from 'lucide-react';
+import { getAssetPath } from '@/lib/site-url';
 
 interface TraceLightboxProps {
   photos: Array<{ url: string; caption?: string }>;
@@ -57,7 +58,7 @@ export function TraceLightbox({ photos }: TraceLightboxProps) {
           >
             {/* Using standard img for external/user-uploaded media in Next.js without fixed domain config */}
             <img
-              src={photo.url}
+              src={getAssetPath(photo.url)}
               alt={photo.caption || `Hình ảnh lô sản phẩm ${idx + 1}`}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
               loading="lazy"
@@ -120,7 +121,7 @@ export function TraceLightbox({ photos }: TraceLightboxProps) {
             onClick={(e) => e.stopPropagation()}
           >
             <img
-              src={currentPhoto.url}
+              src={getAssetPath(currentPhoto.url)}
               alt={currentPhoto.caption || `Ảnh ${selectedIndex + 1}`}
               className="max-h-[75vh] max-w-full rounded-lg object-contain shadow-2xl"
             />

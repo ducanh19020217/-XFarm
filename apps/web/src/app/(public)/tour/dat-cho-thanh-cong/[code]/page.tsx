@@ -2,6 +2,10 @@ import type { Metadata } from 'next';
 import { getPublicBookingByCode, getSiteSettings } from '@/lib/public-api';
 import { BookingSuccessClient } from './_components/booking-success-client';
 
+export function generateStaticParams() {
+  return [{ code: 'XF-BK-DEMO-01' }];
+}
+
 interface Props {
   params: Promise<{ code: string }>;
 }

@@ -134,3 +134,33 @@ pnpm db:seed:content -- --reset-content
 # Xóa toàn bộ dữ liệu demo (dọn sạch DEMO12- trước rồi dọn DEMO-)
 pnpm db:seed:content -- --reset-content --with-demo
 ```
+
+## 6. Bản demo tĩnh (GitHub Pages)
+
+Website công khai của XFarm được xuất bản dưới dạng **bản demo tĩnh (Static Export)** chạy trực tiếp trên GitHub Pages:
+
+- **Địa chỉ truy cập**: [https://ducanh19020217.github.io/-XFarm/](https://ducanh19020217.github.io/-XFarm/)
+- **Đặc điểm**:
+  - Không yêu cầu backend (NestJS), database (PostgreSQL), Redis hay Object Storage (MinIO).
+  - Tự đủ dữ liệu với bộ fixtures tĩnh (`apps/web/src/demo/fixtures.ts`) và ảnh minh họa SVG (`apps/web/public/demo/*.svg`).
+  - Hỗ trợ đầy đủ các trang công khai: Trang chủ, Giới thiệu (`/gioi-thieu`), Sản phẩm (`/san-pham`, `/san-pham/[slug]`), Blog (`/blog`, `/blog/[slug]`), Tour trải nghiệm (`/tour`, `/tour/[slug]`), Liên hệ (`/lien-he`), Truy xuất nguồn gốc (`/trace/[code]`), Giỏ hàng & Thanh toán mô phỏng.
+  - Các thao tác cần backend (đặt hàng, đặt tour, gửi liên hệ, tra cứu đơn) hiển thị thông báo mô phỏng thân thiện "Đây là bản demo, thao tác không được gửi đi".
+  - Khu vực quản trị (`/admin`), đăng nhập (`/login`) và PWA công nhân được thay bằng thông báo giới hạn tính năng.
+
+### Lệnh build và kiểm tra bản demo cục bộ
+
+```bash
+# Build bản demo tĩnh (xuất ra apps/web/out với basePath /-XFarm)
+pnpm --filter web build:demo
+
+# Kiểm tra tự động các trang demo bằng Playwright và server tĩnh
+node apps/web/scripts/verify-demo-pages.mjs
+```
+
+### Kích hoạt GitHub Pages trên repository
+
+Để kích hoạt tính năng tự động deploy demo qua GitHub Actions:
+
+1. Vào repository trên GitHub: **Settings** → **Pages**.
+2. Tại mục **Build and deployment** > **Source**, chọn **GitHub Actions**.
+3. Workflow `.github/workflows/pages.yml` sẽ tự động kích hoạt khi có thay đổi trên nhánh `main` và deploy lên Pages.

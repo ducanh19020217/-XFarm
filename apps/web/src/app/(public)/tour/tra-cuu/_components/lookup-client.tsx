@@ -51,6 +51,11 @@ export function LookupClient() {
       return;
     }
 
+    if (process.env.NEXT_PUBLIC_DEMO === '1') {
+      setError('Đây là bản demo, thao tác không được gửi đi.');
+      return;
+    }
+
     setLoading(true);
     setError(null);
     try {

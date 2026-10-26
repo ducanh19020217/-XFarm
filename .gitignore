@@ -10,6 +10,9 @@ node_modules/
 dist/
 .next/
 out/
+apps/web/out/
+.temp-*
+apps/web/.temp-*
 apps/web/public/sw.js*
 apps/web/public/swe-worker-*
 apps/web/public/workbox-*

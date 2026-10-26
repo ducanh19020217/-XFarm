@@ -157,6 +157,9 @@ export function BookingSection({ tour, initialSlots }: BookingSectionProps) {
 
   // Refresh slots from API
   const reloadSlots = React.useCallback(async () => {
+    if (process.env.NEXT_PUBLIC_DEMO === '1') {
+      return;
+    }
     setRefreshingSlots(true);
     try {
       const res = await fetch(`${API_BASE_URL}/public/tours/${encodeURIComponent(tour.slug)}`, {
@@ -218,6 +221,11 @@ export function BookingSection({ tour, initialSlots }: BookingSectionProps) {
     const trimmedPhone = phone.trim();
     if (!trimmedPhone || !/(^(03|05|07|08|09)\d{8}$)|(^\+84(3|5|7|8|9)\d{8}$)/.test(trimmedPhone)) {
       setErrorMessage('Số điện thoại không hợp lệ (ví dụ: 0901234567 hoặc +84901234567).');
+      return;
+    }
+
+    if (process.env.NEXT_PUBLIC_DEMO === '1') {
+      setErrorMessage('Đây là bản demo, thao tác không được gửi đi.');
       return;
     }
 

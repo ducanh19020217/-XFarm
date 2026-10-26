@@ -11,12 +11,20 @@ import {
   ShieldCheck,
   MapPin,
 } from 'lucide-react';
-import { getPublicTourBySlug, getSiteSettings, formatCurrency } from '@/lib/public-api';
-import { getSiteUrl } from '@/lib/site-url';
+import {
+  getPublicTourBySlug,
+  getPublicTours,
+  getSiteSettings,
+  formatCurrency,
+} from '@/lib/public-api';
+import { getSiteUrl, getAssetPath } from '@/lib/site-url';
 import { sanitizeHtml } from '@/lib/sanitize';
 import { BookingSection } from './_components/booking-section';
 
-export const revalidate = 60;
+export async function generateStaticParams() {
+  const tours = await getPublicTours();
+  return tours.map((t) => ({ slug: t.slug }));
+}
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -180,7 +188,7 @@ export default async function TourDetailPage({ params }: Props) {
             coverImage.startsWith('https://') ||
             coverImage.startsWith('/')) ? (
             <Image
-              src={coverImage}
+              src={getAssetPath(coverImage)}
               alt={tour.name}
               fill
               priority

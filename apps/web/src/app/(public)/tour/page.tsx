@@ -5,8 +5,6 @@ import { getPublicTours, getSiteSettings } from '@/lib/public-api';
 import { getSiteUrl } from '@/lib/site-url';
 import { TourCard } from '../_components/tour-card';
 
-export const revalidate = 60;
-
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
   const farmName = settings['farm.name'] || 'XFarm – Nông trại sinh thái';

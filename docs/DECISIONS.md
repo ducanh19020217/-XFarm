@@ -147,3 +147,28 @@ Tài liệu này ghi lại các quyết định thiết kế và kỹ thuật qu
 - **Bối cảnh**: Client đã gom các request refresh trong cùng một bundle, nhưng nhiều tab, prefetch hoặc request tới nhiều instance API vẫn có thể gửi cùng refresh token đồng thời. Rotation khi đó chỉ cho một request thành công; request còn lại nhận 401 và có thể làm layout điều hướng sai về `/admin`.
 - **Quyết định**: Trong mỗi instance API, các request refresh đồng thời có cùng raw token dùng chung một Promise rotation. Tất cả request trong nhóm nhận cùng access/refresh token mới; token cũ vẫn được revoke một lần. Việc dùng lại token sau cửa sổ grace 30 giây vẫn kích hoạt cơ chế revoke toàn bộ phiên như DECISION-003.
 - **Hệ quả**: Refresh race trong một instance không làm mất phiên hoặc ghi đè cookie bằng kết quả lỗi. Với deployment nhiều instance, client single-flight vẫn là lớp chính; cần shared lock/cache nếu mở rộng theo chiều ngang.
+
+---
+
+### DECISION-018: Xuất bản website công khai lên GitHub Pages dạng demo tĩnh (Static Export)
+- **Bối cảnh**:
+  - Cần một bản demo công khai để người dùng truy cập trực tiếp tại `https://ducanh19020217.github.io/-XFarm/` mà không phải duy trì hạ tầng máy chủ (NestJS, PostgreSQL, Redis, MinIO).
+  - GitHub Pages chỉ phục vụ các tệp tĩnh từ nhánh hoặc qua GitHub Actions deployment artifact.
+  - Phân hệ quản trị (`/admin`), màn hình đăng nhập (`/login`) và PWA công nhân (`/admin/m`) sử dụng SSR, middleware xác thực, dynamic route và dynamic server logic không tương thích với `output: 'export'`.
+- **Quyết định**:
+  1. **Chế độ Demo (`NEXT_PUBLIC_DEMO=1`)**:
+     - `apps/web/src/lib/public-api.ts` tự động phát hiện cờ demo và trả về dữ liệu mẫu cố định từ `apps/web/src/demo/fixtures.ts` mà không gửi bất kỳ HTTP fetch nào tới backend.
+     - Các thao tác yêu cầu gửi dữ liệu lên server (đặt hàng, đặt tour, gửi liên hệ, tra cứu đơn hàng/booking) hiển thị thông báo mô phỏng "Đây là bản demo, thao tác không được gửi đi", không để phát sinh lỗi mạng.
+     - Thêm banner nhỏ cố định "Bản demo – dữ liệu mẫu" trên tất cả các trang công khai kèm liên kết tới GitHub repository.
+  2. **Kiến trúc Build Demo cô lập (`apps/web/scripts/build-demo.mjs`)**:
+     - Khi build demo, script tạm thời ẩn (stash) các thư mục quản trị và middleware động (`src/app/admin`, `src/app/login`, `src/middleware.ts`), thay thế bằng các trang placeholder tĩnh thông báo giới hạn tính năng.
+     - Thư mục kiểu dữ liệu dùng chung (`src/app/admin/hr/common/types.ts`) vẫn được giữ lại để TypeScript compile thành công.
+     - Cấu hình Next.js tự động chuyển `output: 'export'`, `basePath: '/-XFarm'` (cho phép ghi đè qua `DEMO_BASE_PATH`), `images: { unoptimized: true }`, tắt Serwist PWA và API rewrites.
+     - Tự động sinh tệp `.nojekyll` và tệp sao chép `-XFarm.txt` để hỗ trợ RSC prefetch trên GitHub Pages.
+     - Khôi phục nguyên vẹn 100% cấu trúc tệp mã nguồn ban đầu trong khối `finally`, không gây tác động ngoài ý muốn tới build production tiêu chuẩn.
+  3. **Tự động hóa CI/CD (.github/workflows/pages.yml)**:
+     - Kích hoạt khi có thay đổi trên `main` liên quan tới `apps/web/**`, `packages/**` hoặc file workflow.
+     - Sử dụng Node.js 22, pnpm 9, thực thi `pnpm --filter web build:demo`, upload artifact `apps/web/out` và deploy an toàn qua OpenID Connect (`id-token: write`, `pages: write`).
+- **Hệ quả**:
+  - Website công khai chạy độc lập, mượt mà và trực quan trên GitHub Pages với 0 lỗi mạng, 0 lỗi 404 hình ảnh và 0 lỗi console.
+  - Mã nguồn production và quy trình build chuẩn (`pnpm build`) hoàn toàn không bị ảnh hưởng, giữ nguyên 76 routes đầy đủ tính năng SSR và PWA.
