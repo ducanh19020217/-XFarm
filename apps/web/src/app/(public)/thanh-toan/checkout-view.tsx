@@ -12,6 +12,7 @@ import {
   formatCurrency,
   type PublicProduct,
   FALLBACK_PRODUCTS,
+  getPublicProducts,
   API_BASE_URL,
 } from '@/lib/public-api';
 
@@ -28,15 +29,11 @@ export function CheckoutView() {
     let cancelled = false;
     async function loadProducts() {
       try {
-        const res = await fetch(`${API_BASE_URL}/public/products`);
-        if (res.ok) {
-          const body = await res.json();
-          const list = Array.isArray(body) ? body : Array.isArray(body.data) ? body.data : [];
-          if (!cancelled && list.length > 0) {
-            setProducts(list);
-            setLoadingProducts(false);
-            return;
-          }
+        const list = await getPublicProducts();
+        if (!cancelled && list.length > 0) {
+          setProducts(list);
+          setLoadingProducts(false);
+          return;
         }
       } catch {
         // Fallback
@@ -105,6 +102,12 @@ export function CheckoutView() {
   const onSubmit = async (data: WebshopCheckoutInput) => {
     setApiError(null);
     setIsSubmitting(true);
+
+    if (process.env.NEXT_PUBLIC_DEMO === '1') {
+      setApiError('Đây là bản demo, thao tác không được gửi đi.');
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
       const res = await fetch(`${API_BASE_URL}/public/orders`, {

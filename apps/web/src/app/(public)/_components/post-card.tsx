@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Calendar, ArrowRight, BookOpen } from 'lucide-react';
 import { formatDate, type PublicPost } from '@/lib/public-api';
+import { getAssetPath } from '@/lib/site-url';
 
 interface PostCardProps {
   post: PublicPost;
@@ -19,7 +20,7 @@ export function PostCard({ post }: PostCardProps) {
           coverSrc.startsWith('https://') ||
           coverSrc.startsWith('/')) ? (
           <Image
-            src={coverSrc}
+            src={getAssetPath(coverSrc)}
             alt={post.title}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"

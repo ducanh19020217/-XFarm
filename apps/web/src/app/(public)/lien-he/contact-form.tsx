@@ -13,6 +13,7 @@ export function ContactForm({ recipientEmail = 'hello@xfarm.local' }: ContactFor
   const [phone, setPhone] = useState('');
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
+  const [demoNotice, setDemoNotice] = useState<string | null>(null);
 
   const buildMailtoUrl = () => {
     const encodedSubject = encodeURIComponent(
@@ -25,6 +26,10 @@ export function ContactForm({ recipientEmail = 'hello@xfarm.local' }: ContactFor
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (process.env.NEXT_PUBLIC_DEMO === '1') {
+      setDemoNotice('Đây là bản demo, thao tác không được gửi đi.');
+      return;
+    }
     window.location.href = buildMailtoUrl();
   };
 
@@ -113,6 +118,15 @@ export function ContactForm({ recipientEmail = 'hello@xfarm.local' }: ContactFor
           className="w-full px-4 py-2.5 rounded-xl border border-line bg-surface text-fg placeholder:text-muted focus:border-accent focus:ring-2 focus:ring-accent/30 text-sm outline-hidden transition-all"
         />
       </div>
+
+      {demoNotice && (
+        <div
+          role="status"
+          className="p-3 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-200 border border-amber-200 dark:border-amber-800 rounded-xl text-sm font-medium text-center"
+        >
+          {demoNotice}
+        </div>
+      )}
 
       <div className="pt-2">
         <a

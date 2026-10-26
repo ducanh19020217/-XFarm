@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight, ArrowRight, ShieldCheck } from 'lucide-react';
+import { getAssetPath } from '@/lib/site-url';
 
 interface BannerItem {
   title?: string;
@@ -20,19 +21,19 @@ const DEFAULT_SLIDES: BannerItem[] = [
     title: 'Nông nghiệp sinh thái tuần hoàn bền vững',
     subtitle:
       'Canh tác 100% không hóa chất độc hại, ứng dụng vi sinh hữu cơ tuần hoàn để bảo vệ sức khỏe gia đình bạn.',
-    image: '/demo/banner-1.svg',
+    image: getAssetPath('/demo/banner-1.svg'),
   },
   {
     title: 'Nông sản tươi ngon từ đất mẹ',
     subtitle:
       'Thu hoạch từ sáng sớm tinh sương, đóng gói đạt chuẩn VietGAP và giao ngay đến tận bếp nhà bạn.',
-    image: '/demo/banner-2.svg',
+    image: getAssetPath('/demo/banner-2.svg'),
   },
   {
     title: 'Du lịch trải nghiệm sinh thái cuối tuần',
     subtitle:
       'Không gian xanh mát, không khí trong lành với các hoạt động trải nghiệm bổ ích cho gia đình và trẻ nhỏ.',
-    image: '/demo/banner-3.svg',
+    image: getAssetPath('/demo/banner-3.svg'),
   },
 ];
 
@@ -87,7 +88,7 @@ export function BannerSlider({ banners }: BannerSliderProps) {
           currentSlide.image.startsWith('/')) && (
           <div className="absolute inset-0 opacity-25 pointer-events-none">
             <Image
-              src={currentSlide.image}
+              src={getAssetPath(currentSlide.image)}
               alt={currentSlide.title || 'Banner'}
               fill
               priority

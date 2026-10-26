@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Compass, Clock, Users, ArrowRight } from 'lucide-react';
 import { formatCurrency, type PublicTour } from '@/lib/public-api';
+import { getAssetPath } from '@/lib/site-url';
 
 interface TourCardProps {
   tour: PublicTour;
@@ -27,7 +28,7 @@ export function TourCard({ tour }: TourCardProps) {
           imageSrc.startsWith('https://') ||
           imageSrc.startsWith('/')) ? (
           <Image
-            src={imageSrc}
+            src={getAssetPath(imageSrc)}
             alt={tour.name}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"

@@ -9,8 +9,9 @@ import {
   formatCurrency,
   type PublicProduct,
   FALLBACK_PRODUCTS,
-  API_BASE_URL,
+  getPublicProducts,
 } from '@/lib/public-api';
+import { getAssetPath } from '@/lib/site-url';
 
 export function CartView() {
   const { items, updateQuantity, removeFromCart, isLoaded } = useCart();
@@ -21,15 +22,11 @@ export function CartView() {
     let isCancelled = false;
     async function loadProducts() {
       try {
-        const res = await fetch(`${API_BASE_URL}/public/products`);
-        if (res.ok) {
-          const body = await res.json();
-          const list = Array.isArray(body) ? body : Array.isArray(body.data) ? body.data : [];
-          if (!isCancelled && list.length > 0) {
-            setProducts(list);
-            setLoadingProducts(false);
-            return;
-          }
+        const list = await getPublicProducts();
+        if (!isCancelled && list.length > 0) {
+          setProducts(list);
+          setLoadingProducts(false);
+          return;
         }
       } catch {
         // Fallback
@@ -146,7 +143,7 @@ export function CartView() {
                       imageSrc.startsWith('https://') ||
                       imageSrc.startsWith('/')) ? (
                       <Image
-                        src={imageSrc}
+                        src={getAssetPath(imageSrc)}
                         alt={product?.name ?? 'Sản phẩm'}
                         fill
                         sizes="80px"
