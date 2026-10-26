@@ -26,7 +26,7 @@ const tempOgTourFile = path.join(webDir, '.temp-og-tour.tsx');
 const outDir = path.join(webDir, 'out');
 const nextDir = path.join(webDir, '.next');
 
-const demoNoticePageContent = `'use client';
+const demoNoticePageContent = `
 
 import Link from 'next/link';
 import { ShieldAlert, ArrowLeft } from 'lucide-react';
@@ -85,8 +85,33 @@ function getDemoAdminPaths(directory, relativeDirectory = '') {
   return paths;
 }
 
-function createDemoAdminPage() {
-  return demoNoticePageContent;
+function getDemoAdminStaticParams(directory) {
+  const paths = getDemoAdminPaths(directory);
+  const params = new Map();
+
+  for (const pathSegments of paths) {
+    params.set(JSON.stringify(pathSegments), pathSegments);
+
+    // Static export cannot serve arbitrary dynamic segments. Generate a few
+    // representative IDs so every admin/PWA route family still has a demo page.
+    if (pathSegments.includes('demo')) {
+      for (const value of ['123', 'abc']) {
+        const variant = pathSegments.map((segment) => (segment === 'demo' ? value : segment));
+        params.set(JSON.stringify(variant), variant);
+      }
+    }
+  }
+
+  return [...params.values()].map((slug) => ({ slug }));
+}
+
+function createDemoAdminCatchAllPage(staticParams) {
+  return `${demoNoticePageContent}
+
+export function generateStaticParams() {
+  return ${JSON.stringify(staticParams)};
+}
+`;
 }
 
 let cleanedUp = false;
@@ -182,15 +207,13 @@ async function main() {
     fs.mkdirSync(adminDir, { recursive: true });
     fs.writeFileSync(path.join(adminDir, 'page.tsx'), demoNoticePageContent, 'utf-8');
 
-    const adminPaths = getDemoAdminPaths(tempAdminDir);
-    for (const routeSegments of adminPaths) {
-      const demoSegments = routeSegments.map((segment) =>
-        segment.replace(/^\[\[?\.\.\.(.+?)\]\]?$/, 'demo').replace(/^\[(.+?)\]$/, 'demo'),
-      );
-      const routeDir = path.join(adminDir, ...demoSegments);
-      fs.mkdirSync(routeDir, { recursive: true });
-      fs.writeFileSync(path.join(routeDir, 'page.tsx'), createDemoAdminPage(), 'utf-8');
-    }
+    const adminCatchAllDir = path.join(adminDir, '[...slug]');
+    fs.mkdirSync(adminCatchAllDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(adminCatchAllDir, 'page.tsx'),
+      createDemoAdminCatchAllPage(getDemoAdminStaticParams(tempAdminDir)),
+      'utf-8',
+    );
 
     // Preserve types needed by mobile-api / offline-queue
     const typesSrc = path.join(tempAdminDir, 'hr/common/types.ts');

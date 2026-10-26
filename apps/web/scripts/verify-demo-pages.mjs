@@ -202,6 +202,8 @@ async function verify() {
       '/-XFarm/tra-cuu-don',
       '/-XFarm/admin',
       '/-XFarm/admin/m',
+      '/-XFarm/admin/animals/123',
+      '/-XFarm/admin/equipment/abc',
       '/-XFarm/login',
     ];
 
