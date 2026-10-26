@@ -36,12 +36,15 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 interface BlogPageProps {
-  searchParams: Promise<{ page?: string }>;
+  searchParams?: Promise<{ page?: string }>;
 }
 
-export default async function BlogPage({ searchParams }: BlogPageProps) {
-  const { page: pageParam } = await searchParams;
-  const currentPage = Math.max(1, parseInt(pageParam || '1', 10) || 1);
+export default async function BlogPage(props: BlogPageProps) {
+  let currentPage = 1;
+  if (process.env.NEXT_PUBLIC_DEMO !== '1' && props.searchParams) {
+    const { page: pageParam } = await props.searchParams;
+    currentPage = Math.max(1, parseInt(pageParam || '1', 10) || 1);
+  }
   const pageSize = 6;
 
   const {

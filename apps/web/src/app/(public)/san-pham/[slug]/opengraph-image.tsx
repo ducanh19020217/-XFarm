@@ -2,6 +2,7 @@ import { ImageResponse } from 'next/og';
 import { getPublicProductBySlug, formatCurrency } from '@/lib/public-api';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-static';
 export const alt = 'Sản phẩm XFarm';
 export const size = {
   width: 1200,
