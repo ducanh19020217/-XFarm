@@ -22,9 +22,7 @@ export function getAssetPath(path: string): string {
   ) {
     return path;
   }
-  const isDemo =
-    typeof process !== 'undefined' &&
-    process.env.NEXT_PUBLIC_DEMO === '1';
+  const isDemo = typeof process !== 'undefined' && process.env.NEXT_PUBLIC_DEMO === '1';
   const basePath = isDemo
     ? process.env.DEMO_BASE_PATH || process.env.NEXT_PUBLIC_BASE_PATH || '/-XFarm'
     : '';
